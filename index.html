@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0a0a0c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ZombieSafe">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>ZombieSafeHouse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0c; --bg2:#121318; --bg3:#1a1c24;
+  --red:#ff3b22; --red-d:#cc2e1a; --amber:#ffb020; --green:#2be07a; --blue:#4d9fff; --pink:#ff5ca0;
+  --white:#f0f1f4; --grey:#7a8090; --grey-d:#3a3f4d; --line:rgba(255,255,255,.1); --line2:rgba(255,255,255,.05);
+  --glow-red:rgba(255,59,34,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}
+input{-webkit-user-select:text;user-select:text;}
+html,body{background:var(--bg);color:var(--white);font-family:'Archivo',sans-serif;overflow-x:hidden;}
+body{min-height:100vh;min-height:100dvh;position:relative;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.5;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");}
+.mono{font-family:'IBM Plex Mono',monospace;}.display{font-family:'Bebas Neue',sans-serif;}
+
+#app{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;position:relative;z-index:2;}
+.view{display:none;padding:calc(env(safe-area-inset-top) + 16px) 18px 120px;animation:viewIn .45s cubic-bezier(.2,.8,.2,1);}
+.view.active{display:block;}
+@keyframes viewIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes popIn{0%{opacity:0;transform:scale(.92) translateY(10px);}100%{opacity:1;transform:scale(1) translateY(0);}}
+.stagger>*{opacity:0;animation:popIn .5s cubic-bezier(.2,.8,.2,1) forwards;}
+.stagger>*:nth-child(1){animation-delay:.04s;}.stagger>*:nth-child(2){animation-delay:.1s;}.stagger>*:nth-child(3){animation-delay:.16s;}.stagger>*:nth-child(4){animation-delay:.22s;}.stagger>*:nth-child(5){animation-delay:.28s;}.stagger>*:nth-child(6){animation-delay:.34s;}.stagger>*:nth-child(7){animation-delay:.4s;}.stagger>*:nth-child(8){animation-delay:.46s;}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+
+/* STATUS / HEADER */
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+.topbar .brand-mini{font-family:'Bebas Neue';font-size:20px;letter-spacing:.02em;}
+.topbar .brand-mini .r{color:var(--red);}
+.topbar .live{font-family:'IBM Plex Mono';font-size:9px;letter-spacing:.15em;color:var(--grey);text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+.topbar .live .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{50%{opacity:.3;}}
+
+.eyebrow{font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--red);margin-bottom:10px;}
+.h-massive{font-family:'Bebas Neue';font-size:58px;line-height:.82;letter-spacing:.01em;margin-bottom:8px;}
+.h-massive .r{color:var(--red);}
+.h-section{font-family:'Bebas Neue';font-size:28px;line-height:.9;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.h-section .count{font-family:'IBM Plex Mono';font-size:10px;color:var(--grey);letter-spacing:.1em;font-weight:500;}
+
+/* BUTTONS */
+.btn{position:relative;display:block;width:100%;background:var(--red);color:#0a0a0c;border:none;padding:16px;font-family:'IBM Plex Mono';font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;margin-bottom:12px;overflow:hidden;transition:transform .1s,box-shadow .2s;box-shadow:0 4px 24px var(--glow-red);}
+.btn:active{transform:scale(.97);}
+.btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.25);transform:translateX(-100%);}
+.btn:active::after{animation:sweep .4s;}
+@keyframes sweep{to{transform:translateX(100%);}}
+.btn.ghost{background:transparent;color:var(--white);border:1.5px solid var(--line);box-shadow:none;}
+.btn.ghost:active{border-color:var(--red);}
+.btn:disabled{opacity:.35;box-shadow:none;}
+
+/* CARD / GLASS */
+.card{position:relative;background:linear-gradient(160deg,var(--bg2),var(--bg3));border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);}
+
+/* FIELD */
+.field{margin-bottom:16px;}
+.field label{display:block;font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--grey);margin-bottom:8px;}
+.field input{width:100%;background:var(--bg);border:1.5px solid var(--line);color:var(--white);padding:14px;font-family:'IBM Plex Mono';font-size:14px;border-radius:10px;transition:border-color .2s,box-shadow .2s;}
+.field input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px var(--glow-red);}
+
+/* MSG */
+.msg{font-family:'IBM Plex Mono';font-size:12px;padding:12px;margin-bottom:14px;border-radius:10px;border:1.5px solid var(--amber);color:var(--amber);background:rgba(255,176,32,.06);display:none;}
+.msg.show{display:block;animation:popIn .3s;}
+.msg.err{border-color:var(--red);color:var(--red);background:rgba(255,59,34,.06);}
+.msg.ok{border-color:var(--green);color:var(--green);background:rgba(43,224,122,.06);}
+
+/* ONBOARDING */
+#onboard{position:fixed;inset:0;z-index:150;background:var(--bg);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 30px) 26px calc(env(safe-area-inset-bottom) + 26px);max-width:480px;margin:0 auto;}
+.ob-slide{flex:1;display:none;flex-direction:column;justify-content:center;}
+.ob-slide.active{display:flex;animation:viewIn .5s;}
+.ob-icon{font-size:64px;margin-bottom:24px;animation:float 3s ease-in-out infinite;}
+@keyframes float{50%{transform:translateY(-10px);}}
+.ob-step{font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.2em;color:var(--red);margin-bottom:14px;}
+.ob-title{font-family:'Bebas Neue';font-size:52px;line-height:.86;margin-bottom:16px;}
+.ob-title .r{color:var(--red);}
+.ob-text{font-size:16px;line-height:1.5;color:var(--grey);max-width:320px;}
+.ob-nav{display:flex;align-items:center;gap:16px;margin-top:24px;}
+.ob-dots{display:flex;gap:8px;flex:1;}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:var(--grey-d);transition:all .3s;}
+.ob-dot.on{background:var(--red);width:24px;border-radius:4px;}
+.ob-skip{font-family:'IBM Plex Mono';font-size:11px;color:var(--grey);letter-spacing:.1em;background:none;border:none;cursor:pointer;text-transform:uppercase;}
+
+/* INDEX HERO + ANIMATED RING */
+.index-hero{position:relative;text-align:center;padding:28px 18px;margin-bottom:16px;border-radius:18px;background:radial-gradient(ellipse at top,rgba(255,59,34,.12),transparent 70%),linear-gradient(160deg,var(--bg2),var(--bg3));border:1px solid var(--line);overflow:hidden;}
+.index-ring{position:relative;width:200px;height:200px;margin:0 auto 12px;}
+.index-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+.index-ring .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.index-ring .num{font-family:'Bebas Neue';font-size:76px;line-height:.8;}
+.index-ring .of{font-family:'IBM Plex Mono';font-size:11px;color:var(--grey);letter-spacing:.2em;margin-top:2px;}
+.index-verdict{font-family:'IBM Plex Mono';font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
+.index-sub{font-family:'IBM Plex Mono';font-size:11px;color:var(--grey);margin-top:8px;}
+
+/* CATEGORY BARS */
+.cat-row{margin-bottom:13px;}
+.cat-row .meta{display:flex;justify-content:space-between;align-items:baseline;font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+.cat-row .meta .v{font-family:'Bebas Neue';font-size:22px;}
+.cat-row .track{height:9px;background:var(--bg);border-radius:5px;overflow:hidden;border:1px solid var(--line2);}
+.cat-row .fill{height:100%;border-radius:5px;width:0;transition:width 1s cubic-bezier(.2,.8,.2,1);}
+
+/* RADAR */
+.radar-box{padding:14px;}
+.radar-box svg{width:100%;height:auto;display:block;}
+
+/* THREATS */
+.threat{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--line2);}
+.threat:last-child{border:none;}
+.threat .n{font-family:'Bebas Neue';font-size:26px;color:var(--red);width:26px;}
+.threat .tt{font-weight:700;font-size:14px;}
+.threat .dd{font-family:'IBM Plex Mono';font-size:11px;color:var(--grey);}
+
+/* ADVICE */
+.advice{border-left:3px solid var(--green);background:var(--bg2);padding:13px 14px;margin-bottom:10px;border-radius:0 10px 10px 0;}
+.advice.p1{border-color:var(--red);}.advice.p2{border-color:var(--amber);}
+.advice .lab{font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;color:var(--green);}
+.advice.p1 .lab{color:var(--red);}.advice.p2 .lab{color:var(--amber);}
+.advice .body{font-size:13px;line-height:1.45;color:var(--white);}
+
+/* QUIZ */
+.q-head{margin-bottom:22px;}
+.q-progress-track{height:5px;background:var(--bg2);border-radius:3px;margin:10px 0;overflow:hidden;}
+.q-progress-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--amber));border-radius:3px;transition:width .4s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 10px var(--glow-red);}
+.q-cat{font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+.q-question{font-weight:800;font-size:23px;line-height:1.15;margin-bottom:20px;}
+.q-opt{position:relative;border:1.5px solid var(--line);background:var(--bg2);padding:15px;margin-bottom:10px;border-radius:12px;cursor:pointer;display:flex;align-items:center;gap:13px;transition:border-color .15s,background .15s,transform .1s;}
+.q-opt:active{transform:scale(.99);}
+.q-opt.sel{border-color:var(--red);background:rgba(255,59,34,.08);}
+.q-opt .mark{width:20px;height:20px;border:1.5px solid var(--grey-d);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;transition:all .15s;}
+.q-opt.sel .mark{background:var(--red);border-color:var(--red);color:#0a0a0c;transform:scale(1.1);}
+.q-opt .txt{font-size:14px;line-height:1.3;}
+
+/* HOUSES */
+.house{position:relative;background:linear-gradient(160deg,var(--bg2),var(--bg3));border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:transform .1s,border-color .15s;}
+.house:active{transform:scale(.99);border-color:var(--red);}
+.house .nm{font-weight:700;font-size:16px;margin-bottom:3px;}
+.house .dt{font-family:'IBM Plex Mono';font-size:10px;color:var(--grey);letter-spacing:.08em;}
+.house .sc{font-family:'Bebas Neue';font-size:42px;line-height:1;}
+
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.stat{background:linear-gradient(160deg,var(--bg2),var(--bg3));border:1px solid var(--line);border-radius:12px;padding:16px;}
+.stat .l{font-family:'IBM Plex Mono';font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);margin-bottom:6px;}
+.stat .v{font-family:'Bebas Neue';font-size:38px;line-height:.9;}
+
+/* BADGE / RANK */
+.rank-card{position:relative;text-align:center;padding:24px 18px;border-radius:16px;background:radial-gradient(ellipse at top,rgba(255,176,32,.14),transparent 70%),linear-gradient(160deg,var(--bg2),var(--bg3));border:1px solid var(--line);margin-bottom:14px;overflow:hidden;}
+.rank-badge{font-size:54px;margin-bottom:8px;animation:float 3s ease-in-out infinite;}
+.rank-name{font-family:'Bebas Neue';font-size:40px;line-height:.9;color:var(--amber);}
+.rank-sub{font-family:'IBM Plex Mono';font-size:11px;color:var(--grey);letter-spacing:.1em;margin-top:4px;}
+.rank-prog{height:6px;background:var(--bg);border-radius:3px;margin:14px 0 6px;overflow:hidden;}
+.rank-prog .fl{height:100%;background:linear-gradient(90deg,var(--amber),var(--red));border-radius:3px;transition:width 1s;}
+.rank-next{font-family:'IBM Plex Mono';font-size:10px;color:var(--grey);}
+
+/* LEADERBOARD */
+.lb-row{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--line2);}
+.lb-row:last-child{border:none;}
+.lb-row .pos{font-family:'Bebas Neue';font-size:24px;width:32px;color:var(--grey);}
+.lb-row.top1 .pos{color:var(--amber);}.lb-row.top2 .pos{color:#c0c4cc;}.lb-row.top3 .pos{color:#cd7f4d;}
+.lb-row .who{flex:1;font-weight:600;font-size:14px;}
+.lb-row .who .me{font-family:'IBM Plex Mono';font-size:9px;color:var(--green);margin-left:6px;letter-spacing:.1em;}
+.lb-row .sc{font-family:'Bebas Neue';font-size:28px;}
+
+/* SPONSOR */
+.sponsor{position:relative;display:flex;align-items:center;gap:14px;padding:15px;margin:20px 0 0;border-radius:12px;background:linear-gradient(160deg,rgba(255,176,32,.08),rgba(255,176,32,.02));border:1px solid rgba(255,176,32,.3);text-decoration:none;color:var(--white);transition:transform .1s;}
+.sponsor:active{transform:scale(.99);}
+.sponsor .tag{position:absolute;top:-9px;left:14px;font-family:'IBM Plex Mono';font-size:8px;letter-spacing:.2em;background:var(--amber);color:#0a0a0c;padding:2px 7px;border-radius:3px;font-weight:600;}
+.sponsor .logo{width:46px;height:46px;border-radius:10px;border:1.5px solid var(--amber);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:22px;color:var(--amber);flex-shrink:0;}
+.sponsor .nm{font-weight:700;font-size:15px;}
+.sponsor .ds{font-family:'IBM Plex Mono';font-size:11px;color:var(--grey);line-height:1.3;margin-top:2px;}
+.sponsor .arr{margin-left:auto;color:var(--amber);font-size:20px;}
+
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 200px);height:calc(100dvh - 200px);}
+.chat-msgs{flex:1;overflow-y:auto;padding:4px 2px 12px;}
+.chat-msg{margin-bottom:14px;animation:popIn .3s;}
+.chat-msg .who{font-family:'IBM Plex Mono';font-size:9px;letter-spacing:.08em;color:var(--red);text-transform:uppercase;margin-bottom:3px;}
+.chat-msg .who .time{color:var(--grey-d);margin-left:6px;}
+.chat-msg .bubble{background:var(--bg2);border:1px solid var(--line2);border-left:3px solid var(--line);padding:10px 12px;font-size:14px;line-height:1.4;border-radius:0 10px 10px 0;}
+.chat-msg.mine .who{color:var(--green);text-align:right;}
+.chat-msg.mine .bubble{border-left:none;border-right:3px solid var(--green);text-align:right;border-radius:10px 0 0 10px;}
+.chat-input-row{display:flex;gap:8px;padding:10px 0 0;border-top:1px solid var(--line);}
+.chat-input-row input{flex:1;background:var(--bg2);border:1.5px solid var(--line);color:var(--white);padding:13px;font-family:'IBM Plex Mono';font-size:14px;border-radius:10px;}
+.chat-input-row input:focus{outline:none;border-color:var(--red);}
+.chat-input-row button{background:var(--red);color:#0a0a0c;border:none;padding:0 20px;font-size:18px;font-weight:700;border-radius:10px;cursor:pointer;}
+.chat-empty{text-align:center;color:var(--grey);font-family:'IBM Plex Mono';font-size:12px;padding:30px 10px;line-height:1.7;}
+
+/* PROFILE */
+.prof-tabs{display:flex;gap:6px;background:var(--bg2);padding:5px;border-radius:12px;margin-bottom:18px;}
+.prof-tab{flex:1;padding:10px;text-align:center;font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);border-radius:8px;cursor:pointer;border:none;background:none;transition:all .2s;}
+.prof-tab.on{background:var(--red);color:#0a0a0c;font-weight:600;}
+
+/* BOTTOM NAV */
+.bottomnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(18,19,24,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line);display:flex;z-index:60;padding-bottom:env(safe-area-inset-bottom);}
+.bottomnav button{flex:1;background:none;border:none;color:var(--grey);padding:11px 4px;font-family:'IBM Plex Mono';font-size:9px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:color .2s;position:relative;}
+.bottomnav button .ic{display:block;font-size:19px;margin-bottom:3px;}
+.bottomnav button.active{color:var(--red);}
+.bottomnav button.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--red);border-radius:2px;box-shadow:0 0 8px var(--glow-red);}
+
+/* SPINNER / BOOT */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:rot .7s linear infinite;vertical-align:middle;}
+@keyframes rot{to{transform:rotate(360deg);}}
+#boot{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;}
+#boot .logo{font-family:'Bebas Neue';font-size:52px;letter-spacing:.02em;animation:bootPulse 1.5s ease-in-out infinite;}
+#boot .logo .r{color:var(--red);}
+#boot .l{font-family:'IBM Plex Mono';font-size:11px;color:var(--grey);letter-spacing:.2em;margin-top:12px;}
+@keyframes bootPulse{50%{opacity:.5;}}
+.hide{display:none!important;}
+.empty{border:1.5px dashed var(--grey-d);border-radius:12px;padding:34px 20px;text-align:center;}
+.empty .ic{font-size:38px;margin-bottom:12px;}
+.empty .t{font-family:'IBM Plex Mono';font-size:12px;color:var(--grey);line-height:1.7;}
+</style>
+</head>
+<body>
+<div id="boot"><div class="logo">ZOMBIE<span class="r">SAFE</span></div><div class="l mono"><span class="spin"></span> AVVIO SISTEMA...</div></div>
+<div id="onboard" class="hide"></div>
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ====== CONFIG SUPABASE ======
+const SB_URL='https://rzonujvcuteeifvatket.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6b251anZjdXRlZWlmdmF0a2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDMyOTAsImV4cCI6MjA5NDQxOTI5MH0.Y6H7VAot-1YK3uUW5ospYkzR61qihTb6wmYZTuL4t80';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+
+const $=s=>document.querySelector(s);
+const app=$('#app');
+function vibe(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||10); }catch(e){} }
+function esc(s){return(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+// ====== CATEGORIE + QUESTIONARIO ======
+const CATS={
+  perimetro:{name:'Perimetro',color:'#ff3b22'},
+  visibilita:{name:'Visibilità',color:'#ffb020'},
+  risorse:{name:'Risorse',color:'#2be07a'},
+  comunicazioni:{name:'Comunicazioni',color:'#4d9fff'},
+  mobilita:{name:'Mobilità',color:'#ff5ca0'}
+};
+const QUESTIONS=[
+  {cat:'perimetro',q:'Quante vie d\'accesso ha l\'abitazione?',o:[['1 sola via',1],['2-3 accessi',4],['4-6 accessi',7],['7 o più',10]]},
+  {cat:'perimetro',q:'Di che materiale è la porta principale?',o:[['Blindata/metallo',1],['Legno massiccio',4],['Legno leggero',7],['Vetro/PVC',10]]},
+  {cat:'perimetro',q:'Le finestre del piano terra sono protette?',o:[['Inferriate su tutte',1],['Su alcune',5],['Solo persiane',7],['Nessuna protezione',10]]},
+  {cat:'perimetro',q:'C\'è una recinzione perimetrale?',o:[['Muro alto >2m',1],['Recinzione media',4],['Siepe/bassa',7],['Nessuna',10]]},
+  {cat:'perimetro',q:'Ci sono punti ciechi non sorvegliabili?',o:[['Nessuno',1],['1-2 punti',4],['Diversi',7],['Tutto il retro',10]]},
+  {cat:'visibilita',q:'Quanto è isolata la posizione?',o:[['Molto isolata',2],['Periferia',5],['Quartiere',7],['Centro affollato',10]]},
+  {cat:'visibilita',q:'Di notte le luci sono visibili da fuori?',o:[['Per niente',1],['Poco',4],['Abbastanza',7],['Molto evidenti',10]]},
+  {cat:'visibilita',q:'L\'edificio dà nell\'occhio?',o:[['Anonimo',2],['Normale',5],['Notevole',7],['Molto appariscente',10]]},
+  {cat:'visibilita',q:'Si sentono rumori dall\'esterno?',o:[['Insonorizzato',2],['Poco',4],['Normale',7],['Tutto udibile',10]]},
+  {cat:'visibilita',q:'Quanti vicini conoscono le tue scorte?',o:[['Nessuno',1],['1-2 fidati',4],['Diversi',7],['Tutti',10]]},
+  {cat:'risorse',q:'Quanta acqua autonoma hai?',o:[['Pozzo/cisterna',1],['>2 settimane',4],['Pochi giorni',7],['Nessuna scorta',10]]},
+  {cat:'risorse',q:'Scorte di cibo non deperibile?',o:[['>1 mese',1],['2-4 settimane',4],['1 settimana',7],['Nessuna',10]]},
+  {cat:'risorse',q:'Hai una fonte di energia di backup?',o:[['Solare+batterie',1],['Generatore',4],['Power bank',7],['Niente',10]]},
+  {cat:'risorse',q:'Kit medico disponibile?',o:[['Completo',2],['Base buono',4],['Minimo',7],['Assente',10]]},
+  {cat:'risorse',q:'Mezzi di difesa/deterrenza?',o:[['Diversi',2],['Qualcuno',5],['Improvvisati',7],['Nessuno',10]]},
+  {cat:'comunicazioni',q:'Hai radio o comunicazione non-rete?',o:[['Radio CB/HAM',1],['Walkie-talkie',4],['Solo cellulare',7],['Niente',10]]},
+  {cat:'comunicazioni',q:'Rete di contatti fidati nelle vicinanze?',o:[['Gruppo solido',1],['Qualche contatto',4],['1 persona',7],['Solo',10]]},
+  {cat:'comunicazioni',q:'Piano di comunicazione concordato?',o:[['Dettagliato',2],['Sommario',5],['Vago',7],['Nessuno',10]]},
+  {cat:'comunicazioni',q:'Sai ricevere notizie senza internet?',o:[['Radio a manovella',2],['Radio a pile',4],['Dipende dalla rete',7],['No',10]]},
+  {cat:'comunicazioni',q:'Hai segnali d\'allarme coi vicini?',o:[['Sistema chiaro',2],['Informale',5],['Abbozzato',7],['Nessuno',10]]},
+  {cat:'mobilita',q:'Quante vie di fuga conosci?',o:[['3 o più',1],['2 vie',4],['1 via',7],['Nessuna chiara',10]]},
+  {cat:'mobilita',q:'Hai un mezzo pronto e rifornito?',o:[['Sì, pieno',1],['Sì, mezzo pieno',4],['Sì ma scarico',7],['Nessun mezzo',10]]},
+  {cat:'mobilita',q:'Zaino d\'emergenza pronto?',o:[['Pronto all\'uscio',1],['Quasi pronto',4],['Da preparare',7],['Inesistente',10]]},
+  {cat:'mobilita',q:'Conosci rifugi alternativi raggiungibili?',o:[['2 o più',2],['1 rifugio',5],['Idea vaga',7],['Nessuno',10]]},
+  {cat:'mobilita',q:'Quanto velocemente puoi evacuare?',o:[['<5 minuti',2],['15 minuti',5],['30+ minuti',7],['Impreparato',10]]}
+];
+
+// ====== RANKS ======
+const RANKS=[
+  {min:0,name:'Recluta',badge:'🔰'},
+  {min:1,name:'Sopravvissuto',badge:'🪖'},
+  {min:3,name:'Operatore',badge:'🎖️'},
+  {min:6,name:'Veterano',badge:'⚔️'},
+  {min:10,name:'Comandante',badge:'👑'}
+];
+function rankFor(n){ let r=RANKS[0]; for(const x of RANKS){ if(n>=x.min) r=x; } return r; }
+function nextRank(n){ for(const x of RANKS){ if(n<x.min) return x; } return null; }
+
+let STATE={user:null,answers:{},qIndex:0};
+
+function colorFor(v){return v>=7?'var(--red)':v>=4.5?'var(--amber)':'var(--green)';}
+function verdict(v){return v>=8?'CRITICO':v>=6.5?'ALTO RISCHIO':v>=4.5?'RISCHIO MEDIO':v>=2.5?'DIFENDIBILE':'FORTEZZA';}
+function fmtDate(iso){const d=new Date(iso);return d.toLocaleDateString('it-IT')+' · '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});}
+
+function computeScores(a){
+  const sums={},counts={};Object.keys(CATS).forEach(c=>{sums[c]=0;counts[c]=0;});
+  QUESTIONS.forEach((q,i)=>{if(a[i]!=null){sums[q.cat]+=a[i];counts[q.cat]++;}});
+  const sub={};Object.keys(CATS).forEach(c=>{sub[c]=counts[c]?+(sums[c]/counts[c]).toFixed(1):0;});
+  const overall=+(Object.values(sub).reduce((x,y)=>x+y,0)/Object.keys(CATS).length).toFixed(1);
+  return{overall,sub};
+}
+function topThreats(a){return QUESTIONS.map((q,i)=>({q:q.q,cat:CATS[q.cat].name,v:a[i]!=null?a[i]:0})).sort((x,y)=>y.v-x.v).slice(0,3);}
+function buildAdvice(sub){
+  const lib={perimetro:'Rinforza accessi e finestre del piano terra con pannelli o inferriate, mantenendo almeno una via di fuga rapida.',visibilita:'Riduci la tua firma: oscura le luci di notte, abbassa i rumori, non mostrare le scorte.',risorse:'Aumenta l\'autonomia di acqua, cibo ed energia. Punta ad almeno 2 settimane di scorte.',comunicazioni:'Procurati una radio indipendente dalla rete e costruisci contatti fidati con un piano concordato.',mobilita:'Definisci 2 vie di fuga, tieni uno zaino pronto e un mezzo rifornito per evacuare in minuti.'};
+  return Object.entries(sub).sort((a,b)=>b[1]-a[1]).map(([c,v])=>{
+    const pr=v>=7?'p1':v>=4.5?'p2':'p3';
+    const lab=pr==='p1'?'⚠ PRIORITÀ ALTA':pr==='p2'?'▲ DA MIGLIORARE':'◇ GIÀ SOLIDO';
+    return{pr,lab,cat:CATS[c].name,body:lib[c]};
+  }).slice(0,4);
+}
+
+function radarSVG(sub){
+  const keys=Object.keys(CATS),n=keys.length,R=100,cx=140,cy=125;
+  const pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[cx+r*Math.cos(a),cy+r*Math.sin(a)];};
+  let grid='';[0.25,0.5,0.75,1].forEach(f=>{grid+=`<polygon points="${keys.map((_,i)=>pt(i,R*f).join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,.1)"/>`;});
+  let axes='';keys.forEach((_,i)=>{const[x,y]=pt(i,R);axes+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,.1)"/>`;});
+  const dp=keys.map((c,i)=>pt(i,R*(sub[c]/10)));
+  let dots=dp.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#ff3b22"/>`).join('');
+  let labels='';keys.forEach((c,i)=>{const[x,y]=pt(i,R+20);const an=Math.abs(x-cx)<10?'middle':(x<cx?'end':'start');labels+=`<text x="${x}" y="${y}" text-anchor="${an}" font-family="IBM Plex Mono" font-size="8" fill="#7a8090">${CATS[c].name.toUpperCase()}</text>`;});
+  return`<svg viewBox="0 0 280 270">${grid}${axes}<polygon points="${dp.map(p=>p.join(',')).join(' ')}" fill="rgba(255,59,34,.22)" stroke="#ff3b22" stroke-width="2" style="filter:drop-shadow(0 0 6px rgba(255,59,34,.4))"/>${dots}${labels}</svg>`;
+}
+function ringSVG(v,color){
+  const r=84,c=2*Math.PI*r,off=c*(1-v/10);
+  return`<svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="${r}" stroke="rgba(255,255,255,.07)" stroke-width="10" fill="none"/><circle cx="100" cy="100" r="${r}" stroke="${color}" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c}" style="transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)"><animate attributeName="stroke-dashoffset" from="${c}" to="${off}" dur="1.2s" fill="freeze" calcMode="spline" keySplines="0.2 0.8 0.2 1" keyTimes="0;1"/></circle></svg>`;
+}
+function animateNum(el,target,dur){
+  const start=performance.now();
+  function step(t){const p=Math.min((t-start)/dur,1);const e=1-Math.pow(1-p,3);el.textContent=(target*e).toFixed(1);if(p<1)requestAnimationFrame(step);else el.textContent=target.toFixed(1);}
+  requestAnimationFrame(step);
+}
+function showMsg(t,c){return`<div class="msg show ${c||''}">${t}</div>`;}
+
+// ====== ONBOARDING ======
+const OB=[
+  {icon:'🧟',step:'PROTOCOLLO 01',title:['Quanto è ',['SICURA',1],' la tua casa?'],text:'ZombieSafeHouse calcola l\'indice di assaltabilità della tua abitazione su 25 parametri di difesa.'},
+  {icon:'📊',step:'PROTOCOLLO 02',title:['Analisi su ',['5 fronti',1],''],text:'Perimetro, visibilità, risorse, comunicazioni e mobilità. Un radar completo dei tuoi punti deboli e di forza.'},
+  {icon:'📡',step:'PROTOCOLLO 03',title:['Unisciti agli ',['operatori',1],''],text:'Confrontati nella classifica, scambia consigli nella radio dei superstiti e scala i gradi da Recluta a Comandante.'}
+];
+let obIdx=0;
+function renderOnboard(){
+  const ob=$('#onboard');ob.classList.remove('hide');
+  ob.innerHTML=`
+    ${OB.map((s,i)=>`<div class="ob-slide ${i===0?'active':''}" data-i="${i}">
+      <div class="ob-icon">${s.icon}</div>
+      <div class="ob-step mono">${s.step}</div>
+      <div class="ob-title">${s.title.map(p=>Array.isArray(p)?`<span class="r">${p[0]}</span>`:p).join('')}</div>
+      <div class="ob-text">${s.text}</div>
+    </div>`).join('')}
+    <div class="ob-nav">
+      <button class="ob-skip mono" id="obSkip">Salta</button>
+      <div class="ob-dots">${OB.map((_,i)=>`<div class="ob-dot ${i===0?'on':''}"></div>`).join('')}</div>
+      <button class="btn" style="width:auto;margin:0;padding:14px 28px;" id="obNext">Avanti ›</button>
+    </div>`;
+  $('#obSkip').onclick=finishOnboard;
+  $('#obNext').onclick=()=>{
+    vibe(10);
+    if(obIdx<OB.length-1){
+      obIdx++;
+      ob.querySelectorAll('.ob-slide').forEach(s=>s.classList.toggle('active',+s.dataset.i===obIdx));
+      ob.querySelectorAll('.ob-dot').forEach((d,i)=>d.classList.toggle('on',i===obIdx));
+      if(obIdx===OB.length-1) $('#obNext').textContent='Inizia ›';
+    } else finishOnboard();
+  };
+}
+function finishOnboard(){ try{localStorage.setItem('zsh_onboarded','1');}catch(e){} $('#onboard').classList.add('hide'); renderAuth('login'); }
+
+// ====== AUTH ======
+function renderAuth(mode){
+  mode=mode||'login';
+  app.innerHTML=`<div class="view active">
+    <div style="margin:34px 0 28px;" class="stagger">
+      <div class="eyebrow">// Survival Index Protocol</div>
+      <h1 class="h-massive">ZOMBIE<span class="r">SAFE</span><br>HOUSE</h1>
+      <div class="mono" style="font-size:11px;color:var(--grey);letter-spacing:.05em;">CALCOLA L'ASSALTABILITÀ DELLA TUA CASA</div>
+    </div>
+    <div id="authmsg"></div>
+    <div class="card stagger">
+      <div class="eyebrow" style="color:var(--grey)">${mode==='login'?'Accesso operatore':'Nuovo operatore'}</div>
+      <div class="field"><label>Email</label><input id="email" type="email" autocapitalize="off" autocorrect="off" placeholder="operatore@mail.it"></div>
+      <div class="field"><label>Password</label><input id="pw" type="password" placeholder="••••••••"></div>
+      <button class="btn" id="authBtn">${mode==='login'?'Entra ›':'Crea account ›'}</button>
+      <button class="btn ghost" id="switchBtn">${mode==='login'?'Non ho un account':'Ho già un account'}</button>
+    </div>
+  </div>`;
+  $('#switchBtn').onclick=()=>{vibe();renderAuth(mode==='login'?'signup':'login');};
+  $('#authBtn').onclick=async()=>{
+    vibe();const email=$('#email').value.trim(),pw=$('#pw').value,m=$('#authmsg');
+    if(!email||!pw){m.innerHTML=showMsg('Inserisci email e password.','err');return;}
+    $('#authBtn').innerHTML='<span class="spin"></span>';$('#authBtn').disabled=true;
+    try{
+      let res=mode==='login'?await sb.auth.signInWithPassword({email,password:pw}):await sb.auth.signUp({email,password:pw});
+      if(res.error)throw res.error;
+      if(mode==='signup'&&!res.data.session){m.innerHTML=showMsg('Account creato. Conferma l\'email, poi accedi.','ok');$('#authBtn').innerHTML='Crea account ›';$('#authBtn').disabled=false;return;}
+      await loadUser();
+    }catch(e){m.innerHTML=showMsg(trad(e.message),'err');$('#authBtn').innerHTML=mode==='login'?'Entra ›':'Crea account ›';$('#authBtn').disabled=false;}
+  };
+}
+function trad(m){if(/Invalid login/i.test(m))return'Email o password errati.';if(/already registered/i.test(m))return'Email già registrata. Prova ad accedere.';if(/at least 6/i.test(m))return'La password deve avere almeno 6 caratteri.';if(/valid email/i.test(m))return'Inserisci un\'email valida.';return m;}
+
+// ====== HOME ======
+async function renderHome(){
+  setNav('home');
+  app.innerHTML=`<div class="view active"><div class="mono" style="color:var(--grey);font-size:12px;padding:30px 0;"><span class="spin"></span> Caricamento...</div></div>`;
+  let houses=[];try{const{data}=await sb.from('houses').select('*').order('created_at',{ascending:false});houses=data||[];}catch(e){}
+  const count=houses.length;
+  const avg=count?(houses.reduce((a,h)=>a+(+h.indice||0),0)/count).toFixed(1):'—';
+  const best=count?Math.min(...houses.map(h=>+h.indice||10)).toFixed(1):'—';
+  const rank=rankFor(count);
+  let list=count===0
+    ?`<div class="empty"><div class="ic">🏚️</div><div class="t mono">NESSUNA STRUTTURA MONITORATA.<br>Avvia una valutazione per iniziare.</div></div>`
+    :houses.map(h=>{const v=+h.indice||0;return`<div class="house" data-id="${h.id}"><div><div class="nm">${esc(h.nome)}</div><div class="dt">VAL. ${fmtDate(h.created_at)}</div></div><div class="sc" style="color:${colorFor(v)}">${v.toFixed(1)}</div></div>`;}).join('');
+  app.innerHTML=`<div class="view active">
+    <div class="topbar"><div class="brand-mini">ZOMBIE<span class="r">SAFE</span></div><div class="live"><span class="dot"></span> ${rank.badge} ${rank.name}</div></div>
+    <div class="stagger">
+      <div class="eyebrow">// Bentornato, operatore</div>
+      <h1 class="h-massive">LE TUE<br><span class="r">SAFEHOUSE</span></h1>
+      <div class="stat-grid" style="margin-top:18px;">
+        <div class="stat"><div class="l">Strutture</div><div class="v">${count}</div></div>
+        <div class="stat"><div class="l">Indice medio</div><div class="v" style="color:${avg==='—'?'var(--grey)':colorFor(+avg)}">${avg}</div></div>
+      </div>
+      <h2 class="h-section">Strutture <span class="count">${count} totali</span></h2>
+      ${list}
+      <button class="btn" id="newBtn" style="margin-top:16px;">+ Nuova valutazione</button>
+      <div id="sponsorSlot"></div>
+    </div>
+  </div>${navHTML()}`;
+  bindNav();
+  $('#newBtn').onclick=()=>{vibe();startQuiz();};
+  document.querySelectorAll('.house').forEach(el=>el.onclick=()=>{vibe();const h=houses.find(x=>x.id===el.dataset.id);if(h)renderResults(h,true);});
+  loadSponsors('#sponsorSlot');
+}
+
+// ====== QUIZ ======
+function startQuiz(){STATE.answers={};STATE.qIndex=0;renderQuestion();}
+function renderQuestion(){
+  const i=STATE.qIndex,q=QUESTIONS[i],pct=Math.round((i/QUESTIONS.length)*100);
+  setNav('quiz');
+  app.innerHTML=`<div class="view active">
+    <div class="q-head">
+      <div class="mono" style="display:flex;justify-content:space-between;font-size:10px;letter-spacing:.12em;color:var(--grey);"><span>DOMANDA ${String(i+1).padStart(2,'0')}/${QUESTIONS.length}</span><span>${pct}%</span></div>
+      <div class="q-progress-track"><div class="q-progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="q-cat">${CATS[q.cat].name}</div>
+    <div class="q-question">${q.q}</div>
+    <div class="stagger">${q.o.map(o=>`<div class="q-opt ${STATE.answers[i]===o[1]?'sel':''}" data-val="${o[1]}"><div class="mark">${STATE.answers[i]===o[1]?'✓':''}</div><span class="txt">${o[0]}</span></div>`).join('')}</div>
+    <div style="margin-top:20px;">
+      <button class="btn" id="nextBtn" ${STATE.answers[i]==null?'disabled':''}>${i===QUESTIONS.length-1?'Calcola indice ›':'Continua ›'}</button>
+      <button class="btn ghost" id="backBtn">${i===0?'Annulla':'‹ Indietro'}</button>
+    </div>
+  </div>${navHTML()}`;
+  bindNav();
+  document.querySelectorAll('.q-opt').forEach(el=>el.onclick=()=>{
+    vibe(15);STATE.answers[i]=+el.dataset.val;
+    document.querySelectorAll('.q-opt').forEach(o=>{o.classList.remove('sel');o.querySelector('.mark').textContent='';});
+    el.classList.add('sel');el.querySelector('.mark').textContent='✓';$('#nextBtn').disabled=false;
+  });
+  $('#nextBtn').onclick=()=>{vibe();if(STATE.answers[i]==null)return;if(i===QUESTIONS.length-1)finishQuiz();else{STATE.qIndex++;renderQuestion();}};
+  $('#backBtn').onclick=()=>{vibe();if(i===0)renderHome();else{STATE.qIndex--;renderQuestion();}};
+}
+function finishQuiz(){
+  vibe([20,40,20]);
+  const{overall,sub}=computeScores(STATE.answers);
+  renderResults({nome:'',indice:overall,sotto_punteggi:sub,risposte:STATE.answers,consigli:buildAdvice(sub),created_at:new Date().toISOString(),_new:true},false);
+}
+
+// ====== RESULTS ======
+async function renderResults(house,saved){
+  setNav('quiz');
+  const sub=house.sotto_punteggi||{},overall=+house.indice||0;
+  const threats=house.risposte?topThreats(house.risposte):[];
+  const advice=house.consigli||buildAdvice(sub);
+  let avgAll=null;try{const{data}=await sb.from('houses').select('indice');if(data&&data.length)avgAll=(data.reduce((a,h)=>a+(+h.indice||0),0)/data.length).toFixed(1);}catch(e){}
+  const cmp=avgAll!=null?(overall<avgAll?`↓ ${(avgAll-overall).toFixed(1)} sotto la media globale (${avgAll})`:`↑ ${(overall-avgAll).toFixed(1)} sopra la media globale (${avgAll})`):'';
+  const catRows=Object.keys(CATS).map(c=>{const v=sub[c]||0;return`<div class="cat-row"><div class="meta"><span>${CATS[c].name}</span><span class="v" style="color:${colorFor(v)}">${v.toFixed(1)}</span></div><div class="track"><div class="fill" data-w="${v*10}" style="background:${colorFor(v)}"></div></div></div>`;}).join('');
+  const threatHTML=threats.map((t,k)=>`<div class="threat"><div class="n">${String(k+1).padStart(2,'0')}</div><div style="flex:1"><div class="tt">${t.q}</div><div class="dd">// ${t.cat} · rischio ${t.v}/10</div></div></div>`).join('');
+  const adviceHTML=advice.map(a=>`<div class="advice ${a.pr}"><div class="lab">${a.lab} · ${a.cat}</div><div class="body">${a.body}</div></div>`).join('');
+  app.innerHTML=`<div class="view active">
+    <div class="eyebrow" style="margin-top:10px;">// Valutazione completata</div>
+    <div class="index-hero">
+      <div class="index-ring">${ringSVG(overall,colorFor(overall))}<div class="center"><div class="num" id="bigNum" style="color:${colorFor(overall)}">0.0</div><div class="of">SU 10</div></div></div>
+      <div class="index-verdict" style="color:${colorFor(overall)}">${verdict(overall)}</div>
+      ${cmp?`<div class="index-sub">${cmp}</div>`:''}
+    </div>
+    <h2 class="h-section">Mappa rischio</h2>
+    <div class="card radar-box">${radarSVG(sub)}</div>
+    <h2 class="h-section">Sotto-punteggi</h2>
+    <div class="card">${catRows}</div>
+    ${threatHTML?`<h2 class="h-section">Punti critici</h2><div class="card">${threatHTML}</div>`:''}
+    <h2 class="h-section">Piano d'azione</h2>
+    ${adviceHTML}
+    <div id="saveArea" style="margin-top:22px;">
+      ${saved?`<button class="btn ghost" id="homeBtn">‹ Torna alle strutture</button>`
+        :`<div class="field"><label>Nome struttura</label><input id="hname" placeholder="Es. Casa principale"></div><div id="savemsg"></div><button class="btn" id="saveBtn">Salva valutazione ›</button><button class="btn ghost" id="discardBtn">Scarta</button>`}
+    </div>
+  </div>${navHTML()}`;
+  bindNav();
+  setTimeout(()=>{animateNum($('#bigNum'),overall,1200);document.querySelectorAll('.cat-row .fill').forEach(f=>f.style.width=f.dataset.w+'%');},150);
+  if(saved){$('#homeBtn').onclick=()=>{vibe();renderHome();};}
+  else{
+    $('#discardBtn').onclick=()=>{vibe();renderHome();};
+    $('#saveBtn').onclick=async()=>{
+      vibe();const nm=$('#hname').value.trim()||'Struttura senza nome';
+      $('#saveBtn').innerHTML='<span class="spin"></span>';$('#saveBtn').disabled=true;
+      try{
+        const{error}=await sb.from('houses').insert({user_id:STATE.user.id,nome:nm,indice:overall,sotto_punteggi:sub,risposte:house.risposte,consigli:advice});
+        if(error)throw error;
+        // aggiorna leaderboard best score
+        await updateLeaderboard(overall);
+        vibe([20,40,20]);renderHome();
+      }catch(e){$('#savemsg').innerHTML=showMsg('Errore salvataggio: '+e.message,'err');$('#saveBtn').innerHTML='Salva valutazione ›';$('#saveBtn').disabled=false;}
+    };
+  }
+}
+
+// ====== LEADERBOARD ======
+async function updateLeaderboard(score){
+  try{
+    const{data}=await sb.from('leaderboard').select('*').eq('user_id',STATE.user.id).maybeSingle();
+    const nick=(STATE.user.email||'operatore').split('@')[0];
+    if(!data){ await sb.from('leaderboard').insert({user_id:STATE.user.id,nickname:nick,best_score:score,valutazioni:1}); }
+    else { const best=Math.min(+data.best_score,score); await sb.from('leaderboard').update({best_score:best,valutazioni:(data.valutazioni||0)+1,nickname:nick}).eq('user_id',STATE.user.id); }
+  }catch(e){}
+}
+
+// ====== PROFILE (con rank + classifica) ======
+let profTab='rank';
+async function renderProfile(){
+  setNav('profile');
+  app.innerHTML=`<div class="view active"><div class="mono" style="color:var(--grey);font-size:12px;padding:30px 0;"><span class="spin"></span> Caricamento...</div></div>`;
+  let houses=[];try{const{data}=await sb.from('houses').select('indice');houses=data||[];}catch(e){}
+  const count=houses.length,rank=rankFor(count),nx=nextRank(count);
+  const prog=nx?Math.min(100,Math.round((count-rank.min)/(nx.min-rank.min)*100)):100;
+  let lb=[];try{const{data}=await sb.from('leaderboard').select('*').order('best_score',{ascending:true}).limit(20);lb=data||[];}catch(e){}
+  const lbHTML=lb.length?lb.map((r,i)=>{const me=STATE.user&&r.user_id===STATE.user.id;return`<div class="lb-row ${i<3?'top'+(i+1):''}"><div class="pos">${i+1}</div><div class="who">${esc(r.nickname||'operatore')}${me?'<span class="me">TU</span>':''}</div><div class="sc" style="color:${colorFor(+r.best_score)}">${(+r.best_score).toFixed(1)}</div></div>`;}).join(''):`<div class="chat-empty">Nessun punteggio in classifica.<br>Salva una valutazione per entrare.</div>`;
+  app.innerHTML=`<div class="view active">
+    <div class="topbar"><div class="brand-mini">ZOMBIE<span class="r">SAFE</span></div><div class="live"><span class="dot"></span> ONLINE</div></div>
+    <div class="prof-tabs">
+      <button class="prof-tab ${profTab==='rank'?'on':''}" data-t="rank">Profilo</button>
+      <button class="prof-tab ${profTab==='lb'?'on':''}" data-t="lb">Classifica</button>
+    </div>
+    <div class="stagger">
+    ${profTab==='rank'?`
+      <div class="rank-card">
+        <div class="rank-badge">${rank.badge}</div>
+        <div class="rank-name">${rank.name}</div>
+        <div class="rank-sub mono">${count} valutazioni completate</div>
+        <div class="rank-prog"><div class="fl" data-w="${prog}"></div></div>
+        <div class="rank-next mono">${nx?`Ancora ${nx.min-count} per diventare ${nx.name} ${nx.badge}`:'Grado massimo raggiunto 👑'}</div>
+      </div>
+      <div class="card"><div class="eyebrow" style="color:var(--grey)">Email operatore</div><div class="mono" style="font-size:14px;word-break:break-all;">${esc(STATE.user.email)}</div></div>
+      <div class="card"><div class="eyebrow" style="color:var(--grey)">Tutti i gradi</div>
+        ${RANKS.map(r=>`<div style="display:flex;align-items:center;gap:12px;padding:8px 0;${count>=r.min?'':'opacity:.4'}"><span style="font-size:22px">${r.badge}</span><span style="font-weight:600;flex:1">${r.name}</span><span class="mono" style="font-size:10px;color:var(--grey)">${r.min}+ val.</span></div>`).join('')}
+      </div>
+      <button class="btn ghost" id="logoutBtn">Esci dall'account</button>
+    `:`
+      <div class="eyebrow">// Top operatori · indice più basso vince</div>
+      <div class="card">${lbHTML}</div>
+      <div class="mono" style="font-size:10px;color:var(--grey);text-align:center;line-height:1.6;">L'indice più basso = casa più sicura.<br>Scala la classifica abbassando il tuo punteggio.</div>
+    `}
+    </div>
+  </div>${navHTML()}`;
+  bindNav();
+  document.querySelectorAll('.prof-tab').forEach(t=>t.onclick=()=>{vibe();profTab=t.dataset.t;renderProfile();});
+  if(profTab==='rank'){setTimeout(()=>{const f=$('.rank-prog .fl');if(f)f.style.width=f.dataset.w+'%';},150);const lo=$('#logoutBtn');if(lo)lo.onclick=async()=>{vibe();await sb.auth.signOut();STATE.user=null;renderAuth('login');};}
+}
+
+// ====== SPONSOR ======
+async function loadSponsors(sel){
+  const slot=document.querySelector(sel);if(!slot)return;
+  let sponsors=[];try{const{data}=await sb.from('sponsors').select('*').eq('attivo',true);sponsors=data||[];}catch(e){}
+  if(!sponsors.length){slot.innerHTML='';return;}
+  const s=sponsors[Math.floor(Math.random()*sponsors.length)];
+  const ini=(s.nome||'?').trim().slice(0,2).toUpperCase();
+  slot.innerHTML=`<a class="sponsor" href="${esc(s.url||'#')}" target="_blank" rel="noopener"><span class="tag">SPONSOR</span><div class="logo">${esc(ini)}</div><div><div class="nm">${esc(s.nome)}</div><div class="ds">${esc(s.descrizione||'')}</div></div><div class="arr">›</div></a>`;
+}
+
+// ====== CHAT ======
+let chatChannel=null;
+async function renderChat(){
+  setNav('chat');
+  app.innerHTML=`<div class="view active">
+    <div class="topbar"><div class="brand-mini">ZOMBIE<span class="r">SAFE</span></div><div class="live"><span class="dot"></span> CANALE APERTO</div></div>
+    <div class="eyebrow">// Frequenza condivisa</div>
+    <h1 class="h-massive" style="font-size:44px;">RADIO<br><span class="r">SUPERSTITI</span></h1>
+    <div class="mono" style="font-size:10px;color:var(--grey);margin-bottom:14px;">Canale aperto a tutti gli operatori connessi</div>
+    <div class="chat-wrap">
+      <div class="chat-msgs" id="chatMsgs"><div class="chat-empty"><span class="spin"></span> Connessione...</div></div>
+      <div class="chat-input-row"><input id="chatInput" placeholder="Scrivi un messaggio..." maxlength="500"><button id="chatSend">›</button></div>
+    </div>
+  </div>${navHTML()}`;
+  bindNav();
+  await loadMessages();
+  if(chatChannel)sb.removeChannel(chatChannel);
+  chatChannel=sb.channel('public:messages').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},p=>appendMsg(p.new)).subscribe();
+  $('#chatSend').onclick=sendMsg;
+  $('#chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
+}
+async function loadMessages(){
+  const box=$('#chatMsgs');let msgs=[];
+  try{const{data,error}=await sb.from('messages').select('*').order('created_at',{ascending:true}).limit(100);if(error)throw error;msgs=data||[];}
+  catch(e){box.innerHTML=`<div class="chat-empty">⚠ Canale non disponibile.<br>Esegui il setup SQL della chat su Supabase.</div>`;return;}
+  if(!msgs.length){box.innerHTML=`<div class="chat-empty">📡 Nessun messaggio.<br>Sii il primo a trasmettere.</div>`;return;}
+  box.innerHTML='';msgs.forEach(appendMsg);scrollChat();
+}
+function appendMsg(m){
+  const box=$('#chatMsgs');if(!box)return;if(box.querySelector('.chat-empty'))box.innerHTML='';
+  const mine=STATE.user&&m.user_id===STATE.user.id;
+  const name=(m.autore||'operatore').split('@')[0];
+  const t=new Date(m.created_at).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  const d=document.createElement('div');d.className='chat-msg'+(mine?' mine':'');
+  d.innerHTML=`<div class="who">${esc(name)}<span class="time">${t}</span></div><div class="bubble">${esc(m.testo)}</div>`;
+  box.appendChild(d);scrollChat();
+}
+function scrollChat(){const b=$('#chatMsgs');if(b)b.scrollTop=b.scrollHeight;}
+async function sendMsg(){
+  const inp=$('#chatInput');if(!inp)return;const txt=inp.value.trim();if(!txt)return;
+  vibe();inp.value='';
+  try{const{error}=await sb.from('messages').insert({user_id:STATE.user.id,autore:STATE.user.email,testo:txt});if(error)throw error;}
+  catch(e){inp.value=txt;alert('Errore invio: '+e.message);}
+}
+
+// ====== NAV ======
+let activeNav='home';
+function navHTML(){
+  const items=[['home','⬢','Case'],['quiz','◎','Valuta'],['chat','◈','Radio'],['profile','◭','Profilo']];
+  return`<div class="bottomnav">${items.map(it=>`<button data-nav="${it[0]}" class="${activeNav===it[0]?'active':''}"><span class="ic">${it[1]}</span>${it[2]}</button>`).join('')}</div>`;
+}
+function setNav(n){activeNav=n;}
+function bindNav(){document.querySelectorAll('.bottomnav button').forEach(b=>b.onclick=()=>{vibe();const n=b.dataset.nav;if(n==='home')renderHome();else if(n==='quiz')startQuiz();else if(n==='chat')renderChat();else if(n==='profile')renderProfile();});}
+
+// ====== BOOT ======
+async function loadUser(){
+  const{data}=await sb.auth.getSession();
+  if(data.session){STATE.user=data.session.user;renderHome();}
+  else{let seen=false;try{seen=localStorage.getItem('zsh_onboarded')==='1';}catch(e){}if(seen)renderAuth('login');else renderOnboard();}
+}
+(async function init(){try{await loadUser();}catch(e){renderAuth('login');}finally{setTimeout(()=>{const b=$('#boot');if(b)b.classList.add('hide');},700);}})();
+sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_OUT'){STATE.user=null;renderAuth('login');}});
+</script>
+</body>
+</html>
