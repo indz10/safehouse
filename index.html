@@ -494,7 +494,10 @@ body.inbattle #accFab{display:none}
 #accBar{position:fixed;left:50%;transform:translateX(-50%);width:calc(100% - 16px);max-width:504px;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 8px);z-index:86;background:var(--moon);border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:10px 10px 10px 12px;display:flex;gap:8px;align-items:center}
 #accBar .ab-t{flex:1;display:flex;flex-direction:column;gap:2px;font-size:14px;line-height:1.3}#accBar .ab-t b{font-size:15px}
 #accBar .ab-b{display:flex;flex-direction:column;gap:4px}#accBar .ab-b button{border:2px solid var(--ink);background:#fff;font-weight:700;font-size:12px;padding:6px 8px;cursor:pointer}#accBar .ab-b button:first-child{background:var(--red);color:#fff}
-body:has(#accBar) #accFab{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 130px)}
+body:has(#accBar) #accFab{display:none}
+body:has(#accBar) .page{padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 110px)}
+#accBar{padding:7px 8px 7px 10px;gap:6px}#accBar .ab-t{font-size:12.5px;line-height:1.25}#accBar .ab-t b{font-size:13px}
+#accBar .ab-b{flex-direction:row;gap:4px}#accBar .ab-b button{font-size:11px;padding:6px 6px;white-space:nowrap}#accBar .ab-b button[data-ab=show]{background:#d7263d!important;color:#fff!important}
 .acc-hl{position:relative;z-index:80;outline:5px solid var(--red)!important;outline-offset:4px;animation:acch 1s infinite}@keyframes acch{50%{outline-color:var(--moon)}}
 .acc-tip{position:fixed;z-index:120;width:120px;text-align:center;background:var(--red);color:#fff;font-weight:700;font-size:15px;padding:6px;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);animation:capin .3s both}
 #accHello{position:fixed;left:12px;right:12px;margin:0 auto;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 84px);z-index:87;max-width:420px;background:#fff;border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:14px;display:flex;flex-direction:column;gap:6px;animation:capin .35s both}
@@ -2262,7 +2265,7 @@ function renderPick(){
   const bar=(n)=>`<span class="pips">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;
   app.innerHTML=`<div class="page">
    <div class="panel night" style="padding:0;overflow:hidden">${skyline()}</div>
-   <h2>Orda</h2><p class="muted" style="margin:4px 0 14px">Il gioco a ondate: scaccia gli zombie toccandoli, guadagna monete e fortifica casa e quartiere.</p>
+   <h2>Orda</h2><p class="muted" style="margin:4px 0 14px">Il gioco a notti: difendi casa e quartiere con carte, trappole e strategia. Guadagna monete e fortifica tutto.</p>
    ${viaticoCard()}
    <h3 style="margin-bottom:10px">Scegli dove vivere</h3>
    ${Object.entries(HTYPES).map(([k,t])=>`<button class="panel pick ${VT&&VT.tipo===k?'mine':''}" data-type="${k}">${VT&&VT.tipo===k?'<span class="tag sp minetag">Come la tua casa</span>':''}
