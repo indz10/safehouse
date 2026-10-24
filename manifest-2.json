@@ -1,0 +1,19 @@
+{
+  "name": "ZombieSafeHouse",
+  "short_name": "ZombieSafe",
+  "description": "Valuta quanto è sicura la tua casa vera e difendila in un gioco a fumetto.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#241a4a",
+  "theme_color": "#241a4a",
+  "lang": "it",
+  "categories": ["lifestyle", "games", "utilities"],
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

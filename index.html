@@ -4,7 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#241a4a">
-<title>ZombieSafeHouse · anteprima v2</title>
+<title>ZombieSafeHouse</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ZombieSafe">
+<meta name="description" content="Valuta quanto è sicura la tua casa vera e difendila in un gioco a fumetto. Sponsor e community della tua zona.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -4872,6 +4880,9 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
     const f=document.getElementById('addr');if(f)f.value=addr;b.disabled=false;b.textContent='Usa la mia posizione';toast('📍 Trovata: '+addr);
     const z=document.getElementById('zBtn');if(z)setTimeout(()=>z.click(),300);},
   er=>{b.disabled=false;b.textContent='Usa la mia posizione';toast(er.code===1?'Hai negato il permesso: attivalo nelle impostazioni del telefono, oppure scrivi l’indirizzo':'Posizione non trovata: scrivi l’indirizzo');},{enableHighAccuracy:true,timeout:12000,maximumAge:60000});},true);
+
+/* app installabile: service worker (solo sul sito vero, non nell'anteprima) */
+try{if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
