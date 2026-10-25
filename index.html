@@ -732,6 +732,14 @@ a.onl{font-weight:700;color:#1f3f80}
 .mv b{font-family:var(--display);font-weight:400;font-size:19px}
 .mv ul{margin:4px 0 0 18px;padding:0;font-size:13.5px;font-weight:400;display:grid;gap:2px}
 .mvtot{margin:10px 0 4px;padding:8px 11px;background:var(--moon);border:3px solid var(--ink);font-size:15px;font-weight:700}
+
+.tmp{background:linear-gradient(180deg,#fff3c4,#fff);border-color:var(--ink)}
+.tm{display:flex;gap:10px;align-items:center;padding:8px;margin:6px 0;background:#fff;border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink)}
+.tm.ok{background:#e3f5e8;border-color:#2e7d4a}
+.tm.cl{opacity:.6}
+.tmi{font-size:24px;flex:0 0 auto}
+.tmt{flex:1;display:flex;flex-direction:column;gap:3px;font-size:13.5px;font-weight:400}
+.tmt small{font-weight:700;font-size:12px}
 </style>
 </head>
 <body>
@@ -3088,7 +3096,7 @@ async function renderBattle(){
     app.querySelectorAll('[data-use]').forEach(b=>{const id=b.dataset.use;const c=st.cd[id]||0;const tl=TOOLS.find(x=>x.id===id);const full=toolCd(tl,G.tools[id]);b.classList.toggle('cool',c>0);b.querySelector('.cdv').style.height=(c/full*100)+'%';b.querySelector('.nm').textContent=c>0?Math.ceil(c)+' s':tl.name;});
   }
   function endBattle(win){
-    const lostSites=sites.filter(s=>s.lost&&!s.main);
+    const lostSites=sites.filter(s=>s.lost&&!s.main);try{if(window.onWaveEnd)window.onWaveEnd(win,L,st.ev,coop);}catch(e){}
     const stars=win?(mainS.hp/mainS.max>.66&&!lostSites.length?3:mainS.hp/mainS.max>.33?2:1):0;sfx(win?'win':'lose');setMusic('app');
     if(win&&mainS.hp>=mainS.max-.5&&!lostSites.length)medal('perfetto');if(win&&st.ev==='blackout')medal('buio');if(win&&G.diff==='incubo')medal('incubo');if(win&&L>=10&&!coop)medal('ondata10');
     setTimeout(()=>{st.stop=true;let html='';
@@ -4018,7 +4026,7 @@ function dayRefresh(){const el=app.querySelector('.dayp');if(!el)return;const n=
 function bindDay(){app.querySelectorAll('[data-exp]').forEach(b=>b.onclick=()=>expSheet(b.dataset.exp));
   app.querySelectorAll('[data-expok]').forEach(b=>b.onclick=()=>{const e=G.exp[+b.dataset.expok];const X=EXPS.find(x=>x.id===e.id)||{risk:.2,loot:{cibo:[1,2]}};const ok=Math.random()<Math.min(.98,1-X.risk+e.pow*.05);
     const got={};Object.entries(X.loot).forEach(([k,[a,c]])=>{let n=a+Math.floor(Math.random()*(c-a+1));if(!ok)n=Math.floor(n/2);if(n>0){G.mat[k]+=n;got[k]=n;}});
-    G.exp.splice(+b.dataset.expok,1);sfx(ok?'coin':'crack');if(typeof objAdd==='function'){}
+    G.exp.splice(+b.dataset.expok,1);try{if(window.onExpDone)window.onExpDone(e.id,ok);}catch(x){}sfx(ok?'coin':'crack');if(typeof objAdd==='function'){}
     openSheet(ok?'Spedizione riuscita!':'Spedizione difficile',`<p style="font-size:18px">${ok?'La squadra torna con:':'Attaccati sulla via del ritorno, salvano solo:'}</p><p class="disp" style="font-size:34px;margin:10px 0">${Object.entries(got).map(([k,n])=>MATS[k]+' +'+n).join(' · ')||'niente'}</p>${X.sp?`<p class="notice">Materiali offerti da <b>${(SPONSORS[X.sp]||{name:'uno sponsor della zona'}).name}</b>. ${SP_OFF&&SP_OFF[X.sp]?'Nella vita vera: '+SP_OFF[X.sp]:''}</p>`:''}`);renderHub();});
   app.querySelectorAll('[data-rec]').forEach(b=>b.onclick=()=>{const r=RECIPES.find(x=>x.id===b.dataset.rec);if(!Object.entries(r.cost).every(([k,v])=>G.mat[k]>=v))return;Object.entries(r.cost).forEach(([k,v])=>G.mat[k]-=v);G.kit[r.id]++;sfx('coin');toast(`${r.ic} ${r.n} pronto per stanotte`);renderHub();});}
 </script>
@@ -5484,7 +5492,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610251750';
+const ZSH_BUILD='202610251806';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -5895,6 +5903,58 @@ const _renderMenuMv=renderMenu;renderMenu=function(){_renderMenuMv();try{if(!S.z
 /* cronologia delle case salvata con i progressi */
 const _snapMv=snapshot;snapshot=function(){const d=_snapMv();if(d&&d.S)d.S.case=S.case||[];return d;};
 const _restMv=restore;restore=function(d){const r=_restMv(d);try{if(d&&d.S&&d.S.case)S.case=d.S.case;}catch(e){}return r;};
+</script>
+<script>
+/* =========================================================
+   MISSIONI DI OGGI SUL TERRITORIO VERO
+   3 missioni al giorno, diverse per ogni casa, sui posti veri:
+   spedizione verso un posto vero, difesa di un punto vero,
+   notte col meteo vero, sponsor / servizi veri da scoprire.
+   Premio per ogni missione + scrigno se le fai tutte e 3.
+   ========================================================= */
+const tmDay=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
+function tmGen(){const R=S.zone&&S.zone.real;if(!R)return null;const r=rng(hash(tmDay()+'|'+S.zone.address));const pick=a=>a[Math.floor(r()*a.length)];const L=[];
+  try{dayInit();}catch(e){}
+  const ex=EXPS.filter(x=>x.real&&!x.hide);if(ex.length){const x=pick(ex);L.push({k:'exp',id:x.id,ic:'🎒',t:`Manda una squadra a <b>${esc(x.n)}</b> (${esc(x.d.split(' vero a ')[1]||'')}) e torna col bottino`,go:'day',rw:{c:80+Math.round(r()*40),g:1}});}
+  try{if(G.realHood&&S.zone.address&&RM.cache[S.zone.address]){hqPlan(RM.cache[S.zone.address]);}}catch(e){}
+  const sl=HQ.map&&HQ.map.sl?Object.entries(HQ.map.sl).filter(([,v])=>v.name):[];
+  if(sl.length&&r()<.6){const[id,v]=pick(sl);L.push({k:'def',id,ic:'🛡️',t:`Fortifica <b>${esc(v.name)}</b> e vinci una notte`,go:'map',rw:{c:120,g:2}});}
+  else{const w=realNightCond();L.push(w&&w.ev?{k:'ev',id:w.ev,ic:'🌙',t:`Vinci la notte di oggi con l’evento vero: <b>${{pioggia:'pioggia',nebbia:'nebbia',blackout:'blackout',luna:'luna piena'}[w.ev]}</b>`,go:'fight',rw:{c:140,g:3}}:{k:'win',id:'2',goal:2,ic:'🧟',t:'Vinci <b>2 notti</b> nel tuo quartiere vero',go:'fight',rw:{c:110,g:2}});}
+  const sps=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&SPONSORS[k]);
+  if(sps.length){const[k]=pick(sps);L.push({k:'cp',id:k,ic:'⭐',t:`Scopri l’offerta di <b>${esc(SPONSORS[k].name)}</b> e prendi il tuo codice sconto`,go:'sp',rw:{c:60,g:3}});}
+  else{const pub=R.fac.filter(f=>['osp','farm','cc','vvf'].includes(f.k)&&f.d<2500);const cand=R.fac.filter(f=>f.cand&&f.d<2500);
+    if(pub.length&&(r()<.5||!cand.length)){const f=pick(pub.slice(0,4));L.push({k:'poi',id:f.name,ic:'🏥',t:`Controlla orari e contatti di <b>${esc(f.name)}</b> (${dist(f.d)}): ti servono il giorno dell’emergenza`,go:'poi',ll:[f.lat,f.lon],kk:f.k,d:f.d,rw:{c:50,g:1}});}
+    else if(cand.length){const f=pick(cand.slice(0,4));L.push({k:'biz',id:f.name,ic:'🔧',t:`Scopri <b>${esc(f.name)}</b> (${dist(f.d)}): può diventare il presidio sponsor della zona`,go:'biz',ll:[f.lat,f.lon],d:f.d,f,rw:{c:50,g:1}});}}
+  L.forEach(m=>{m.goal=m.goal||1;m.prog=0;m.done=false;m.cl=false;});return{day:tmDay(),addr:S.zone.address,list:L,chest:false};}
+function tmInit(){if(typeof G==='undefined'||!G.type)return null;if(!G.tm||G.tm.day!==tmDay()||G.tm.addr!==(S.zone&&S.zone.address))G.tm=tmGen();return G.tm;}
+function tmEvent(k,id,ok){const T=G&&G.tm;if(!T||T.day!==tmDay())return;let hit=false;
+  T.list.forEach(m=>{if(m.done)return;let p=false;
+    if(m.k===k&&(m.id===id||k==='win'))p=true;if(k==='win'&&m.k==='def'&&G.q&&G.q[m.id]>=1)p=true;if(k==='evwin'&&m.k==='ev'&&m.id===id)p=true;if(k==='win'&&m.k==='win')p=true;
+    if(m.k==='exp'&&k==='exp'&&m.id===id&&!ok)p=false;
+    if(p){m.prog=Math.min(m.goal,m.prog+1);if(m.prog>=m.goal){m.done=true;hit=true;toast(`🎯 Missione completata: riscatta il premio!`);sfx&&sfx('coin');}}});
+  if(hit)try{saveLocal();}catch(e){}}
+window.onExpDone=(id,ok)=>tmEvent('exp',id,ok);
+window.onWaveEnd=(win,L,ev,coop)=>{if(!win||coop)return;tmEvent('win','x');if(ev)tmEvent('evwin',ev);};
+const _couponForTM=couponFor;couponFor=function(k){const c=_couponForTM(k);try{tmEvent('cp',k);}catch(e){}return c;};
+const _lmPoiTM=lmPoi;lmPoi=function(name,cat,d,ll,pub){_lmPoiTM(name,cat,d,ll,pub);try{tmEvent('poi',name);}catch(e){}};
+const _bizSheetTM=bizSheet;bizSheet=function(b,z){_bizSheetTM(b,z);try{tmEvent('biz',b.name);}catch(e){}};
+function tmHTML(){const T=tmInit();if(!T)return'';const done=T.list.filter(m=>m.cl).length;
+  return`<div class="panel tmp"><div class="row spread"><b class="disp" style="font-size:22px">🎯 Missioni di oggi</b><span class="tag">${done}/${T.list.length}</span></div>
+   <p style="font-weight:400;font-size:12.5px;margin:2px 0 8px">Sui posti veri della tua zona. Cambiano ogni giorno a mezzanotte.</p>
+   ${T.list.map((m,i)=>`<div class="tm ${m.cl?'cl':m.done?'ok':''}"><span class="tmi">${m.cl?'✅':m.ic}</span><div class="tmt"><span>${m.t}</span>${m.goal>1?`<div class="vbar"><span style="width:${m.prog/m.goal*100}%"></span></div>`:''}<small>Premio: 🪙 ${m.rw.c}${m.rw.g?` · 💎 ${m.rw.g}`:''}</small></div>
+     ${m.cl?'':m.done?`<button class="btn small" data-tmc="${i}">Riscatta</button>`:`<button class="btn small ghost" data-tmg="${i}">Vai</button>`}</div>`).join('')}
+   ${done===T.list.length&&!T.chest?`<button class="btn wide alt" data-tmx>🎁 Apri lo scrigno: tutte fatte! (💎 10)</button>`:T.chest?'<p class="muted" style="font-size:12.5px;margin-top:6px">Scrigno aperto. Domani nuove missioni.</p>':`<p class="muted" style="font-size:12.5px;margin-top:6px">Completale tutte e 3 per lo scrigno: 💎 10.</p>`}</div>`;}
+function tmBind(){const p=app.querySelector('.tmp');if(!p)return;const T=G.tm;
+  p.querySelectorAll('[data-tmc]').forEach(b=>b.onclick=()=>{const m=T.list[+b.dataset.tmc];if(!m||!m.done||m.cl)return;m.cl=true;G.coins+=m.rw.c;G.gems+=m.rw.g||0;sfx('coin');vibe();toast(`+🪙 ${m.rw.c}${m.rw.g?` +💎 ${m.rw.g}`:''}`);renderHub();});
+  const x=p.querySelector('[data-tmx]');if(x)x.onclick=()=>{T.chest=true;G.gems+=10;sfx('win');toast('🎁 Scrigno delle missioni: +💎 10');renderHub();};
+  p.querySelectorAll('[data-tmg]').forEach(b=>b.onclick=()=>{const m=T.list[+b.dataset.tmg];if(!m)return;
+    if(m.go==='day'){const d=app.querySelector('.dayp');if(d){const f=d.closest('details');if(f)f.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}}
+    else if(m.go==='fight'){const f=app.querySelector('#fight');if(f)f.scrollIntoView({behavior:'smooth',block:'center'});}
+    else if(m.go==='map'){const sl=SLOTS.find(s=>s.id===m.id);G.sel=m.id;renderHub();setTimeout(()=>{const i=app.querySelector('#slotinfo');if(i)i.scrollIntoView({behavior:'smooth',block:'center'});},60);}
+    else if(m.go==='sp'){sponsorSheet(m.id,S.zone);}
+    else if(m.go==='poi'){lmPoi(m.id,TR_NAME[m.kk]||'Servizio',m.d,m.ll,true);renderHub();}
+    else if(m.go==='biz'){bizSheet({i:'tm',ic:'🔧',name:m.id,cat:'Attività per la casa',d:m.d,ll:m.ll,cand:true,tel:m.f&&m.f.tel,web:m.f&&m.f.web},S.zone);}});}
+const _splitHubTM=splitHub;splitHub=function(){_splitHubTM();try{if((G.sub||'q')!=='q'||app.querySelector('.tmp'))return;const h=tmHTML();if(!h)return;const a=app.querySelector('.terrp')||app.querySelector('.camp');if(!a)return;a.insertAdjacentHTML('beforebegin',h);const p=app.querySelector('.tmp');p.dataset.grp='q';tmBind();}catch(e){console.warn('missioni',e);}};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
