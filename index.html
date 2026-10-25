@@ -725,6 +725,13 @@ a.onl{font-weight:700;color:#1f3f80}
 .wnight{display:flex;flex-direction:column;gap:3px;margin:4px 0 10px;padding:9px 11px;background:#1b1438;color:#f3e9d2;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-size:13.5px;font-weight:400}
 .wnight b{color:var(--moon);font-family:var(--display);font-weight:400;font-size:18px}
 .wnight em{font-style:normal;font-family:var(--display);font-size:16px;color:#1b1438;background:var(--moon);align-self:flex-start;padding:1px 8px;margin-top:3px}
+
+.mvcol{display:grid;gap:8px}
+.mv{border:3px solid var(--ink);padding:9px 11px;box-shadow:3px 3px 0 var(--ink)}
+.mv.ok{background:#e3f5e8}.mv.ko{background:#fbe3e6}
+.mv b{font-family:var(--display);font-weight:400;font-size:19px}
+.mv ul{margin:4px 0 0 18px;padding:0;font-size:13.5px;font-weight:400;display:grid;gap:2px}
+.mvtot{margin:10px 0 4px;padding:8px 11px;background:var(--moon);border:3px solid var(--ink);font-size:15px;font-weight:700}
 </style>
 </head>
 <body>
@@ -5477,7 +5484,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610251716';
+const ZSH_BUILD='202610251750';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -5842,6 +5849,52 @@ const _terrPanelW=terrPanelHTML;terrPanelHTML=function(){const h=_terrPanelW();i
     :`<div class="wnight"><b>🌙 Stanotte</b><span>${m.ic} ${m.n} · meteo in arrivo…</span></div>`;
   return h.replace('<div class="terrb">',line+'<div class="terrb">');};
 const _renderHubW=renderHub;renderHub=function(){const r=_renderHubW.apply(this,arguments);if(S.zone&&S.zone.real&&!ZW.d&&!ZW.busy){ZW.busy=1;zWeather().then(d=>{ZW.busy=0;if(d&&S.tab==='orda'&&G.view==='hub'&&(G.sub||'q')==='q'){const p=app.querySelector('.terrp');if(p){const n=document.createElement('div');n.innerHTML=terrPanelHTML();const np=n.firstElementChild;np.dataset.grp='q';p.replaceWith(np);const bm=np.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}}});}return r;};
+</script>
+<script>
+/* =========================================================
+   TRASLOCO: "Ho cambiato casa"
+   Viene con te: monete, gemme, livello, medaglie, attrezzi,
+   materiali e kit, Crediti Casa Vera, amici, codici sconto,
+   risposte personali (scorte, kit medico, radio, mezzo).
+   Resta nella casa vecchia (rimborsata in parte): edifici del
+   quartiere 70%, punti fortificati 50%, potenziamenti casa 50%.
+   Si ricomincia: posizione, valutazione della casa, Scudo.
+   Rimborso al massimo una volta ogni 30 giorni.
+   ========================================================= */
+const MOVE_KEEP=['cibo','medico','radio','mezzo','acqua'];
+function movePlan(){const out={lots:0,q:0,h:0,nl:0,nq:0,nh:0};const sum=(a,n)=>(a||[]).slice(0,n).reduce((x,y)=>x+(y||0),0);
+  if(typeof G!=='undefined'&&G.type){
+    Object.entries(G.lots||{}).forEach(([id,b])=>{if(b.owner)return;const l=LOTS.find(x=>x.id===id);out.lots+=Math.round((l?l.cost:300)*.7);if(b.kind==='bld'&&BLD[b.b])out.lots+=Math.round(BLD[b.b].cost*.5);out.nl++;});
+    Object.entries(G.q||{}).forEach(([id,lv])=>{const s=SLOTS.find(x=>x.id===id);if(s&&lv){out.q+=Math.round(sum(s.cost,lv)*.5);out.nq++;}});
+    const st=(HTYPES[G.type]&&HTYPES[G.type].start)||{};Object.entries(G.h||{}).forEach(([id,lv])=>{const u=HUP.find(x=>x.id===id);const paid=lv-(st[id]||0);if(u&&paid>0){out.h+=Math.round((sum(u.cost,lv)-sum(u.cost,st[id]||0))*.5);out.nh++;}});}
+  out.tot=out.lots+out.q+out.h;out.cool=!!(typeof G!=='undefined'&&G.lastMove&&Date.now()-G.lastMove<30*864e5);if(out.cool)out.tot=0;return out;}
+function moveSheet(){const P=movePlan();const g=typeof G!=='undefined'&&G.type;const old=S.zone&&S.zone.address;
+  openSheet('🚚 Ho cambiato casa',`<p style="font-weight:400;margin-bottom:10px">${old?`Lasci <b>${esc(old)}</b>. `:''}Valuti la casa nuova e il gioco si sposta nel quartiere nuovo.</p>
+   <div class="mvcol"><div class="mv ok"><b>🎒 Viene con te</b><ul><li>Monete, gemme, livello e medaglie</li><li>Attrezzi anti-zombie, materiali e kit</li><li>Crediti Casa Vera e codici sconto già ottenuti</li><li>Amici e classifica</li><li>Le tue scorte, kit medico, radio e mezzo</li></ul></div>
+   <div class="mv ko"><b>🏚️ Resta nella casa vecchia</b><ul><li>${g?`${P.nl} ${P.nl===1?'edificio':'edifici'} del quartiere${P.nl?` → rimborso 70%: 🪙 ${P.lots}`:''}`:'Edifici del quartiere'}</li><li>${g?`${P.nq} ${P.nq===1?'punto fortificato':'punti fortificati'}${P.nq?` → rimborso 50%: 🪙 ${P.q}`:''}`:'Punti fortificati'}</li><li>${g?`Potenziamenti della casa${P.nh?` → rimborso 50%: 🪙 ${P.h}`:''}`:'Potenziamenti della casa'}</li><li>Valutazione, Scudo e missioni della casa vecchia (rifai tutto sulla nuova)</li></ul></div></div>
+   ${g?`<div class="mvtot">${P.cool?'Bonus trasloco già usato negli ultimi 30 giorni: questa volta nessun rimborso.':`🎁 Bonus trasloco: <b>🪙 ${P.tot}</b>`}</div>`:''}
+   <p class="muted" style="font-size:12.5px;margin:8px 0">La casa vecchia resta salvata nella tua cronologia. Sulla mappa della community la tua posizione si sposta quando valuti la casa nuova.</p>
+   <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" data-mvok>🚚 Sì, mi sono trasferito</button><button class="btn ghost small" data-close2>Annulla</button></div>`,card=>{
+    card.querySelector('[data-close2]').onclick=closeSheet;card.querySelector('[data-mvok]').onclick=()=>{doMove(P);};});}
+function doMove(P){try{
+  S.case=(S.case||[]);if(S.zone)S.case.unshift({address:S.zone.address,idx:S.result?S.result.idx:null,t:Date.now(),type:S.zone.type});S.case=S.case.slice(0,10);
+  const keep={};MOVE_KEEP.forEach(k=>{if(S.answers&&S.answers[k]!=null&&!(k==='acqua'&&S.answers[k]==='pozzo'))keep[k]=S.answers[k];});
+  S.answers=keep;S.aiFilled={};S.zone=null;S.geo=null;S.result=null;S.rmiss={};S.step=0;S.qLive=null;
+  if(S.game){S.game.base=null;S.game.applied=new Set();}
+  if(typeof G!=='undefined'&&G.type){G.coins+=P.tot;G.lots={};G.q={};G.h={...((HTYPES[G.type]&&HTYPES[G.type].start)||{})};G.sel=null;G.exp=[];G.rhAuto=0;if(P.tot)G.lastMove=Date.now();
+    if(typeof ccvInit==='function'){ccvInit();if(P.tot)G.ccv.log.unshift({t:'Trasloco: rimborso in monete',c:0});}}
+  HQ.map=null;try{hqApply(false);}catch(e){}ZW.d=null;
+  try{saveLocal();if(typeof pushCloud==='function')pushCloud();}catch(e){}zSyncProfile(true);
+  closeSheet();toast(P.tot?`🚚 Trasloco fatto: +🪙 ${P.tot}. Ora valuta la casa nuova`:'🚚 Trasloco fatto: ora valuta la casa nuova');go('valuta');}
+  catch(e){console.warn('trasloco',e);toast('Trasloco non riuscito: riprova');}}
+/* pulsante in Valuta (quando c'è già una casa) e nel menu */
+const _vZonaMv=vZona;vZona=function(){_vZonaMv();try{if(!S.zone||document.getElementById('mvBtn'))return;const g=document.getElementById('geoBtn');const row=g&&g.parentElement;
+  if(row)row.insertAdjacentHTML('afterend','<button class="btn ghost small" id="mvBtn" style="margin-top:8px">🚚 Ho cambiato casa</button>');const b=document.getElementById('mvBtn');if(b)b.onclick=moveSheet;}catch(e){}};
+const _renderMenuMv=renderMenu;renderMenu=function(){_renderMenuMv();try{if(!S.zone||document.querySelector('[data-move]'))return;const ref=document.querySelector('[data-pubt]')||document.querySelector('.dr-user');
+  if(ref){ref.insertAdjacentHTML('afterend','<button class="mi" data-move="1"><span>🚚</span>Ho cambiato casa</button>');document.querySelector('[data-move]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}moveSheet();};}}catch(e){}};
+/* cronologia delle case salvata con i progressi */
+const _snapMv=snapshot;snapshot=function(){const d=_snapMv();if(d&&d.S)d.S.case=S.case||[];return d;};
+const _restMv=restore;restore=function(d){const r=_restMv(d);try{if(d&&d.S&&d.S.case)S.case=d.S.case;}catch(e){}return r;};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
