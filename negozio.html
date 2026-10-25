@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ZombieSafeHouse · Pannello negozio</title><meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="theme-color" content="#241a4a">
+<style>
+:root{--ink:#140f1f;--moon:#f7d64a;--red:#d7263d;--night:#241a4a;--paper:#f3e9d2;--green:#3f9b5f;--lil:#e9e0f5}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,Arial,sans-serif;background:var(--paper);color:var(--ink)}
+header{background:var(--night);color:#fff;padding:14px 16px;padding-top:max(14px,env(safe-area-inset-top));border-bottom:4px solid var(--moon);display:flex;justify-content:space-between;align-items:center;gap:10px}
+header b{font-size:20px}header span{font-size:12px;opacity:.85}
+main{max-width:640px;margin:0 auto;padding:14px;padding-bottom:max(20px,env(safe-area-inset-bottom))}
+.box{background:#fff;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px;margin-bottom:16px}
+h2{margin:0 0 10px;font-size:20px}label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px}
+input,select,textarea{width:100%;padding:12px;border:2px solid var(--ink);font-size:17px;background:#fff}
+.row{display:flex;gap:8px}.row>*{flex:1}
+button{padding:13px 14px;border:3px solid var(--ink);background:var(--moon);font-weight:700;font-size:16px;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+button.ghost{background:#fff}button.red{background:var(--red);color:#fff}button:disabled{opacity:.5}
+.msg{padding:12px;margin:10px 0;border:3px solid var(--ink);font-weight:700;font-size:17px}.ok{background:#c8f0d4}.ko{background:#ffd9de}
+#code{font-size:28px;letter-spacing:3px;text-transform:uppercase;text-align:center;font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.st{border:3px solid var(--ink);padding:10px;background:var(--lil)}.st b{display:block;font-size:30px}.st small{font-size:12.5px}
+.ld{border-top:2px dashed #ccc;padding:10px 0}.ld small{display:block;color:#5a5470}
+.hidden{display:none}.hint{font-size:13px;color:#5a5470;margin-top:6px}
+</style></head><body>
+<header><div><b>ZombieSafeHouse</b><br><span id="who">Pannello del negozio</span></div><button class="ghost" id="logout" style="display:none;padding:8px 10px;font-size:14px">Esci</button></header>
+<main>
+<div class="box" id="loginBox"><h2>Accedi</h2>
+ <p class="hint" style="margin-top:0">Usa lo stesso account con cui ti sei registrato nell’app ZombieSafeHouse. INDZ lo collega al tuo negozio.</p>
+ <label>Email</label><input id="email" type="email" autocomplete="username">
+ <label>Password</label><input id="pw" type="password" autocomplete="current-password">
+ <div style="margin-top:12px"><button id="loginBtn">Entra</button></div><div id="loginMsg"></div></div>
+
+<div id="area" class="hidden">
+<div class="box" id="pickBox" style="display:none"><label>Negozio</label><select id="pick"></select></div>
+<div class="box"><h2>✅ Valida un codice sconto</h2>
+ <p class="hint" style="margin-top:0">Il cliente ti mostra il codice nell’app (es. ZSH-FV-1390). Scrivilo qui prima di applicare lo sconto.</p>
+ <input id="code" placeholder="ZSH-…" autocomplete="off" autocapitalize="characters">
+ <label>Importo dello scontrino (facoltativo)</label><input id="amt" type="number" inputmode="decimal" placeholder="€">
+ <div style="margin-top:12px"><button class="red" id="redeem" style="width:100%">Valida codice</button></div><div id="rMsg"></div></div>
+<div class="box"><h2>📊 Questo mese</h2><div class="stats" id="stats">…</div><p class="hint">Visualizzazioni sulla mappa e nel gioco, schede aperte, codici e richieste di preventivo arrivate dall’app.</p></div>
+<div class="box"><h2>📩 Richieste di preventivo</h2><div id="leads">…</div></div>
+<div class="box"><h2>🎟️ Ultimi codici usati</h2><div id="used">…</div></div>
+</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SB=supabase.createClient('https://wmweptdpfworispqjhto.supabase.co','sb_publishable_kaNxtTEWBzAdqGVAp_wLdA_XzOtNQFp');
+const $=s=>document.querySelector(s);const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const msg=(el,t,ok)=>{el.innerHTML=`<div class="msg ${ok?'ok':'ko'}">${t}</div>`;};let SP=[],cur=null;
+async function start(){const{data:{user}}=await SB.auth.getUser();if(!user)return;
+  const{data:links}=await SB.from('sponsor_users').select('sponsor_id').eq('user_id',user.id);
+  if(!links||!links.length){msg($('#loginMsg'),'Questo account non è ancora collegato a un negozio. Chiedi a INDZ di collegarlo (raschi.ale@gmail.com).',false);return;}
+  const{data:sps}=await SB.from('sponsors').select('id,name,logo_text,category').in('id',links.map(l=>l.sponsor_id));SP=sps||[];
+  $('#loginBox').classList.add('hidden');$('#area').classList.remove('hidden');$('#logout').style.display='';
+  if(SP.length>1){$('#pickBox').style.display='';$('#pick').innerHTML=SP.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');$('#pick').onchange=()=>{cur=SP.find(s=>s.id===$('#pick').value);load();};}
+  cur=SP[0];load();}
+async function load(){$('#who').textContent=cur.name+' · pannello del negozio';
+  const{data:st}=await SB.from('sponsor_stats_month').select('*').eq('sponsor_id',cur.id).maybeSingle();const S=st||{};
+  $('#stats').innerHTML=[['👀',S.visualizzazioni,'visualizzazioni'],['📇',S.schede_aperte,'schede aperte'],['🎟️',S.codici_creati,'codici creati'],['✅',S.codici_usati,'codici usati in negozio'],['📩',S.preventivi,'richieste di preventivo']].map(([i,v,t])=>`<div class="st"><b>${v||0}</b><small>${i} ${t}</small></div>`).join('');
+  const{data:L}=await SB.from('leads').select('*').eq('sponsor_id',cur.id).order('created_at',{ascending:false}).limit(50);
+  $('#leads').innerHTML=(L&&L.length)?L.map(l=>`<div class="ld"><b>${esc(l.name)}</b> · <a href="${/@/.test(l.contact)?'mailto:':'tel:'}${esc(l.contact)}">${esc(l.contact)}</a><small>${new Date(l.created_at).toLocaleString('it-IT')}${l.house_index?` · indice casa ${String(l.house_index).replace('.',',')}`:''}</small>${l.message?`<p style="margin:6px 0">${esc(l.message)}</p>`:''}
+    <select data-ls="${l.id}">${['nuovo','contattato','preventivo','vinto','perso'].map(s=>`<option ${l.status===s?'selected':''}>${s}</option>`).join('')}</select></div>`).join(''):'<p class="hint">Nessuna richiesta per ora.</p>';
+  document.querySelectorAll('[data-ls]').forEach(s=>s.onchange=async()=>{await SB.from('leads').update({status:s.value}).eq('id',s.dataset.ls);});
+  const{data:U}=await SB.from('coupons').select('code,redeemed_at,amount_eur').eq('sponsor_id',cur.id).not('redeemed_at','is',null).order('redeemed_at',{ascending:false}).limit(20);
+  $('#used').innerHTML=(U&&U.length)?U.map(c=>`<div class="ld"><b>${esc(c.code)}</b><small>${new Date(c.redeemed_at).toLocaleString('it-IT')}${c.amount_eur?` · € ${String(c.amount_eur).replace('.',',')}`:''}</small></div>`).join(''):'<p class="hint">Ancora nessun codice usato.</p>';}
+$('#redeem').onclick=async()=>{const c=$('#code').value.trim().toUpperCase();if(!c)return;$('#redeem').disabled=true;const a=parseFloat(($('#amt').value||'').replace(',','.'));
+  const{data,error}=await SB.rpc('redeem_coupon',{p_code:c,p_amount:isNaN(a)?null:a});$('#redeem').disabled=false;
+  if(error){msg($('#rMsg'),'Errore: '+esc(error.message),false);return;}const ok=/valid|ok|applica/i.test(data||'')&&!/inesist|altro|già|scadut/i.test(data||'');
+  msg($('#rMsg'),ok?'✅ '+esc(data||'Codice valido: applica lo sconto'):'⛔ '+esc(data),ok);if(ok){$('#code').value='';$('#amt').value='';load();}};
+$('#loginBtn').onclick=async()=>{const{error}=await SB.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#pw').value});if(error){msg($('#loginMsg'),'Accesso non riuscito: controlla email e password',false);return;}start();};
+$('#logout').onclick=async()=>{await SB.auth.signOut();location.reload();};
+start();
+</script>
+</body></html>

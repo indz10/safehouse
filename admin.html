@@ -91,7 +91,7 @@ $('#saveBtn').onclick=async()=>{const name=$('#f_name').value.trim(),m=$('#saveM
 async function loadList(){const{data,error}=await SB.from('sponsors').select('*').order('created_at',{ascending:false});const L=$('#list');
   if(error){L.textContent='Errore: '+error.message;return;}if(!data.length){L.textContent='Nessuno sponsor ancora.';return;}
   L.innerHTML=data.map(s=>`<div class="sp"><div><b>${s.name}</b> <span class="tag ${s.active?'on':'off'}">${s.active?'attivo':'non attivo'}</span><small>${s.category||''} · ${s.package} · ${s.address||''}</small><small>📍 ${s.lat??'–'}, ${s.lon??'–'}</small></div>
-    <div class="row" style="flex-direction:column"><button class="ghost" data-t="${s.id}" data-a="${s.active}">${s.active?'Disattiva':'Attiva'}</button><button class="ghost" data-show="${s.lat},${s.lon}">Mappa</button><button class="ghost" data-ed="${s.id}">✏️ Modifica</button><button class="ghost" data-del="${s.id}" style="color:#d7263d">🗑 Elimina</button></div></div>`).join('');
+    <div class="row" style="flex-direction:column"><button class="ghost" data-t="${s.id}" data-a="${s.active}">${s.active?'Disattiva':'Attiva'}</button><button class="ghost" data-show="${s.lat},${s.lon}">Mappa</button><button class="ghost" data-ed="${s.id}">✏️ Modifica</button><button class="ghost" data-acc="${s.id}">🔑 Account negozio</button><button class="ghost" data-del="${s.id}" style="color:#d7263d">🗑 Elimina</button></div></div>`).join('');
   L.querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>editSp(data.find(x=>x.id===b.dataset.ed)));
   L.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const sp=data.find(x=>x.id===b.dataset.del);
     if(!confirm('Eliminare DEFINITIVAMENTE “'+sp.name+'”? Spariscono anche offerte, codici e preventivi collegati. Se vuoi solo sospenderlo usa “Disattiva”.'))return;
@@ -142,4 +142,11 @@ async function loadReports(){const B=$('#reports');if(!B)return;const{data,error
   B.querySelectorAll('[data-rh]').forEach(b=>b.onclick=async()=>{const n=decodeURIComponent(b.dataset.rh);const r=by[n][0];await SB.from('hidden_pois').insert({name:n,lat:r.lat,lon:r.lon});await SB.from('poi_reports').delete().eq('name',n);loadReports();loadHidden();});
   B.querySelectorAll('[data-ri]').forEach(b=>b.onclick=async()=>{await SB.from('poi_reports').delete().eq('name',decodeURIComponent(b.dataset.ri));loadReports();});}
 const _loadList3=loadList;loadList=async function(){await _loadList3();loadReports();};
+
+/* account del negozio: il negoziante si registra nell'app, tu lo colleghi qui con la sua email */
+document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('[data-acc]');if(!b)return;const id=b.dataset.acc;
+  let cur='';try{const{data}=await SB.rpc('admin_sponsor_accounts',{p_sponsor:id});cur=(data||[]).map(x=>x.email).join(', ');}catch(x){}
+  const em=prompt((cur?'Account già collegati: '+cur+'\n\n':'')+'Email con cui il negoziante si è registrato nell’app ZombieSafeHouse:');if(!em)return;
+  const{data,error}=await SB.rpc('admin_link_sponsor',{p_sponsor:id,p_email:em});
+  alert(error?'Errore: '+error.message:data==='ok'?'✅ Collegato. Il negoziante entra da safehousezombie.netlify.app/negozio.html con la sua email e password.':data);});
 </script></body></html>
