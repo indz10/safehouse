@@ -740,6 +740,24 @@ a.onl{font-weight:700;color:#1f3f80}
 .tmi{font-size:24px;flex:0 0 auto}
 .tmt{flex:1;display:flex;flex-direction:column;gap:3px;font-size:13.5px;font-weight:400}
 .tmt small{font-weight:700;font-size:12px}
+
+.thab{display:grid;gap:6px;margin:0 0 8px}
+.thab>div{display:flex;flex-direction:column;gap:2px;padding:7px 10px;background:#efe6ff;border:2px solid var(--ink);font-size:13px;font-weight:400}
+.thab b{font-size:14px}
+
+.qph{display:flex;gap:10px;align-items:center;margin:6px 0 8px;padding:6px;background:#fff8e6;border:2px dashed var(--ink)}
+.qph img{width:84px;height:64px;object-fit:cover;border:2px solid var(--ink);flex:0 0 auto}
+.qph span{font-size:12.5px;font-weight:400}
+.shg{grid-column:1/-1;font-family:var(--display);font-size:20px;margin:6px 0 -2px}
+.shg small{font-family:var(--body,inherit);font-size:12px;font-weight:400}
+.plan h3{margin-bottom:2px}
+.plg{margin:10px 0}
+.plg>b{display:block;font-family:var(--display);font-weight:400;font-size:19px;margin-bottom:4px}
+.pli{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:2px dashed rgba(20,15,31,.2)}
+.pli>div{display:flex;flex-direction:column;gap:3px;font-size:14px;font-weight:400}
+.pli small{font-size:12px;font-weight:700;color:#5a5470}
+.pli .btn{align-self:flex-start;margin-top:3px}
+.plc{flex:0 0 74px;font-weight:700;font-size:13px;background:#fff3b0;border:2px solid var(--ink);text-align:center;padding:2px 3px}
 </style>
 </head>
 <body>
@@ -961,10 +979,10 @@ function fileToJpeg(file){
   });
 }
 const VISION_PROMPT=`Sei il modulo di valutazione di ZombieSafeHouse, un'app-gioco sulla sicurezza della casa.
-Ricevi foto dell'esterno della casa dell'utente (porta d'ingresso, finestre al piano terra, perimetro/cancello).
-Valuta SOLO elementi difensivi visibili. Ignora persone, volti, targhe, numeri civici e qualsiasi dato identificativo: non citarli mai.
+Ricevi foto della casa dell'utente, ognuna con il nome della stanza o della zona (porta d'ingresso, finestre al piano terra, cancello e recinzione, retro e giardino, ingresso visto da dentro, soggiorno e portefinestre, garage o cantina).
+Valuta SOLO elementi difensivi visibili. Ignora persone, volti, targhe, numeri civici, oggetti di valore e qualsiasi dato identificativo: non citarli mai.
 Rispondi SOLO con un oggetto JSON valido, senza testo prima o dopo e senza blocchi di codice, con queste chiavi:
-{"porta":"b4|blindata|legno|vetro|ns","grate":"tutte|alcune|no|ns","finestre":"0|2|5|6|ns","tapparelle":"blind|allu|legno|no|ns","recinzione":"muro2|muro1|rete|cond|no|ns","cancello":"auto|manuale|no|ns","luci":"sensore|fisse|no|ns","note":["massimo 3 osservazioni brevi in italiano"]}
+{"porta":"b4|blindata|legno|vetro|ns","grate":"tutte|alcune|no|ns","finestre":"0|2|5|6|ns","tapparelle":"blind|allu|legno|no|ns","recinzione":"muro2|muro1|rete|cond|no|ns","cancello":"auto|manuale|no|ns","luci":"sensore|fisse|no|ns","serratura":"cil|dop|norm|ns","portafin":"no|prot|si|ns","retro":"nessuna|blind|norm|ns","appigli":"no|qualche|molti|ns","garage":"no|sez|bas|aperto|ns","allarme":"cam|allarme|no|ns","note":["massimo 4 osservazioni brevi in italiano, una per stanza fotografata"]}
 Usa "ns" quando l'elemento non si vede.`;
 function simulateFindings(){
   const have=Object.values(S.photos).filter(Boolean).length;
@@ -1692,7 +1710,7 @@ function bindMap(key,z,me=true){
   wirePins();
 }
 function vFoto(){
-  const slots=[['porta','Porta d’ingresso'],['finestre','Finestre al piano terra'],['perimetro','Cancello e recinzione']];
+  const slots=PHOTO_SLOTS;
   const f=S.findings;
   $('#vv').innerHTML=`
    <h2>Inquadra la casa</h2>
@@ -1712,11 +1730,11 @@ function vFoto(){
     $('#aiBtn').innerHTML='<span class="spin"></span> L’IA osserva';$('#aiBtn').disabled=true;
     const imgs=Object.entries(S.photos).filter(([,v])=>v);
     try{
-      const content=[];imgs.forEach(([k,v])=>{content.push({type:'text',text:'Foto: '+k});content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:v.b64}});});
+      const content=[];imgs.forEach(([k,v])=>{content.push({type:'text',text:'Foto: '+((PHOTO_SLOTS.find(x=>x[0]===k)||[0,k])[1])});content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:v.b64}});});
       content.push({type:'text',text:'Analizza le foto e rispondi solo con il JSON richiesto.'});
       const txt=await askAI(VISION_PROMPT,[{role:'user',content}]);
       const json=JSON.parse(txt.replace(/```json|```/g,'').trim());S.findings=json;
-    }catch(e){S.findings=simulateFindings();toast('IA non raggiungibile: uso un’analisi simulata');}
+    }catch(e){S.findings=null;toast('Analisi automatica non ancora attiva: guarda le tue foto mentre rispondi alle domande');return vFoto();toast('IA non raggiungibile: uso un’analisi simulata');}
     vFoto();
   };
   $('#simBtn').onclick=()=>{S.findings=simulateFindings();vFoto();};
@@ -2877,6 +2895,12 @@ async function renderBattle(){
     faro:()=>{alv().forEach(z=>z.stun=Math.max(z.stun||0,3));st.flashAll=.6;pop('FASCIO DEL FARO!',140,100,'#f7d64a',26);},
     onda:()=>{alv().forEach(z=>{z.x=Math.min(495,z.x+70);z.stun=Math.max(z.stun||0,1);});st.splashAll=1;pop('ONDATA D’ACQUA!',140,100,'#9fd3e6',24);},
     clacson:()=>{alv().forEach(z=>{z.x=Math.min(495,z.x+50);z.stun=Math.max(z.stun||0,1.5);});pop('PEEEEP!',180,100,'#f7d64a',30);sfx('horn');},
+    vicini:()=>{const n=Math.max(1,(window.__vic||[]).length);const k=Math.min(10,3+n*2);alv().sort((p,q)=>p.x-q.x).slice(0,k).forEach(z=>{hitZ(z,2.5,'ally');z.stun=Math.max(z.stun||0,.8);});
+      st.habBuff={t:6,k:'cond'};pop((window.__vic||[]).slice(0,2).map(v=>'@'+v).join(' e ')+(n>2?' E ALTRI':'')+' ARRIVANO!',110,90,'#c9b8ff',20);sfx('horn');},
+    idranti:()=>{alv().forEach(z=>{z.x=Math.min(495,z.x+85);z.stun=Math.max(z.stun||0,1.3);});st.splashAll=1;pop('IDRANTI DELLA VIA!',130,100,'#9fd3e6',24);shake(3);},
+    campane:()=>{alv().forEach(z=>{z.stun=Math.max(z.stun||0,2.3);});st.flashAll=.25;pop('CAMPANE A MARTELLO!',120,100,'#f7d64a',24);sfx('horn');},
+    fiume:()=>{alv().filter(z=>z.lane===2).forEach(z=>{z.x=Math.min(495,z.x+150);hitZ(z,1.5,'ally');});alv().filter(z=>z.lane!==2).forEach(z=>{z.x=Math.min(495,z.x+50);});st.splashAll=1;pop('PIENA DEL FIUME!',140,100,'#6fb3e6',24);},
+    collina:()=>{const t=alv().sort(()=>Math.random()-.5).slice(0,7);t.forEach(z=>{hitZ(z,2.2,'ally');z.stun=Math.max(z.stun||0,1.5);});pop('SASSI DALLA COLLINA!',130,90,'#c9a36b',24);shake(5);},
     pigne:()=>{const t=alv().sort(()=>Math.random()-.5).slice(0,6);t.forEach(z=>hitZ(z,2.5,'ally'));pop('PIGNE DALL’ALTO!',140,90,'#c9a36b',24);}
   };
   window.__hab=()=>{const h=habOf(cur);if((st.habCd[cur.id]||0)>0||st.end)return;HABFX[h.k]();st.habCd[cur.id]=h.cd;vibe();sfx('win');objAdd('hab');};
@@ -2921,7 +2945,7 @@ async function renderBattle(){
       if(z.under&&z.x<BX+70){z.under=false;if(s===cur)burst(z.x,LANES[z.lane]-6,12,['#8a5a34','#5a3b24'],90,5,'dust');}
       if(z.rage>0)z.rage-=dt;
       const stopX=s.bar>0?BX+18:HX+6;
-      if(z.x>stopX){z.x-=b.sp*spMul*sp*(z.rage>0?1.45:1)*(z.under?1.2:1)*(s.slope||1)*dt;z.state='walk';}
+      if(z.x>stopX){z.x-=b.sp*spMul*sp*(z.rage>0?1.45:1)*(z.under?1.2:1)*(z.noSlope?1:(s.slope||1))*(z.spMul||1)*dt;z.state='walk';}
       else{z.state='attack';attacking=true;const dmg=b.dps*(1+(L-1)*.1)*D.sp*dt;
         if(s.bar>0){s.bar-=dmg;if(s.bar<=0){s.bar=0;if(s===cur){pop('CRAAK!',BX,150,'#d7263d',26);shake(5);}sfx('crack');if(s!==cur)cap(`La barricata di ${s.short} è caduta!`);}}
         else s.hp-=dmg*(1-(s.home?armorHome:Math.min(.5,(s.fort||0)*.12)));}});
@@ -2947,7 +2971,7 @@ async function renderBattle(){
       if(st.crate){const c=st.crate;if(c.y<c.ty)c.y+=60*dt;else c.life-=dt;if(c.life<=0){st.crate=null;st.crateT=14+Math.random()*8;}}}
     /* arrivi dal cimitero */
     while(st.arrived<queue.length&&queue[st.arrived].arr<=st.t){const q=queue[st.arrived++];const s=q.site;if(s.lost)continue;const b=ZT[q.ty];const hpm=q.ty==='oro'?1:q.ty==='boss'?(1+(L/5-1)*.6)*D.hp:hpMul;
-      s.zs.push({ty:q.ty,lane:q.lane,x:500+Math.random()*20,hp:b.hp*hpm,max:b.hp*hpm,state:'walk',ph:Math.random()*6,flash:0,stun:0,under:q.ty==='scavatore',scream:3+Math.random()*2,summon:5});
+      s.zs.push({ty:q.ty,lane:q.lane,x:500+Math.random()*20,hp:b.hp*hpm,max:b.hp*hpm,state:'walk',ph:Math.random()*6,flash:0,stun:0,under:q.ty==='scavatore',scream:3+Math.random()*2,summon:5});try{if(window.zTerrZ)window.zTerrZ(s.zs[s.zs.length-1],s);}catch(e){}
       if(q.ty==='boss'){setMusicIntensity(2);cap(`Il Bruto della Sagra attacca ${s.short}!`);}
       if(s!==cur&&!s.warned){s.warned=true;cap(`⚠️ L’orda è arrivata a ${s.short}`);sfx('crack');}}
     Object.keys(st.cd).forEach(k=>st.cd[k]=Math.max(0,st.cd[k]-dt));st.slow=Math.max(0,st.slow-dt);st.flashAll=Math.max(0,(st.flashAll||0)-dt);
@@ -3026,6 +3050,7 @@ async function renderBattle(){
       ctx.fillStyle='rgba(0,0,0,.32)';ctx.beginPath();ctx.ellipse(z.x,y+3,22*sc,5*sc+1,0,0,7);ctx.fill();
       if(z.under){ctx.fillStyle='#5a3b24';ctx.strokeStyle='#140f1f';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(z.x,y-2,18,7+Math.sin(z.ph)*2,0,Math.PI,0);ctx.fill();ctx.stroke();ctx.globalAlpha=1;return;}
       if(im){ctx.save();ctx.translate(z.x+bob,y-hop);ctx.rotate(tilt);if(BIG[z.ty])ctx.drawImage(im,-60*sc,-133*sc,120*sc,140*sc);else ctx.drawImage(im,-50*sc,-118*sc,100*sc,125*sc);ctx.restore();}
+      if(z.vic&&z.state!=='flee'){ctx.font='15px sans-serif';ctx.textAlign='center';ctx.fillText(z.vic,z.x+bob,y-hop-118*sc-4);}
       if(z.flash>0){ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.arc(z.x,y-70*sc,30*sc,0,7);ctx.fill();}
       if(z.state!=='flee'){ctx.fillStyle='#140f1f';ctx.fillRect(z.x-16,y-128*sc,32,5);ctx.fillStyle='#d7263d';ctx.fillRect(z.x-15,y-127*sc,30*Math.max(0,z.hp/z.max),3);}
       if(z.rage>0){ctx.font='12px Arial';ctx.fillText('💢',z.x+12,y-112*sc);}
@@ -5492,7 +5517,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610251806';
+const ZSH_BUILD='202610252003';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -5955,6 +5980,113 @@ function tmBind(){const p=app.querySelector('.tmp');if(!p)return;const T=G.tm;
     else if(m.go==='poi'){lmPoi(m.id,TR_NAME[m.kk]||'Servizio',m.d,m.ll,true);renderHub();}
     else if(m.go==='biz'){bizSheet({i:'tm',ic:'🔧',name:m.id,cat:'Attività per la casa',d:m.d,ll:m.ll,cand:true,tel:m.f&&m.f.tel,web:m.f&&m.f.web},S.zone);}});}
 const _splitHubTM=splitHub;splitHub=function(){_splitHubTM();try{if((G.sub||'q')!=='q'||app.querySelector('.tmp'))return;const h=tmHTML();if(!h)return;const a=app.querySelector('.terrp')||app.querySelector('.camp');if(!a)return;a.insertAdjacentHTML('beforebegin',h);const p=app.querySelector('.tmp');p.dataset.grp='q';tmBind();}catch(e){console.warn('missioni',e);}};
+</script>
+<script>
+/* =========================================================
+   DIFESE E ZOMBIE DEL TERRITORIO
+   Abilità della tua casa scelta dal quartiere vero:
+   👥 vicini veri (utenti registrati entro 1,5 km), 🚒 idranti
+   (vigili del fuoco vicini), 🔔 campane (chiesa vera),
+   🌊 piena del fiume, ⛰ sassi dalla collina.
+   Zombie del territorio: 💧 annegati dal fiume (corsia bassa),
+   🌾 braccianti dai campi, 🧗 scalatori in collina,
+   🚆 pendolari in centro.
+   ========================================================= */
+function terrHab(){const R=S.zone&&S.zone.real;if(!R)return null;
+  const vic=(window.ZUSERS||[]).filter(u=>!(S.user&&u.user_id===S.user.id)&&trM(R.lat,R.lon,u.lat_r,u.lon_r)<=1500);
+  if(vic.length){window.__vic=vic.map(u=>u.nick);return{k:'vicini',ic:'👥',n:'Vicini veri',cd:16,why:`${vic.length} ${vic.length===1?'superstite registrato':'superstiti registrati'} entro 1,5 km: @${vic.slice(0,3).map(u=>u.nick).join(', @')}`};}
+  const vv=R.fac.find(f=>f.k==='vvf'&&f.d<=3000);if(vv)return{k:'idranti',ic:'🚒',n:'Idranti',cd:14,why:`Vigili del fuoco a ${dist(vv.d)}: idranti in tutta la via`};
+  const ch=HQ.map&&HQ.map.sl&&HQ.map.sl.campanile&&HQ.map.sl.campanile.name;if(ch&&/·/.test(ch))return{k:'campane',ic:'🔔',n:'Campane',cd:15,why:ch.split('·')[1].trim()+': campane a martello, l’orda si blocca'};
+  if(R.water&&R.water.d<500)return{k:'fiume',ic:'🌊',n:'Piena',cd:16,why:`${R.water.n} a ${R.water.d} m: la piena travolge la corsia bassa`};
+  if(R.pos==='altura'||R.pos==='pendio')return{k:'collina',ic:'⛰',n:'Collina',cd:15,why:'Casa in alto: sassi che rotolano sull’orda'};
+  return null;}
+const _habOfT=habOf;habOf=function(site){if(site&&site.home){const t=terrHab();if(t)return t;}return _habOfT(site);};
+const ZVAR={annegato:['💧','Annegato: sale dal fiume, più resistente'],bracciante:['🌾','Bracciante: lento ma duro'],scalatore:['🧗','Scalatore: le salite non lo rallentano'],pendolare:['🚆','Pendolare: arriva di corsa']};
+window.zTerrZ=(z,s)=>{const R=S.zone&&S.zone.real;if(!R||!z||z.ty==='boss'||z.ty==='oro')return;const H=G.hoods&&G.hoods[G.curHood];if(H&&H.id!=='own')return;const r=Math.random();
+  if(R.water&&R.water.d<500&&z.lane===2&&r<.4){z.vic='💧';z.hp*=1.35;z.max*=1.35;z.spMul=1.12;}
+  else if(R.type==='campagna'&&z.ty==='walker'&&r<.25){z.vic='🌾';z.hp*=1.6;z.max*=1.6;z.spMul=.85;}
+  else if((R.pos==='pendio'||R.pos==='altura'||(s&&s.slope&&s.slope<1))&&r<.22){z.vic='🧗';z.noSlope=1;}
+  else if(R.type==='centro'&&z.ty==='runner'&&r<.35){z.vic='🚆';z.spMul=1.18;}};
+function terrZList(){const R=S.zone&&S.zone.real;if(!R)return[];const L=[];if(R.water&&R.water.d<500)L.push('annegato');if(R.type==='campagna')L.push('bracciante');if(R.pos==='pendio'||R.pos==='altura')L.push('scalatore');if(R.type==='centro')L.push('pendolare');return L;}
+/* nel pannello del territorio: abilità e zombie della zona */
+const _terrPanelH=terrPanelHTML;terrPanelHTML=function(){const h=_terrPanelH();if(!h)return h;const t=terrHab();const zl=terrZList();
+  const add=`<div class="thab">${t?`<div><b>${t.ic} Abilità della tua casa: ${esc(t.n)}</b><span>${esc(t.why)}</span></div>`:''}${zl.length?`<div><b>🧟 Zombie della tua zona</b>${zl.map(k=>`<span>${ZVAR[k][0]} ${esc(ZVAR[k][1])}</span>`).join('')}</div>`:''}</div>`;
+  return h.replace('<ul class="terrl">',add+'<ul class="terrl">');};
+</script>
+<script>
+/* =========================================================
+   VALUTAZIONE PIÙ RICCA
+   - foto per stanza (7 zone: fuori e dentro)
+   - 17 domande nuove nei 6 capitoli (45 in tutto)
+   - le tue foto accanto alle domande che le riguardano
+   - piano d'azione: tutte le falle, ordinate per efficacia,
+     divise in "gratis oggi", "sotto 200 €", "investimenti",
+     con lo sponsor della zona quando c'è
+   ========================================================= */
+const PHOTO_SLOTS=[['porta','🚪 Porta d’ingresso'],['finestre','🪟 Finestre al piano terra'],['perimetro','🧱 Cancello e recinzione'],['retro','🏡 Retro e giardino'],['ingresso','🔐 Ingresso visto da dentro'],['soggiorno','🛋️ Soggiorno e portefinestre'],['garage','🚗 Garage o cantina']];
+PHOTO_SLOTS.forEach(([k])=>{if(!(k in S.photos))S.photos[k]=null;});
+const QPHOTO={porta:'porta',spioncino:'porta',serratura:'ingresso',finestre:'finestre',grate:'finestre',tapparelle:'finestre',vetri:'finestre',recinzione:'perimetro',cancello:'perimetro',luci:'perimetro',visibile:'perimetro',retro:'retro',appigli:'retro',videosorv:'retro',portafin:'soggiorno',garage:'garage',cantina:'garage',ingressi:'retro'};
+const QNEW=[
+ {id:'anno',ch:'str',t:'Quando è stata costruita la casa?',h:'Le case recenti seguono norme antisismiche e hanno serramenti migliori.',o:[['n2010','Dopo il 2010, o ristrutturata da poco',2],['n1980','Tra il 1980 e il 2010',4],['v1980','Prima del 1980',6],['ns','Non lo so',5]]},
+ {id:'rifugio',ch:'str',t:'C’è una stanza che si chiude bene da dentro, senza finestre basse?',h:'Una camera al piano alto o un bagno con porta robusta: l’ultima linea di difesa.',o:[['si','Sì, con porta robusta e chiave',2],['quasi','Sì, ma con porta normale',4],['no','No',7]]},
+ {id:'serratura',ch:'acc',t:'Che serratura ha la porta d’ingresso?',ai:1,h:'Il cilindro europeo antiscasso con “defender” (la placca di protezione) è lo standard di oggi.',o:[['cil','Cilindro europeo antiscasso con defender',2],['dop','Doppia mappa (chiave lunga)',6],['norm','Normale',5],['ns','Non lo so',5]]},
+ {id:'spioncino',ch:'acc',t:'Vedi chi c’è fuori prima di aprire?',o:[['video','Videocitofono o spioncino digitale',2],['spio','Spioncino o finestra vicino alla porta',4],['no','No',7]]},
+ {id:'portafin',ch:'acc',t:'Ci sono portefinestre o vetrate al piano terra?',ai:1,o:[['no','Nessuna',1],['prot','Sì, con grate o tapparelle robuste',3],['si','Sì, senza protezioni',8]]},
+ {id:'retro',ch:'acc',t:'Com’è la porta sul retro o di servizio?',ai:1,o:[['nessuna','Non c’è',1],['blind','Blindata o robusta',3],['norm','Normale o con vetri',7]]},
+ {id:'videosorv',ch:'per',t:'Da dentro casa vedi tutto il giardino o il cortile?',o:[['tutto','Sì, tutto',2],['parte','Solo in parte',5],['no','No, ci sono angoli nascosti',7],['na','Non ho giardino né cortile',3]]},
+ {id:'appigli',ch:'per',t:'Vicino ai muri ci sono cose per arrampicarsi (bidoni, scale, cataste, alberi)?',ai:1,o:[['no','No, niente',2],['qualche','Qualcosa',5],['molti','Sì, parecchie',8]]},
+ {id:'estintore',ch:'ris',t:'Hai estintore e rilevatore di fumo o gas?',o:[['entrambi','Sì, entrambi',2],['uno','Solo uno dei due',5],['no','Nessuno',8]]},
+ {id:'farmaci',ch:'ris',t:'Chi in famiglia prende farmaci ogni giorno, quanti ne ha di scorta?',o:[['nn','Nessuno ne ha bisogno',2],['30','Per un mese o più',2],['7','Per circa una settimana',5],['0','Per pochi giorni',8]]},
+ {id:'contanti',ch:'ris',t:'Tieni un po’ di contanti in casa per le emergenze?',h:'Se saltano corrente e rete, i pagamenti elettronici non funzionano.',o:[['si','Sì',2],['poco','Pochi',5],['no','No',7]]},
+ {id:'numeri',ch:'com',t:'I numeri importanti sono scritti anche su carta?',o:[['si','Sì, a portata di mano',2],['no','No, solo nel telefono',7]]},
+ {id:'ritrovo',ch:'com',t:'La famiglia ha un punto di ritrovo concordato?',o:[['si','Sì, e lo sanno tutti',2],['vago','Più o meno',5],['no','No',8]]},
+ {id:'powerbank',ch:'com',t:'Come tieni carico il telefono senza corrente?',o:[['si','Powerbank carichi o pannellino solare',2],['auto','Solo con l’auto',4],['no','Non posso',7]]},
+ {id:'zainofuga',ch:'mob',t:'Hai uno zaino pronto per andare via in 5 minuti?',o:[['si','Sì, con acqua, torcia, documenti e farmaci',2],['parz','Più o meno',5],['no','No',8]]},
+ {id:'carbur',ch:'mob',t:'Di solito il serbatoio dell’auto è…',o:[['pieno','Sopra la metà',2],['basso','Spesso in riserva',6],['na','Non ho l’auto',5]]},
+ {id:'aiuto',ch:'mob',t:'In casa c’è chi non può camminare a lungo (anziani, bimbi piccoli, disabilità)?',h:'Non cambia il voto della casa in sé: serve a darti un piano adatto.',o:[['no','No',3],['si','Sì: serve un piano su misura',5]]}];
+QNEW.forEach(q=>{if(!QBY[q.id]){Q.push(q);QBY[q.id]=q;}});
+Object.assign(FIND_LABEL,{serratura:'Serratura',portafin:'Portefinestre',retro:'Porta sul retro',appigli:'Appigli sui muri',garage:'Garage',allarme:'Allarme e telecamere'});
+Object.assign(SAMPLE,{anno:'n1980',rifugio:'quasi',serratura:'norm',spioncino:'spio',portafin:'si',retro:'norm',videosorv:'parte',appigli:'qualche',estintore:'uno',farmaci:'nn',contanti:'poco',numeri:'no',ritrovo:'vago',powerbank:'auto',zainofuga:'no',carbur:'basso',aiuto:'no'});
+/* foto accanto alle domande */
+const _vDomandeP=vDomande;vDomande=function(){_vDomandeP();try{document.querySelectorAll('#vv .q').forEach(div=>{const b=div.querySelector('[data-q]');const id=b&&b.dataset.q;const k=QPHOTO[id];const ph=k&&S.photos[k];
+    if(ph&&!div.querySelector('.qph'))div.querySelector('label').insertAdjacentHTML('afterend',`<div class="qph"><img src="${ph.url}" alt=""><span>La tua foto: ${esc((PHOTO_SLOTS.find(x=>x[0]===k)||[0,''])[1])}. Guardala e scegli la risposta.</span></div>`);});}catch(e){}};
+/* foto: titoli "fuori" e "dentro" */
+const _vFotoP=vFoto;vFoto=function(){_vFotoP();try{const sh=document.querySelector('#vv .shots');if(!sh||sh.dataset.g)return;sh.dataset.g=1;const L=[...sh.children];
+  if(L.length>=7){L[0].insertAdjacentHTML('beforebegin','<div class="shg">🏠 Fuori</div>');L[4].insertAdjacentHTML('beforebegin','<div class="shg">🚪 Dentro <small>(facoltative: più foto, consigli più precisi)</small></div>');}
+  const h=document.querySelector('#vv h2');if(h)h.textContent='Fotografa la casa, stanza per stanza';const p=h&&h.nextElementSibling;if(p)p.textContent='Fino a 7 foto: 4 da fuori e 3 da dentro. Persone, targhe e oggetti di valore vengono ignorati. Le foto restano sul telefono e non vengono salvate.';}catch(e){}};
+/* piano d'azione nel risultato */
+const ADV={anno:{bad:['v1980','ns'],best:'n2010',t:'Fai controllare porte e finestre: nelle case più vecchie sono il punto debole',c:0,cat:'serrament'},
+ rifugio:{bad:['quasi','no'],best:'si',t:'Scegli una stanza al piano alto e metti una porta robusta con chiave',c:350,cat:'port|serrament|fabbr'},
+ serratura:{bad:['dop','norm','ns'],best:'cil',t:'Cambia il cilindro con uno europeo antiscasso + defender',c:150,cat:'fabbr|ferr|sicur'},
+ spioncino:{bad:['no','spio'],best:'video',t:'Spioncino digitale o videocitofono',c:90,cat:'elettr|sicur'},
+ portafin:{bad:['si'],best:'prot',t:'Grate apribili o tapparelle rinforzate sulle portefinestre',c:700,cat:'serrament|ferr|fabbr'},
+ retro:{bad:['norm'],best:'blind',t:'Rinforza la porta sul retro: barra trasversale o porta blindata',c:450,cat:'port|fabbr|serrament'},
+ videosorv:{bad:['no','parte'],best:'tutto',t:'Luci con sensore e una telecamera sugli angoli nascosti del giardino',c:120,cat:'elettr|sicur'},
+ appigli:{bad:['qualche','molti'],best:'no',t:'Sposta bidoni, scale e cataste lontano dai muri; pota i rami bassi',c:0},
+ estintore:{bad:['uno','no'],best:'entrambi',t:'Estintore da 6 kg + rilevatori di fumo e gas',c:70,cat:'ferr|sicur|antincend'},
+ farmaci:{bad:['7','0'],best:'30',t:'Chiedi al medico di avere sempre un mese di scorta dei farmaci abituali',c:0},
+ contanti:{bad:['poco','no'],best:'si',t:'Tieni 200 € in tagli piccoli in un posto sicuro',c:0},
+ numeri:{bad:['no'],best:'si',t:'Scrivi su un foglio i numeri importanti e mettilo nello zaino',c:0},
+ ritrovo:{bad:['vago','no'],best:'si',t:'Decidete un punto di ritrovo e un parente di riferimento fuori zona',c:0},
+ powerbank:{bad:['no','auto'],best:'si',t:'Due powerbank sempre carichi o un pannellino solare',c:40,cat:'elettr'},
+ zainofuga:{bad:['parz','no'],best:'si',t:'Prepara lo zaino 72 ore: acqua, torcia, radio, documenti, farmaci',c:80,cat:'ferr'},
+ carbur:{bad:['basso'],best:'pieno',t:'Fai il pieno quando arrivi a metà serbatoio',c:0},
+ aiuto:{bad:['si'],best:null,t:'Piano su misura: chi aiuta chi, ausili pronti, medico e vicini informati',c:0}};
+function planItems(){const A=S.answers,out=[];const base=computeScore(A,S.zone).idx;const g=(q,v)=>v==null?0:Math.max(0,Math.round((base-computeScore({...A,[q]:v},S.zone).idx)*100)/100);
+  Object.entries(ADV).forEach(([q,a])=>{if(a.bad.includes(A[q]))out.push({q,t:a.t,c:a.c,cat:a.cat,gain:a.best?g(q,a.best):.05,ch:QBY[q].ch});});
+  const seen=new Set();UPG.slice().sort((x,y)=>x.cost-y.cost).forEach(u=>{if(!QBY[u.q]||seen.has(u.q))return;const r0=risk(u.q,A[u.q]),r1=risk(u.q,u.v);if(r0==null||r1==null||r1>=r0)return;seen.add(u.q);
+    out.push({q:u.q,t:u.name+(u.note?' — '+u.note:''),c:u.cost,cat:u.sp?({ferr:'ferr',sic:'sicur|fabbr|port',sol:'energ|solar|fotov'}[u.sp]):null,gain:g(u.q,u.v),ch:QBY[u.q].ch});});
+  return out.filter(x=>x.gain>0||x.c===0).sort((a,b)=>(b.gain/Math.max(30,b.c))-(a.gain/Math.max(30,a.c)));}
+function planSp(cat){if(!cat)return null;const re=new RegExp(cat,'i');const R=S.zone&&S.zone.real;const L=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&SPONSORS[k]&&re.test((SP_CAT[k]||'')+' '+SPONSORS[k].name));
+  if(!L.length)return null;if(R)L.sort((a,b)=>trM(R.lat,R.lon,a[1].lat,a[1].lon)-trM(R.lat,R.lon,b[1].lat,b[1].lon));return L[0][0];}
+function planHTML(){const L=planItems();if(!L.length)return'';const grp=[['🆓 Gratis, da fare oggi',x=>x.c===0],['💶 Sotto i 200 €',x=>x.c>0&&x.c<200],['🏗️ Investimenti',x=>x.c>=200]];
+  const tot=L.reduce((a,x)=>a+x.gain,0);
+  return`<div class="panel plan"><h3>📋 Il tuo piano d’azione</h3><p class="muted" style="font-size:13px;margin:2px 0 8px">${L.length} cose da fare, in ordine di efficacia. Tutte insieme: indice più basso di circa <b>${fmtI(Math.min(tot,S.result.idx-1))}</b> punti.</p>
+   ${grp.map(([n,f])=>{const G2=L.filter(f).slice(0,6);if(!G2.length)return'';return`<div class="plg"><b>${n}</b>${G2.map(x=>{const sp=planSp(x.cat);return`<div class="pli"><span class="plc">${x.c?'≈ '+x.c.toLocaleString('it-IT')+' €':'0 €'}</span><div><span>${esc(x.t)}</span><small>${CHAPTERS.find(c=>c.id===x.ch).name}${x.gain>=.05?` · indice −${fmtI(x.gain)}`:''}</small>${sp?`<button class="btn small" data-plsp="${sp}">⭐ Chiedi a ${esc(SPONSORS[sp].name)}</button>`:''}</div></div>`;}).join('')}</div>`;}).join('')}
+   <p class="muted" style="font-size:12px;margin-top:6px">Costi indicativi. Gli sponsor della tua zona ti fanno il preventivo.</p></div>`;}
+const _vRisP=vRisultato;vRisultato=function(){_vRisP();try{if(!S.result)return;const t=document.querySelector('#vv .panel.paper');const h=planHTML();if(!t||!h)return;t.insertAdjacentHTML('afterend',h);
+  document.querySelectorAll('[data-plsp]').forEach(b=>b.onclick=()=>sponsorSheet(b.dataset.plsp,S.zone));}catch(e){console.warn('piano',e);}};
+/* il Radio Operatore sa del nuovo questionario */
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
