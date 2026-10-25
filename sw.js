@@ -2,7 +2,7 @@
 // - la pagina arriva sempre dalla rete (versione nuova appena pubblicata)
 // - senza rete apre la copia salvata
 // - il numero di versione cambia a ogni build: l'app installata si aggiorna da sola
-const C='zsh-202610251558';const BASE=['/','/index.html','/manifest.json','/icon-192.png','/icon-512.png','/apple-touch-icon.png'];
+const C='zsh-202610251716';const BASE=['/','/index.html','/manifest.json','/icon-192.png','/icon-512.png','/apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>Promise.all(BASE.map(u=>fetch(u,{cache:'no-store'}).then(r=>r.ok?c.put(u,r):null).catch(()=>null)))).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()));});
 self.addEventListener('message',e=>{if(e.data==='skip')self.skipWaiting();});

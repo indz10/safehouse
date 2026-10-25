@@ -48,6 +48,8 @@ button.red{background:var(--red);color:#fff}button.ghost{background:#fff}button:
  <div style="margin-top:14px"><button class="red" id="saveBtn">Salva sponsor</button></div><div id="saveMsg"></div></div>
 
 <div class="box"><h2>📋 Sponsor inseriti</h2><div id="list">Caricamento…</div></div>
+<div class="box"><h2>⚠️ Segnalazioni degli utenti (“ha chiuso”)</h2><div id="reports">Caricamento…</div></div>
+<div class="box"><h2>🚫 Attività nascoste dalla mappa</h2><div id="hidden">Caricamento…</div></div>
 </div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -78,14 +80,22 @@ $('#saveBtn').onclick=async()=>{const name=$('#f_name').value.trim(),m=$('#saveM
     category:$('#f_cat').value.trim()||'Attività',package:$('#f_pack').value,founder:$('#f_found').value==='true',address:$('#f_addr').value.trim(),comune:(parts[1]||'').trim(),
     lat:pos.lat,lon:pos.lon,phone:$('#f_tel').value.trim(),whatsapp:$('#f_wa').value.trim(),website:$('#f_web').value.trim(),instagram:$('#f_ig').value.trim(),facebook:$('#f_fb').value.trim(),active:$('#f_active').value==='true'};
   $('#saveBtn').disabled=true;
-  const{data,error}=await SB.from('sponsors').upsert(row,{onConflict:'slug'}).select().single();
+  const{data,error}=EDIT?await SB.from('sponsors').update(row).eq('id',EDIT).select().single():await SB.from('sponsors').upsert(row,{onConflict:'slug'}).select().single();
   if(error){msg(m,'Errore: '+error.message,false);$('#saveBtn').disabled=false;return;}
-  const off=$('#f_offer').value.trim();if(off){await SB.from('offers').insert({sponsor_id:data.id,title:off,remedy_tags:$('#f_tags').value.split(',').map(s=>s.trim()).filter(Boolean)});}
+  const off=$('#f_offer').value.trim();if(off){const tags=$('#f_tags').value.split(',').map(s=>s.trim()).filter(Boolean);
+    const{data:old}=await SB.from('offers').select('id').eq('sponsor_id',data.id).order('created_at',{ascending:true});
+    if(old&&old.length){await SB.from('offers').update({title:off,remedy_tags:tags,active:true}).eq('id',old[0].id);if(old.length>1)await SB.from('offers').delete().in('id',old.slice(1).map(o=>o.id));}
+    else await SB.from('offers').insert({sponsor_id:data.id,title:off,remedy_tags:tags});}
+  if(EDIT)resetForm();
   msg(m,`✅ ${name} salvato${row.active?' e visibile nell’app':''}.`,true);$('#saveBtn').disabled=false;loadList();};
 async function loadList(){const{data,error}=await SB.from('sponsors').select('*').order('created_at',{ascending:false});const L=$('#list');
   if(error){L.textContent='Errore: '+error.message;return;}if(!data.length){L.textContent='Nessuno sponsor ancora.';return;}
   L.innerHTML=data.map(s=>`<div class="sp"><div><b>${s.name}</b> <span class="tag ${s.active?'on':'off'}">${s.active?'attivo':'non attivo'}</span><small>${s.category||''} · ${s.package} · ${s.address||''}</small><small>📍 ${s.lat??'–'}, ${s.lon??'–'}</small></div>
-    <div class="row" style="flex-direction:column"><button class="ghost" data-t="${s.id}" data-a="${s.active}">${s.active?'Disattiva':'Attiva'}</button><button class="ghost" data-show="${s.lat},${s.lon}">Mappa</button></div></div>`).join('');
+    <div class="row" style="flex-direction:column"><button class="ghost" data-t="${s.id}" data-a="${s.active}">${s.active?'Disattiva':'Attiva'}</button><button class="ghost" data-show="${s.lat},${s.lon}">Mappa</button><button class="ghost" data-ed="${s.id}">✏️ Modifica</button><button class="ghost" data-del="${s.id}" style="color:#d7263d">🗑 Elimina</button></div></div>`).join('');
+  L.querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>editSp(data.find(x=>x.id===b.dataset.ed)));
+  L.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const sp=data.find(x=>x.id===b.dataset.del);
+    if(!confirm('Eliminare DEFINITIVAMENTE “'+sp.name+'”? Spariscono anche offerte, codici e preventivi collegati. Se vuoi solo sospenderlo usa “Disattiva”.'))return;
+    const{error}=await SB.from('sponsors').delete().eq('id',sp.id);if(error){alert('Errore: '+error.message);return;}if(EDIT===sp.id)resetForm();loadList();});
   L.querySelectorAll('[data-t]').forEach(b=>b.onclick=async()=>{await SB.from('sponsors').update({active:b.dataset.a!=='true'}).eq('id',b.dataset.t);loadList();});
   L.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>{const[a,o]=b.dataset.show.split(',').map(Number);if(!isNaN(a)){map.setView([a,o],18);mk.setLatLng([a,o]);window.scrollTo(0,0);}});}
 
@@ -102,4 +112,34 @@ $('#qBtn').onclick=async()=>{const q=$('#f_q').value.trim();if(!q)return;const R
       const fb=e['contact:facebook']||'';if(fb)$('#f_fb').value=fb;const ig=e['contact:instagram']||'';if(ig)$('#f_ig').value=ig;
       const ll={lat:+x.lat,lng:+x.lon};initMap();map.setView(ll,18);mk.setLatLng(ll);setPos(ll);R.innerHTML='✅ Campi compilati: controlla il punto sulla mappa e salva.';});}
   catch(e){R.textContent='Ricerca non riuscita: compila a mano.';}};
+
+/* modifica di uno sponsor esistente */
+let EDIT=null;
+async function editSp(sp){EDIT=sp.id;const set=(id,v)=>{$(id).value=v==null?'':String(v);};
+  set('#f_name',sp.name);set('#f_logo',sp.logo_text);set('#f_cat',sp.category);set('#f_pack',sp.package||'vetrina');set('#f_found',sp.founder?'true':'false');set('#f_addr',sp.address);
+  set('#f_tel',sp.phone);set('#f_wa',sp.whatsapp);set('#f_web',sp.website);set('#f_ig',sp.instagram);set('#f_fb',sp.facebook);set('#f_active',sp.active?'true':'false');
+  const{data:of}=await SB.from('offers').select('*').eq('sponsor_id',sp.id).order('created_at',{ascending:true});set('#f_offer',of&&of[0]?of[0].title:'');set('#f_tags',of&&of[0]&&of[0].remedy_tags?of[0].remedy_tags.join(', '):'');
+  if(sp.lat!=null){const ll={lat:sp.lat,lng:sp.lon};map.setView(ll,18);mk.setLatLng(ll);setPos(ll);}
+  $('#saveBtn').textContent='💾 Salva le modifiche a '+sp.name;let x=$('#cancelEd');if(!x){$('#saveBtn').insertAdjacentHTML('afterend','<button id="cancelEd" class="ghost" style="margin-left:8px">Annulla modifica</button>');$('#cancelEd').onclick=resetForm;}
+  window.scrollTo({top:0,behavior:'smooth'});}
+function resetForm(){EDIT=null;['#f_q','#f_name','#f_logo','#f_cat','#f_addr','#f_tel','#f_wa','#f_web','#f_ig','#f_fb','#f_offer','#f_tags'].forEach(id=>{if($(id))$(id).value='';});
+  $("#saveBtn").textContent="💾 Salva sponsor";const x=$('#cancelEd');if(x)x.remove();}
+/* attività nascoste dalla mappa (chi non vuole comparire o non paga) */
+async function loadHidden(){const H=$('#hidden');if(!H)return;const{data,error}=await SB.from('hidden_pois').select('*').order('created_at',{ascending:false});
+  if(error){H.innerHTML='<small>Per usare questa funzione esegui in Supabase il blocco SQL “hidden_pois” (istruzioni in chat).</small>';return;}
+  if(!data.length){H.innerHTML='<small>Nessuna attività nascosta. Nell’app, da amministratore, apri un’attività sulla mappa e premi “🚫 Nascondi dalla mappa”.</small>';return;}
+  H.innerHTML=data.map(h=>`<div class="sp"><div><b>${(h.name||'').replace(/</g,'&lt;')}</b><small>📍 ${h.lat??'–'}, ${h.lon??'–'}</small></div><button class="ghost" data-unh="${h.id}">Mostra di nuovo</button></div>`).join('');
+  H.querySelectorAll('[data-unh]').forEach(b=>b.onclick=async()=>{await SB.from('hidden_pois').delete().eq('id',b.dataset.unh);loadHidden();});}
+const _loadList2=loadList;loadList=async function(){await _loadList2();loadHidden();};
+
+/* segnalazioni: un tocco per nasconderla a tutti, oppure ignorarla */
+async function loadReports(){const B=$('#reports');if(!B)return;const{data,error}=await SB.from('poi_reports').select('*').order('created_at',{ascending:false});
+  if(error){B.innerHTML='<small>Per usare questa funzione esegui in Supabase il blocco SQL “community” (istruzioni in chat).</small>';return;}
+  if(!data.length){B.innerHTML='<small>Nessuna segnalazione.</small>';return;}
+  const by={};data.forEach(r=>{(by[r.name]=by[r.name]||[]).push(r);});
+  B.innerHTML=Object.entries(by).map(([n,L])=>`<div class="sp"><div><b>${n.replace(/</g,'&lt;')}</b> <span class="tag off">${L.length} ${L.length===1?'segnalazione':'segnalazioni'}</span><small>ultima: ${new Date(L[0].created_at).toLocaleDateString('it-IT')} · 📍 ${L[0].lat??'–'}, ${L[0].lon??'–'}</small></div>
+    <div class="row" style="flex-direction:column"><button class="ghost" data-rh="${encodeURIComponent(n)}" style="color:#d7263d">🚫 Nascondi</button><button class="ghost" data-ri="${encodeURIComponent(n)}">Ignora</button></div></div>`).join('');
+  B.querySelectorAll('[data-rh]').forEach(b=>b.onclick=async()=>{const n=decodeURIComponent(b.dataset.rh);const r=by[n][0];await SB.from('hidden_pois').insert({name:n,lat:r.lat,lon:r.lon});await SB.from('poi_reports').delete().eq('name',n);loadReports();loadHidden();});
+  B.querySelectorAll('[data-ri]').forEach(b=>b.onclick=async()=>{await SB.from('poi_reports').delete().eq('name',decodeURIComponent(b.dataset.ri));loadReports();});}
+const _loadList3=loadList;loadList=async function(){await _loadList3();loadReports();};
 </script></body></html>

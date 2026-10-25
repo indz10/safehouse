@@ -701,6 +701,30 @@ body.bigtxt{font-size:118%}body.bigtxt p,body.bigtxt small,body.bigtxt .muted{fo
 .thouse div{display:flex;flex-direction:column;gap:2px;font-size:13px;font-weight:400}
 .thouse b{font-size:18px}
 .pick[data-type=vera]{border-color:#d7263d;box-shadow:5px 5px 0 #d7263d}
+
+.online{margin:12px 0 4px;display:grid;gap:6px;font-size:14px}
+.onl{display:flex;gap:8px;align-items:flex-start;text-decoration:none;color:var(--ink);background:#fff;border:2px solid var(--ink);padding:7px 9px;font-weight:400;word-break:break-word}
+a.onl{font-weight:700;color:#1f3f80}
+.onl span{flex:0 0 auto}
+.oh{background:#fff;border:2px solid var(--ink);padding:8px 10px;font-size:13.5px}
+.oh b{margin-right:8px}.oh em{font-style:normal;font-weight:700}
+.oho{color:#2e7d4a}.ohc{color:#d7263d}.ohu{color:#7c7a8a}
+.oh ul{list-style:none;padding:0;margin:6px 0 0;display:grid;gap:1px}
+.oh li{display:flex;gap:10px;font-weight:400}.oh li span{width:34px;font-weight:700}
+.oh li.today{background:#fff3b0;font-weight:700}
+.onl-btn{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:2px}
+.onl-btn a{text-align:center;text-decoration:none;color:var(--ink);font-weight:700;font-size:13.5px;background:#fff8d6;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:8px 4px;line-height:1.2}
+.onl-btn small{font-weight:400;font-size:11px}
+
+.lm-usr{position:relative;cursor:pointer}
+.lm-usr b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:3px solid var(--ink);box-shadow:2px 2px 0 var(--ink);font-family:var(--display);font-weight:400;font-size:17px;color:var(--ink)}
+.lm-usr i{position:absolute;right:-3px;top:-3px;width:11px;height:11px;border-radius:50%;background:#3fd16b;border:2px solid var(--ink)}
+.lm-usr em{position:absolute;left:50%;top:100%;transform:translate(-50%,2px);white-space:nowrap;font-style:normal;font-size:10.5px;font-weight:700;background:#e2d6f5;border:1.5px solid var(--ink);padding:0 5px;border-radius:8px}
+.bzc-rep{display:block;margin-top:10px;background:none;border:0;padding:4px 0;font-size:12.5px;font-weight:700;color:#7c7a8a;text-decoration:underline;cursor:pointer}
+
+.wnight{display:flex;flex-direction:column;gap:3px;margin:4px 0 10px;padding:9px 11px;background:#1b1438;color:#f3e9d2;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-size:13.5px;font-weight:400}
+.wnight b{color:var(--moon);font-family:var(--display);font-weight:400;font-size:18px}
+.wnight em{font-style:normal;font-family:var(--display);font-size:16px;color:#1b1438;background:var(--moon);align-self:flex-start;padding:1px 8px;margin-top:3px}
 </style>
 </head>
 <body>
@@ -2653,7 +2677,7 @@ async function renderBattle(){
   const D=DIFF[G.diff];const mix=coop?[.55,.3,.15]:t.mix;
   const nS=sites.length;
   const count=Math.round((8+L*3.8)*D.cnt*(1+.34*(nS-1))), hpMul=(1.15+(L-1)*.34)*D.hp, spMul=(1.05+(L-1)*.055)*D.sp;
-  const evPool=L>=3?['blackout','nebbia','luna','pioggia']:[];const ev=evPool.length&&Math.random()<.5?evPool[Math.floor(Math.random()*evPool.length)]:null;
+  const evPool=L>=3?['blackout','nebbia','luna','pioggia']:[];const _rev=typeof realNightEv==='function'?realNightEv(L):undefined;const ev=_rev!==undefined?_rev:(evPool.length&&Math.random()<.5?evPool[Math.floor(Math.random()*evPool.length)]:null);
   const isBoss=!coop&&L%5===0;
   const INTRO=1.3;
   /* l'orda avanza dal cimitero: prima gli edifici più vicini, poi il resto del quartiere */
@@ -4336,9 +4360,9 @@ function renderContatti(){
 Object.assign(SPONSORS.ferr,{cat:'Ferramenta e sicurezza',tier:'Alleato del quartiere',desc:'Serrature, grate, utensili e tutto per rinforzare porte e finestre.',offer:'−10% per i superstiti con il codice ZSH10',url:'https://www.example.com/ferramenta-volta',col:'#f7d64a'});
 Object.assign(SPONSORS.sic,{cat:'Allarmi e porte blindate',tier:'Partner principale',desc:'Sistemi d’allarme, telecamere e porte blindate certificate. Sopralluogo gratuito.',offer:'Sopralluogo gratuito per chi completa la valutazione',url:'https://www.example.com/sicurcasa-mantova',col:'#d7263d'});
 Object.assign(SPONSORS.sol,{cat:'Energia',tier:'Alleato del quartiere',desc:'Fotovoltaico e batterie: la casa resta accesa anche quando salta la rete.',offer:'Check-up energetico gratuito',url:'https://www.example.com/solarbox',col:'#2f7fb8'});
-const STATS={reg:1248,on:63};
-function tickStats(){STATS.on=Math.max(31,Math.min(140,STATS.on+Math.round((Math.random()-.45)*4)));if(Math.random()<.3)STATS.reg+=1;const e=document.getElementById('ucount');if(e)e.innerHTML=statHTML();}
-function statHTML(){return`<span title="Dati dimostrativi">👥 ${STATS.reg.toLocaleString('it-IT')} <small>superstiti</small></span><span class="dotlive"></span><span>${STATS.on} <small>online</small></span>`;}
+const STATS={reg:null,on:null};
+function tickStats(){const e=document.getElementById('ucount');if(e)e.innerHTML=statHTML();}
+function statHTML(){return`<span title="Utenti registrati">👥 ${STATS.reg==null?'…':STATS.reg.toLocaleString('it-IT')} <small>superstiti</small></span><span class="dotlive"></span><span title="Attivi negli ultimi 5 minuti">${STATS.on==null?'…':STATS.on} <small>online</small></span>`;}
 setInterval(tickStats,6000);
 function topbar(){
   if(document.getElementById('topbar'))return;
@@ -5011,7 +5035,7 @@ const POI_CAND=['hardware','doityourself','locksmith','security','electrical','t
 const POI_N={hardware:'Ferramenta',doityourself:'Fai da te',locksmith:'Fabbro',security:'Sicurezza e allarmi',electrical:'Materiale elettrico',trade:'Materiali edili',paint:'Colori',glaziery:'Vetreria',building_materials:'Materiali edili',
   hospital:'Ospedale',clinic:'Clinica',pharmacy:'Farmacia',police:'Forze dell’ordine',fire_station:'Vigili del fuoco',townhall:'Municipio',town_hall:'Municipio',drinking_water:'Fontanella',
   supermarket:'Supermercato',convenience:'Alimentari',grocery:'Alimentari',bakery:'Panificio',cafe:'Bar',bar:'Bar',restaurant:'Ristorante',fast_food:'Fast food',fuel:'Distributore',bank:'Banca',hairdresser:'Parrucchiere',clothes:'Abbigliamento',butcher:'Macelleria',florist:'Fiori'};
-const ZICON={cand:['🔧','#ffe680','#b8860b',1],super:['🛒','#bfe8c9'],bar:['☕','#f3d9b1'],rist:['🍝','#ffd0b5'],pane:['🥖','#f6e2b3'],fuel:['⛽','#d9dde3'],bank:['🏦','#d6e4f5'],hair:['💈','#f5d6e8'],abiti:['👕','#e2d6f5'],hotel:['🛏️','#d6f0f5'],shop:['🛍️','#eee6d6'],
+const ZICON={hid:['🚫','#e6e1d6','#7c7a8a'],cand:['🔧','#ffe680','#b8860b',1],super:['🛒','#bfe8c9'],bar:['☕','#f3d9b1'],rist:['🍝','#ffd0b5'],pane:['🥖','#f6e2b3'],fuel:['⛽','#d9dde3'],bank:['🏦','#d6e4f5'],hair:['💈','#f5d6e8'],abiti:['👕','#e2d6f5'],hotel:['🛏️','#d6f0f5'],shop:['🛍️','#eee6d6'],
   osp:['🏥','#ffffff','#d7263d',1],farm:['💊','#ffffff','#3f9b5f',1],cc:['🚓','#ffffff','#2f5fb8',1],vvf:['🚒','#ffffff','#e2702d',1],mun:['🏛️','#ffffff','#2f5fb8',1],acqua:['💧','#ffffff','#2f7fb8',1]};
 function zIcon(map,id){if(!id||id.indexOf('zi-')!==0||map.hasImage(id))return;const night=/-n$/.test(id);const k=id.slice(3).replace(/-n$/,'');const d=ZICON[k]||ZICON.shop;
   const S2=72,c=document.createElement('canvas');c.width=c.height=S2;const g=c.getContext('2d');const big=!!d[3];const r=big?29:24,cx=S2/2-2,cy=S2/2-2;
@@ -5030,7 +5054,7 @@ function zStyle(n){const P=n?ZPAL.night:ZPAL.day;const R=['interpolate',['expone
   const SUB=['get','subclass'],CLS=['get','class'];
   const PUB=['any',['in',CLS,['literal',['hospital','pharmacy','police','fire_station','town_hall']]],['in',SUB,['literal',['hospital','clinic','pharmacy','police','fire_station','townhall','drinking_water']]]];
   const CAND=['in',SUB,['literal',POI_CAND]];
-  const BIZ=['all',['!',PUB],['!',CAND],['in',CLS,['literal',['shop','grocery','bakery','cafe','bar','restaurant','fast_food','fuel','clothing_store','car','beer','alcohol_shop','ice_cream','lodging','bank','hairdresser','furniture','florist','jewelry','optician','pet','shoes','sports','stationery','mobile_phone']]]];
+  const BIZ=['all',['!=',SUB,'vacant'],['!',PUB],['!',CAND],['in',CLS,['literal',['shop','grocery','bakery','cafe','bar','restaurant','fast_food','fuel','clothing_store','car','beer','alcohol_shop','ice_cream','lodging','bank','hairdresser','furniture','florist','jewelry','optician','pet','shoes','sports','stationery','mobile_phone']]]];
   const NM=['coalesce',['get','name:it'],['get','name']];const FONT=['Noto Sans Bold'];
   const HID=['!',['in',NM,['literal',window.ZHID||[]]]];
   const KEY=['coalesce',SUB,CLS];
@@ -5040,6 +5064,7 @@ function zStyle(n){const P=n?ZPAL.night:ZPAL.day;const R=['interpolate',['expone
   const POIS=[
    {id:'poi-biz',type:'symbol',source:'omt','source-layer':'poi',minzoom:15,filter:['all',BIZ,HID],layout:{'icon-image':['concat','zi-',BIZC,n?'-n':''],'icon-size':['interpolate',['linear'],['zoom'],15,.5,18,.85],'icon-padding':1,...TXT,'text-field':['step',['zoom'],'',17,NM],'text-size':10.5,'text-offset':[0,1.2]},paint:{'text-color':n?'#f3e9d2':'#140f1f','text-halo-color':n?'#140f1f':'#fffaf0','text-halo-width':2}},
    {id:'poi-pub',type:'symbol',source:'omt','source-layer':'poi',minzoom:12,filter:['all',PUB,HID],layout:{'icon-image':['concat','zi-',PUBC],'icon-size':['interpolate',['linear'],['zoom'],12,.45,17,.95],'icon-allow-overlap':true,...TXT,'text-field':['step',['zoom'],'',16,NM],'text-size':11,'text-offset':[0,1.5]},paint:{'text-color':'#1f3f80','text-halo-color':'#fff','text-halo-width':2.2}},
+   {id:'poi-hid',type:'symbol',source:'omt','source-layer':'poi',minzoom:12,filter:['in',NM,['literal',window.ZHID||[]]],layout:{visibility:window.ZADMIN?'visible':'none','icon-image':'zi-hid','icon-size':['interpolate',['linear'],['zoom'],12,.45,17,.9],'icon-allow-overlap':true,...TXT,'text-field':['step',['zoom'],'',15,NM],'text-size':10.5,'text-offset':[0,1.4]},paint:{'icon-opacity':.75,'text-color':'#5a5470','text-halo-color':'#fff','text-halo-width':2}},
    {id:'poi-cand',type:'symbol',source:'omt','source-layer':'poi',minzoom:12,filter:['all',CAND,HID],layout:{'icon-image':'zi-cand','icon-size':['interpolate',['linear'],['zoom'],12,.5,17,1.05],'icon-allow-overlap':true,...TXT,'text-field':['step',['zoom'],'',14,NM],'text-size':12,'text-offset':[0,1.7]},paint:{'text-color':'#140f1f','text-halo-color':'#ffe680','text-halo-width':2.6}}];
   return{version:8,glyphs:'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',sources:{omt:{type:'vector',url:'https://tiles.openfreemap.org/planet'},
     dem:{type:'raster-dem',tiles:DEM,encoding:'terrarium',tileSize:256,maxzoom:14},dem3:{type:'raster-dem',tiles:DEM,encoding:'terrarium',tileSize:256,maxzoom:14}},layers:[
@@ -5102,6 +5127,9 @@ async function liveMap(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[ad
   const poiInfo=f=>{const p=f.properties||{};const sub=p.subclass||p.class||'';const c=f.geometry.coordinates;const nm=p['name:it']||p.name||POI_N[sub]||'Attività';return{sub,nm,ll:[c[1],c[0]],d:lmDist(m.lat,m.lon,c[1],c[0])};};
   map.on('click','poi-cand',e=>{const f=e.features&&e.features[0];if(!f)return;const x=poiInfo(f);if(typeof bizSheet==='function')bizSheet({i:'t'+(f.id||x.nm),ic:({locksmith:'🔑',electrical:'💡',paint:'🎨',glaziery:'🪟',trade:'🧱',building_materials:'🧱',security:'🛡️'})[x.sub]||'🔧',name:x.nm,cat:POI_N[x.sub]||'Attività per la casa',d:x.d,ll:x.ll,cand:true},z);});
   map.on('click','poi-pub',e=>{const f=e.features&&e.features[0];if(!f)return;const x=poiInfo(f);lmPoi(x.nm,POI_N[x.sub]||'Servizio pubblico',x.d,x.ll,true);});
+  map.on('click','poi-hid',e=>{const f=e.features&&e.features[0];if(!f)return;const x=poiInfo(f);openSheet('🚫 Attività nascosta',`<div class="bzc"><div class="bzc-hero" style="--c:#e6e1d6"><span class="bzc-ic">🚫</span><div class="bzc-t"><span class="bzc-cat">${esc(POI_N[x.sub]||'Attività')}</span><h4>${esc(x.nm)}</h4><small>Nascosta a tutti: la vedi solo tu perché sei amministratore.</small></div></div>
+    <p style="font-weight:400;margin:12px 0">Se diventa sponsor o vuoi rimetterla, tocca qui sotto: torna visibile a tutti subito.</p><button class="btn wide" data-unh>✅ Rimetti sulla mappa</button></div>`,card=>{card.querySelector('[data-unh]').onclick=()=>zUnhide(x.nm);});});
+  zIsAdmin().then(()=>zApplyHidden());
   map.on('click','poi-biz',e=>{const f=e.features&&e.features[0];if(!f)return;const x=poiInfo(f);if(typeof bizSheet==='function')bizSheet({i:'t'+(f.id||x.nm),ic:(ZICON[({supermarket:'super',convenience:'super',grocery:'super',cafe:'bar',bar:'bar',pub:'bar',restaurant:'rist',fast_food:'rist',bakery:'pane',fuel:'fuel',bank:'bank',hairdresser:'hair',clothes:'abiti',hotel:'hotel'})[x.sub]]||ZICON.shop)[0],name:x.nm,cat:POI_N[x.sub]||'Attività',d:x.d,ll:x.ll},z);});
   ['poi-cand','poi-pub','poi-biz'].forEach(id=>{map.on('mouseenter',id,()=>{map.getCanvas().style.cursor='pointer';});map.on('mouseleave',id,()=>{map.getCanvas().style.cursor='';});});
   if(useGeo)Object.entries(GEO).forEach(([sk,g])=>{if(!g||g.lat==null||!SPONSORS[sk])return;add('spons',[g.lon,g.lat],spEl(sk),()=>sponsorSheet(sk,z));});
@@ -5328,6 +5356,7 @@ async function terrFetch(addr){const w=await trWhere(addr);const{lat,lon}=w;cons
     if(t.natural==='water'){const d=la!=null?Math.min(700,trM(lat,lon,la,lo)):700;if(!water||d<water.d)water={d:Math.round(d),n:t.name||'lo specchio d’acqua',k:t.water||'lake'};return;}
     if(t.building&&e.type==='way'&&la!=null&&trM(lat,lon,la,lo)<=250)bld++;
     if(t.shop&&la!=null&&trM(lat,lon,la,lo)<=500)shops++;
+    if(t.shop==='vacant'||t.opening_hours==='closed'||Object.keys(t).some(x=>/^(disused|was|abandoned|demolished|removed):/.test(x)))return;
     const k=trKind(t),cand=trCand(t);if((!k&&!cand)||la==null)return;const id=e.type[0]+e.id;if(seen.has(id))return;seen.add(id);
     fac.push({k:k||'ferr',cand,name:t.name||t.brand||TR_NAME[k||'ferr'],lat:+la.toFixed(6),lon:+lo.toFixed(6),d:Math.round(trM(lat,lon,la,lo)),tel:t.phone||t['contact:phone']||'',web:t.website||t['contact:website']||'',id});});
   fac.sort((a,b)=>a.d-b.d);const F=fac.slice(0,70);
@@ -5355,7 +5384,8 @@ function terrApply(z,R){if(!R.ov)return{...z,real:R};const res=[],k=Math.cos(R.l
   res.forEach(r=>{if(r.lat==null){r.x=.5+(r.dist*sc)*.7;r.y=.5+(r.dist*sc)*.7;}else{r.x=.5+(r.lon-R.lon)*111320*k*sc;r.y=.5-(r.lat-R.lat)*110540*sc;}r.x=Math.max(.06,Math.min(.94,r.x));r.y=Math.max(.08,Math.min(.92,r.y));});
   const near=res.filter(x=>x.dist<800).length;const resRisk=Math.max(1,9-near*.9);
   let mobRisk={centro:8,periferia:5,lago:6,montagna:4,campagna:3}[R.type];if(R.pos==='bassa')mobRisk+=.5;if(R.slope>=8)mobRisk-=.5;
-  const level=Math.round((resRisk*.35+mobRisk*.35+z.avgU*.3)*10)/10;
+  /* il livello zona non dipende più dai superstiti simulati: servizi e mobilità veri + valore neutro */
+  const level=Math.round((resRisk*.35+mobRisk*.35+5*.3)*10)/10;
   return{...z,type:R.type,resources:res,resRisk,mobRisk,level,real:R};}
 const _azReal=analyzeZone;
 analyzeZone=async function(address){const base=await _azReal(address);if(!navigator.onLine)return base;
@@ -5447,7 +5477,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610251558';
+const ZSH_BUILD='202610251716';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -5469,7 +5499,10 @@ const bzCol=c=>(BZ_COL.find(([r])=>r.test(c||''))||[0,'#efe4c8'])[1];
 window.ZHID=window.ZHID||[];
 async function zIsAdmin(){if(window.ZADMIN!=null)return window.ZADMIN;try{const sb=typeof SB!=='undefined'&&SB;if(!sb||!S.user||!S.user.id)return false;
   const{data}=await sb.from('admins').select('user_id').eq('user_id',S.user.id).maybeSingle();window.ZADMIN=!!data;return window.ZADMIN;}catch(e){return false;}}
-function zApplyHidden(){try{const L=zStyle(false).layers;(window.__zmaps||[]).forEach(map=>{['poi-biz','poi-pub','poi-cand'].forEach(id=>{try{const l=L.find(x=>x.id===id);if(l&&map.getLayer(id))map.setFilter(id,l.filter);}catch(e){}});});}catch(e){}}
+function zApplyHidden(){try{const L=zStyle(false).layers;(window.__zmaps||[]).forEach(map=>{['poi-biz','poi-pub','poi-cand','poi-hid'].forEach(id=>{try{const l=L.find(x=>x.id===id);if(l&&map.getLayer(id))map.setFilter(id,l.filter);}catch(e){}});
+  try{if(map.getLayer('poi-hid'))map.setLayoutProperty('poi-hid','visibility',window.ZADMIN?'visible':'none');}catch(e){}});}catch(e){}}
+async function zUnhide(name){try{const{error}=await SB.from('hidden_pois').delete().eq('name',name);if(error)throw error;window.ZHID=window.ZHID.filter(n=>n!==name);zApplyHidden();closeSheet();toast('✅ '+name+' è di nuovo sulla mappa');}
+  catch(e){toast('Non riuscito: '+(e.message||'errore'));}}
 (async()=>{try{const sb=await waitSB();if(!sb)return;const{data,error}=await sb.from('hidden_pois').select('name');if(!error&&data){window.ZHID=data.map(r=>r.name);zApplyHidden();}}catch(e){}})();
 async function zHide(name,ll){try{const{error}=await SB.from('hidden_pois').insert({name,lat:ll?ll[0]:null,lon:ll?ll[1]:null});if(error)throw error;
     window.ZHID.push(name);zApplyHidden();closeSheet();toast('🚫 '+name+' non compare più sulla mappa');}
@@ -5553,6 +5586,262 @@ const _custHouseV=custHouseSVG;custHouseSVG=function(kind,c,w,h){if(kind==='vera
 const _renderPickV=renderPick;renderPick=function(){trSetupVera();return _renderPickV.apply(this,arguments);};
 const _renderHubV=renderHub;renderHub=function(){trSetupVera();if(G.type==='vera'&&!HTYPES.vera)G.type='villa';return _renderHubV.apply(this,arguments);};
 setTimeout(trSetupVera,0);
+</script>
+<script>
+/* =========================================================
+   INFO ONLINE DEL SERVIZIO / ATTIVITÀ
+   orari (aperto ora?), indirizzo, telefono, sito, social,
+   accessibilità da OpenStreetMap + Google Maps per foto e recensioni
+   ========================================================= */
+const POI_INFO={};
+async function poiDetails(name,ll){const k=name+'|'+(ll?ll.map(v=>v.toFixed(4)).join(','):'');if(POI_INFO[k])return POI_INFO[k];
+  if(!ll)return null;const nm=String(name).replace(/\\/g,'\\\\').replace(/"/g,'\\"');
+  let els=[];try{els=await trOverpass(`[out:json][timeout:10];nwr(around:90,${ll[0]},${ll[1]})["name"="${nm}"];out tags center 4;`,9000);}catch(e){return null;}
+  let best=null,bd=1e9;els.forEach(e=>{const la=e.lat!=null?e.lat:(e.center&&e.center.lat),lo=e.lon!=null?e.lon:(e.center&&e.center.lon);if(la==null)return;const d=trM(ll[0],ll[1],la,lo);if(d<bd){bd=d;best=e;}});
+  POI_INFO[k]=best?best.tags||{}:{};return POI_INFO[k];}
+/* orari OpenStreetMap: "Mo-Fr 08:30-12:30,15:30-19:30; Sa 08:30-12:30; Su off" */
+const OH_D=['Mo','Tu','We','Th','Fr','Sa','Su'],OH_IT=['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+function ohParse(s){if(!s)return null;s=s.trim();if(s==='24/7')return OH_D.map(()=>[[0,1440]]);const W=OH_D.map(()=>null);let ok=false;
+  for(const part of s.split(';')){const p=part.trim();if(!p)continue;const m=p.match(/^((?:(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?,?)+)\s+(.+)$/);if(!m){if(/^\d/.test(p)){OH_D.forEach((_,i)=>W[i]=ohT(p));ok=true;}continue;}
+    const days=[];m[1].split(',').filter(Boolean).forEach(r=>{const[a,b]=r.split('-');const i=OH_D.indexOf(a),j=b?OH_D.indexOf(b):i;if(i<0||j<0)return;for(let d=i;;d=(d+1)%7){days.push(d);if(d===j)break;}});
+    const t=/off|closed/i.test(m[2])?[]:ohT(m[2]);if(t===null)continue;days.forEach(d=>W[d]=t);ok=true;}
+  return ok?W:null;}
+function ohT(s){const out=[];for(const r of s.split(',')){const m=r.trim().match(/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})/);if(!m)return null;out.push([+m[1]*60+ +m[2],+m[3]*60+ +m[4]]);}return out;}
+const ohF=v=>`${String(Math.floor(v/60)%24).padStart(2,'0')}:${String(v%60).padStart(2,'0')}`;
+function ohHTML(raw){const W=ohParse(raw);if(!W)return`<div class="oh"><b>🕒 Orari</b><span>${esc(raw)}</span></div>`;
+  const now=new Date(),d=(now.getDay()+6)%7,mn=now.getHours()*60+now.getMinutes();const T=W[d];
+  const open=T&&T.some(([a,b])=>b<a?(mn>=a||mn<b):(mn>=a&&mn<b));const next=T&&T.find(([a])=>a>mn);
+  const st=T===null?'<em class="ohu">orari di oggi non indicati</em>':open?'<em class="oho">● Aperto ora</em>':`<em class="ohc">● Chiuso ora${next?' · apre alle '+ohF(next[0]):''}</em>`;
+  return`<div class="oh"><b>🕒 Orari</b>${st}<ul>${W.map((t,i)=>`<li class="${i===d?'today':''}"><span>${OH_IT[i]}</span>${t===null?'—':t.length?t.map(([a,b])=>ohF(a)+'–'+ohF(b)).join(', '):'chiuso'}</li>`).join('')}</ul></div>`;}
+function onlineHTML(t,b){const A=[t['addr:street'],t['addr:housenumber']].filter(Boolean).join(' ')+(t['addr:city']?', '+t['addr:city']:'');
+  const tel=t.phone||t['contact:phone']||t['contact:mobile']||'',web=t.website||t['contact:website']||t.url||'',mail=t.email||t['contact:email']||'';
+  const fb=t['contact:facebook']||t.facebook||'',ig=t['contact:instagram']||t.instagram||'';const W=u=>/^https?:/.test(u)?u:'https://'+u.replace(/^\/+/,'');
+  const q=encodeURIComponent(b.name+' '+(t['addr:city']||((S.zone&&S.zone.address||'').split(',').slice(-1)[0]||'')));
+  const g=`https://www.google.com/maps/search/?api=1&query=${q}`;
+  let h='';if(A)h+=`<div class="onl"><span>📍</span>${esc(A)}</div>`;
+  if(t.opening_hours)h+=ohHTML(t.opening_hours);
+  if(tel)h+=`<a class="onl" href="tel:${tel.split(';')[0].replace(/[^\d+]/g,'')}"><span>📞</span>${esc(tel.split(';')[0])}</a>`;
+  if(web)h+=`<a class="onl" href="${esc(W(web))}" target="_blank" rel="noopener"><span>🌐</span>${esc(web.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'').slice(0,40))}</a>`;
+  if(mail)h+=`<a class="onl" href="mailto:${esc(mail)}"><span>✉️</span>${esc(mail)}</a>`;
+  if(fb)h+=`<a class="onl" href="${esc(/^https?:/.test(fb)?fb:'https://facebook.com/'+fb)}" target="_blank" rel="noopener"><span>📘</span>Facebook</a>`;
+  if(ig)h+=`<a class="onl" href="${esc(/^https?:/.test(ig)?ig:'https://instagram.com/'+ig.replace('@',''))}" target="_blank" rel="noopener"><span>📸</span>Instagram</a>`;
+  if(t.wheelchair)h+=`<div class="onl"><span>♿</span>${{yes:'Accessibile in sedia a rotelle',limited:'Accessibilità parziale',no:'Non accessibile in sedia a rotelle'}[t.wheelchair]||esc(t.wheelchair)}</div>`;
+  if(t.emergency==='yes'||t.dispensing==='yes')h+=`<div class="onl"><span>🚑</span>${t.emergency==='yes'?'Pronto soccorso':'Farmacia con ricette'}</div>`;
+  if(t.operator||t.brand)h+=`<div class="onl"><span>🏷️</span>${esc(t.brand||t.operator)}</div>`;
+  if(t.description)h+=`<div class="onl"><span>ℹ️</span>${esc(t.description.slice(0,220))}</div>`;
+  if(!h)h='<p class="muted" style="font-size:13px;margin:4px 0">Online non ci sono ancora orari o contatti per questa attività.</p>';
+  return h+`<div class="onl-btn"><a href="${g}" target="_blank" rel="noopener">⭐ Foto e recensioni<br><small>Google Maps</small></a><a href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">🔎 Cerca online<br><small>Google</small></a>${t.wikipedia?`<a href="https://it.wikipedia.org/wiki/${encodeURIComponent(t.wikipedia.replace(/^it:/,''))}" target="_blank" rel="noopener">📖 Wikipedia</a>`:''}</div>`;}
+async function fillOnline(card,b){const box=card.querySelector('[data-online]');if(!box)return;
+  if(!navigator.onLine){box.innerHTML=onlineHTML({},b);return;}
+  const t=await poiDetails(b.name,b.ll).catch(()=>null);if(!document.body.contains(box))return;box.innerHTML=onlineHTML(t||{},b);
+  /* se online c'è telefono o sito, compaiono anche come pulsanti grandi */
+  const act=card.querySelector('.bzc-act');if(act&&t){const tel=t.phone||t['contact:phone'];const web=t.website||t['contact:website'];
+    if(tel&&!act.querySelector('a[href^="tel:"]'))act.insertAdjacentHTML('beforeend',`<a href="tel:${tel.split(';')[0].replace(/[^\d+]/g,'')}"><span>📞</span>Chiama</a>`);
+    if(web&&!act.querySelector('a[data-web]'))act.insertAdjacentHTML('beforeend',`<a data-web href="${esc(/^https?:/.test(web)?web:'https://'+web)}" target="_blank" rel="noopener"><span>🌐</span>Sito</a>`);}}
+const _bzCardO=bzCard;bzCard=function(b,pub){return _bzCardO(b,pub).replace('<div data-admin></div>','<div class="online" data-online><span class="spin"></span> Cerco orari e contatti online…</div><div data-admin></div>');};
+const _bizSheetO=bizSheet;bizSheet=function(b,z){_bizSheetO(b,z);const c=document.querySelector('#sheet.open .sheet-card');if(c)fillOnline(c,b);};
+const _lmPoiO=lmPoi;lmPoi=function(name,cat,d,ll,pub){_lmPoiO(name,cat,d,ll,pub);const c=document.querySelector('#sheet.open .sheet-card');if(c)fillOnline(c,{name,ll});};
+</script>
+<script>
+/* =========================================================
+   QUARTIERE VERO NEL GIOCO
+   - sfondo: vie, case, verde e acqua veri (OpenStreetMap)
+   - i lotti in vendita diventano case vere intorno alla tua
+   - i punti da fortificare vanno su posti veri: rotonda,
+     incroci, chiesa, case dei vicini, campi
+   - servizi veri, posti sponsor e sponsor nelle posizioni vere
+   ========================================================= */
+const HQ={s:.62,map:null};
+function hqData(){const a=S.zone&&S.zone.address;if(!a||!G.realHood)return null;const H=G.hoods&&G.hoods[G.curHood];if(H&&H.id!=='own')return null;const m=RM.cache[a];return m&&m.els&&m.els.length?m:null;}
+function hqMy(){return G.type==='camper'?[250,600]:HOME_POS[HTYPES[G.type].zone];}
+function hqP(m,la,lo){const k=Math.cos(m.lat*Math.PI/180),[hx,hy]=hqMy();return[hx+(lo-m.lon)*111320*k*HQ.s,hy-(la-m.lat)*110540*HQ.s];}
+const hqIn=([x,y])=>x>12&&x<388&&y>-104&&y<604;
+function hqArea(g,m){const k=Math.cos(m.lat*Math.PI/180);let a=0;for(let i=0,j=g.length-1;i<g.length;j=i++){a+=((g[j].lon-m.lon)*111320*k+(g[i].lon-m.lon)*111320*k)*((g[j].lat-g[i].lat)*110540);}return Math.abs(a/2);}
+function hqPlan(m){const key=S.zone.address+'|'+G.type;if(HQ.map&&HQ.map.key===key)return HQ.map;
+  const my=hqMy();const ways=m.els.filter(e=>e.type==='way'&&e.geometry&&e.geometry.length>1);
+  const cen=g=>{const c=g.reduce((a,p)=>[a[0]+p.lat,a[1]+p.lon],[0,0]).map(v=>v/g.length);return c;};
+  const B=ways.filter(e=>e.tags&&e.tags.building).map(e=>{const c=cen(e.geometry);const P=hqP(m,c[0],c[1]);return{e,P,area:hqArea(e.geometry,m),bt:e.tags.building,d:Math.hypot(P[0]-my[0],P[1]-my[1])};}).filter(b=>hqIn(b.P)&&b.d>26&&b.area>25).sort((a,b)=>a.d-b.d);
+  const F=ways.filter(e=>e.tags&&/farmland|meadow|orchard|vineyard|grass/.test(e.tags.landuse||'')).map(e=>{const c=cen(e.geometry);const P=hqP(m,c[0],c[1]);return{e,P,area:hqArea(e.geometry,m),d:Math.hypot(P[0]-my[0],P[1]-my[1])};}).filter(f=>hqIn(f.P)&&f.area>1200).sort((a,b)=>a.d-b.d);
+  const used=[my];const free=(P,dm)=>used.every(u=>Math.hypot(u[0]-P[0],u[1]-P[1])>=dm);const take=(L,ok,dm=30)=>{const x=L.find(c=>ok(c)&&free(c.P,dm));if(x){used.push(x.P);x.used=1;}return x;};
+  /* punti da fortificare */
+  const sl={};const roads=ways.filter(e=>e.tags&&e.tags.highway&&e.tags.name&&!/footway|path|cycleway|steps|service|track/.test(e.tags.highway));
+  const cnt={};roads.forEach(e=>(e.nodes||[]).forEach((n,i)=>{(cnt[n]=cnt[n]||{names:new Set(),p:e.geometry[i]}).names.add(e.tags.name);}));
+  const X=Object.values(cnt).filter(c=>c.names.size>=2&&c.p).map(c=>{const P=hqP(m,c.p.lat,c.p.lon);return{P,names:[...c.names],d:Math.hypot(P[0]-my[0],P[1]-my[1])};}).filter(c=>hqIn(c.P)).sort((a,b)=>a.d-b.d);
+  const rb=ways.find(e=>e.tags&&e.tags.junction==='roundabout');
+  const put=(id,P,name)=>{if(P&&hqIn(P)&&free(P,26)){used.push(P);sl[id]={x:P[0],y:P[1],name};return true;}return false;};
+  if(rb){const c=cen(rb.geometry);put('rotonda',hqP(m,c[0],c[1]),'Barricata alla rotonda'+(rb.tags.name?' di '+rb.tags.name:''));}
+  if(!sl.rotonda&&X[0])put('rotonda',X[0].P,`Barricata all’incrocio ${X[0].names[0]} / ${X[0].names[1]}`);
+  const ch=m.els.find(e=>e.tags&&e.tags.amenity==='place_of_worship'&&e.type==='node');if(ch)put('campanile',hqP(m,ch.lat,ch.lon),'Campanile vedetta'+(ch.tags.name?' · '+ch.tags.name:''));
+  const len={};roads.forEach(e=>{let L=0;for(let i=1;i<e.geometry.length;i++)L+=Math.hypot(e.geometry[i].lat-e.geometry[i-1].lat,e.geometry[i].lon-e.geometry[i-1].lon);len[e.tags.name]=(len[e.tags.name]||0)+L;});
+  const main=Object.entries(len).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
+  if(main[0]){const w=roads.filter(e=>e.tags.name===main[0]).sort((a,b)=>b.geometry.length-a.geometry.length)[0];const p=w.geometry[Math.floor(w.geometry.length/2)];put('lampioni',hqP(m,p.lat,p.lon),'Lampioni di '+main[0]);}
+  [['rossi','Casa dei Rossi'],['bianchi','Casa Bianchi'],['neri','Casale Neri']].forEach(([id,nm],i)=>{const b=take(B,x=>x.d>34+i*30,26);if(b){used.pop();put(id,b.P,nm+(b.e.tags['addr:street']?' · '+b.e.tags['addr:street']:''));}});
+  const fm=take(F,()=>true,30);if(fm){used.pop();put('fattoria',fm.P,'Fattoria Bassi · campi veri');}
+  ['acquedotto','canile','fattoria','campanile','lampioni'].forEach(id=>{if(sl[id])return;const b=take(B,x=>x.d>90,30);if(b){used.pop();put(id,b.P,null);}});
+  /* lotti in vendita = case vere */
+  const lots={};const big=b=>b.area>=260||/apartments|commercial|retail|office|industrial/.test(b.bt),small=b=>b.area<260&&b.area>=40,farm=b=>/farm|barn|farm_auxiliary/.test(b.bt)||b.area>=220;
+  /* barche solo lungo l'acqua vera, rifugi solo in montagna; lotti ben distanziati su tutta la mappa */
+  const WP=[];ways.filter(e=>e.tags&&e.tags.waterway).forEach(e=>e.geometry.forEach((p,i)=>{if(i%3)return;const P=hqP(m,p.lat,p.lon);if(hqIn(P))WP.push({P,d:Math.hypot(P[0]-my[0],P[1]-my[1])});}));
+  const mont=(S.zone.real&&S.zone.real.type)==='montagna';
+  LOTS.forEach(l=>{let c=null;const DM=44;
+    if(l.kind==='palazzo')c=take(B,big,DM)||take(B,()=>true,DM);else if(l.kind==='casale')c=take(B,farm,DM);else if(l.kind==='campo')c=take(F,()=>true,DM);
+    else if(l.kind==='barca')c=take(WP,()=>true,DM);else if(l.kind==='rifugio')c=mont?take(B,small,DM):null;else c=take(B,small,DM)||take(B,()=>true,DM);
+    lots[l.id]=c?[c.P[0],c.P[1]]:null;});
+  HQ.map={key,sl,lots};return HQ.map;}
+function hqApply(on){const P=on?HQ.map:null;
+  LOTS.forEach(l=>{if(l._x0==null){l._x0=l.x;l._y0=l.y;}const v=P&&P.lots[l.id];if(v){l.x=Math.round(v[0]);l.y=Math.round(v[1]);}else if(P&&!(G.lots&&G.lots[l.id])){l.x=-999;l.y=-999;}else{l.x=l._x0;l.y=l._y0;}});
+  SLOTS.forEach(s=>{if(s._x0==null){s._x0=s.x;s._y0=s.y;s._n0=s.name;}const v=P&&P.sl[s.id];if(v){s.x=Math.round(v.x);s.y=Math.round(v.y);if(v.name)s.name=v.name;}else{s.x=s._x0;s.y=s._y0;s.name=s._n0;}});}
+function hqBack(m){const pr=(la,lo)=>hqP(m,la,lo).map(v=>v.toFixed(1)).join(' ');const path=(g,c)=>g.map((p,i)=>(i?'L':'M')+pr(p.lat,p.lon)).join('')+(c?'Z':'');
+  const ways=m.els.filter(e=>e.type==='way'&&e.geometry&&e.geometry.length>1);let green='',water='',bld='',r0='',r1='',lab='';const I='#140f1f';
+  const H=S.zone.real&&S.zone.real.house;const my=hqMy();
+  ways.forEach(e=>{const t=e.tags||{};
+    if(t.leisure||/grass|meadow|recreation|park/.test(t.landuse||''))green+=`<path d="${path(e.geometry,1)}" fill="#a9d38a" stroke="${I}" stroke-width="1"/>`;
+    else if(/farmland|orchard|vineyard/.test(t.landuse||''))green+=`<path d="${path(e.geometry,1)}" fill="#ecd98f" stroke="${I}" stroke-width=".8"/>`;
+    else if(/forest/.test(t.landuse||'')||t.natural==='wood')green+=`<path d="${path(e.geometry,1)}" fill="#6faa6a" stroke="${I}" stroke-width="1"/>`;
+    else if(t.natural==='water')water+=`<path d="${path(e.geometry,1)}" fill="#6fb3e6" stroke="${I}" stroke-width="1.6"/>`;
+    else if(t.waterway)water+=`<path d="${path(e.geometry)}" fill="none" stroke="${I}" stroke-width="${t.waterway==='river'?14:6}" stroke-linecap="round"/><path d="${path(e.geometry)}" fill="none" stroke="#6fb3e6" stroke-width="${t.waterway==='river'?10:3.5}" stroke-linecap="round"/>`;});
+  let mineDone=false;
+  ways.filter(e=>e.tags&&e.tags.building).forEach(e=>{const c=e.geometry.reduce((a,p)=>[a[0]+p.lat/e.geometry.length,a[1]+p.lon/e.geometry.length],[0,0]);const P=hqP(m,c[0],c[1]);
+    const mine=!mineDone&&Math.hypot(P[0]-my[0],P[1]-my[1])<9;if(mine)mineDone=true;
+    bld+=`<path d="${path(e.geometry,1)}" fill="${mine?'#d7263d':'#f4e7cf'}" stroke="${I}" stroke-width="${mine?2.2:1}"/>`;});
+  const RW={motorway:13,trunk:12,primary:11,secondary:10,tertiary:9,unclassified:7,residential:7,living_street:6,service:4,pedestrian:6,track:3,footway:2,path:2,cycleway:2};
+  const rds=ways.filter(e=>e.tags&&e.tags.highway&&RW[e.tags.highway]).sort((a,b)=>RW[a.tags.highway]-RW[b.tags.highway]);
+  rds.forEach(e=>{const w=RW[e.tags.highway];const d=path(e.geometry);if(w<=3){r1+=`<path d="${d}" fill="none" stroke="#7c6f8f" stroke-width="1.4" stroke-dasharray="3 3"/>`;return;}
+    r0+=`<path d="${d}" fill="none" stroke="${I}" stroke-width="${w+3}" stroke-linecap="round" stroke-linejoin="round"/>`;r1+=`<path d="${d}" fill="none" stroke="${w>=10?'#f7d64a':'#fffaf0'}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;});
+  const byN={};rds.forEach(e=>{const n=e.tags.name;if(!n||RW[e.tags.highway]<=3)return;const g=e.geometry;let L=0;for(let i=1;i<g.length;i++){const a=hqP(m,g[i-1].lat,g[i-1].lon),b=hqP(m,g[i].lat,g[i].lon);L+=Math.hypot(a[0]-b[0],a[1]-b[1]);}if(!byN[n]||byN[n].L<L)byN[n]={e,L};});
+  Object.entries(byN).sort((a,b)=>b[1].L-a[1].L).slice(0,14).forEach(([n,{e,L}])=>{if(L<n.length*5.5)return;let g=e.geometry;const a=hqP(m,g[0].lat,g[0].lon),b=hqP(m,g[g.length-1].lat,g[g.length-1].lon);if(b[0]<a[0])g=g.slice().reverse();
+    lab+=`<path id="hq${e.id}" d="${path(g)}" fill="none"/><text font-family="Bangers,Impact,sans-serif" font-size="9.5" letter-spacing=".4" fill="${I}" stroke="#fff" stroke-width="2.6" paint-order="stroke" dy="3.2"><textPath href="#hq${e.id}" startOffset="50%" text-anchor="middle">${esc(n.toUpperCase())}</textPath></text>`;});
+  /* servizi veri, posti sponsor e sponsor */
+  let pins='';const R=S.zone.real;
+  if(R)R.fac.forEach((f,i)=>{const P=hqP(m,f.lat,f.lon);if(!hqIn(P))return;const ic=(RES_ICON[f.k]||['📍'])[0];
+    if(f.cand)pins+=`<g data-rfac="${i}" style="cursor:pointer"><circle cx="${P[0]}" cy="${P[1]}" r="9" fill="#ffe680" stroke="#b8860b" stroke-width="2.4" stroke-dasharray="4 2"/><text x="${P[0]}" y="${P[1]+3.5}" text-anchor="middle" font-size="9">🔧</text></g>`;
+    else if(['osp','farm','cc','vvf','racc','super','dist'].includes(f.k))pins+=`<g data-rfac="${i}" style="cursor:pointer"><circle cx="${P[0]+1.5}" cy="${P[1]+1.5}" r="10" fill="${I}"/><circle cx="${P[0]}" cy="${P[1]}" r="10" fill="#fff" stroke="${(RES_ICON[f.k]||[0,'#2f5fb8'])[1]}" stroke-width="2.6"/><text x="${P[0]}" y="${P[1]+4}" text-anchor="middle" font-size="10.5" font-weight="700">${ic}</text></g>`;});
+  Object.entries(window.SP_GEO||{}).forEach(([k,g])=>{if(!g||g.lat==null||!SPONSORS[k])return;const P=hqP(m,g.lat,g.lon);if(!hqIn(P))return;
+    pins+=`<g data-rsp="${k}" style="cursor:pointer"><rect x="${P[0]-17}" y="${P[1]-26}" width="34" height="22" rx="4" fill="#f7d64a" stroke="${I}" stroke-width="2.5"/><path d="M${P[0]-6} ${P[1]-4} L${P[0]} ${P[1]+4} L${P[0]+6} ${P[1]-4}Z" fill="${I}"/><text x="${P[0]}" y="${P[1]-10}" text-anchor="middle" font-family="Bangers,Impact" font-size="12" fill="${I}">${esc(SPONSORS[k].logo)}</text><text x="${P[0]}" y="${P[1]+16}" text-anchor="middle" font-size="8" font-weight="700" fill="${I}" stroke="#fff" stroke-width="2.4" paint-order="stroke">${esc(SPONSORS[k].name.slice(0,18))}</text></g>`;});
+  /* l'orda arriva dalle strade che entrano nel quartiere */
+  const edge=[];rds.filter(e=>RW[e.tags.highway]>=7).forEach(e=>{[e.geometry[0],e.geometry[e.geometry.length-1]].forEach(p=>{const P=hqP(m,p.lat,p.lon);if(!hqIn(P)&&P[0]>-60&&P[0]<460&&P[1]>-160&&P[1]<660)edge.push({P,n:e.tags.name});});});
+  const pick=[];edge.forEach(x=>{if(pick.length<4&&pick.every(y=>Math.hypot(y.P[0]-x.P[0],y.P[1]-x.P[1])>140))pick.push(x);});
+  const arrows=pick.map(x=>{const cx=Math.max(14,Math.min(386,x.P[0])),cy=Math.max(-100,Math.min(600,x.P[1]));const a=Math.atan2(my[1]-cy,my[0]-cx);
+    return`<g transform="translate(${cx} ${cy}) rotate(${a*180/Math.PI})"><path d="M-6 -9 L12 0 L-6 9Z" fill="#d7263d" stroke="${I}" stroke-width="2"/></g><text x="${cx+(cx<200?16:-16)}" y="${cy+(cy<250?18:-10)}" text-anchor="${cx<200?'start':'end'}" font-family="Bangers,Impact" font-size="9" fill="#d7263d" stroke="#fff" stroke-width="2.4" paint-order="stroke">🧟 ORDA${x.n?' DA '+esc(x.n.toUpperCase().slice(0,20)):''}</text>`;}).join('');
+  return`<rect y="-120" width="400" height="800" fill="#efe4c8"/><rect y="-120" width="400" height="800" fill="url(#hthd)" opacity=".7"/>${green}${water}${r0}${bld}${r1}${lab}${pins}${arrows}
+   <rect y="620" width="400" height="60" fill="#3b3550"/>${typeof mBanner==='function'?mBanner(200,640,'FUORI PAESE: QUI SI RADUNA L’ORDA',0,9):''}
+   <text x="392" y="612" text-anchor="end" font-size="7.5" fill="#5a5470">© OpenStreetMap</text>`;}
+const _hoodSVGQ=hoodSVG;
+hoodSVG=function(){const m=hqData();if(!m){hqApply(false);return _hoodSVGQ();}
+  try{hqPlan(m);hqApply(true);let s=_hoodSVGQ();const my=hqMy();
+    const i0=s.indexOf('<rect y="-120" width="400"');const i1=s.indexOf(`<g transform="translate(${my[0]} ${my[1]})"`);if(i0<0||i1<0)return s;
+    let tail=s.slice(i1).replace(/<g data-rs[vp]="[^"]*"[^>]*>[\s\S]*?<\/g>/g,'');
+    return s.slice(0,i0)+hqBack(m)+tail;}catch(e){console.warn('quartiere vero',e);hqApply(false);return _hoodSVGQ();}};
+/* se i dati della zona non sono ancora in memoria, li carico e ridisegno */
+const _renderHubQ=renderHub;renderHub=function(){const r=_renderHubQ.apply(this,arguments);try{const a=S.zone&&S.zone.address;
+  if(G.realHood&&a&&!RM.cache[a]&&navigator.onLine&&!HQ.loading){HQ.loading=1;rmFetch(a).then(()=>{HQ.loading=0;HQ.map=null;if(S.tab==='orda'&&G.view==='hub'&&(G.sub||'q')==='q')renderHub();}).catch(()=>{HQ.loading=0;});}
+  const svg=app.querySelector('.hood svg');if(svg&&!svg._rf){svg._rf=1;svg.addEventListener('click',e=>{const f=e.target.closest&&e.target.closest('[data-rfac]');if(!f)return;const x=S.zone.real.fac[+f.dataset.rfac];if(!x)return;
+    const d=Math.round(trM(S.zone.real.lat,S.zone.real.lon,x.lat,x.lon));if(x.cand)bizSheet({i:'f'+f.dataset.rfac,ic:'🔧',name:x.name,cat:'Attività per la casa',d,tel:x.tel,web:x.web,ll:[x.lat,x.lon],cand:true},S.zone);else lmPoi(x.name,TR_NAME[x.k]||'Servizio',d,[x.lat,x.lon],['osp','farm','cc','vvf','racc'].includes(x.k));});}}catch(e){}return r;};
+</script>
+<script>
+/* =========================================================
+   COMMUNITY VERA: utenti registrati sulla mappa (solo chi
+   accetta, posizione arrotondata ~200 m) + segnalazioni
+   "ha chiuso" per le attività
+   ========================================================= */
+window.ZUSERS=window.ZUSERS||[];
+const rLat=v=>Math.round(v/0.002)*0.002,rLon=v=>Math.round(v/0.0028)*0.0028;
+async function zLoadUsers(){try{const sb=await waitSB();if(!sb)return;const{data,error}=await sb.from('profili_pubblici').select('user_id,nick,lat_r,lon_r,comune,indice,livello,seen_at').limit(2000);
+  if(error||!data)return;window.ZUSERS=data.filter(u=>u.lat_r!=null);(window.__zlms||[]).forEach(lm=>{try{zDrawUsers(lm);}catch(e){}});}catch(e){}}
+async function zSyncProfile(force){try{const sb=typeof SB!=='undefined'&&SB;if(!sb||!S.user||!S.user.id)return;const R=S.zone&&S.zone.real;
+  if(S.pubOk===undefined&&R&&!zSyncProfile.asked){zSyncProfile.asked=1;setTimeout(zAskPublic,1200);}
+  /* presenza: sempre (serve per contare chi è online); posizione solo se ha accettato */
+  const vis=S.pubOk===true;const row={user_id:S.user.id,nick:S.user.nick,seen_at:new Date().toISOString(),updated_at:new Date().toISOString(),visibile:vis,
+    indice:S.result?S.result.idx:null,livello:(typeof G!=='undefined'&&G.type)?G.level:null,lat_r:null,lon_r:null,comune:null};
+  if(vis&&R){row.lat_r=+rLat(R.lat).toFixed(4);row.lon_r=+rLon(R.lon).toFixed(4);row.comune=((S.zone.address||'').split(',').slice(-1)[0]||'').trim();}
+  await sb.from('profili_pubblici').upsert(row,{onConflict:'user_id'});if(force)zLoadUsers();zStats();}catch(e){}}
+/* numeri veri in alto: utenti registrati e online negli ultimi 5 minuti */
+async function zStats(){try{const sb=await waitSB(4000);if(!sb)return;const{data,error}=await sb.rpc('zsh_stats');if(error||!data)return;
+  STATS.reg=data.utenti||0;STATS.on=data.online||0;tickStats();}catch(e){}}
+zStats();setInterval(()=>{if(!document.hidden)zStats();},60*1000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){zSyncProfile();zStats();}});
+function zAskPublic(){if(document.querySelector('#sheet.open'))return setTimeout(zAskPublic,4000);
+  openSheet('👥 Vuoi comparire sulla mappa?',`<p style="font-weight:400;margin-bottom:10px">Gli altri superstiti vedranno il tuo <b>nickname @${esc(S.user.nick)}</b>, l'<b>indice della casa</b> e il livello nel gioco, in una <b>posizione approssimata di circa 200 metri</b>. Mai l'indirizzo, mai i punti deboli della casa.</p>
+   <p class="muted" style="font-size:13px;margin-bottom:12px">Così vedi anche tu chi c'è nel quartiere. Puoi cambiare idea quando vuoi dal menu ☰.</p>
+   <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" data-pub="1">✅ Sì, mostrami</button><button class="btn ghost small" data-pub="0">No grazie</button></div>`,card=>{
+   card.querySelectorAll('[data-pub]').forEach(b=>b.onclick=()=>{S.pubOk=b.dataset.pub==='1';closeSheet();toast(S.pubOk?'👥 Sei sulla mappa della community':'Ok, resti invisibile');zSyncProfile(true);try{saveLocal();}catch(e){}});});}
+/* l'impostazione si salva con i progressi */
+const _snapZ=snapshot;snapshot=function(){const d=_snapZ();if(d&&d.S)d.S.pubOk=S.pubOk;return d;};
+const _restZ=restore;restore=function(d){const r=_restZ(d);try{if(d&&d.S&&d.S.pubOk!=null)S.pubOk=d.S.pubOk;}catch(e){}return r;};
+/* segnaposto degli utenti sulla mappa vera */
+function zDrawUsers(lm){if(!lm||!lm.map)return;(lm._usr||[]).forEach(x=>x.remove());lm._usr=[];const me=S.user&&S.user.id;const now=Date.now();
+  window.ZUSERS.forEach(u=>{if(u.user_id===me)return;const on=u.seen_at&&now-new Date(u.seen_at).getTime()<6*60*1000;
+    const col=u.indice==null?'#9aa4b0':u.indice<=4?'#3f9b5f':u.indice<=6?'#f7d64a':'#d7263d';
+    const el=elDiv('lm-usr',`<b style="background:${col}">${esc((u.nick||'?')[0].toUpperCase())}</b>${on?'<i></i>':''}<em>@${esc(u.nick)}</em>`);
+    el.addEventListener('click',e=>{e.stopPropagation();openSheet('👤 @'+esc(u.nick),`<div class="bzc"><div class="bzc-hero" style="--c:#e2d6f5"><span class="bzc-ic" style="background:${col}">${esc((u.nick||'?')[0].toUpperCase())}</span><div class="bzc-t"><span class="bzc-cat">Superstite${on?' · online ora':''}</span><h4>@${esc(u.nick)}</h4><small>${u.comune?esc(u.comune)+' · ':''}zona indicativa (circa 200 m)</small></div></div>
+      <div class="terrb" style="margin-top:12px"><span class="ok">🏠 Indice ${u.indice!=null?String(u.indice).replace('.',','):'–'}</span><span class="ok">🎮 Livello ${u.livello||'–'}</span></div>
+      <p class="muted" style="font-size:13px">Per privacy non vedi l'indirizzo né i punti deboli della sua casa.</p></div>`);});
+    lm._usr.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([u.lon_r,u.lat_r]).addTo(lm.map));});}
+const _liveMapZ=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapZ(el,addr,o);try{(window.__zlms=window.__zlms||[]).push(lm);zDrawUsers(lm);}catch(e){}return lm;};
+/* quando ci si collega o si valuta la casa */
+const _onLoginZ=onLogin;onLogin=async function(u,fresh){const r=await _onLoginZ(u,fresh);window.ZADMIN=null;zSyncProfile();zLoadUsers();return r;};
+const _azZ=analyzeZone;analyzeZone=async function(a){const z=await _azZ(a);setTimeout(()=>zSyncProfile(true),500);return z;};
+zLoadUsers();setInterval(()=>{if(!document.hidden)zSyncProfile();},3*60*1000);setInterval(()=>{if(!document.hidden)zLoadUsers();},5*60*1000);
+/* menu: cambiare idea */
+window.zTogglePublic=()=>{S.pubOk=!S.pubOk;zSyncProfile(true);toast(S.pubOk?'👥 Ora sei visibile sulla mappa':'Ora sei invisibile sulla mappa');try{saveLocal();}catch(e){}};
+/* aree community calcolate sugli utenti veri (un'area si colora solo con almeno K_MIN persone) */
+const _commCellsZ=commCells;
+commCells=function(z){const base=_commCellsZ(z);const R=z&&z.real;if(!R||!window.ZUSERS)return base;const key=window.ZUSERS.length+'|'+R.lat;if(z._commR===key&&z._commRv)return z._commRv;
+  const k=Math.cos(R.lat*Math.PI/180);const out=base.map(c=>({x:c.x,y:c.y,n:0,sum:0}));
+  window.ZUSERS.forEach(u=>{const dx=(u.lon_r-R.lon)*111320*k,dy=(u.lat_r-R.lat)*110540;const x=200+dx/1.9,y=170-dy/1.9;let b=null,bd=60;out.forEach(c=>{const d=Math.hypot(c.x-x,c.y-y);if(d<bd){bd=d;b=c;}});if(b){b.n++;b.sum+=(u.indice!=null?+u.indice:5);}});
+  if(S.user&&S.result){let b=null,bd=60;out.forEach(c=>{const d=Math.hypot(c.x-200,c.y-170);if(d<bd){bd=d;b=c;}});if(b&&!window.ZUSERS.some(u=>u.user_id===S.user.id)){b.n++;b.sum+=S.result.idx;}}
+  out.forEach(c=>{c.avg=c.n?c.sum/c.n:(z.avgU||5);delete c.sum;});z._commR=key;z._commRv=out;return out;};
+const _zoneCardU=zoneCard;zoneCard=function(z,key,me){let h=_zoneCardU(z,key,me);try{if(z&&z.real&&window.ZUSERS){const R=z.real;const near=window.ZUSERS.filter(u=>trM(R.lat,R.lon,u.lat_r,u.lon_r)<3000&&!(S.user&&u.user_id===S.user.id));
+    const av=near.filter(u=>u.indice!=null);h=h.replace(/<b>\d+<\/b><small>superstiti<\/small>/,`<b>${near.length}</b><small>superstiti entro 3 km</small>`)
+      .replace(/(<b>)[^<]*(<\/b><small>indice medio<\/small>)/,`$1${av.length?fmtI(av.reduce((a,u)=>a+ +u.indice,0)/av.length):'–'}$2`)
+      .replace('Superstiti della community ancora simulati.','Superstiti veri: solo chi ha scelto di comparire, in posizione approssimata.');}}catch(e){}return h;};
+/* segnalazione "ha chiuso" */
+window.ZMYHID=JSON.parse(localStorage.getItem('zsh_myhid')||'[]');
+async function zReport(name,ll){if(!S.user||typeof SB==='undefined'||!SB){toast('Accedi per segnalare: così evitiamo segnalazioni false');return;}
+  try{const{error}=await SB.from('poi_reports').insert({name,lat:ll?ll[0]:null,lon:ll?ll[1]:null,motivo:'chiusa'});if(error)throw error;}catch(e){toast('Segnalazione non inviata: riprova più tardi');return;}
+  window.ZMYHID.push(name);try{localStorage.setItem('zsh_myhid',JSON.stringify(window.ZMYHID));}catch(e){}window.ZHID=[...new Set([...(window.ZHID||[]),name])];zApplyHidden();closeSheet();toast('Grazie! Segnalazione inviata: la controlliamo noi');}
+window.ZHID=[...new Set([...(window.ZHID||[]),...window.ZMYHID])];
+const _bzCardR=bzCard;bzCard=function(b,pub){return _bzCardR(b,pub).replace('<div data-admin></div>',`<button class="bzc-rep" data-rep>⚠️ Ha chiuso o non esiste più? Segnalalo</button><div data-admin></div>`);};
+const _bizSheetR=bizSheet;bizSheet=function(b,z){_bizSheetR(b,z);const c=document.querySelector('#sheet.open .sheet-card');const r=c&&c.querySelector('[data-rep]');if(r)r.onclick=()=>zReport(b.name,b.ll);};
+const _lmPoiR=lmPoi;lmPoi=function(name,cat,d,ll,pub){_lmPoiR(name,cat,d,ll,pub);const c=document.querySelector('#sheet.open .sheet-card');const r=c&&c.querySelector('[data-rep]');if(r)r.onclick=()=>zReport(name,ll);};
+</script>
+<script>
+const _renderMenuZ=renderMenu;renderMenu=function(){_renderMenuZ();try{if(!S.user)return;const u=document.querySelector('.dr-user');if(!u||document.querySelector('[data-pubt]'))return;
+  u.insertAdjacentHTML('afterend',`<button class="mi" data-pubt="1"><span>👥</span>Sulla mappa della community: <b style="margin-left:4px">${S.pubOk?'visibile':'invisibile'}</b></button>`);
+  document.querySelector('[data-pubt]').onclick=e=>{e.stopPropagation();zTogglePublic();renderMenu();};}catch(e){}};
+</script>
+<script>
+/* =========================================================
+   LA NOTTE DEL GIOCO = LA NOTTE VERA
+   meteo reale della tua zona (Open-Meteo) + fase della luna:
+   pioggia → zombie più lenti; nebbia → si vede poco;
+   temporale/vento forte → blackout; luna piena → orda rabbiosa
+   ma monete doppie. Senza rete: eventi casuali come prima.
+   ========================================================= */
+const ZW={t:0,d:null};
+function moonInfo(d=new Date()){const age=((d.getTime()-Date.UTC(2000,0,6,18,14))/864e5)%29.530588;const a=age<0?age+29.530588:age;const ill=(1-Math.cos(2*Math.PI*a/29.530588))/2;
+  const n=a<1.8||a>27.7?'luna nuova':a<6.4?'luna crescente':a<8.4?'primo quarto':a<13.8?'gibbosa crescente':a<15.8?'luna piena':a<21?'gibbosa calante':a<23?'ultimo quarto':'luna calante';
+  const ic=a<1.8||a>27.7?'🌑':a<6.4?'🌒':a<8.4?'🌓':a<13.8?'🌔':a<15.8?'🌕':a<21?'🌖':a<23?'🌗':'🌘';return{age:a,ill,n,ic,full:a>=13.8&&a<15.8};}
+async function zWeather(){const R=S.zone&&S.zone.real;if(!R||!navigator.onLine)return null;if(ZW.d&&Date.now()-ZW.t<20*60*1000&&ZW.k===R.lat+','+R.lon)return ZW.d;
+  try{const d=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${R.lat.toFixed(3)}&longitude=${R.lon.toFixed(3)}&current=weather_code,precipitation,wind_speed_10m,wind_gusts_10m,visibility,temperature_2m,is_day&timezone=auto`,{signal:trSig(8000)}).then(x=>x.json());
+    if(!d||!d.current)return null;ZW.d=d.current;ZW.t=Date.now();ZW.k=R.lat+','+R.lon;return ZW.d;}catch(e){return null;}}
+function wName(c){return c===0?'sereno':c<=2?'poco nuvoloso':c===3?'nuvoloso':c===45||c===48?'nebbia':c>=51&&c<=57?'pioviggine':c>=61&&c<=67?'pioggia':c>=71&&c<=77?'neve':c>=80&&c<=82?'rovesci':c>=85&&c<=86?'neve':c>=95?'temporale':'variabile';}
+function wIcon(c){return c===0?'☀️':c<=2?'⛅':c===3?'☁️':c===45||c===48?'🌫️':c>=51&&c<=67?'🌧️':c>=71&&c<=77||c===85||c===86?'❄️':c>=80&&c<=82?'🌦️':c>=95?'⛈️':'🌥️';}
+function realNightCond(){const w=ZW.d;if(!w)return undefined;const m=moonInfo();const c=w.weather_code;
+  if(c>=95||(w.wind_gusts_10m||0)>=60)return{ev:'blackout',why:`${wIcon(c)} ${c>=95?'Temporale':'Vento forte'} sulla tua zona: salta la corrente, si vede solo vicino alla luce`};
+  if(c===45||c===48||(w.visibility!=null&&w.visibility<1000))return{ev:'nebbia',why:'🌫️ Nebbia vera stanotte: gli zombie spuntano all’ultimo'};
+  if((c>=51&&c<=67)||(c>=80&&c<=82)||(w.precipitation||0)>=.2)return{ev:'pioggia',why:`🌧️ Piove davvero (${String(w.precipitation||0).replace('.',',')} mm): zombie più lenti${S.zone.real.pos==='bassa'?', ma la tua zona bassa si allaga':''}`};
+  if(m.full)return{ev:'luna',why:'🌕 Luna piena vera: orda più veloce, ma monete doppie'};
+  return{ev:null,why:`${wIcon(c)} Notte tranquilla: ${wName(c)}, ${Math.round(w.temperature_2m)}°C, ${m.ic} ${m.n}`};}
+function realNightEv(L){if(L<2)return null;const r=realNightCond();return r===undefined?undefined:r.ev;}
+/* zona bassa + pioggia vera: la barricata soffre di più */
+const _bmW=barrierMax;barrierMax=function(){const v=_bmW();const r=realNightCond();return r&&r.ev==='pioggia'&&S.zone&&S.zone.real&&S.zone.real.pos==='bassa'?Math.round(v*.9):v;};
+/* nel pannello "Il territorio decide la notte" */
+const _terrPanelW=terrPanelHTML;terrPanelHTML=function(){const h=_terrPanelW();if(!h)return h;const r=realNightCond();const m=moonInfo();
+  const line=r?`<div class="wnight"><b>🌙 Stanotte, meteo vero</b><span>${esc(r.why)}</span>${r.ev?`<em>Evento della notte: ${{pioggia:'PIOGGIA',nebbia:'NEBBIA',blackout:'BLACKOUT',luna:'LUNA PIENA'}[r.ev]}</em>`:''}</div>`
+    :`<div class="wnight"><b>🌙 Stanotte</b><span>${m.ic} ${m.n} · meteo in arrivo…</span></div>`;
+  return h.replace('<div class="terrb">',line+'<div class="terrb">');};
+const _renderHubW=renderHub;renderHub=function(){const r=_renderHubW.apply(this,arguments);if(S.zone&&S.zone.real&&!ZW.d&&!ZW.busy){ZW.busy=1;zWeather().then(d=>{ZW.busy=0;if(d&&S.tab==='orda'&&G.view==='hub'&&(G.sub||'q')==='q'){const p=app.querySelector('.terrp');if(p){const n=document.createElement('div');n.innerHTML=terrPanelHTML();const np=n.firstElementChild;np.dataset.grp='q';p.replaceWith(np);const bm=np.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}}});}return r;};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
