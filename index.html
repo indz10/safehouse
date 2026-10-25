@@ -761,6 +761,18 @@ a.onl{font-weight:700;color:#1f3f80}
 .lmap .lm-10{position:absolute;right:10px;top:94px;z-index:4;border:3px solid var(--ink);background:#fff;font-weight:700;font-size:13px;padding:6px 10px;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
 .lmap .lm-10.on{background:#e9e0f5}
 .invl{display:flex;gap:6px}.invl input{flex:1;min-width:0;padding:8px;border:3px solid var(--ink);font-size:13px}
+
+.myhome{background:#fff;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:12px;margin-bottom:14px}
+.mh-top{display:flex;gap:12px;align-items:center}
+.mh-top h2{font-size:24px;line-height:1.05;margin:4px 0}
+.mh-top p{margin:0;font-weight:400;font-size:14px}.mh-top small{font-size:12.5px;font-weight:700;color:#5a5470}
+.mh-ring{flex:0 0 auto}
+.mh-act{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.mh-act button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;background:#f1ebf9;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-weight:700;font-size:13px;color:var(--ink);cursor:pointer}
+.mh-act button span{font-size:24px}
+.mh-act button[data-mh="move"]{background:#fff3b0}
+.mvnew{display:flex;flex-direction:column;gap:3px;margin:6px 0 12px;padding:10px 12px;background:#fff3b0;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-size:14px;font-weight:400}
+.mvnew b{font-family:var(--display);font-weight:400;font-size:20px}
 </style>
 </head>
 <body>
@@ -5539,7 +5551,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610252121';
+const ZSH_BUILD='202610252128';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -6161,6 +6173,52 @@ const _renderMenuI=renderMenu;renderMenu=function(){_renderMenuI();try{const ref
   const last=[...document.querySelectorAll('#drawer .mi')].pop();(last||ref).insertAdjacentHTML('afterend','<button class="mi" data-delacc="1" style="color:#d7263d"><span>🗑</span>Elimina il mio account</button><a class="mi" href="privacy.html" target="_blank"><span>🔒</span>Privacy</a><a class="mi" href="termini.html" target="_blank"><span>📄</span>Termini d’uso</a>');
   document.querySelector('[data-inv]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}inviteSheet();};
   document.querySelector('[data-delacc]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}deleteSheet();};}catch(e){}};
+</script>
+<script>
+/* =========================================================
+   "LA TUA CASA": chi ha già una casa valutata non rivede la
+   schermata dei nuovi utenti. Trasloco con schermata dedicata.
+   ========================================================= */
+const _vZonaHome=vZona;
+vZona=function(){
+  /* trasloco in corso: schermata "La tua nuova casa" */
+  if(S.moving&&!S.zone){_vZonaHome();try{const h=document.querySelector('#vv h2');if(h)h.textContent='Dove si trova la casa nuova?';
+      const old=S.case&&S.case[0];const p=h&&h.nextElementSibling;
+      if(p)p.outerHTML=`<div class="mvnew"><b>🚚 Trasloco${old?` da ${esc(old.address)}`:''}</b><span>Monete, gemme, livello, attrezzi, crediti e amici sono già con te. Trova la casa nuova: il gioco si sposta nel nuovo quartiere vero.</span></div>`;
+      const mv=document.getElementById('mvBtn');if(mv)mv.remove();
+      if(!document.getElementById('mvUndo'))document.getElementById('vv').insertAdjacentHTML('beforeend','<p style="margin-top:14px"><button class="btn ghost small" id="mvUndo">Annulla: non ho traslocato</button></p>');
+      const u=document.getElementById('mvUndo');if(u)u.onclick=()=>{const o=S.case&&S.case[0];if(!o){toast('Scrivi l’indirizzo della casa');return;}const f=document.getElementById('addr');if(f)f.value=o.address;S.moving=0;toast('Riscrivi o conferma il vecchio indirizzo e premi Analizza');};}catch(e){}return;}
+  /* casa già valutata: la sua scheda */
+  if(S.zone&&S.result&&!S.vzNew){const z=S.zone,R=S.result,[g,col]=grade(R.idx),H=z.real&&z.real.house;
+    $('#vv').innerHTML=`<div class="myhome">
+      <div class="mh-top"><div class="mh-ring">${ring(R.idx,110)}</div><div><span class="bzc-cat">La tua casa</span><h2>${esc(z.address)}</h2>
+        <p><b style="color:${col}">${g}</b> · resisti <b>${nightsFor(R.idx)} notti</b></p>${H?`<small>${esc(KIND_N[H.kind]||'Casa')} · ${H.levels} ${H.levels===1?'piano':'piani'} · ≈ ${H.len}×${H.wid} m</small>`:''}</div></div>
+      <div class="mh-act">
+        <button data-mh="3"><span>📋</span>Risultato e piano d’azione</button>
+        <button data-mh="2"><span>✏️</span>Aggiorna le risposte</button>
+        <button data-mh="1"><span>📷</span>Nuove foto</button>
+        <button data-mh="pos"><span>📍</span>Correggi la posizione</button>
+        <button data-mh="game"><span>🧟</span>Difendila nel gioco</button>
+        <button data-mh="move"><span>🚚</span>Ho cambiato casa</button></div></div>
+     <div id="rmHwrap">${rmBox('rmH')}</div>
+     ${z.real?terrSummary(z.real):''}`;
+    document.querySelectorAll('[data-mh]').forEach(b=>b.onclick=async()=>{const k=b.dataset.mh;
+      if(k==='move')return moveSheet();if(k==='game')return go('orda');
+      if(k==='pos'){const R0=z.real;const ok=await trPick({lat:R0?R0.lat:45.4,lon:R0?R0.lon:10.6,acc:null,label:z.address,src:'pin'});if(!ok)return;
+        S.geo={lat:ok.lat,lon:ok.lon,acc:ok.acc,addr:ok.label,src:ok.src};b.disabled=true;b.innerHTML='<span class="spin"></span> Aggiorno la zona…';
+        try{S.zone=await analyzeZone(ok.label);S.answers.zona=S.zone.type;S.result=computeScore(S.answers,S.zone);HQ.map=null;toast('📍 Posizione aggiornata');}catch(e){toast('Non riuscito: riprova');}vZona();return;}
+      S.step=+k;if(k==='2')S.chapter=0;renderValuta();});
+    try{rmMount(document.getElementById('rmH'),z.address);}catch(e){}return;}
+  _vZonaHome();};
+/* dopo l'analisi della casa nuova il trasloco è finito */
+const _azMove=analyzeZone;analyzeZone=async function(a){const z=await _azMove(a);if(S.moving)setTimeout(()=>{S.moving=0;},0);return z;};
+/* il trasloco porta alla schermata dedicata */
+const _doMoveH=doMove;doMove=function(P){S.moving=Date.now();_doMoveH(P);};
+</script>
+<script>
+const _renderValutaH=renderValuta;renderValuta=function(){_renderValutaH();try{if(S.step!==0)return;const b=app.querySelector('.page .bubble');if(!b)return;
+  if(S.moving&&!S.zone)b.innerHTML='<b>Nuova casa, nuovo quartiere!</b> Dimmi dove ti sei trasferito: rifaccio la mappa e il gioco intorno a te.';
+  else if(S.zone&&S.result)b.innerHTML=`<b>Bentornato${S.user?' @'+esc(S.user.nick):''}!</b> Questa è la tua casa: da qui la rivedi, la aggiorni o, se ti sei trasferito, cambi casa.`;}catch(e){}};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
