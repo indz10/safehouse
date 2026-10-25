@@ -758,6 +758,9 @@ a.onl{font-weight:700;color:#1f3f80}
 .pli small{font-size:12px;font-weight:700;color:#5a5470}
 .pli .btn{align-self:flex-start;margin-top:3px}
 .plc{flex:0 0 74px;font-weight:700;font-size:13px;background:#fff3b0;border:2px solid var(--ink);text-align:center;padding:2px 3px}
+.lmap .lm-10{position:absolute;right:10px;top:94px;z-index:4;border:3px solid var(--ink);background:#fff;font-weight:700;font-size:13px;padding:6px 10px;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.lmap .lm-10.on{background:#e9e0f5}
+.invl{display:flex;gap:6px}.invl input{flex:1;min-width:0;padding:8px;border:3px solid var(--ink);font-size:13px}
 </style>
 </head>
 <body>
@@ -5086,7 +5089,7 @@ function zIcon(map,id){if(!id||id.indexOf('zi-')!==0||map.hasImage(id))return;co
   g.font=`${big?30:25}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(d[0],cx,cy+2);
   if(k==='cand'){g.fillStyle='#d7263d';g.beginPath();g.arc(cx+r-4,cy-r+5,9,0,7);g.fill();g.fillStyle='#fff';g.font='bold 13px sans-serif';g.fillText('€',cx+r-4,cy-r+6);}
   try{map.addImage(id,g.getImageData(0,0,S2,S2),{pixelRatio:2});}catch(e){}}
-const ZPAL={day:{bg:'#efe4c8',res:'#e8dcbf',park:'#a9d38a',wood:'#6faa6a',farm:'#ecd98f',water:'#6fb3e6',bld:'#f4e7cf',bldl:'#140f1f',road:'#fffaf0',main:'#f7d64a',cas:'#140f1f',rail:'#5a5470'},
+const ZPAL={day:{bg:'#e2d5f4',res:'#d9caef',park:'#cfe3bd',wood:'#b3d0a2',farm:'#f5e7a4',water:'#b4d2f0',bld:'#fff0b4',bldl:'#4a3a6e',road:'#ffffff',main:'#f6d65a',cas:'#4a3a6e',rail:'#8f80b8'},
   night:{bg:'#1b1438',res:'#241a4a',park:'#24452f',wood:'#1d3a27',farm:'#3a3320',water:'#203a73',bld:'#3b2f6e',bldl:'#07050c',road:'#6a5aa0',main:'#c9a31a',cas:'#07050c',rail:'#8a80b0'}};
 function zStyle(n){const P=n?ZPAL.night:ZPAL.day;const R=['interpolate',['exponential',1.6],['zoom']];const MJ=['motorway','trunk','primary'],SC=['secondary','tertiary'];
   const ROADS=['in',['get','class'],['literal',['motorway','trunk','primary','secondary','tertiary','minor','service']]];
@@ -5103,16 +5106,16 @@ function zStyle(n){const P=n?ZPAL.night:ZPAL.day;const R=['interpolate',['expone
   const TXT={'text-font':FONT,'text-anchor':'top','text-optional':true,'text-max-width':9};
   const POIS=[
    {id:'poi-biz',type:'symbol',source:'omt','source-layer':'poi',minzoom:15,filter:['all',BIZ,HID],layout:{'icon-image':['concat','zi-',BIZC,n?'-n':''],'icon-size':['interpolate',['linear'],['zoom'],15,.5,18,.85],'icon-padding':1,...TXT,'text-field':['step',['zoom'],'',17,NM],'text-size':10.5,'text-offset':[0,1.2]},paint:{'text-color':n?'#f3e9d2':'#140f1f','text-halo-color':n?'#140f1f':'#fffaf0','text-halo-width':2}},
-   {id:'poi-pub',type:'symbol',source:'omt','source-layer':'poi',minzoom:12,filter:['all',PUB,HID],layout:{'icon-image':['concat','zi-',PUBC],'icon-size':['interpolate',['linear'],['zoom'],12,.45,17,.95],'icon-allow-overlap':true,...TXT,'text-field':['step',['zoom'],'',16,NM],'text-size':11,'text-offset':[0,1.5]},paint:{'text-color':'#1f3f80','text-halo-color':'#fff','text-halo-width':2.2}},
+   {id:'poi-pub',type:'symbol',source:'omt','source-layer':'poi',minzoom:11,filter:['all',PUB,HID],layout:{'icon-image':['concat','zi-',PUBC],'icon-size':['interpolate',['linear'],['zoom'],12,.45,17,.95],'icon-allow-overlap':true,...TXT,'text-field':['step',['zoom'],'',16,NM],'text-size':11,'text-offset':[0,1.5]},paint:{'text-color':'#1f3f80','text-halo-color':'#fff','text-halo-width':2.2}},
    {id:'poi-hid',type:'symbol',source:'omt','source-layer':'poi',minzoom:12,filter:['in',NM,['literal',window.ZHID||[]]],layout:{visibility:window.ZADMIN?'visible':'none','icon-image':'zi-hid','icon-size':['interpolate',['linear'],['zoom'],12,.45,17,.9],'icon-allow-overlap':true,...TXT,'text-field':['step',['zoom'],'',15,NM],'text-size':10.5,'text-offset':[0,1.4]},paint:{'icon-opacity':.75,'text-color':'#5a5470','text-halo-color':'#fff','text-halo-width':2}},
-   {id:'poi-cand',type:'symbol',source:'omt','source-layer':'poi',minzoom:12,filter:['all',CAND,HID],layout:{'icon-image':'zi-cand','icon-size':['interpolate',['linear'],['zoom'],12,.5,17,1.05],'icon-allow-overlap':true,...TXT,'text-field':['step',['zoom'],'',14,NM],'text-size':12,'text-offset':[0,1.7]},paint:{'text-color':'#140f1f','text-halo-color':'#ffe680','text-halo-width':2.6}}];
+   {id:'poi-cand',type:'symbol',source:'omt','source-layer':'poi',minzoom:10.5,filter:['all',CAND,HID],layout:{'icon-image':'zi-cand','icon-size':['interpolate',['linear'],['zoom'],10.5,.38,13,.6,17,1.05],'icon-allow-overlap':true,...TXT,'text-field':['step',['zoom'],'',14,NM],'text-size':12,'text-offset':[0,1.7]},paint:{'text-color':'#140f1f','text-halo-color':'#ffe680','text-halo-width':2.6}}];
   return{version:8,glyphs:'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',sources:{omt:{type:'vector',url:'https://tiles.openfreemap.org/planet'},
     dem:{type:'raster-dem',tiles:DEM,encoding:'terrarium',tileSize:256,maxzoom:14},dem3:{type:'raster-dem',tiles:DEM,encoding:'terrarium',tileSize:256,maxzoom:14}},layers:[
    {id:'bg',type:'background',paint:{'background-color':P.bg}},
    {id:'res',type:'fill',source:'omt','source-layer':'landuse',filter:['in',['get','class'],['literal',['residential','suburb','neighbourhood','commercial','retail','industrial']]],paint:{'fill-color':P.res}},
    {id:'farm',type:'fill',source:'omt','source-layer':'landcover',filter:['in',['get','class'],['literal',['farmland','grass']]],paint:{'fill-color':P.farm,'fill-opacity':.8}},
    {id:'wood',type:'fill',source:'omt','source-layer':'landcover',filter:['==',['get','class'],'wood'],paint:{'fill-color':P.wood}},
-   {id:'hill',type:'hillshade',source:'dem',paint:{'hillshade-exaggeration':n?.35:.55,'hillshade-shadow-color':n?'#07050c':'#6b4a2e','hillshade-highlight-color':n?'#3b2f6e':'#fffaf0','hillshade-accent-color':n?'#140f1f':'#8a5a34'}},
+   {id:'hill',type:'hillshade',source:'dem',paint:{'hillshade-exaggeration':n?.35:.55,'hillshade-shadow-color':n?'#07050c':'#8f7bbf','hillshade-highlight-color':n?'#3b2f6e':'#fffdf3','hillshade-accent-color':n?'#140f1f':'#b6a3dc'}},
    {id:'park',type:'fill',source:'omt','source-layer':'park',paint:{'fill-color':P.park,'fill-outline-color':P.cas}},
    {id:'water',type:'fill',source:'omt','source-layer':'water',paint:{'fill-color':P.water,'fill-outline-color':P.cas}},
    {id:'waterway',type:'line',source:'omt','source-layer':'waterway',paint:{'line-color':P.water,'line-width':['interpolate',['linear'],['zoom'],12,1.5,17,7]}},
@@ -5149,7 +5152,7 @@ function lmLabels(map,box){(box._lbl||[]).forEach(x=>x.remove());const out=[];co
 /* costruisce la mappa dentro un elemento */
 async function liveMap(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[addr])||await lmGeocode(addr);
   if(!m.els||!m.els.length)rmFetch(addr).then(r=>{S.realNames=rmTopNames(r);}).catch(()=>{});
-  el.innerHTML=`<div class="lmap ${o.night?'night':''}"><div class="lm-gl"></div><div class="lm-frame"></div><button class="lm-mode" type="button">${o.night?'☀️ Giorno':'🌙 Notte'}</button><button class="lm-3d" type="button">🏙️ 3D</button></div>`;
+  el.innerHTML=`<div class="lmap ${o.night?'night':''}"><div class="lm-gl"></div><div class="lm-frame"></div><button class="lm-mode" type="button">${o.night?'☀️ Giorno':'🌙 Notte'}</button><button class="lm-3d" type="button">🏙️ 3D</button><button class="lm-10" type="button">🔭 10 km</button></div>`;
   const box=el.querySelector('.lmap'),gl=box.querySelector('.lm-gl');let night=!!o.night;
   const map=new maplibregl.Map({container:gl,style:zStyle(night),center:[m.lon,m.lat],zoom:o.zoom||16,maxZoom:19,dragRotate:false,pitchWithRotate:false,attributionControl:false});
   map.on('styleimagemissing',e=>zIcon(map,e.id));(window.__zmaps=window.__zmaps||[]).push(map);
@@ -5208,6 +5211,8 @@ async function liveMap(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[ad
   const retryMine=()=>{if(box._mineF)return;const f=findMine();const src=map.getSource('mine');if(f&&src)src.setData({type:'FeatureCollection',features:[f]});};
   map.on('idle',retryMine);map.on('styledata',()=>{if(!map.getSource('mine'))setTimeout(()=>{if(map.isStyleLoaded())extras();},300);});
   if(map.isStyleLoaded())extras();
+  box.querySelector('.lm-10').onclick=e=>{e.stopPropagation();box._far=!box._far;e.currentTarget.classList.toggle('on',box._far);e.currentTarget.textContent=box._far?'🏠 Vicino':'🔭 10 km';
+    if(box._far){const d=10000/110540,k=d/Math.cos(m.lat*Math.PI/180);map.fitBounds([[m.lon-k,m.lat-d],[m.lon+k,m.lat+d]],{padding:10,duration:900});}else map.easeTo({center:[m.lon,m.lat],zoom:o.zoom||16,duration:900});setTimeout(relabel,1000);};
   box.querySelector('.lm-3d').onclick=e=>{e.stopPropagation();box._3d=!box._3d;e.currentTarget.classList.toggle('on',box._3d);set3d();map.easeTo({pitch:box._3d?58:0,zoom:box._3d?Math.max(map.getZoom(),16.3):map.getZoom(),duration:800});setTimeout(relabel,900);};
   lm={map,m,cells,MK,setLayer,refresh:()=>{const s=map.getSource('comm');if(s)s.setData(fc());},fx:d=>{const s=map.getSource('fx');if(s)s.setData(d);},onCell:null};
   let touched=false;map.on('dragstart',()=>{touched=true;});map.on('zoomstart',e=>{if(e&&e.originalEvent)touched=true;});
@@ -5384,10 +5389,10 @@ function trKind(t){const a=t.amenity,s=t.shop,c=t.craft;
   if(a==='fuel')return'dist';if(a==='drinking_water')return'acqua';if(a==='police')return'cc';if(a==='fire_station')return'vvf';if(t.emergency==='assembly_point'||a==='townhall')return'racc';return null;}
 /* attività che possono diventare sponsor (sicurezza della casa) */
 function trCand(t){return['hardware','doityourself','locksmith','security','electrical','trade','paint','glaziery'].includes(t.shop)||['locksmith','electrician','metal_construction','window_construction','builder','carpenter','plumber'].includes(t.craft);}
-async function terrFetch(addr){const w=await trWhere(addr);const{lat,lon}=w;const key='zsh_tr3_'+lat.toFixed(4)+'_'+lon.toFixed(4);
+async function terrFetch(addr){const w=await trWhere(addr);const{lat,lon}=w;const key='zsh_tr4_'+lat.toFixed(4)+'_'+lon.toFixed(4);
   try{const c=JSON.parse(localStorage.getItem(key)||'null');if(c&&Date.now()-c.t<14*864e5)return{...c.r,acc:w.acc,src:w.src};}catch(e){}
   const A=`(around:${TR_FR},${lat},${lon})`;
-  const q=`[out:json][timeout:25];(nwr["amenity"~"^(hospital|clinic|pharmacy|police|fire_station|fuel|drinking_water|townhall)$"]${A};nwr["shop"~"^(supermarket|convenience|hardware|doityourself|locksmith|security|electrical|trade|paint|glaziery)$"]${A};nwr["craft"~"^(locksmith|electrician|metal_construction|window_construction|builder|carpenter|plumber)$"]${A};nwr["emergency"="assembly_point"]${A};nwr["natural"="water"](around:700,${lat},${lon});way["building"](around:250,${lat},${lon});nwr["shop"](around:500,${lat},${lon}););out center tags;way["waterway"~"^(river|canal|stream)$"](around:700,${lat},${lon});out tags geom;`;
+  const q=`[out:json][timeout:25];(nwr["amenity"~"^(hospital|clinic|pharmacy|police|fire_station|fuel|drinking_water|townhall)$"]${A};nwr["shop"~"^(supermarket|convenience|hardware|doityourself|locksmith|security|electrical|trade|paint|glaziery)$"]${A};nwr["craft"~"^(locksmith|electrician|metal_construction|window_construction|builder|carpenter|plumber)$"]${A};nwr["emergency"="assembly_point"]${A};nwr["amenity"~"^(hospital|police|fire_station)$"](around:10000,${lat},${lon});nwr["shop"~"^(hardware|doityourself|locksmith|security|trade)$"](around:10000,${lat},${lon});nwr["craft"~"^(locksmith|metal_construction|window_construction)$"](around:10000,${lat},${lon});nwr["natural"="water"](around:700,${lat},${lon});way["building"](around:250,${lat},${lon});nwr["shop"](around:500,${lat},${lon}););out center tags;way["waterway"~"^(river|canal|stream)$"](around:700,${lat},${lon});out tags geom;`;
   const hP=trOverpass(`[out:json][timeout:15];way["building"](around:45,${lat},${lon});out body geom;`,15000).catch(()=>null);
   let els=null;try{els=await trOverpass(q,18000);}catch(e){console.warn('servizi non raggiungibili',e);}const ov=!!els;els=els||[];
   let house=null;try{house=trHouse(await hP,lat,lon);}catch(e){}const fac=[],seen=new Set();let bld=0,shops=0,water=null;
@@ -5399,7 +5404,7 @@ async function terrFetch(addr){const w=await trWhere(addr);const{lat,lon}=w;cons
     if(t.shop==='vacant'||t.opening_hours==='closed'||Object.keys(t).some(x=>/^(disused|was|abandoned|demolished|removed):/.test(x)))return;
     const k=trKind(t),cand=trCand(t);if((!k&&!cand)||la==null)return;const id=e.type[0]+e.id;if(seen.has(id))return;seen.add(id);
     fac.push({k:k||'ferr',cand,name:t.name||t.brand||TR_NAME[k||'ferr'],lat:+la.toFixed(6),lon:+lo.toFixed(6),d:Math.round(trM(lat,lon,la,lo)),tel:t.phone||t['contact:phone']||'',web:t.website||t['contact:website']||'',id});});
-  fac.sort((a,b)=>a.d-b.d);const F=fac.slice(0,70);
+  fac.sort((a,b)=>a.d-b.d);const F=fac.slice(0,160);
   /* rilievo: griglia 600×600 m, anello a 1 km, servizi più vicini */
   const pts=[],c=(TR_N-1)/2;for(let r=0;r<TR_N;r++)for(let q2=0;q2<TR_N;q2++)pts.push(trOff(lat,lon,(q2-c)*TR_STEP,(c-r)*TR_STEP));
   for(let i=0;i<8;i++){const a=i*Math.PI/4;pts.push(trOff(lat,lon,Math.cos(a)*1000,Math.sin(a)*1000));}
@@ -5517,7 +5522,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610252003';
+const ZSH_BUILD='202610252109';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -6087,6 +6092,58 @@ function planHTML(){const L=planItems();if(!L.length)return'';const grp=[['🆓 
 const _vRisP=vRisultato;vRisultato=function(){_vRisP();try{if(!S.result)return;const t=document.querySelector('#vv .panel.paper');const h=planHTML();if(!t||!h)return;t.insertAdjacentHTML('afterend',h);
   document.querySelectorAll('[data-plsp]').forEach(b=>b.onclick=()=>sponsorSheet(b.dataset.plsp,S.zone));}catch(e){console.warn('piano',e);}};
 /* il Radio Operatore sa del nuovo questionario */
+</script>
+<script>
+/* =========================================================
+   IA VERA, GOOGLE "APERTA/CHIUSA", INVITI, ELIMINA ACCOUNT
+   ========================================================= */
+/* IA: passa dalla funzione sicura su Supabase (la chiave non è nell'app) */
+const _askAIo=askAI;
+askAI=async function(system,messages){const sb=typeof SB!=='undefined'&&SB;
+  if(sb&&S.user){const{data,error}=await sb.functions.invoke('zsh-api',{body:{action:system===VISION_PROMPT?'vision':'chat',system,messages}});
+    if(error)throw error;const d=typeof data==='string'?JSON.parse(data):data;if(d&&d.error)throw new Error(d.error.message||d.error);
+    return(d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();}
+  throw new Error('Accedi per usare l’IA');};
+/* Google: l'attività è ancora aperta? (solo quando qualcuno apre la scheda) */
+async function zPlace(name,ll){if(!ll||typeof SB==='undefined'||!SB||!S.user)return null;const k='zsh_pl_'+name+'|'+ll.map(v=>v.toFixed(4)).join(',');
+  try{const c=JSON.parse(localStorage.getItem(k)||'null');if(c&&Date.now()-c.t<30*864e5)return c.d;}catch(e){}
+  try{const{data,error}=await SB.functions.invoke('zsh-api',{body:{action:'place',name,lat:ll[0],lon:ll[1]}});if(error)return null;const d=typeof data==='string'?JSON.parse(data):data;if(!d||d.error)return null;
+    try{localStorage.setItem(k,JSON.stringify({t:Date.now(),d}));}catch(e){}return d;}catch(e){return null;}}
+const _fillOnlineG=fillOnline;fillOnline=async function(card,b){await _fillOnlineG(card,b);const box=card.querySelector('[data-online]');if(!box)return;
+  const g=await zPlace(b.name,b.ll);if(!g||!g.found||!document.body.contains(box))return;
+  const st=g.status==='CLOSED_PERMANENTLY'?'<b style="color:#d7263d">⛔ Chiusa definitivamente secondo Google</b>':g.status==='CLOSED_TEMPORARILY'?'<b style="color:#e2702d">⏸ Chiusa temporaneamente secondo Google</b>':`<b style="color:#2e7d4a">✅ In attività secondo Google</b>${g.openNow===true?' · aperta ora':g.openNow===false?' · chiusa ora':''}`;
+  box.insertAdjacentHTML('afterbegin',`<div class="onl"><span>🔎</span><div>${st}${g.rating?`<br><small>⭐ ${String(g.rating).replace('.',',')} su Google (${g.reviews||0} recensioni)</small>`:''}</div></div>`);
+  if(g.status==='CLOSED_PERMANENTLY'){try{await SB.from('poi_reports').insert({name:b.name,lat:b.ll[0],lon:b.ll[1],motivo:'google: chiusa definitivamente'});}catch(e){}
+    window.ZMYHID.push(b.name);try{localStorage.setItem('zsh_myhid',JSON.stringify(window.ZMYHID));}catch(e){}window.ZHID=[...new Set([...window.ZHID,b.name])];zApplyHidden();}};
+/* INVITI: link personale, chi entra col tuo link è collegato a te */
+(function(){try{const p=new URLSearchParams(location.search).get('invito');if(p&&/^[0-9a-f]{8}$/i.test(p)){localStorage.setItem('zsh_inv',p.toLowerCase());history.replaceState(null,'',location.pathname);}}catch(e){}})();
+const myCode=()=>S.user&&S.user.id?S.user.id.slice(0,8):null;
+const invLink=()=>location.origin+'/?invito='+myCode();
+const _zSyncInv=zSyncProfile;zSyncProfile=async function(force){await _zSyncInv(force);try{const inv=localStorage.getItem('zsh_inv');if(!inv||!S.user||inv===myCode()||localStorage.getItem('zsh_inv_ok'))return;
+  const{error}=await SB.from('profili_pubblici').update({invitato_da:inv}).eq('user_id',S.user.id);if(!error)localStorage.setItem('zsh_inv_ok','1');}catch(e){}};
+async function inviteSheet(){if(!S.user){toast('Accedi per avere il tuo link di invito');return;}let L=[];try{const{data}=await SB.rpc('miei_invitati');L=data||[];}catch(e){}
+  G.invCl=G.invCl||[];const ready=L.filter(x=>x.valutato&&!G.invCl.includes(x.nick));
+  openSheet('📨 Invita amici e vicini',`<p style="font-weight:400;margin-bottom:10px">Chi entra col tuo link e valuta la sua casa ti fa guadagnare <b>💎 5</b>. Se abita entro 1,5 km diventa uno dei tuoi <b>👥 Vicini veri</b>: nella battaglia la tua abilità diventa più forte.</p>
+   <div class="invl"><input readonly value="${esc(invLink())}"><button class="btn small" data-invcp>Copia</button></div>
+   <div class="row" style="gap:8px;margin:10px 0;flex-wrap:wrap"><button class="btn" data-invsh>📤 Condividi il link</button><a class="btn ghost small" href="https://wa.me/?text=${encodeURIComponent('Ho trovato un gioco che ti dice quanto resisterebbe casa tua a un’apocalisse zombie (e come renderla più sicura davvero). Entra col mio link: '+invLink())}" target="_blank" rel="noopener">WhatsApp</a></div>
+   <h3 style="margin-top:6px">I tuoi invitati (${L.length})</h3>${L.length?L.map(x=>`<div class="tm ${x.valutato?'ok':''}"><span class="tmi">${x.valutato?'✅':'⏳'}</span><div class="tmt"><span><b>@${esc(x.nick)}</b></span><small>${x.valutato?(G.invCl.includes(x.nick)?'Premio già ritirato':'Ha valutato la casa: premio pronto'):'Registrato, deve ancora valutare la casa'}</small></div></div>`).join(''):'<p class="muted">Ancora nessuno: condividi il link!</p>'}
+   ${ready.length?`<button class="btn wide alt" data-invcl>🎁 Ritira 💎 ${ready.length*5}</button>`:''}`,card=>{
+    card.querySelector('[data-invcp]').onclick=()=>{try{navigator.clipboard.writeText(invLink());toast('Link copiato');}catch(e){}};
+    card.querySelector('[data-invsh]').onclick=()=>{if(navigator.share)navigator.share({title:'ZombieSafeHouse',text:'Quanto resisterebbe casa tua a un’apocalisse zombie? Entra col mio link:',url:invLink()}).catch(()=>{});else{try{navigator.clipboard.writeText(invLink());toast('Link copiato');}catch(e){}}};
+    const c=card.querySelector('[data-invcl]');if(c)c.onclick=()=>{ready.forEach(x=>G.invCl.push(x.nick));if(G.type)G.gems+=ready.length*5;try{saveLocal();}catch(e){}toast(`+💎 ${ready.length*5} dagli inviti`);closeSheet();};});}
+/* ELIMINA ACCOUNT (richiesto da Apple e Google) */
+function deleteSheet(){openSheet('🗑 Elimina il mio account',`<p style="font-weight:400">Vengono cancellati <b>per sempre</b>: account, salvataggi nel cloud, profilo sulla mappa, inviti. I codici sconto usati restano ai negozi in forma anonima.</p>
+   <p style="font-weight:400;margin:10px 0">Per confermare scrivi <b>ELIMINA</b>:</p><input id="delTx" autocomplete="off" style="width:100%;padding:10px;border:3px solid var(--ink);font-size:16px">
+   <div class="row" style="gap:8px;margin-top:12px"><button class="btn" data-delok style="background:#d7263d">Elimina definitivamente</button><button class="btn ghost small" data-delno>Annulla</button></div>`,card=>{
+   card.querySelector('[data-delno]').onclick=closeSheet;card.querySelector('[data-delok]').onclick=async()=>{if(card.querySelector('#delTx').value.trim().toUpperCase()!=='ELIMINA'){toast('Scrivi ELIMINA per confermare');return;}
+     try{const{error}=await SB.rpc('delete_my_account');if(error)throw error;await SB.auth.signOut().catch(()=>{});}catch(e){toast('Non riuscito: '+(e.message||'riprova'));return;}
+     try{Object.keys(localStorage).filter(k=>k.startsWith('zsh')).forEach(k=>localStorage.removeItem(k));}catch(e){}closeSheet();toast('Account eliminato');setTimeout(()=>location.reload(),1200);};});}
+/* voci di menu */
+const _renderMenuI=renderMenu;renderMenu=function(){_renderMenuI();try{const ref=document.querySelector('.dr-user');if(!ref||!S.user||document.querySelector('[data-inv]'))return;
+  ref.insertAdjacentHTML('afterend','<button class="mi" data-inv="1"><span>📨</span>Invita amici e vicini</button>');
+  const last=[...document.querySelectorAll('#drawer .mi')].pop();(last||ref).insertAdjacentHTML('afterend','<button class="mi" data-delacc="1" style="color:#d7263d"><span>🗑</span>Elimina il mio account</button><a class="mi" href="privacy.html" target="_blank"><span>🔒</span>Privacy</a><a class="mi" href="termini.html" target="_blank"><span>📄</span>Termini d’uso</a>');
+  document.querySelector('[data-inv]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}inviteSheet();};
+  document.querySelector('[data-delacc]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}deleteSheet();};}catch(e){}};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
