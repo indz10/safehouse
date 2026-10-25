@@ -48,6 +48,18 @@ button.red{background:var(--red);color:#fff}button.ghost{background:#fff}button:
  <div style="margin-top:14px"><button class="red" id="saveBtn">Salva sponsor</button></div><div id="saveMsg"></div></div>
 
 <div class="box"><h2>📋 Sponsor inseriti</h2><div id="list">Caricamento…</div></div>
+<div class="box"><h2>➕ Attività aggiunte da INDZ (anche non sponsor)</h2>
+ <p class="hint" style="margin-top:0">Per le attività che sulla mappa non ci sono. Compaiono subito per tutti su mappa, Vivere qui e Vacanza.</p>
+ <label>Nome</label><input id="c_name" placeholder="Es. Panificio Rossi">
+ <div class="row"><div><label>Categoria</label><select id="c_cat">
+  <option value="spesa">🛒 Spesa (alimentari, supermercato, panificio)</option><option value="negozi">🛍️ Negozio</option><option value="casa">🔧 Negozio o artigiano per la casa</option><option value="bar">☕ Bar e locali</option><option value="risto">🍝 Ristorante / pizzeria</option>
+  <option value="salute">💊 Salute (farmacia, medico)</option><option value="servizi">🏦 Servizi (banca, posta, ufficio)</option><option value="scuola">🏫 Scuola</option><option value="sport">⚽ Sport</option><option value="verde">🌳 Parco</option>
+  <option value="hotel">🏨 Hotel</option><option value="bb">🛏️ B&amp;B / affittacamere</option><option value="agri">🌾 Agriturismo</option><option value="camp">⛺ Campeggio</option><option value="attr">🏛️ Da vedere</option></select></div></div>
+ <label>Indirizzo</label><div class="row"><input id="c_addr" placeholder="Via Roma 10, Volta Mantovana"><button id="c_find" style="flex:0 0 auto">📍 Trova</button></div>
+ <div class="hint" id="c_pos">Posizione: non ancora trovata. Dopo “Trova” puoi anche usare il punto del segnaposto della mappa sopra: <button class="ghost" id="c_usemap" style="padding:4px 8px;font-size:13px">usa il segnaposto</button></div>
+ <div class="row"><div><label>Telefono (facoltativo)</label><input id="c_tel"></div><div><label>Sito (facoltativo)</label><input id="c_web"></div></div>
+ <div style="margin-top:12px"><button class="red" id="c_save">Aggiungi attività</button></div><div id="c_msg"></div>
+ <div id="c_list" style="margin-top:10px"></div></div>
 <div class="box"><h2>⚠️ Segnalazioni degli utenti (“ha chiuso”)</h2><div id="reports">Caricamento…</div></div>
 <div class="box"><h2>🚫 Attività nascoste dalla mappa</h2><div id="hidden">Caricamento…</div></div>
 </div>
@@ -137,9 +149,10 @@ async function loadReports(){const B=$('#reports');if(!B)return;const{data,error
   if(error){B.innerHTML='<small>Per usare questa funzione esegui in Supabase il blocco SQL “community” (istruzioni in chat).</small>';return;}
   if(!data.length){B.innerHTML='<small>Nessuna segnalazione.</small>';return;}
   const by={};data.forEach(r=>{(by[r.name]=by[r.name]||[]).push(r);});
-  B.innerHTML=Object.entries(by).map(([n,L])=>`<div class="sp"><div><b>${n.replace(/</g,'&lt;')}</b> <span class="tag off">${L.length} ${L.length===1?'segnalazione':'segnalazioni'}</span><small>ultima: ${new Date(L[0].created_at).toLocaleDateString('it-IT')} · 📍 ${L[0].lat??'–'}, ${L[0].lon??'–'}</small></div>
-    <div class="row" style="flex-direction:column"><button class="ghost" data-rh="${encodeURIComponent(n)}" style="color:#d7263d">🚫 Nascondi</button><button class="ghost" data-ri="${encodeURIComponent(n)}">Ignora</button></div></div>`).join('');
+  B.innerHTML=Object.entries(by).map(([n,L])=>`<div class="sp"><div><b>${n.replace(/</g,'&lt;')}</b> <span class="tag off">${L.length} ${L.length===1?'segnalazione':'segnalazioni'}</span><small>${L[0].motivo&&/^MANCA/.test(L[0].motivo)?'➕ '+L[0].motivo.replace(/</g,'&lt;'):'ultima: '+new Date(L[0].created_at).toLocaleDateString('it-IT')+' · 📍 '+(L[0].lat??'–')+', '+(L[0].lon??'–')}</small></div>
+    <div class="row" style="flex-direction:column">${L[0].motivo&&/^MANCA/.test(L[0].motivo)?`<button class="ghost" data-radd="${encodeURIComponent(n)}">➕ Aggiungi</button>`:`<button class="ghost" data-rh="${encodeURIComponent(n)}" style="color:#d7263d">🚫 Nascondi</button>`}<button class="ghost" data-ri="${encodeURIComponent(n)}">Ignora</button></div></div>`).join('');
   B.querySelectorAll('[data-rh]').forEach(b=>b.onclick=async()=>{const n=decodeURIComponent(b.dataset.rh);const r=by[n][0];await SB.from('hidden_pois').insert({name:n,lat:r.lat,lon:r.lon});await SB.from('poi_reports').delete().eq('name',n);loadReports();loadHidden();});
+  B.querySelectorAll('[data-radd]').forEach(b=>b.onclick=()=>{const n=decodeURIComponent(b.dataset.radd);const m=(by[n][0].motivo||'').replace(/^MANCA:\s*/,'');const parts=m.split(' · ');$('#c_name').value=n;$('#c_addr').value=parts.slice(1).join(' · ');$('#c_name').scrollIntoView({behavior:'smooth',block:'center'});alert('Ho compilato nome e indirizzo nella sezione “Attività aggiunte”: scegli la categoria, premi Trova e poi Aggiungi. Poi ignora la segnalazione.');});
   B.querySelectorAll('[data-ri]').forEach(b=>b.onclick=async()=>{await SB.from('poi_reports').delete().eq('name',decodeURIComponent(b.dataset.ri));loadReports();});}
 const _loadList3=loadList;loadList=async function(){await _loadList3();loadReports();};
 
@@ -149,4 +162,20 @@ document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.c
   const em=prompt((cur?'Account già collegati: '+cur+'\n\n':'')+'Email con cui il negoziante si è registrato nell’app ZombieSafeHouse:');if(!em)return;
   const{data,error}=await SB.rpc('admin_link_sponsor',{p_sponsor:id,p_email:em});
   alert(error?'Errore: '+error.message:data==='ok'?'✅ Collegato. Il negoziante entra da safehousezombie.netlify.app/negozio.html con la sua email e password.':data);});
+
+/* attività aggiunte a mano */
+let CPOS=null;
+$('#c_find').onclick=async()=>{const q=$('#c_addr').value.trim();if(!q)return;try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=it&q='+encodeURIComponent(q)).then(x=>x.json());
+  if(!r[0]){$('#c_pos').firstChild.textContent='Indirizzo non trovato: prova a scriverlo meglio o usa il segnaposto. ';return;}CPOS={lat:+r[0].lat,lon:+r[0].lon};
+  $('#c_pos').firstChild.textContent=`Posizione: ${CPOS.lat.toFixed(5)}, ${CPOS.lon.toFixed(5)}. Se non è precisa: sposta il segnaposto della mappa sopra e premi `;
+  try{initMap();const ll={lat:CPOS.lat,lng:CPOS.lon};map.setView(ll,18);mk.setLatLng(ll);setPos(ll);}catch(e){}}catch(e){}};
+$('#c_usemap').onclick=()=>{if(!pos){alert('Prima metti il segnaposto sulla mappa in alto');return;}CPOS={lat:pos.lat,lon:pos.lng};$('#c_pos').firstChild.textContent=`Posizione dal segnaposto: ${CPOS.lat.toFixed(5)}, ${CPOS.lon.toFixed(5)}. `;};
+$('#c_save').onclick=async()=>{const name=$('#c_name').value.trim();if(!name||!CPOS){msg($('#c_msg'),'Servono nome e posizione',false);return;}
+  const{error}=await SB.from('custom_pois').insert({name,cat:$('#c_cat').value,address:$('#c_addr').value.trim(),lat:CPOS.lat,lon:CPOS.lon,phone:$('#c_tel').value.trim()||null,website:$('#c_web').value.trim()||null});
+  if(error){msg($('#c_msg'),'Errore: '+(/relation|does not exist/.test(error.message)?'manca la tabella: esegui attivita_aggiunte.sql in Supabase':error.message),false);return;}
+  msg($('#c_msg'),'✅ '+name+' aggiunta: è già visibile nell’app',true);['#c_name','#c_addr','#c_tel','#c_web'].forEach(i=>$(i).value='');CPOS=null;loadCustom();};
+async function loadCustom(){const{data,error}=await SB.from('custom_pois').select('*').order('created_at',{ascending:false});if(error){$('#c_list').innerHTML='';return;}
+  $('#c_list').innerHTML=(data||[]).map(c=>`<div class="sp"><div><b>${(c.name||'').replace(/</g,'&lt;')}</b><small>${c.cat} · ${(c.address||'').replace(/</g,'&lt;')}</small></div><button class="ghost" data-cdel="${c.id}" style="color:#d7263d">🗑</button></div>`).join('');
+  document.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=async()=>{if(!confirm('Togliere questa attività?'))return;await SB.from('custom_pois').delete().eq('id',b.dataset.cdel);loadCustom();});}
+const _loadList4=loadList;loadList=async function(){await _loadList4();loadCustom();};
 </script></body></html>
