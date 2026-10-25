@@ -649,6 +649,32 @@ body.bigtxt{font-size:118%}body.bigtxt p,body.bigtxt small,body.bigtxt .muted{fo
   body.inbattle .musicfab{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* territorio vero e mappa a fumetto v3 */
+.lm-sp em{position:absolute;left:50%;top:100%;transform:translate(-50%,4px);white-space:nowrap;font-style:normal;font-family:var(--display);font-size:13px;letter-spacing:.4px;background:var(--ink);color:var(--moon);padding:1px 6px;border-radius:3px}
+.lm-sp::before{content:'';position:absolute;left:50%;top:16px;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;border:3px solid var(--moon);animation:spPulse 2.2s ease-out infinite;pointer-events:none}
+@keyframes spPulse{0%{transform:scale(.5);opacity:.9}100%{transform:scale(1.4);opacity:0}}
+.lm-sp b{min-width:40px;padding:0 4px}
+.lm-cand{position:relative;cursor:pointer}
+.lm-cand b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#fff8d6;border:3px dashed #b8860b;font-size:15px;font-weight:400;box-shadow:2px 2px 0 var(--ink)}
+.lm-cand em{position:absolute;left:50%;top:100%;transform:translate(-50%,3px);white-space:nowrap;font-style:normal;font-size:10.5px;font-weight:700;background:#fff8d6;border:1.5px solid #b8860b;color:var(--ink);padding:0 4px;border-radius:3px}
+.lmap .lm-3d{position:absolute;right:10px;top:52px;z-index:4;border:3px solid var(--ink);background:#fff;font-weight:700;font-size:13px;padding:6px 10px;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.lmap .lm-3d.on{background:var(--moon)}
+.pkmap{position:relative;height:min(46vh,340px);min-height:240px;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);background:#efe4c8;overflow:hidden}
+.pkmap .rm-load{position:absolute;inset:0;display:grid;place-items:center}
+.lm-tu.pk{cursor:grab;filter:drop-shadow(2px 3px 0 rgba(20,15,31,.5))}
+.terrbox{margin:10px 0;padding:10px 12px;border:3px solid var(--ink);background:#fff8e6;box-shadow:3px 3px 0 var(--ink)}
+.terrbox .disp{font-size:19px}
+.terrchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.terrchips span{font-size:12.5px;font-weight:400;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:2px 9px}
+.terrp{border-color:var(--ink);background:linear-gradient(180deg,#fff8e6,#fff)}
+.terrb{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px}
+.terrb span{font-family:var(--display);font-size:18px;padding:3px 10px;border:3px solid var(--ink);box-shadow:2px 2px 0 var(--ink)}
+.terrb .ok{background:#bfe8c9}.terrb .ko{background:#f6b8bf}
+.terrl{list-style:none;padding:0;margin:0 0 6px;display:grid;gap:4px}
+.terrl li{display:flex;gap:8px;align-items:flex-start;font-size:13px;font-weight:400;padding:4px 8px;border-left:5px solid #3f9b5f;background:#fff}
+.terrl li.ko{border-left-color:#d7263d}
+.terrl li span{flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -3924,8 +3950,8 @@ function busy(id){return G.exp.some(e=>e.who.includes(id));}
 function dayHTML(){dayInit();const now=Date.now();const today=new Date().toDateString();
   return`<div class="panel dayp"><div class="row spread"><b class="disp" style="font-size:24px">☀️ Giorno: prepara la notte</b><span class="mats">${Object.entries(MATS).map(([k,i])=>`<span title="${k}">${i} ${G.mat[k]}</span>`).join('')}</span></div>
    <p style="font-weight:400;font-size:13px;margin:4px 0 8px">Manda la squadra in spedizione, torna a raccogliere, costruisci in laboratorio. I kit si montano da soli quando parte la notte.</p>
-   ${G.exp.map((e,i)=>{const X=EXPS.find(x=>x.id===e.id);const done=now>=e.end;const pc=Math.min(100,(now-e.start)/(e.end-e.start)*100);return`<div class="exprun"><span>${X.ic}</span><div style="flex:1"><b>${X.n}</b><small>${e.who.length} in squadra · ${done?'rientrati':'rientro tra '+Math.ceil((e.end-now)/1000)+' s'}</small><div class="vbar"><span style="width:${pc}%"></span></div></div>${done?`<button class="btn small" data-expok="${i}">Raccogli</button>`:''}</div>`;}).join('')}
-   <div class="explist">${EXPS.map(x=>{const used=x.sp&&G.expDay[x.id]===today;return`<button class="expc ${x.sp?'sp':''}" data-exp="${x.id}" ${used?'disabled':''}><span class="ei">${x.ic}</span><b>${x.n}</b><small>${x.d}</small><small>⏱ ${x.t} s · rischio ${Math.round(x.risk*100)}% · ${Object.keys(x.loot).map(k=>MATS[k]).join(' ')}</small>${used?'<small><b>Già fatta oggi</b></small>':''}</button>`;}).join('')}</div>
+   ${G.exp.map((e,i)=>{const X=EXPS.find(x=>x.id===e.id)||{n:'Spedizione',ic:'🎒'};const done=now>=e.end;const pc=Math.min(100,(now-e.start)/(e.end-e.start)*100);return`<div class="exprun"><span>${X.ic}</span><div style="flex:1"><b>${X.n}</b><small>${e.who.length} in squadra · ${done?'rientrati':'rientro tra '+Math.ceil((e.end-now)/1000)+' s'}</small><div class="vbar"><span style="width:${pc}%"></span></div></div>${done?`<button class="btn small" data-expok="${i}">Raccogli</button>`:''}</div>`;}).join('')}
+   <div class="explist">${EXPS.filter(x=>!x.hide).map(x=>{const used=x.sp&&G.expDay[x.id]===today;return`<button class="expc ${x.sp?'sp':''}" data-exp="${x.id}" ${used?'disabled':''}><span class="ei">${x.ic}</span><b>${x.n}</b><small>${x.d}</small><small>⏱ ${x.t} s · rischio ${Math.round(x.risk*100)}% · ${Object.keys(x.loot).map(k=>MATS[k]).join(' ')}</small>${used?'<small><b>Già fatta oggi</b></small>':''}</button>`;}).join('')}</div>
    <p class="disp" style="font-size:20px;margin:10px 0 6px">🧪 Laboratorio</p>
    <div class="recs">${RECIPES.map(r=>{const ok=Object.entries(r.cost).every(([k,v])=>G.mat[k]>=v);return`<button class="rec" data-rec="${r.id}" ${ok?'':'disabled'}><span>${r.ic}</span><b>${r.n} ${G.kit[r.id]?'×'+G.kit[r.id]:''}</b><small>${Object.entries(r.cost).map(([k,v])=>MATS[k]+v).join(' ')} → ${r.eff}</small></button>`;}).join('')}</div></div>`;}
 function expSheet(id){const X=EXPS.find(x=>x.id===id);const sq=squad().filter(s=>!busy(s.id));const sel=new Set(sq.slice(0,1).map(s=>s.id));
@@ -3938,10 +3964,10 @@ function expSheet(id){const X=EXPS.find(x=>x.id===id);const sq=squad().filter(s=
   draw();}
 function dayRefresh(){const el=app.querySelector('.dayp');if(!el)return;const n=document.createElement('div');n.innerHTML=dayHTML();el.replaceWith(n.firstElementChild);bindDay();}
 function bindDay(){app.querySelectorAll('[data-exp]').forEach(b=>b.onclick=()=>expSheet(b.dataset.exp));
-  app.querySelectorAll('[data-expok]').forEach(b=>b.onclick=()=>{const e=G.exp[+b.dataset.expok];const X=EXPS.find(x=>x.id===e.id);const ok=Math.random()<Math.min(.98,1-X.risk+e.pow*.05);
+  app.querySelectorAll('[data-expok]').forEach(b=>b.onclick=()=>{const e=G.exp[+b.dataset.expok];const X=EXPS.find(x=>x.id===e.id)||{risk:.2,loot:{cibo:[1,2]}};const ok=Math.random()<Math.min(.98,1-X.risk+e.pow*.05);
     const got={};Object.entries(X.loot).forEach(([k,[a,c]])=>{let n=a+Math.floor(Math.random()*(c-a+1));if(!ok)n=Math.floor(n/2);if(n>0){G.mat[k]+=n;got[k]=n;}});
     G.exp.splice(+b.dataset.expok,1);sfx(ok?'coin':'crack');if(typeof objAdd==='function'){}
-    openSheet(ok?'Spedizione riuscita!':'Spedizione difficile',`<p style="font-size:18px">${ok?'La squadra torna con:':'Attaccati sulla via del ritorno, salvano solo:'}</p><p class="disp" style="font-size:34px;margin:10px 0">${Object.entries(got).map(([k,n])=>MATS[k]+' +'+n).join(' · ')||'niente'}</p>${X.sp?`<p class="notice">Materiali offerti da <b>${SPONSORS[X.sp].name}</b>. ${SP_OFF&&SP_OFF[X.sp]?'Nella vita vera: '+SP_OFF[X.sp]:''}</p>`:''}`);renderHub();});
+    openSheet(ok?'Spedizione riuscita!':'Spedizione difficile',`<p style="font-size:18px">${ok?'La squadra torna con:':'Attaccati sulla via del ritorno, salvano solo:'}</p><p class="disp" style="font-size:34px;margin:10px 0">${Object.entries(got).map(([k,n])=>MATS[k]+' +'+n).join(' · ')||'niente'}</p>${X.sp?`<p class="notice">Materiali offerti da <b>${(SPONSORS[X.sp]||{name:'uno sponsor della zona'}).name}</b>. ${SP_OFF&&SP_OFF[X.sp]?'Nella vita vera: '+SP_OFF[X.sp]:''}</p>`:''}`);renderHub();});
   app.querySelectorAll('[data-rec]').forEach(b=>b.onclick=()=>{const r=RECIPES.find(x=>x.id===b.dataset.rec);if(!Object.entries(r.cost).every(([k,v])=>G.mat[k]>=v))return;Object.entries(r.cost).forEach(([k,v])=>G.mat[k]-=v);G.kit[r.id]++;sfx('coin');toast(`${r.ic} ${r.n} pronto per stanotte`);renderHub();});}
 </script>
 <script>
@@ -4383,24 +4409,26 @@ const RM_R=380;
 function rmTimeout(ms){const c=new AbortController();setTimeout(()=>c.abort(),ms);return c.signal;}
 async function rmFetch(addr){
   if(RM.cache[addr])return RM.cache[addr];
-  try{const c=JSON.parse(localStorage.getItem('zsh_rm_'+addr)||'null');if(c&&Date.now()-c.t<7*864e5){RM.cache[addr]=c.m;S.realNames=rmTopNames(c.m);return c.m;}}catch(e){}
-  const g=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&addressdetails=1&accept-language=it&q='+encodeURIComponent(addr),{signal:rmTimeout(6000)}).then(r=>r.json());
-  if(!g||!g[0])throw new Error('Indirizzo non trovato');
-  const lat=+g[0].lat,lon=+g[0].lon;
-  const q=`[out:json][timeout:25];(way["highway"](around:${RM_R},${lat},${lon});way["building"](around:${RM_R},${lat},${lon});way["leisure"~"park|garden|pitch|playground"](around:${RM_R},${lat},${lon});way["landuse"~"grass|meadow|farmland|forest|orchard|vineyard|recreation_ground"](around:${RM_R},${lat},${lon});way["natural"~"water|wood"](around:${RM_R},${lat},${lon});way["waterway"](around:${RM_R},${lat},${lon});node["amenity"](around:${RM_R},${lat},${lon});node["shop"](around:${RM_R},${lat},${lon});node["tourism"](around:${RM_R},${lat},${lon}););out geom;`;
-  let d=null;const EP=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter','https://overpass.private.coffee/api/interpreter'];
-  for(const ep of EP){try{const r=await fetch(ep,{method:'POST',body:'data='+encodeURIComponent(q),headers:{'Content-Type':'application/x-www-form-urlencoded'},signal:rmTimeout(15000)});if(!r.ok)continue;d=await r.json();if(d&&d.elements)break;}catch(e){}}
+  const w=await trWhere(addr);const lat=w.lat,lon=w.lon;const key='zsh_rm2_'+lat.toFixed(5)+'_'+lon.toFixed(5);
+  try{const c=JSON.parse(localStorage.getItem(key)||'null');if(c&&Date.now()-c.t<7*864e5){RM.cache[addr]=c.m;S.realNames=rmTopNames(c.m);return c.m;}}catch(e){}
+  const A=`(around:${RM_R},${lat},${lon})`;
+  const q=`[out:json][timeout:25];(way["highway"]${A};way["building"]${A};way["leisure"~"park|garden|pitch|playground"]${A};way["landuse"~"grass|meadow|farmland|forest|orchard|vineyard|recreation_ground"]${A};way["natural"~"water|wood"]${A};way["waterway"]${A};node["amenity"]${A};node["shop"]${A};node["craft"]${A};node["tourism"]${A};node["emergency"="assembly_point"]${A};way["amenity"]${A};way["shop"]${A};way["craft"]${A};);out geom;`;
+  let d=null;try{d={elements:await trOverpass(q,15000)};}catch(e){}
   if(!d)throw new Error('mappa vera non raggiungibile');
-  const a=g[0].address||{};
-  const res={lat,lon,place:a.road?`${a.road}${a.house_number?' '+a.house_number:''}`:addr,town:a.village||a.town||a.city||a.municipality||'',els:d.elements||[]};
-  RM.cache[addr]=res;S.realNames=rmTopNames(res);try{localStorage.setItem('zsh_rm_'+addr,JSON.stringify({t:Date.now(),m:res}));}catch(e){}return res;}
+  /* negozi e servizi disegnati come edifici: anche un segnaposto al centro */
+  const extra=[];d.elements.forEach(e=>{if(e.type==='way'&&e.tags&&(e.tags.amenity||e.tags.shop||e.tags.craft)&&e.geometry&&e.geometry.length){const c=e.geometry.reduce((a,p)=>[a[0]+p.lat,a[1]+p.lon],[0,0]).map(v=>v/e.geometry.length);extra.push({type:'node',id:1e12+e.id,lat:c[0],lon:c[1],tags:e.tags});}});
+  const parts=String(addr).split(',');
+  const res={lat,lon,place:parts[0].trim()||addr,town:(parts[1]||'').trim(),els:d.elements.concat(extra)};
+  RM.cache[addr]=res;S.realNames=rmTopNames(res);try{localStorage.setItem(key,JSON.stringify({t:Date.now(),m:res}));}catch(e){}return res;}
 function rmTopNames(m){const len={};m.els.forEach(e=>{if(e.type==='way'&&e.tags&&e.tags.highway&&e.tags.name&&e.geometry){let L=0;for(let i=1;i<e.geometry.length;i++)L+=Math.hypot(e.geometry[i].lat-e.geometry[i-1].lat,e.geometry[i].lon-e.geometry[i-1].lon);len[e.tags.name]=(len[e.tags.name]||0)+L;}});
   return Object.entries(len).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);}
 const RM_CAT=t=>{const a=t.amenity,s=t.shop,tu=t.tourism;
   if(['pharmacy'].includes(a))return['✚','Farmacia','pub'];if(['hospital','clinic','doctors'].includes(a))return['H','Sanità','pub'];if(a==='police')return['🚓','Forze dell’ordine','pub'];if(a==='fire_station')return['🚒','Vigili del fuoco','pub'];
   if(['townhall','post_office','school','kindergarten','library'].includes(a))return['🏛️',{townhall:'Municipio',post_office:'Ufficio postale',school:'Scuola',kindergarten:'Scuola',library:'Biblioteca'}[a],'pub'];
   if(['bar','cafe','pub'].includes(a))return['☕','Bar','biz'];if(['restaurant','fast_food','pizzeria'].includes(a))return['🍝','Ristorante','biz'];if(a==='bank')return['🏦','Banca','biz'];if(a==='fuel')return['⛽','Distributore','biz'];
-  if(s){const M={supermarket:['🛒','Supermercato'],convenience:['🛒','Alimentari'],bakery:['🥖','Panificio'],hardware:['🔧','Ferramenta'],doityourself:['🔧','Fai da te'],hairdresser:['💈','Parrucchiere'],clothes:['👕','Abbigliamento'],butcher:['🥩','Macelleria'],florist:['💐','Fiori'],car_repair:['🔩','Officina'],electronics:['📺','Elettronica']};const m=M[s]||['🛍️','Negozio'];return[m[0],m[1],'biz'];}
+  if(t.craft){const C={locksmith:['🔑','Fabbro'],electrician:['💡','Elettricista'],metal_construction:['🔩','Carpenteria metallica'],window_construction:['🪟','Serramenti'],builder:['🧱','Impresa edile'],carpenter:['🪚','Falegname'],plumber:['🔧','Idraulico']}[t.craft];if(C)return[C[0],C[1],'biz'];}
+  if(t.emergency==='assembly_point')return['⛺','Punto di raccolta','pub'];
+  if(s){const M={locksmith:['🔑','Fabbro'],security:['🛡️','Sicurezza e allarmi'],electrical:['💡','Materiale elettrico'],trade:['🧱','Materiali edili'],paint:['🎨','Colori'],glaziery:['🪟','Vetreria'],supermarket:['🛒','Supermercato'],convenience:['🛒','Alimentari'],bakery:['🥖','Panificio'],hardware:['🔧','Ferramenta'],doityourself:['🔧','Fai da te'],hairdresser:['💈','Parrucchiere'],clothes:['👕','Abbigliamento'],butcher:['🥩','Macelleria'],florist:['💐','Fiori'],car_repair:['🔩','Officina'],electronics:['📺','Elettronica']};const m=M[s]||['🛍️','Negozio'];return[m[0],m[1],'biz'];}
   if(tu){return['🛏️',{hotel:'Hotel',guest_house:'B&B',apartment:'Appartamenti',attraction:'Da vedere',museum:'Museo'}[tu]||'Turismo','biz'];}
   return null;};
 function rmSVG(m,L={biz:true,spons:true,pub:true,comm:false},W=800,H=800){
@@ -4558,11 +4586,13 @@ function bizLayer(z){return`<g class="bizL">${bizSpots(z).map(b=>`<g data-biz="$
 const dist=d=>d<1000?d+' m':(d/1000).toFixed(1).replace('.',',')+' km';
 const mapsLink=(name,z)=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name+' '+((z&&z.address)||''))}`;
 function bizSheet(b,z){const key='biz-'+(z.seed||7)+'-'+b.i;
-  openSheet(`${b.ic} ${esc(b.name)}`,`<p class="muted">${b.cat} · a ${dist(b.d)}</p>
+  const nav=b.ll?`https://www.google.com/maps/dir/?api=1&destination=${b.ll[0]},${b.ll[1]}`:mapsLink(b.name,z);
+  const tel=(b.tel||'').replace(/[^\d+]/g,'');const web=b.web&&/^https?:/.test(b.web)?b.web:(b.web?'https://'+b.web:'');
+  openSheet(`${b.ic} ${esc(b.name)}`,`<p class="muted">${esc(b.cat)} · a ${dist(b.d)}${b.cand?' · <b style="color:#b8860b">📌 posto sponsor libero</b>':''}</p>
    <div class="row" style="gap:8px;align-items:center;margin:8px 0">${rvLine(key,5,4)}${rvBtn(key,b.name,5,4)}</div>
-   <div class="splinks"><a class="btn small ghost" href="${mapsLink(b.name,z)}" target="_blank" rel="noopener">🧭 Indicazioni</a><button class="btn small ghost" data-demo="tel">📞 Chiama</button></div>
-   <div class="claim"><b>È la tua attività?</b><p>Mettiti in evidenza: bollino sulla mappa, offerte con codice, contatti diretti, presenza nel gioco e statistiche delle visite.</p><button class="btn wide" data-claim>Mettiti in evidenza</button></div>`,
-   card=>{card.querySelector('[data-claim]').onclick=()=>{closeSheet();S.motivo='negozio';go('contatti');};card.querySelectorAll('[data-demo]').forEach(x=>x.onclick=()=>toast('Nella versione online: il numero dell’attività'));});}
+   <div class="splinks"><a class="btn small ghost" href="${nav}" target="_blank" rel="noopener">🧭 Indicazioni</a>${tel?`<a class="btn small ghost" href="tel:${tel}">📞 Chiama</a>`:''}${web?`<a class="btn small ghost" href="${esc(web)}" target="_blank" rel="noopener">🌐 Sito</a>`:''}</div>
+   <div class="claim"><b>${b.cand?'Questa attività può diventare il presidio sponsor della zona':'È la tua attività?'}</b><p>${b.cand?'Bollino giallo sulla mappa, offerta con codice in cassa, preventivi dai clienti della zona, presidio nel gioco (+5% barricata a chi abita vicino) e statistiche.':'Mettiti in evidenza: bollino sulla mappa, offerte con codice, contatti diretti, presenza nel gioco e statistiche delle visite.'}</p><button class="btn wide" data-claim>${b.cand?'Diventa sponsor':'Mettiti in evidenza'}</button></div>`,
+   card=>{card.querySelector('[data-claim]').onclick=()=>{closeSheet();S.motivo=b.cand?'sponsor':'negozio';S.motivoBiz=b.name;go('contatti');};});}
 function poiSheet(r,z){const key='p-'+(z.address||'')+'-'+r.name;const ic=(RES_ICON[r.kind]||['📍'])[0];
   openSheet(`${ic} ${esc(r.name)}`,`<p class="muted">Servizio pubblico · a ${dist(r.dist)}</p><div class="row" style="gap:8px;align-items:center;margin:8px 0">${rvLine(key,6,4)}${rvBtn(key,r.name,6,4)}</div>
    <div class="splinks"><a class="btn small" href="${mapsLink(r.name,z)}" target="_blank" rel="noopener">🧭 Indicazioni</a></div>`);}
@@ -4896,19 +4926,7 @@ loginSheet=function(mode){_loginSheet(mode);if(!SB)return;
   card.querySelectorAll('[data-oauth]').forEach(b=>b.onclick=async()=>{try{const{error}=await SB.auth.signInWithOAuth({provider:b.dataset.oauth.toLowerCase(),options:{redirectTo:location.origin}});if(error)throw error;}catch(x){toast('Accesso con '+b.dataset.oauth+' non ancora attivo: usa email e password');}});};
 /* uscita vera */
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#logout');if(b&&SB){pushCloud().finally(()=>SB.auth.signOut());}},true);
-/* ---------- posizione reale: GPS + indirizzo ---------- */
-document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#geoBtn');if(!b)return;e.stopImmediatePropagation();e.preventDefault();
-  if(!navigator.geolocation){toast('Questo dispositivo non dà la posizione: scrivi l’indirizzo');return;}
-  b.disabled=true;b.textContent='📍 Cerco la tua posizione…';
-  navigator.geolocation.getCurrentPosition(async p=>{const la=p.coords.latitude,lo=p.coords.longitude;S.geo={lat:la,lon:lo};let addr=`${la.toFixed(5)}, ${lo.toFixed(5)}`;
-    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${la}&lon=${lo}&accept-language=it&zoom=18`,{signal:AbortSignal.timeout?AbortSignal.timeout(6000):undefined}).then(x=>x.json());
-      const a=r.address||{};if(a.road)addr=`${a.road}${a.house_number?' '+a.house_number:''}, ${a.village||a.town||a.city||a.municipality||''}`.replace(/, $/,'');}catch(x){}
-    const f=document.getElementById('addr');if(f)f.value=addr;b.disabled=false;b.textContent='Usa la mia posizione';toast('📍 Trovata: '+addr);
-    const z=document.getElementById('zBtn');if(z)setTimeout(()=>z.click(),300);},
-  er=>{b.disabled=false;b.textContent='Usa la mia posizione';toast(er.code===1?'Hai negato il permesso: attivalo nelle impostazioni del telefono, oppure scrivi l’indirizzo':'Posizione non trovata: scrivi l’indirizzo');},{enableHighAccuracy:true,timeout:12000,maximumAge:60000});},true);
-
-/* app installabile: service worker (solo sul sito vero, non nell'anteprima) */
-try{if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
+/* posizione reale e aggiornamento automatico: vedi p20_territorio.js */
 </script>
 <script>
 /* =========================================================
@@ -4969,11 +4987,14 @@ const ZPAL={day:{bg:'#efe4c8',res:'#e8dcbf',park:'#a9d38a',wood:'#6faa6a',farm:'
   night:{bg:'#1b1438',res:'#241a4a',park:'#24452f',wood:'#1d3a27',farm:'#3a3320',water:'#203a73',bld:'#3b2f6e',bldl:'#07050c',road:'#6a5aa0',main:'#c9a31a',cas:'#07050c',rail:'#8a80b0'}};
 function zStyle(n){const P=n?ZPAL.night:ZPAL.day;const R=['interpolate',['exponential',1.6],['zoom']];const MJ=['motorway','trunk','primary'],SC=['secondary','tertiary'];
   const ROADS=['in',['get','class'],['literal',['motorway','trunk','primary','secondary','tertiary','minor','service']]];
-  return{version:8,sources:{omt:{type:'vector',url:'https://tiles.openfreemap.org/planet'}},layers:[
+  const DEM=['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'];
+  return{version:8,sources:{omt:{type:'vector',url:'https://tiles.openfreemap.org/planet'},
+    dem:{type:'raster-dem',tiles:DEM,encoding:'terrarium',tileSize:256,maxzoom:14},dem3:{type:'raster-dem',tiles:DEM,encoding:'terrarium',tileSize:256,maxzoom:14}},layers:[
    {id:'bg',type:'background',paint:{'background-color':P.bg}},
    {id:'res',type:'fill',source:'omt','source-layer':'landuse',filter:['in',['get','class'],['literal',['residential','suburb','neighbourhood','commercial','retail','industrial']]],paint:{'fill-color':P.res}},
    {id:'farm',type:'fill',source:'omt','source-layer':'landcover',filter:['in',['get','class'],['literal',['farmland','grass']]],paint:{'fill-color':P.farm,'fill-opacity':.8}},
    {id:'wood',type:'fill',source:'omt','source-layer':'landcover',filter:['==',['get','class'],'wood'],paint:{'fill-color':P.wood}},
+   {id:'hill',type:'hillshade',source:'dem',paint:{'hillshade-exaggeration':n?.35:.55,'hillshade-shadow-color':n?'#07050c':'#6b4a2e','hillshade-highlight-color':n?'#3b2f6e':'#fffaf0','hillshade-accent-color':n?'#140f1f':'#8a5a34'}},
    {id:'park',type:'fill',source:'omt','source-layer':'park',paint:{'fill-color':P.park,'fill-outline-color':P.cas}},
    {id:'water',type:'fill',source:'omt','source-layer':'water',paint:{'fill-color':P.water,'fill-outline-color':P.cas}},
    {id:'waterway',type:'line',source:'omt','source-layer':'waterway',paint:{'line-color':P.water,'line-width':['interpolate',['linear'],['zoom'],12,1.5,17,7]}},
@@ -4984,11 +5005,12 @@ function zStyle(n){const P=n?ZPAL.night:ZPAL.day;const R=['interpolate',['expone
    {id:'path',type:'line',source:'omt','source-layer':'transportation',filter:['in',['get','class'],['literal',['path','track']]],paint:{'line-color':P.rail,'line-width':1.5,'line-dasharray':[2,2]}},
    {id:'rail',type:'line',source:'omt','source-layer':'transportation',filter:['==',['get','class'],'rail'],paint:{'line-color':P.rail,'line-width':2.5,'line-dasharray':[3,2]}},
    {id:'bld',type:'fill',source:'omt','source-layer':'building',minzoom:14,paint:{'fill-color':P.bld,'fill-outline-color':P.bldl}},
-   {id:'bld-line',type:'line',source:'omt','source-layer':'building',minzoom:15,paint:{'line-color':P.bldl,'line-width':1.2}}]};}
+   {id:'bld-line',type:'line',source:'omt','source-layer':'building',minzoom:15,paint:{'line-color':P.bldl,'line-width':1.2}},
+   {id:'bld3d',type:'fill-extrusion',source:'omt','source-layer':'building',minzoom:14,layout:{visibility:'none'},paint:{'fill-extrusion-color':P.bld,'fill-extrusion-height':['coalesce',['get','render_height'],6],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':.93}}]};}
 function lmDist(a,b,c,d){const k=Math.cos(a*Math.PI/180);return Math.round(Math.hypot((c-a)*110540,(d-b)*111320*k));}
 function cellLL(m,x,y){const k=Math.cos(m.lat*Math.PI/180);const mx=(x-200)*1.9,my=(y-170)*1.9;return[m.lon+mx/(111320*k),m.lat-my/110540];}
 function hexRing(m,x,y,r){const out=[];for(let i=0;i<=6;i++){const a=Math.PI/180*(60*(i%6)-30);out.push(cellLL(m,x+r*Math.cos(a),y+r*Math.sin(a)));}return[out];}
-async function lmGeocode(addr){const g=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=it&accept-language=it&q='+encodeURIComponent(addr)).then(r=>r.json());if(!g||!g[0])throw new Error('indirizzo');return{lat:+g[0].lat,lon:+g[0].lon,els:[],place:addr};}
+async function lmGeocode(addr){const w=await trWhere(addr);return{lat:w.lat,lon:w.lon,els:[],place:addr};}
 const elDiv=(cls,html)=>{const d=document.createElement('div');d.className='lm '+cls;d.innerHTML=html;return d;};
 /* nomi di vie e paesi con il carattere del fumetto, presi dalla mappa stessa */
 function lmLabels(map,box){(box._lbl||[]).forEach(x=>x.remove());const out=[];const z=map.getZoom();box._lbl=out;if(z<12.5)return;
@@ -5008,25 +5030,38 @@ function lmLabels(map,box){(box._lbl||[]).forEach(x=>x.remove());const out=[];co
     if(p.x<0||p.y<0||p.x>W||p.y>H||near(n,p,400))return;seen.push({n,p});out.push(new maplibregl.Marker({element:elDiv('lm-place p'+r,`<span>${esc(n.toUpperCase())}</span>`)}).setLngLat(f.geometry.coordinates).addTo(map));});}
 /* costruisce la mappa dentro un elemento */
 async function liveMap(el,addr,o={}){await loadML();let m;try{m=await rmFetch(addr);}catch(e){m=await lmGeocode(addr);}
-  el.innerHTML=`<div class="lmap ${o.night?'night':''}"><div class="lm-gl"></div><div class="lm-frame"></div><button class="lm-mode" type="button">${o.night?'☀️ Giorno':'🌙 Notte'}</button></div>`;
+  el.innerHTML=`<div class="lmap ${o.night?'night':''}"><div class="lm-gl"></div><div class="lm-frame"></div><button class="lm-mode" type="button">${o.night?'☀️ Giorno':'🌙 Notte'}</button><button class="lm-3d" type="button">🏙️ 3D</button></div>`;
   const box=el.querySelector('.lmap'),gl=box.querySelector('.lm-gl');let night=!!o.night;
   const map=new maplibregl.Map({container:gl,style:zStyle(night),center:[m.lon,m.lat],zoom:o.zoom||16,maxZoom:19,dragRotate:false,pitchWithRotate:false,attributionControl:false});
   try{map.touchZoomRotate.disableRotation();}catch(e){}
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-left');
   map.addControl(new maplibregl.AttributionControl({customAttribution:'© OpenStreetMap · OpenFreeMap',compact:true}));
   await new Promise(r=>{let done=false;const f=()=>{if(!done){done=true;r();}};map.once('load',f);setTimeout(f,6000);});
-  const MK={me:[],spons:[],biz:[],pub:[]};
+  const MK={me:[],spons:[],cand:[],biz:[],pub:[]};
   const add=(k,ll,elm,click)=>{if(click)elm.addEventListener('click',e=>{e.stopPropagation();click();});MK[k].push(new maplibregl.Marker({element:elm,anchor:'bottom'}).setLngLat(ll).addTo(map));};
   add('me',[m.lon,m.lat],elDiv('lm-tu','<svg viewBox="0 0 44 44" width="44" height="44"><path d="M4 21 L22 5 L40 21 V41 H4Z" fill="#d7263d" stroke="#140f1f" stroke-width="3" stroke-linejoin="round"/><text x="22" y="35" text-anchor="middle" font-family="Bangers,Impact" font-size="15" fill="#fff">TU</text></svg>'));
   const nodes=(m.els||[]).filter(e=>e.type==='node'&&e.tags).map(e=>({e,c:RM_CAT(e.tags)})).filter(x=>x.c);
-  const GEO=window.SP_GEO||{};const useGeo=Object.keys(GEO).length>0;const spK=Object.keys(SPONSORS);const demo=new Map();
-  if(!useGeo)nodes.filter(x=>x.c[2]==='biz').map(x=>({...x,d:lmDist(m.lat,m.lon,x.e.lat,x.e.lon)})).sort((a,b)=>a.d-b.d).slice(0,spK.length).forEach((x,i)=>demo.set(x.e.id,spK[i]));
-  const z=S.zone||{seed:7,address:addr};const spEl=sk=>elDiv('lm-sp',`<b>${esc(SPONSORS[sk].logo)}</b><i>⭐</i>`);
-  nodes.forEach((x,i)=>{const t=x.e.tags,c=x.c,ll=[x.e.lon,x.e.lat],d=lmDist(m.lat,m.lon,x.e.lat,x.e.lon);const sk=demo.get(x.e.id);
-    if(sk)add('spons',ll,spEl(sk),()=>sponsorSheet(sk,z));
+  const GEO=window.SP_GEO||{};const useGeo=Object.keys(GEO).some(k=>GEO[k]&&GEO[k].lat!=null&&SPONSORS[k]);const spK=Object.keys(SPONSORS);const demo=new Map();
+  const isCand=t=>typeof trCand==='function'&&trCand(t);
+  /* anteprima senza sponsor veri: gli sponsor di esempio vanno su attività della categoria giusta */
+  /* senza sponsor veri nel database: niente sponsor finti sulle attività vere, si vedono i posti sponsor liberi */
+  const z=S.zone||{seed:7,address:addr};
+  const spEl=(sk,nm)=>elDiv('lm-sp',`<b>${esc(SPONSORS[sk].logo)}</b><i>⭐</i><em>${esc(nm||SPONSORS[sk].name)}</em>`);
+  const candEl=(ic,nm)=>elDiv('lm-cand',`<b>${ic}</b><em>${esc(String(nm).slice(0,22))}</em>`);
+  const seenLL=[];const dupe=(la,lo)=>seenLL.some(p=>lmDist(p[0],p[1],la,lo)<12);
+  nodes.forEach((x,i)=>{const t=x.e.tags,c=x.c,ll=[x.e.lon,x.e.lat],d=lmDist(m.lat,m.lon,x.e.lat,x.e.lon);const sk=demo.get(x.e.id);seenLL.push([x.e.lat,x.e.lon]);
+    const sheet=()=>{if(typeof bizSheet==='function')bizSheet({i,ic:c[0],name:t.name||c[1],cat:c[1],d,tel:t.phone||t['contact:phone']||'',web:t.website||t['contact:website']||'',ll:[x.e.lat,x.e.lon],cand:isCand(t)},z);};
+    if(sk)add('spons',ll,spEl(sk,SPONSORS[sk].name),()=>sponsorSheet(sk,z));
     else if(c[2]==='pub')add('pub',ll,elDiv('lm-pub',c[0]),()=>lmPoi(t.name||c[1],c[1],d,[x.e.lat,x.e.lon],true));
-    else add('biz',ll,elDiv('lm-biz',c[0]),()=>{if(typeof bizSheet==='function')bizSheet({i,ic:c[0],name:t.name||c[1],cat:c[1],d},z);});});
-  if(useGeo)Object.entries(GEO).forEach(([sk,g])=>{if(g.lat==null||!SPONSORS[sk])return;add('spons',[g.lon,g.lat],spEl(sk),()=>sponsorSheet(sk,z));});
+    else if(isCand(t))add('cand',ll,candEl(c[0],t.name||c[1]),sheet);
+    else add('biz',ll,elDiv('lm-biz',c[0]),sheet);});
+  /* servizi e posti sponsor fino a 2,5 km (territorio vero) */
+  const R=S.zone&&S.zone.real&&lmDist(S.zone.real.lat,S.zone.real.lon,m.lat,m.lon)<60?S.zone.real:null;
+  if(R)R.fac.forEach((f,j)=>{if(dupe(f.lat,f.lon))return;const ll=[f.lon,f.lat],d=lmDist(m.lat,m.lon,f.lat,f.lon);const ic=(RES_ICON[f.k]||['📍'])[0];
+    if(f.cand)add('cand',ll,candEl(ic,f.name),()=>{if(typeof bizSheet==='function')bizSheet({i:9000+j,ic,name:f.name,cat:'Attività per la casa',d,tel:f.tel,web:f.web,ll:[f.lat,f.lon],cand:true},z);});
+    else if(['osp','farm','cc','vvf','racc','acqua'].includes(f.k))add('pub',ll,elDiv('lm-pub',ic),()=>lmPoi(f.name,TR_NAME[f.k]||'Servizio',d,[f.lat,f.lon],true));
+    else add('biz',ll,elDiv('lm-biz',ic),()=>lmPoi(f.name,TR_NAME[f.k]||'Attività',d,[f.lat,f.lon],false));});
+  if(useGeo)Object.entries(GEO).forEach(([sk,g])=>{if(!g||g.lat==null||!SPONSORS[sk])return;add('spons',[g.lon,g.lat],spEl(sk),()=>sponsorSheet(sk,z));});
   /* aree community */
   const cells=commCells(S.zone||{seed:7});const col=c=>c.n>=K_MIN?(c.avg<=4?'#3f9b5f':c.avg<=6?'#f7d64a':'#d7263d'):'#cfc6e6';
   const fc=()=>({type:'FeatureCollection',features:cells.map((c,i)=>({type:'Feature',properties:{i,fill:c._fill||col(c),op:c._op!=null?c._op:(c.n>=K_MIN?.3:.08)},geometry:{type:'Polygon',coordinates:hexRing(m,c.x,c.y,33)}}))});
@@ -5038,11 +5073,25 @@ async function liveMap(el,addr,o={}){await loadML();let m;try{m=await rmFetch(ad
     map.addLayer({id:'fx-line',type:'line',source:'fx',filter:['==',['geometry-type'],'LineString'],paint:{'line-color':'#7bd36b','line-width':3,'line-dasharray':[2,1.5]}});
     map.addLayer({id:'fx-pt',type:'circle',source:'fx',filter:['==',['geometry-type'],'Point'],paint:{'circle-radius':['coalesce',['get','r'],5],'circle-color':['coalesce',['get','c'],'#7bd36b'],'circle-stroke-color':'#140f1f','circle-stroke-width':1.5,'circle-opacity':['coalesce',['get','o'],1],'circle-stroke-opacity':['coalesce',['get','o'],1]}});};
   addOver();map.on('click','comm-fill',e=>{const f=e.features&&e.features[0];if(f&&lm&&lm.onCell)lm.onCell(+f.properties.i);});
-  const setLayer=(k,on)=>{if(k==='comm'){st.comm=on;['comm-fill','comm-line'].forEach(id=>{if(map.getLayer(id))map.setLayoutProperty(id,'visibility',on?'visible':'none');});return;}(MK[k]||[]).forEach(x=>{x.getElement().style.display=on?'':'none';});};
+  const setLayer=(k,on)=>{if(k==='comm'){st.comm=on;['comm-fill','comm-line'].forEach(id=>{if(map.getLayer(id))map.setLayoutProperty(id,'visibility',on?'visible':'none');});return;}(MK[k]||[]).concat(k==='spons'?MK.cand:[]).forEach(x=>{x.getElement().style.display=on?'':'none';});};
   ['spons','biz','pub'].forEach(k=>setLayer(k,vis(k)));
   const relabel=()=>lmLabels(map,box);map.on('moveend',relabel);map.on('idle',()=>{if(!box._lbl||!box._lbl.length)relabel();});setTimeout(relabel,1500);
   box.querySelector('.lm-mode').onclick=e=>{e.stopPropagation();night=!night;box.classList.toggle('night',night);e.target.textContent=night?'☀️ Giorno':'🌙 Notte';
     map.setStyle(zStyle(night));map.once('styledata',()=>{setTimeout(()=>{addOver();lm.refresh();relabel();},300);});};
+  const findMine=()=>{if(box._mineF)return box._mineF;try{const pt=map.project([m.lon,m.lat]);const fs=map.queryRenderedFeatures([[pt.x-4,pt.y-4],[pt.x+4,pt.y+4]],{layers:['bld']});
+      if(fs[0])box._mineF={type:'Feature',properties:{h:fs[0].properties.render_height||8},geometry:fs[0].geometry};}catch(e){}return box._mineF;};
+  const set3d=()=>{try{['bld3d','mine-3d'].forEach(id=>{if(map.getLayer(id))map.setLayoutProperty(id,'visibility',box._3d?'visible':'none');});map.setTerrain(box._3d?{source:'dem3',exaggeration:1.4}:null);}catch(e){}};
+  const extras=()=>{try{if(map.getSource('mine'))return;const f=findMine();
+      map.addSource('mine',{type:'geojson',data:{type:'FeatureCollection',features:f?[f]:[]}});
+      map.addLayer({id:'mine-fill',type:'fill',source:'mine',paint:{'fill-color':'#d7263d','fill-outline-color':'#140f1f'}});
+      map.addLayer({id:'mine-3d',type:'fill-extrusion',source:'mine',layout:{visibility:box._3d?'visible':'none'},paint:{'fill-extrusion-color':'#d7263d','fill-extrusion-height':['coalesce',['get','h'],8],'fill-extrusion-opacity':.97}});
+      const G0=S.geo;if(G0&&G0.acc>12&&lmDist(G0.lat,G0.lon,m.lat,m.lon)<40){map.addSource('acc',{type:'geojson',data:trCircle(m.lat,m.lon,Math.min(G0.acc,400))});
+        map.addLayer({id:'acc-l',type:'line',source:'acc',paint:{'line-color':'#2f5fb8','line-width':2,'line-dasharray':[2,2]}});}
+      if(box._3d)set3d();}catch(e){console.warn('mappa extra',e);}};
+  const retryMine=()=>{if(box._mineF)return;const f=findMine();const src=map.getSource('mine');if(f&&src)src.setData({type:'FeatureCollection',features:[f]});};
+  map.on('idle',retryMine);map.on('styledata',()=>{if(!map.getSource('mine'))setTimeout(()=>{if(map.isStyleLoaded())extras();},300);});
+  if(map.isStyleLoaded())extras();
+  box.querySelector('.lm-3d').onclick=e=>{e.stopPropagation();box._3d=!box._3d;e.currentTarget.classList.toggle('on',box._3d);set3d();map.easeTo({pitch:box._3d?58:0,zoom:box._3d?Math.max(map.getZoom(),16.3):map.getZoom(),duration:800});setTimeout(relabel,900);};
   lm={map,m,cells,MK,setLayer,refresh:()=>{const s=map.getSource('comm');if(s)s.setData(fc());},fx:d=>{const s=map.getSource('fx');if(s)s.setData(d);},onCell:null};
   setTimeout(()=>map.resize(),250);return lm;}
 function lmPoi(name,cat,d,ll,pub){openSheet(`📍 ${esc(name)}`,`<p class="muted">${esc(cat)}${pub?' · servizio pubblico':''} · a ${d<1000?d+' m':(d/1000).toFixed(1).replace('.',',')+' km'}</p>
@@ -5087,6 +5136,257 @@ qSiege=function(){if(!S.qLive)return _qSiege19();const lm=S.qLive,map=lm.map,m=l
   T(1,()=>sfx('horn'));T(7600,()=>{if(S.qtog.gruppo)cs.filter(c=>c!==me&&lmDist(c.ll[1],c.ll[0],me.ll[1],me.ll[0])<180).forEach(c=>lines.push({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:[me.ll,c.ll]}}));});
   T(DUR,()=>{cancelAnimationFrame(raf);zo=.25;draw(DUR+9000);sfx('win');btn.disabled=false;btn.textContent='🌙 Rilancia la notte';
     lm.onCell=i=>{const c=cs.find(x=>x.i===i);if(c)qArea(c,c===me);};qReport(cs,me);});};
+</script>
+<script>
+/* =========================================================
+   TERRITORIO VERO
+   - posizione precisa: GPS a più letture + civico più vicino
+     + conferma "È qui casa tua?" con segnaposto da trascinare
+   - zona reale: servizi veri (OpenStreetMap, 2,5 km), densità
+     di case, acqua vicina, rilievo vero (quote Copernicus via
+     Open-Meteo, riserva: AWS Terrain Tiles)
+   - tutto il gioco dipende da qui: salite/discese/alture/zone
+     basse vere, bonus da servizi e sponsor, spedizioni verso
+     posti veri con tempi che contano distanza e dislivello
+   ========================================================= */
+const TR_N=11,TR_STEP=60,TR_FR=2500,TR_U=1.2;
+const trSig=ms=>{const c=new AbortController();setTimeout(()=>c.abort(),ms);return c.signal;};
+function trM(la1,lo1,la2,lo2){const k=Math.cos(la1*Math.PI/180);return Math.hypot((la2-la1)*110540,(lo2-lo1)*111320*k);}
+function trOff(lat,lon,dxE,dyN){const k=Math.cos(lat*Math.PI/180);return[lat+dyN/110540,lon+dxE/(111320*k)];}
+function trLabel(a){if(!a)return'';const t=a.village||a.town||a.city||a.municipality||a.hamlet||'';return a.road?`${a.road}${a.house_number?' '+a.house_number:''}${t?', '+t:''}`:t;}
+const TR_OVP=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter','https://overpass.private.coffee/api/interpreter'];
+async function trOverpass(q,ms=20000,max=3){for(const ep of TR_OVP.slice(0,max)){try{const r=await fetch(ep,{method:'POST',body:'data='+encodeURIComponent(q),headers:{'Content-Type':'application/x-www-form-urlencoded'},signal:trSig(ms)});if(!r.ok)continue;const d=await r.json();if(d&&d.elements)return d.elements;}catch(e){}}throw new Error('overpass');}
+async function trGeocode(addr){const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&addressdetails=1&countrycodes=it&accept-language=it&q='+encodeURIComponent(addr),{signal:trSig(7000)}).then(x=>x.json());
+  if(!r||!r[0])throw new Error('Indirizzo non trovato');const a=r[0].address||{};return{lat:+r[0].lat,lon:+r[0].lon,precise:!!a.house_number,label:trLabel(a)||addr};}
+/* dove sta la casa: prima la posizione confermata, poi quella già analizzata, poi l'indirizzo */
+async function trWhere(addr){
+  if(S.geo&&S.geo.addr===addr&&S.geo.lat!=null)return{lat:S.geo.lat,lon:S.geo.lon,acc:S.geo.acc||null,src:S.geo.src||'gps'};
+  if(S.zone&&S.zone.address===addr&&S.zone.real)return{lat:S.zone.real.lat,lon:S.zone.real.lon,acc:S.zone.real.acc||null,src:S.zone.real.src||'indirizzo'};
+  const g=await trGeocode(addr);return{lat:g.lat,lon:g.lon,acc:g.precise?null:150,src:'indirizzo'};}
+/* indirizzo dal punto: Nominatim + civico più vicino da OpenStreetMap */
+async function trReverse(lat,lon){
+  const tm=new Promise(r=>setTimeout(()=>r(null),8000));
+  const [nom,ov]=await Promise.all([
+    Promise.race([fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&accept-language=it&zoom=18&addressdetails=1`,{signal:trSig(7000)}).then(x=>x.json()).catch(()=>null),tm]),
+    Promise.race([trOverpass(`[out:json][timeout:8];nwr["addr:housenumber"](around:40,${lat},${lon});out center tags;`,7000,2).catch(()=>null),tm])]);
+  const a=(nom&&nom.address)||{};let best=null;
+  (ov||[]).forEach(e=>{const t=e.tags||{};const la=e.lat!=null?e.lat:(e.center&&e.center.lat),lo=e.lon!=null?e.lon:(e.center&&e.center.lon);if(la==null||!t['addr:street'])return;const d=trM(lat,lon,la,lo);if(!best||d<best.d)best={d,st:t['addr:street'],hn:t['addr:housenumber'],city:t['addr:city']};});
+  const town=a.village||a.town||a.city||a.municipality||(best&&best.city)||'';
+  if(best&&(!a.house_number||best.d<15))return`${best.st} ${best.hn}${town?', '+town:''}`;
+  return trLabel(a)||`${lat.toFixed(5)}, ${lon.toFixed(5)}`;}
+/* GPS: più letture, tiene la più precisa */
+function trLocate(onAcc){return new Promise((ok,ko)=>{let best=null,last=null,done=false;const t0=Date.now();
+  const fin=()=>{if(done)return;done=true;try{navigator.geolocation.clearWatch(id);}catch(e){}clearTimeout(tm);best?ok(best):ko(last||{code:2});};
+  const id=navigator.geolocation.watchPosition(p=>{const c=p.coords;const a=Math.round(c.accuracy||9999);if(!best||a<best.acc){best={lat:c.latitude,lon:c.longitude,acc:a};if(onAcc)onAcc(a);}
+      const el=Date.now()-t0;if(best.acc<=15||(el>5000&&best.acc<=35)||(el>9000&&best.acc<=80))fin();},
+    e=>{last=e;if(e.code===1)fin();},{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+  const tm=setTimeout(fin,16000);});}
+/* conferma: "È qui casa tua?" con segnaposto da trascinare */
+function trCircle(lat,lon,r){const out=[];for(let i=0;i<=48;i++){const a=i/48*Math.PI*2;const p=trOff(lat,lon,Math.cos(a)*r,Math.sin(a)*r);out.push([p[1],p[0]]);}return{type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[out]}};}
+function trPick(o){return new Promise(res=>{let cur={lat:o.lat,lon:o.lon,label:o.label},moved=false,map=null,tmr=null;
+  openSheet('📍 È qui casa tua?',`<p style="font-weight:700;font-size:17px;margin-bottom:4px" id="pkTxt">${esc(o.label||'')}</p>
+    <div class="pkmap" id="pkMap"><div class="rm-load"><span class="spin"></span> Carico la mappa…</div></div>
+    <p class="muted" style="font-size:12.5px;margin:6px 0 10px">${o.acc?`Precisione ±${o.acc} m. `:''}Se la casa rossa non è sul tuo tetto, <b>trascinala</b> nel punto giusto: serve per servizi, salite e sponsor veri.</p>
+    <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" data-pkok>✅ Sì, è casa mia</button><button class="btn ghost small" data-pkno>Annulla</button></div>`,card=>{
+    card.querySelector('[data-pkok]').onclick=()=>{clearTimeout(tmr);closeSheet();res({lat:+cur.lat.toFixed(6),lon:+cur.lon.toFixed(6),acc:moved?5:(o.acc||null),label:cur.label,src:moved?'pin':o.src});};
+    card.querySelector('[data-pkno]').onclick=()=>{closeSheet();res(null);};
+    const box=card.querySelector('#pkMap');
+    loadML().then(()=>{box.innerHTML='';map=new maplibregl.Map({container:box,style:zStyle(false),center:[o.lon,o.lat],zoom:o.acc&&o.acc>120?16:18,maxZoom:19.5,dragRotate:false,attributionControl:false});
+      try{map.touchZoomRotate.disableRotation();}catch(e){}map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-left');
+      map.on('load',()=>{try{if(o.acc&&o.acc>8){map.addSource('acc',{type:'geojson',data:trCircle(o.lat,o.lon,o.acc)});map.addLayer({id:'acc',type:'fill',source:'acc',paint:{'fill-color':'#2f5fb8','fill-opacity':.12}});map.addLayer({id:'acc-l',type:'line',source:'acc',paint:{'line-color':'#2f5fb8','line-width':2,'line-dasharray':[2,2]}});}}catch(e){}});
+      const el=elDiv('lm-tu pk','<svg viewBox="0 0 44 44" width="48" height="48"><path d="M4 21 L22 5 L40 21 V41 H4Z" fill="#d7263d" stroke="#140f1f" stroke-width="3" stroke-linejoin="round"/><text x="22" y="35" text-anchor="middle" font-family="Bangers,Impact" font-size="15" fill="#fff">TU</text></svg>');
+      const mk=new maplibregl.Marker({element:el,anchor:'bottom',draggable:true}).setLngLat([o.lon,o.lat]).addTo(map);
+      const upd=ll=>{cur.lat=ll.lat;cur.lon=ll.lng;moved=true;const t=card.querySelector('#pkTxt');if(t)t.textContent='Cerco l’indirizzo…';clearTimeout(tmr);
+        tmr=setTimeout(()=>trReverse(ll.lat,ll.lng).then(l=>{cur.label=l;const t2=card.querySelector('#pkTxt');if(t2)t2.textContent=l;}),400);};
+      mk.on('dragend',()=>upd(mk.getLngLat()));map.on('click',e=>{mk.setLngLat(e.lngLat);upd(e.lngLat);});
+      setTimeout(()=>map.resize(),200);})
+    .catch(()=>{box.innerHTML='<p class="notice">Mappa non disponibile ora: se l’indirizzo sopra è giusto, conferma.</p>';});});});}
+function trSetHome(o){S.geo={lat:o.lat,lon:o.lon,acc:o.acc||null,addr:o.label,src:o.src||'gps'};
+  const f=document.getElementById('addr');if(f)f.value=o.label;toast('📍 Casa fissata: '+o.label);
+  const z=document.getElementById('zBtn');if(z)setTimeout(()=>{z.disabled=false;z.dataset.ok='1';z.click();},250);}
+/* pulsante "Usa la mia posizione" (sostituisce quello vecchio) */
+window.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('#geoBtn');if(!b)return;e.stopImmediatePropagation();e.preventDefault();
+  if(!navigator.geolocation){toast('Questo dispositivo non dà la posizione: scrivi l’indirizzo');return;}
+  if(b.dataset.busy)return;b.dataset.busy='1';b.disabled=true;b.textContent='📍 Cerco il segnale GPS…';
+  try{const p=await trLocate(a=>{b.textContent=`📍 Precisione ±${a} m…`;});
+    b.textContent='📍 Cerco l’indirizzo…';const lab=await trReverse(p.lat,p.lon);
+    b.disabled=false;b.textContent='Usa la mia posizione';delete b.dataset.busy;
+    const ok=await trPick({...p,label:lab,src:'gps'});if(ok)trSetHome(ok);}
+  catch(er){b.disabled=false;b.textContent='Usa la mia posizione';delete b.dataset.busy;
+    toast(er&&er.code===1?'Hai negato il permesso: attivalo in Impostazioni → Privacy → Localizzazione, oppure scrivi l’indirizzo':'Posizione non trovata: scrivi l’indirizzo');}},true);
+/* indirizzo scritto a mano: prima di analizzare, conferma sulla mappa */
+window.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('#zBtn');if(!b)return;
+  if(b.dataset.ok==='1'){delete b.dataset.ok;return;}
+  const f=document.getElementById('addr');const v=f?f.value.trim():'';if(!v||(S.geo&&S.geo.addr===v)||!navigator.onLine)return;
+  e.stopImmediatePropagation();e.preventDefault();const old=b.innerHTML;b.disabled=true;b.innerHTML='<span class="spin"></span> Cerco l’indirizzo';
+  const pass=()=>{b.disabled=false;b.innerHTML=old;b.dataset.ok='1';b.click();};
+  try{const g=await trGeocode(v);b.disabled=false;b.innerHTML=old;
+    const ok=await trPick({lat:g.lat,lon:g.lon,acc:g.precise?null:150,label:g.label||v,src:'indirizzo'});if(ok)trSetHome(ok);}
+  catch(x){pass();}},true);
+
+/* ---------- elevazione ---------- */
+async function trTerrarium(pts){const z=14,n=2**z,tiles={};
+  const need=pts.map(([la,lo])=>{const x=(lo+180)/360*n;const s=Math.log(Math.tan(Math.PI/4+la*Math.PI/360));const y=(1-s/Math.PI)/2*n;return{k:Math.floor(x)+'/'+Math.floor(y),px:Math.min(255,Math.floor((x%1)*256)),py:Math.min(255,Math.floor((y%1)*256))};});
+  await Promise.all([...new Set(need.map(t=>t.k))].map(k=>new Promise(ok=>{const im=new Image();im.crossOrigin='anonymous';const t=setTimeout(ok,8000);
+    im.onload=()=>{clearTimeout(t);try{const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');g.drawImage(im,0,0);tiles[k]=g.getImageData(0,0,256,256).data;}catch(e){}ok();};
+    im.onerror=()=>{clearTimeout(t);ok();};im.src=`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${k}.png`;})));
+  return need.map(t=>{const d=tiles[t.k];if(!d)return null;const i=(t.py*256+t.px)*4;return d[i]*256+d[i+1]+d[i+2]/256-32768;});}
+async function trElev(pts){const out=new Array(pts.length).fill(null);
+  try{for(let i=0;i<pts.length;i+=100){const ch=pts.slice(i,i+100);
+    const d=await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${ch.map(p=>p[0].toFixed(5)).join(',')}&longitude=${ch.map(p=>p[1].toFixed(5)).join(',')}`,{signal:trSig(9000)}).then(x=>x.json());
+    (d.elevation||[]).forEach((v,j)=>{if(typeof v==='number'&&!isNaN(v))out[i+j]=v;});}}catch(e){}
+  if(out.some(v=>v==null)){try{const t=await trTerrarium(pts);t.forEach((v,i)=>{if(out[i]==null&&v!=null&&v>-500)out[i]=v;});}catch(e){}}
+  return out;}
+
+/* ---------- servizi veri ---------- */
+const TR_NAME={super:'Supermercato',farm:'Farmacia',osp:'Ospedale',ferr:'Ferramenta',dist:'Distributore',acqua:'Fontanella',cc:'Forze dell’ordine',vvf:'Vigili del fuoco',racc:'Punto di raccolta'};
+function trKind(t){const a=t.amenity,s=t.shop,c=t.craft;
+  if(s==='supermarket'||s==='convenience')return'super';if(a==='pharmacy')return'farm';if(a==='hospital'||a==='clinic')return'osp';
+  if(['hardware','doityourself','trade','locksmith','security','electrical'].includes(s)||['locksmith','electrician','metal_construction','window_construction','builder'].includes(c))return'ferr';
+  if(a==='fuel')return'dist';if(a==='drinking_water')return'acqua';if(a==='police')return'cc';if(a==='fire_station')return'vvf';if(t.emergency==='assembly_point'||a==='townhall')return'racc';return null;}
+/* attività che possono diventare sponsor (sicurezza della casa) */
+function trCand(t){return['hardware','doityourself','locksmith','security','electrical','trade','paint','glaziery'].includes(t.shop)||['locksmith','electrician','metal_construction','window_construction','builder','carpenter','plumber'].includes(t.craft);}
+async function terrFetch(addr){const w=await trWhere(addr);const{lat,lon}=w;const key='zsh_tr2_'+lat.toFixed(4)+'_'+lon.toFixed(4);
+  try{const c=JSON.parse(localStorage.getItem(key)||'null');if(c&&Date.now()-c.t<14*864e5)return{...c.r,acc:w.acc,src:w.src};}catch(e){}
+  const A=`(around:${TR_FR},${lat},${lon})`;
+  const q=`[out:json][timeout:25];(nwr["amenity"~"^(hospital|clinic|pharmacy|police|fire_station|fuel|drinking_water|townhall)$"]${A};nwr["shop"~"^(supermarket|convenience|hardware|doityourself|locksmith|security|electrical|trade|paint|glaziery)$"]${A};nwr["craft"~"^(locksmith|electrician|metal_construction|window_construction|builder|carpenter|plumber)$"]${A};nwr["emergency"="assembly_point"]${A};nwr["natural"="water"](around:700,${lat},${lon});way["building"](around:250,${lat},${lon});nwr["shop"](around:500,${lat},${lon}););out center tags;way["waterway"~"^(river|canal|stream)$"](around:700,${lat},${lon});out tags geom;`;
+  const els=await trOverpass(q);const fac=[],seen=new Set();let bld=0,shops=0,water=null;
+  els.forEach(e=>{const t=e.tags||{};const la=e.lat!=null?e.lat:(e.center&&e.center.lat),lo=e.lon!=null?e.lon:(e.center&&e.center.lon);
+    if(t.waterway&&e.geometry){let d=1e9;e.geometry.forEach(p=>{d=Math.min(d,trM(lat,lon,p.lat,p.lon));});if(!water||d<water.d)water={d:Math.round(d),n:t.name||({river:'il fiume',canal:'il canale',stream:'il torrente'}[t.waterway]),k:t.waterway};return;}
+    if(t.natural==='water'){const d=la!=null?Math.min(700,trM(lat,lon,la,lo)):700;if(!water||d<water.d)water={d:Math.round(d),n:t.name||'lo specchio d’acqua',k:t.water||'lake'};return;}
+    if(t.building&&e.type==='way'&&la!=null&&trM(lat,lon,la,lo)<=250)bld++;
+    if(t.shop&&la!=null&&trM(lat,lon,la,lo)<=500)shops++;
+    const k=trKind(t),cand=trCand(t);if((!k&&!cand)||la==null)return;const id=e.type[0]+e.id;if(seen.has(id))return;seen.add(id);
+    fac.push({k:k||'ferr',cand,name:t.name||t.brand||TR_NAME[k||'ferr'],lat:+la.toFixed(6),lon:+lo.toFixed(6),d:Math.round(trM(lat,lon,la,lo)),tel:t.phone||t['contact:phone']||'',web:t.website||t['contact:website']||'',id});});
+  fac.sort((a,b)=>a.d-b.d);const F=fac.slice(0,70);
+  /* rilievo: griglia 600×600 m, anello a 1 km, servizi più vicini */
+  const pts=[],c=(TR_N-1)/2;for(let r=0;r<TR_N;r++)for(let q2=0;q2<TR_N;q2++)pts.push(trOff(lat,lon,(q2-c)*TR_STEP,(c-r)*TR_STEP));
+  for(let i=0;i<8;i++){const a=i*Math.PI/4;pts.push(trOff(lat,lon,Math.cos(a)*1000,Math.sin(a)*1000));}
+  const near={};F.forEach(f=>{if(!near[f.k])near[f.k]=f;});const fe=Object.values(near).concat(F.filter(f=>f.cand).slice(0,4)).filter((f,i,a)=>a.indexOf(f)===i).slice(0,16);fe.forEach(f=>pts.push([f.lat,f.lon]));
+  const ev=await trElev(pts);let grid=ev.slice(0,TR_N*TR_N);const okN=grid.filter(v=>v!=null).length;
+  let T=null;if(okN>=TR_N*TR_N*.8){const vals=grid.filter(v=>v!=null);const mean=vals.reduce((a,b)=>a+b,0)/vals.length;grid=grid.map(v=>v==null?mean:Math.round(v*10)/10);
+    const s=[...grid].sort((a,b)=>a-b);const home=grid[c*TR_N+c];const g=(r,q2)=>grid[r*TR_N+q2];
+    const slope=Math.round(Math.hypot((g(c,c+1)-g(c,c-1))/(2*TR_STEP),(g(c-1,c)-g(c+1,c))/(2*TR_STEP))*1000)/10;
+    const ring=ev.slice(TR_N*TR_N,TR_N*TR_N+8).filter(v=>v!=null);const rel1k=ring.length?Math.round(home-ring.reduce((a,b)=>a+b,0)/ring.length):0;
+    fe.forEach((f,i)=>{const v=ev[TR_N*TR_N+8+i];if(v!=null)f.el=Math.round(v);});
+    const p20=s[Math.floor(s.length*.2)],p80=s[Math.floor(s.length*.8)];
+    const pos=home-mean>=8&&home>=p80?'altura':((home-mean<=-5&&home<=p20)||(water&&water.d<250&&home-mean<=-1))?'bassa':slope>=5?'pendio':'piano';
+    T={grid,home:Math.round(home),mean:Math.round(mean*10)/10,min:Math.round(s[0]),max:Math.round(s[s.length-1]),slope,rel1k,pos};}
+  const type=T&&(T.home>=700||T.max-T.min>=80)?'montagna':water&&water.d<=250&&water.k!=='stream'?'lago':bld>=230||(bld>=150&&shops>=12)?'centro':bld>=70?'periferia':'campagna';
+  const r={lat,lon,fac:F,bld,shops,water,type,...(T||{}),t0:Date.now()};
+  try{localStorage.setItem(key,JSON.stringify({t:Date.now(),r}));}catch(e){}
+  return{...r,acc:w.acc,src:w.src};}
+function terrApply(z,R){const res=[],k=Math.cos(R.lat*Math.PI/180);
+  ['super','farm','osp','ferr','dist','acqua','cc','vvf','racc'].forEach(kd=>{R.fac.filter(f=>f.k===kd).slice(0,R.type==='centro'&&['super','farm','ferr'].includes(kd)?2:1).forEach(f=>res.push({kind:kd,name:f.name,dist:f.d,lat:f.lat,lon:f.lon,el:f.el,real:true}));});
+  if(!res.some(r=>r.kind==='acqua')&&R.water&&R.water.d<700)res.push({kind:'acqua',name:R.water.n.replace(/^(il|lo|la) /,'').replace(/^./,m=>m.toUpperCase()),dist:R.water.d,real:true});
+  const maxd=Math.max(600,...res.map(r=>r.dist||0));const sc=.42/maxd;
+  res.forEach(r=>{if(r.lat==null){r.x=.5+(r.dist*sc)*.7;r.y=.5+(r.dist*sc)*.7;}else{r.x=.5+(r.lon-R.lon)*111320*k*sc;r.y=.5-(r.lat-R.lat)*110540*sc;}r.x=Math.max(.06,Math.min(.94,r.x));r.y=Math.max(.08,Math.min(.92,r.y));});
+  const near=res.filter(x=>x.dist<800).length;const resRisk=Math.max(1,9-near*.9);
+  let mobRisk={centro:8,periferia:5,lago:6,montagna:4,campagna:3}[R.type];if(R.pos==='bassa')mobRisk+=.5;if(R.slope>=8)mobRisk-=.5;
+  const level=Math.round((resRisk*.35+mobRisk*.35+z.avgU*.3)*10)/10;
+  return{...z,type:R.type,resources:res,resRisk,mobRisk,level,real:R};}
+const _azReal=analyzeZone;
+analyzeZone=async function(address){const base=await _azReal(address);if(!navigator.onLine)return base;
+  try{const R=await terrFetch(address);return terrApply(base,R);}catch(e){console.warn('territorio vero',e);return base;}};
+function terrSummary(R){if(!R)return'';const bits=[];
+  if(R.home!=null)bits.push(`⛰ <b>${R.home} m</b> s.l.m.`);
+  if(R.pos)bits.push({altura:'🏔 casa <b>in altura</b>',bassa:'💧 casa <b>in zona bassa</b>',pendio:`📐 <b>pendio ${String(R.slope).replace('.',',')}%</b>`,piano:'➖ <b>pianura</b>'}[R.pos]);
+  if(R.water&&R.water.d<700)bits.push(`🌊 ${esc(R.water.n)} a <b>${R.water.d} m</b>`);
+  bits.push(`🏘 <b>${R.bld}</b> edifici nel raggio di 250 m`);
+  const nd=k=>R.fac.find(f=>f.k===k);[['osp','🏥'],['farm','✚'],['super','🛒'],['cc','🚓'],['vvf','🚒']].forEach(([k,i])=>{const f=nd(k);if(f)bits.push(`${i} ${esc(f.name)} <b>${dist(f.d)}</b>`);});
+  const nc=R.fac.filter(f=>f.cand).length;if(nc)bits.push(`📌 <b>${nc}</b> attività per la sicurezza della casa`);
+  return`<div class="terrbox"><b class="disp">🗺️ Territorio vero</b><div class="terrchips">${bits.map(b=>`<span>${b}</span>`).join('')}</div><small class="muted">Dati © OpenStreetMap · quote Copernicus DEM. ${R.src==='gps'||R.src==='pin'?'Posizione confermata da te.':'Posizione dall’indirizzo: per più precisione usa “Usa la mia posizione”.'}</small></div>`;}
+const _zoneCardTR=zoneCard;
+zoneCard=function(z,key,me){let h=_zoneCardTR(z,key,me);if(z&&z.real&&me!==false)h+=terrSummary(z.real);return h;};
+
+/* ---------- il gioco sul terreno vero ---------- */
+function trReal(){try{const H=G.hoods&&G.hoods[G.curHood];if(H&&H.id!=='own')return null;}catch(e){}const z=S.zone;return z&&z.real&&z.real.grid?z.real:null;}
+function trElevAt(R,dx,dy){const c=(TR_N-1)/2;const fx=Math.max(0,Math.min(TR_N-1,c+dx/TR_STEP)),fy=Math.max(0,Math.min(TR_N-1,c-dy/TR_STEP));
+  const x0=Math.floor(fx),y0=Math.floor(fy),x1=Math.min(TR_N-1,x0+1),y1=Math.min(TR_N-1,y0+1),ax=fx-x0,ay=fy-y0;const g=(r,q)=>R.grid[r*TR_N+q];
+  return g(y0,x0)*(1-ax)*(1-ay)+g(y0,x1)*ax*(1-ay)+g(y1,x0)*(1-ax)*ay+g(y1,x1)*ax*ay;}
+function trElevLL(R,la,lo){const k=Math.cos(R.lat*Math.PI/180);return trElevAt(R,(lo-R.lon)*111320*k,(la-R.lat)*110540);}
+function trHomeXY(){try{return HOME_POS[HTYPES[G.type].zone];}catch(e){return[200,300];}}
+const _terrainAtTR=terrainAt,_hillsTR=hills;
+terrainAt=function(x,y){const R=trReal();if(!R)return _terrainAtTR(x,y);const hp=trHomeXY();const dx=(x-hp[0])*TR_U,dy=-(y-hp[1])*TR_U;const e=trElevAt(R,dx,dy);
+  let ring=0;for(let i=0;i<8;i++){const a=i*Math.PI/4;ring+=trElevAt(R,dx+Math.cos(a)*90,dy+Math.sin(a)*90);}ring/=8;const d=e-ring;
+  const sl=Math.hypot((trElevAt(R,dx+30,dy)-trElevAt(R,dx-30,dy))/60,(trElevAt(R,dx,dy+30)-trElevAt(R,dx,dy-30))/60)*100;const rel=e-R.mean;const wet=R.water&&R.water.d<400;const E=Math.round(e);
+  if(rel>=8&&d>=1.5)return{k:'altura',l:'⛰ Altura',m:.8,d:`${E} m s.l.m., più in alto della zona: zombie −20%, vedetta +1`};
+  if(rel<=-4&&wet)return{k:'bassa',l:'💧 Zona bassa',m:.95,d:`Vicino a ${R.water.n}: barricata −25%, rischio allagamento`};
+  if(d>=1&&sl>=3)return{k:'salita',l:'⬆ Salita',m:.8,d:`Pendenza vera ${Math.round(sl)}%: l’orda sale, zombie −20%`};
+  if(d<=-1&&sl>=3)return{k:'discesa',l:'⬇ Discesa',m:1.2,d:`Pendenza vera ${Math.round(sl)}%: l’orda scende, zombie +20%`};
+  return{k:'piano',l:'➖ Pianura',m:1,d:`${E} m s.l.m., terreno piano: nessun effetto`};};
+hills=function(){const R=trReal();if(!R)return _hillsTR();const hp=trHomeXY(),c=(TR_N-1)/2,out=[];const g=(r,q)=>R.grid[r*TR_N+q];
+  for(let r=1;r<TR_N-1;r++)for(let q=1;q<TR_N-1;q++){const v=g(r,q);if(v-R.mean<6)continue;let top=true;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)if((a||b)&&g(r+a,q+b)>v)top=false;
+    if(top){const x=hp[0]+(q-c)*TR_STEP/TR_U,y=hp[1]-(c-r)*TR_STEP/TR_U;if(x>-40&&x<440&&y>-120&&y<640)out.push({x,y,a:1,s:Math.min(130,60+(v-R.mean)*3),v});}}
+  return out.sort((a,b)=>b.v-a.v).slice(0,3);};
+/* bonus veri: servizi vicini e sponsor come presidi */
+function terrBonus(){const z=S.zone,R=z&&z.real;if(!R)return null;let hp=0,bar=0;const L=[];const nd=k=>{const f=R.fac.find(x=>x.k===k);return f?f:null;};
+  const add=(ok,ic,t,dh,db)=>{if(!ok)return;hp+=dh;bar+=db;L.push({ic,t,pos:dh+db>0});};
+  const o=nd('osp'),f=nd('farm'),cc=nd('cc'),vv=nd('vvf'),su=nd('super');
+  add(o&&o.d<=1500,'🏥',`${o&&o.name} a ${o&&dist(o.d)}: resistenza casa +10%`,.10,0);
+  add(f&&f.d<=800,'✚',`${f&&f.name} a ${f&&dist(f.d)}: resistenza +5%`,.05,0);
+  add(cc&&cc.d<=2000,'🚓',`${cc&&cc.name} a ${cc&&dist(cc.d)}: barricata +10%`,0,.10);
+  add(vv&&vv.d<=3000,'🚒',`Vigili del fuoco a ${vv&&dist(vv.d)}: barricata +5%`,0,.05);
+  add(!su||su.d>2000,'🥫',`Supermercato lontano${su?' ('+dist(su.d)+')':''}: resistenza −5%`,-.05,0);
+  add(R.pos==='altura','⛰','Casa in altura: barricata +10%',0,.10);
+  add(R.pos==='bassa','💧',`Zona bassa vicino a ${R.water?R.water.n:'acqua'}: barricata −10%`,0,-.10);
+  const sp=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&SPONSORS[k]).map(([k,g])=>({k,d:Math.round(trM(R.lat,R.lon,g.lat,g.lon))})).filter(x=>x.d<=3000).sort((a,b)=>a.d-b.d).slice(0,3);
+  sp.forEach(x=>add(true,'⭐',`Presidio sponsor ${SPONSORS[x.k].name} a ${dist(x.d)}: barricata +5%`,0,.05));
+  if(!sp.length){const nc=R.fac.filter(x=>x.cand&&x.d<=3000).length;if(nc)L.push({ic:'📌',t:`${nc} attività della zona possono diventare presidi sponsor (+5% barricata ciascuno)`,pos:true});}
+  return{hp:Math.max(-.1,Math.min(.25,hp)),bar:Math.max(-.15,Math.min(.3,bar)),lines:L};}
+const _hmTR=houseMaxHP,_bmTR=barrierMax;
+houseMaxHP=function(){const v=_hmTR();const b=terrBonus();return b?Math.round(v*(1+b.hp)):v;};
+barrierMax=function(){const v=_bmTR();const b=terrBonus();return b?Math.round(v*(1+b.bar)):v;};
+/* spedizioni verso posti veri: tempo = distanza + salita */
+const EXPS0=EXPS.map(x=>({...x}));
+const trDur=(d,cl)=>Math.round(Math.min(240,20+d/30+Math.max(0,cl||0)*1.5));
+const trClimb=cl=>cl==null?'':cl>=3?` · ⬆ salita +${Math.round(cl)} m`:cl<=-3?` · ⬇ discesa ${Math.round(cl)} m`:' · in piano';
+function trLoot(cat){cat=cat||'';return/sicur|allarm|port|fabbr|serr|blind/i.test(cat)?{metallo:[2,3],batterie:[1,2]}:/energ|elettr|solar|fotov|luce/i.test(cat)?{batterie:[2,4],metallo:[0,1]}:/farm|salut|medic|sanit/i.test(cat)?{medicine:[2,3],cibo:[0,1]}:/aliment|super|cibo|bar|ristor|forn|panif/i.test(cat)?{cibo:[3,4],medicine:[0,1]}:{legno:[2,3],metallo:[2,3]};}
+function terrExps(){const R=S.zone&&S.zone.real;const list=[];
+  const sps=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&SPONSORS[k]).map(([k,g])=>({k,g,d:R?Math.round(trM(R.lat,R.lon,g.lat,g.lon)):null})).sort((a,b)=>(a.d||0)-(b.d||0)).slice(0,2);
+  if(sps.length)sps.forEach(({k,g,d})=>{const cl=R&&R.grid&&d!=null&&d<350?trElevLL(R,g.lat,g.lon)-R.home:null;
+    list.push({id:'sp_'+k,n:SPONSORS[k].name,ic:'⭐',t:d!=null?Math.max(15,Math.round(trDur(d,cl)*.6)):25,risk:0,loot:trLoot(SP_CAT[k]),sp:k,d:`Sponsor vero${d!=null?' a '+dist(d):''}: una volta al giorno, senza rischi`});});
+  else if(SPONSORS[EXPS0[0].sp])list.push({...EXPS0[0]});
+  const slot=(id,kinds,ic,loot,base,lab)=>{const f=R&&R.fac.find(x=>kinds.includes(x.k)&&!(x.k==='ferr'&&x.cand&&!/ferr|brico|hardware|edil/i.test(x.name+' '+lab))&&x.d<=TR_FR)||(R&&R.fac.find(x=>kinds.includes(x.k)&&x.d<=TR_FR));
+    if(!f){const o=EXPS0.find(x=>x.id===id);if(o)list.push({...o});return;}
+    const cl=f.el!=null&&R.home!=null?f.el-R.home:null;
+    list.push({id,n:f.name,ic,t:trDur(f.d,cl),risk:Math.round(Math.min(.6,base+f.d/6000+(cl>0?cl/400:0))*100)/100,loot,d:`${lab} vero a ${dist(f.d)}${trClimb(cl)}`,real:1,ll:[f.lat,f.lon]});};
+  slot('super',['super'],'🛒',{cibo:[2,4],legno:[0,2]},.1,'Supermercato');
+  slot('ferr',['ferr'],'🔧',{metallo:[2,4],legno:[1,3]},.18,'Negozio per la casa');
+  slot('osp',['osp','farm'],'🏥',{medicine:[1,3],batterie:[0,2]},.25,'Presidio sanitario');
+  slot('cen',['dist'],'⛽',{batterie:[2,4],metallo:[1,2]},.3,'Distributore');
+  (G.exp||[]).forEach(e=>{if(!list.some(x=>x.id===e.id)){const o=EXPS.find(x=>x.id===e.id)||EXPS0.find(x=>x.id===e.id)||{id:e.id,n:'Spedizione',ic:'🎒',t:30,risk:.2,loot:{cibo:[1,2]},d:''};list.push({...o,hide:1});}});
+  EXPS.splice(0,EXPS.length,...list);}
+const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e){console.warn('spedizioni',e);}};
+/* bollettino del territorio nella pagina del gioco */
+function terrPanelHTML(){const R=S.zone&&S.zone.real;if(!R)return'';const b=terrBonus();const ht=terrainAt(...trHomeXY());
+  const pct=v=>(v>0?'+':'')+Math.round(v*100)+'%';
+  return`<div class="panel terrp"><div class="row spread"><b class="disp" style="font-size:22px">🗺️ Il territorio decide la notte</b><button class="btn ghost small" data-terrmap>🗺️ Mappa</button></div>
+   <p style="font-weight:400;font-size:13px;margin:4px 0 8px">Casa tua: <b>${ht.l}</b> · ${esc(ht.d)}</p>
+   <div class="terrb"><span class="${b.hp>=0?'ok':'ko'}">🏠 Resistenza ${pct(b.hp)}</span><span class="${b.bar>=0?'ok':'ko'}">🪵 Barricata ${pct(b.bar)}</span></div>
+   <ul class="terrl">${b.lines.map(l=>`<li class="${l.pos?'ok':'ko'}"><span>${l.ic}</span>${esc(l.t)}</li>`).join('')||'<li>Nessun servizio importante vicino: la notte sarà dura.</li>'}</ul>
+   <small class="muted">Le spedizioni del giorno vanno nei posti veri della tua zona: più sono lontani e in salita, più tempo servono.</small></div>`;}
+const _renderHubTR=renderHub;
+renderHub=function(){if(S.zone&&S.zone.real&&!G.rhAuto){G.rhAuto=1;G.realHood=true;}return _renderHubTR.apply(this,arguments);};
+const _splitHubTR=splitHub;
+splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('.terrp'))return;const h=terrPanelHTML();if(!h)return;
+  const pg=app.querySelector('.page');const f=app.querySelector('#fight');const host=f&&[...pg.children].find(e=>e===f||e.contains(f));
+  const anchor=app.querySelector('.camp')||host;if(!anchor)return;anchor.insertAdjacentHTML('beforebegin',h);const p=app.querySelector('.terrp');p.dataset.grp='q';
+  const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
+
+/* ---------- aggiornamento automatico dell'app installata ---------- */
+const ZSH_BUILD='202610242132';
+(function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
+  const had=!!navigator.serviceWorker.controller;let reloading=false;
+  const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
+  const reload=why=>{if(reloading)return;const go2=()=>{if(!safe()){setTimeout(go2,4000);return;}reloading=true;try{if(typeof saveLocal==='function')saveLocal();}catch(e){}try{sessionStorage.setItem('zsh_upd',why||'1');}catch(e){}location.reload();};go2();};
+  navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{
+    const check=()=>{reg.update().catch(()=>{});
+      fetch('sw.js?c='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/zsh-(\d{8,})/);if(!m||!/^\d+$/.test(ZSH_BUILD))return;
+        if(+m[1]>+ZSH_BUILD){let tried='';try{tried=sessionStorage.getItem('zsh_try')||'';}catch(e){}if(tried===m[1])return;try{sessionStorage.setItem('zsh_try',m[1]);}catch(e){}reload('v');}}).catch(()=>{});};
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')check();});window.addEventListener('focus',check);setInterval(check,20*60*1000);setTimeout(check,4000);}).catch(()=>{});
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had)reload('sw');});
+  try{if(sessionStorage.getItem('zsh_upd')){sessionStorage.removeItem('zsh_upd');setTimeout(()=>toast('✨ App aggiornata all’ultima versione'),1500);}}catch(e){}})();
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */

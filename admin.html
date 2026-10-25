@@ -30,6 +30,8 @@ button.red{background:var(--red);color:#fff}button.ghost{background:#fff}button:
 
 <div id="adminArea" class="hidden">
 <div class="box"><h2>➕ Nuovo sponsor</h2>
+ <label>🔎 Cerca l’attività (nome e paese): riempie i campi da sola</label><div class="row"><input id="f_q" placeholder="Es. Ferramenta Rossi Volta Mantovana"><button id="qBtn" style="flex:0 0 auto">Cerca</button></div>
+ <div id="qRes" style="margin:6px 0 10px"></div>
  <label>Nome dell’attività</label><input id="f_name" placeholder="Es. Ferramenta Volta">
  <div class="row"><div><label>Sigla nel bollino (2 lettere)</label><input id="f_logo" maxlength="3" placeholder="FV"></div>
   <div><label>Categoria</label><input id="f_cat" placeholder="Es. Ferramenta e sicurezza"></div></div>
@@ -86,4 +88,18 @@ async function loadList(){const{data,error}=await SB.from('sponsors').select('*'
     <div class="row" style="flex-direction:column"><button class="ghost" data-t="${s.id}" data-a="${s.active}">${s.active?'Disattiva':'Attiva'}</button><button class="ghost" data-show="${s.lat},${s.lon}">Mappa</button></div></div>`).join('');
   L.querySelectorAll('[data-t]').forEach(b=>b.onclick=async()=>{await SB.from('sponsors').update({active:b.dataset.a!=='true'}).eq('id',b.dataset.t);loadList();});
   L.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>{const[a,o]=b.dataset.show.split(',').map(Number);if(!isNaN(a)){map.setView([a,o],18);mk.setLatLng([a,o]);window.scrollTo(0,0);}});}
+
+/* ricerca attività su OpenStreetMap: nome, indirizzo, telefono, sito e punto sulla mappa */
+const CATN={hardware:'Ferramenta',doityourself:'Fai da te',locksmith:'Fabbro',security:'Allarmi e sicurezza',electrical:'Materiale elettrico',trade:'Materiali edili',paint:'Colori',glaziery:'Vetreria',supermarket:'Supermercato',pharmacy:'Farmacia',electrician:'Elettricista',window_construction:'Serramenti',metal_construction:'Carpenteria metallica',builder:'Impresa edile',plumber:'Idraulico',carpenter:'Falegname'};
+$('#qBtn').onclick=async()=>{const q=$('#f_q').value.trim();if(!q)return;const R=$('#qRes');R.textContent='Cerco…';
+  try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&addressdetails=1&extratags=1&countrycodes=it&accept-language=it&q='+encodeURIComponent(q)).then(x=>x.json());
+    if(!r.length){R.textContent='Nessun risultato: scrivi nome e paese, oppure compila a mano.';return;}
+    R.innerHTML=r.map((x,i)=>{const a=x.address||{};const t=a.village||a.town||a.city||a.municipality||'';return`<button data-qi="${i}" style="display:block;width:100%;text-align:left;margin:4px 0;padding:8px;border:2px solid #140f1f;background:#fff;cursor:pointer"><b>${(x.name||x.display_name.split(',')[0]).replace(/</g,'&lt;')}</b><br><small>${[a.road,a.house_number].filter(Boolean).join(' ')}${t?', '+t:''} · ${CATN[x.type]||x.type}</small></button>`;}).join('');
+    R.querySelectorAll('[data-qi]').forEach(b=>b.onclick=()=>{const x=r[+b.dataset.qi],a=x.address||{},e=x.extratags||{};const t=a.village||a.town||a.city||a.municipality||'';
+      const nm=x.name||x.display_name.split(',')[0];$('#f_name').value=nm;if(!$('#f_logo').value)$('#f_logo').value=nm.split(/\s+/).filter(w=>w.length>2).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      if(!$('#f_cat').value)$('#f_cat').value=CATN[x.type]||'';$('#f_addr').value=`${[a.road,a.house_number].filter(Boolean).join(' ')}${t?', '+t:''}`;
+      const ph=e.phone||e['contact:phone']||'';if(ph)$('#f_tel').value=ph;const w=e.website||e['contact:website']||'';if(w)$('#f_web').value=w;
+      const fb=e['contact:facebook']||'';if(fb)$('#f_fb').value=fb;const ig=e['contact:instagram']||'';if(ig)$('#f_ig').value=ig;
+      const ll={lat:+x.lat,lng:+x.lon};initMap();map.setView(ll,18);mk.setLatLng(ll);setPos(ll);R.innerHTML='✅ Campi compilati: controlla il punto sulla mappa e salva.';});}
+  catch(e){R.textContent='Ricerca non riuscita: compila a mano.';}};
 </script></body></html>
