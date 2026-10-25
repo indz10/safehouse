@@ -773,6 +773,60 @@ a.onl{font-weight:700;color:#1f3f80}
 .mh-act button[data-mh="move"]{background:#fff3b0}
 .mvnew{display:flex;flex-direction:column;gap:3px;margin:6px 0 12px;padding:10px 12px;background:#fff3b0;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-size:14px;font-weight:400}
 .mvnew b{font-family:var(--display);font-weight:400;font-size:20px}
+
+.hw-dots{display:flex;gap:6px;justify-content:center;margin:-4px 0 10px}
+.hw-dots i{width:10px;height:10px;border-radius:50%;border:2px solid var(--ink);background:#fff}
+.hw-dots i.on{background:var(--moon);transform:scale(1.25)}.hw-dots i.done{background:#c9b8ff}
+.hw-panel{position:relative;background:#f1ebf9;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px 12px 12px;text-align:center;background-image:radial-gradient(rgba(20,15,31,.09) 1.2px,transparent 1.5px);background-size:8px 8px}
+.hw-num{position:absolute;top:-3px;left:-3px;background:var(--ink);color:var(--moon);font-family:var(--display);font-size:15px;padding:2px 8px}
+.hw-ic{font-size:44px;line-height:1}
+.hw-panel h3{font-family:var(--display);font-weight:400;font-size:27px;margin:4px 0 6px}
+.hw-panel>p{font-size:15px;font-weight:400;margin:0 0 10px}
+.hw-demo{background:#fff;border:3px solid var(--ink);padding:10px;text-align:left}
+.hw-field{position:relative;display:grid;grid-template-columns:52px 1fr;grid-template-rows:repeat(3,40px);gap:4px;background:#2b2240;padding:6px;border:2px solid var(--ink)}
+.hw-field.sm{grid-template-rows:repeat(3,36px)}
+.hw-house{grid-row:1/4;display:grid;place-items:center;font-size:38px;background:#3b2f6e;border:2px solid #f7d64a}
+.hw-lane{position:relative;background:#4a3f7a;border-bottom:2px dashed #8a80b0;overflow:hidden;cursor:pointer}
+.hw-z{position:absolute;top:2px;right:-30px;font-size:28px;animation:hwWalk 4s linear infinite}
+.hw-z.stop{animation:none;right:20px}.hw-z.big{font-size:34px;top:-1px;cursor:pointer}
+.hw-z.hit{animation:none;right:40px;filter:grayscale(1);transform:rotate(-20deg)}
+.hw-z.tgt{outline:3px solid #3fd1ff;outline-offset:2px;border-radius:50%;animation:hwPulse 1s infinite}
+@keyframes hwWalk{from{right:-30px}to{right:85%}}@keyframes hwPulse{50%{outline-color:#fff}}
+.hw-boom{position:absolute;right:6px;top:8px;font-family:var(--display);color:#f7d64a;font-size:15px}
+.hw-plan{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.hw-pts{grid-column:1/-1;font-weight:700}
+.hw-pb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;background:#fff;border:3px solid var(--ink);box-shadow:2px 2px 0 var(--ink);cursor:pointer}
+.hw-pb span{font-size:26px}.hw-pb b{font-size:13px}.hw-pb small{font-size:11px;font-weight:400}
+.hw-pb.on{background:#bfe8c9}
+.hw-ok{grid-column:1/-1;margin:8px 0 0;font-size:13.5px;font-weight:700;min-height:18px}
+.hw-bar{height:14px;border:2px solid var(--ink);margin-bottom:6px;background:#fff;overflow:hidden}.hw-bar span{display:block;height:100%;background:var(--moon);animation:hwFill 3s ease-out infinite}
+@keyframes hwFill{from{width:10%}to{width:100%}}
+.hw-cards{display:flex;gap:10px;align-items:center;margin-top:8px}
+.hw-card{position:relative;display:flex;flex-direction:column;align-items:center;width:76px;padding:6px;background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.hw-card span{font-size:28px}.hw-card b{font-size:12px}.hw-card i{position:absolute;top:-10px;left:-10px;font-style:normal;background:var(--moon);border:2px solid var(--ink);border-radius:50%;width:24px;height:24px;display:grid;place-items:center;font-weight:700}
+.hw-card.on{transform:translateY(-6px);background:#fff3b0}
+.hw-tip{font-size:13.5px;font-weight:700}
+.hw-hab{text-align:center}.hw-hab button{width:96px;height:96px;border-radius:50%;background:#e2702d;color:#fff;border:4px solid var(--ink);box-shadow:4px 4px 0 var(--ink);font-weight:700;font-size:13px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+.hw-hab button span{font-size:32px}.hw-hab button.fire{transform:scale(1.15);background:var(--moon);color:var(--ink)}
+.hw-chips{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.hw-chips div{display:flex;flex-direction:column;padding:6px;border:2px solid var(--ink);background:#fff8e6}
+.hw-chips span{font-size:22px}.hw-chips b{font-size:13px}.hw-chips small{font-size:11.5px;font-weight:400}
+.hw-end{text-align:center}.hw-stars{font-size:36px;letter-spacing:4px}
+.hw-loop{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;font-weight:700;font-size:13.5px}.hw-loop b{font-size:24px}
+.hw-loop span{padding:6px 8px;border:2px solid var(--ink);background:#fff3b0}
+.hw-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.hw-skip{display:block;margin:12px auto 0;background:none;border:0;color:#7c7a8a;font-weight:700;text-decoration:underline;cursor:pointer}
+
+.man{border:3px solid var(--ink);background:#fff;margin:0 0 8px;box-shadow:3px 3px 0 var(--ink)}
+.man summary{cursor:pointer;padding:10px 12px;font-family:var(--display);font-size:20px;list-style:none;background:#f1ebf9}
+.man summary::-webkit-details-marker{display:none}
+.man summary::after{content:'＋';float:right;font-family:inherit}.man[open] summary::after{content:'−'}
+.man[open] summary{border-bottom:2px solid var(--ink)}
+.man-b{padding:8px 12px 10px;font-size:14px;font-weight:400}.man-b p{margin:6px 0}
+.mtab{display:grid;gap:4px;margin:6px 0}
+.mtab>div{display:grid;grid-template-columns:30px 1fr;column-gap:8px;align-items:start;padding:5px 0;border-top:1px dashed rgba(20,15,31,.2)}
+.mtab span{font-size:20px;grid-row:1/3}.mtab b{font-size:14px}.mtab small{font-size:12.5px;font-weight:400;color:#3d3550}
+.mcost{font-style:normal;background:var(--moon);border:2px solid var(--ink);border-radius:50%;padding:0 6px;font-size:12px;margin-left:4px}
 </style>
 </head>
 <body>
@@ -4670,7 +4724,7 @@ function renderGuida(){const lv=scudoLv();
    <button class="btn wide alt" id="gGuide" style="margin-top:10px">📖 Guida passo passo, con le scritte</button><div class="row wrap" style="gap:8px;margin:10px 0 20px"><button class="btn" data-go="valuta">Valuta la mia casa</button><button class="btn alt" data-go="orda">Vai al gioco</button></div></div>`;
   if(typeof bindGo==='function')bindGo();app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
   {const gg=$('#gGuide');if(gg)gg.onclick=()=>guideSheet(0);}
-  $('#gRules').onclick=()=>{if(typeof G!=='undefined'&&G.type)openRules();else openSheet('📖 Come si gioca',rulesHTML());};}
+  $('#gRules').onclick=()=>openRules(0);}
 </script>
 <script>
 /* =========================================================
@@ -5551,7 +5605,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610252128';
+const ZSH_BUILD='202610252146';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -6219,6 +6273,95 @@ const _doMoveH=doMove;doMove=function(P){S.moving=Date.now();_doMoveH(P);};
 const _renderValutaH=renderValuta;renderValuta=function(){_renderValutaH();try{if(S.step!==0)return;const b=app.querySelector('.page .bubble');if(!b)return;
   if(S.moving&&!S.zone)b.innerHTML='<b>Nuova casa, nuovo quartiere!</b> Dimmi dove ti sei trasferito: rifaccio la mappa e il gioco intorno a te.';
   else if(S.zone&&S.result)b.innerHTML=`<b>Bentornato${S.user?' @'+esc(S.user.nick):''}!</b> Questa è la tua casa: da qui la rivedi, la aggiorni o, se ti sei trasferito, cambi casa.`;}catch(e){}};
+</script>
+<script>
+/* =========================================================
+   COME SI GIOCA: fumetto a 7 tavole da sfogliare, con prove
+   interattive. Parte da solo la prima volta nel Gioco.
+   Le regole complete restano in fondo ("Tutte le regole").
+   ========================================================= */
+const HOW=[
+ {t:'L’orda arriva al tramonto',ic:'🌙',p:'Gli zombie arrivano da destra su <b>3 corsie</b>. Prima sfondano la barricata, poi attaccano la casa. Tu devi <b>resistere fino all’alba</b>.',
+  demo:()=>`<div class="hw-field"><div class="hw-house">🏠</div>${[0,1,2].map(l=>`<div class="hw-lane"><span class="hw-z" style="animation-delay:${l*.6}s">🧟</span></div>`).join('')}</div>`},
+ {t:'Prima della notte: il piano',ic:'🛡️',p:'Hai dei <b>punti difesa</b> da mettere dove serve. Prova: tocca due difese.',
+  demo:()=>`<div class="hw-plan"><div class="hw-pts">Punti: <b id="hwPts">2</b></div>${[['🪵','Barricata','+40% resistenza'],['🪤','Trappole','fermano i primi 3'],['🎯','Torretta','spara da sola']].map((d,i)=>`<button class="hw-pb" data-hp="${i}"><span>${d[0]}</span><b>${d[1]}</b><small>${d[2]}</small></button>`).join('')}<p class="hw-ok" id="hwPlanOk"></p></div>`,
+  bind:c=>{let n=2;c.querySelectorAll('[data-hp]').forEach(b=>b.onclick=()=>{if(n<=0||b.classList.contains('on'))return;n--;b.classList.add('on');c.querySelector('#hwPts').textContent=n;vibe();if(n===0)c.querySelector('#hwPlanOk').textContent='✅ Perfetto! Di fretta? C’è il “Piano automatico”.';});}},
+ {t:'Provviste e carte',ic:'🃏',p:'La barra gialla si ricarica da sola. Ogni carta costa provviste. Prova: <b>tocca la carta</b>, poi <b>tocca la corsia</b> con lo zombie.',
+  demo:()=>`<div class="hw-bar"><span></span></div><div class="hw-field sm"><div class="hw-house">🏠</div>${[0,1,2].map(l=>`<div class="hw-lane" data-hl="${l}">${l===1?'<span class="hw-z stop">🧟</span>':''}</div>`).join('')}</div>
+   <div class="hw-cards"><button class="hw-card" data-hc><span>🪤</span><b>Trappole</b><i>3</i></button><span class="hw-tip" id="hwTip">👆 tocca la carta</span></div>`,
+  bind:c=>{let sel=false;c.querySelector('[data-hc]').onclick=e=>{sel=true;e.currentTarget.classList.add('on');c.querySelector('#hwTip').textContent='👉 ora tocca la corsia in mezzo';vibe();};
+   c.querySelectorAll('[data-hl]').forEach(l=>l.onclick=()=>{if(!sel)return;if(l.dataset.hl!=='1'){c.querySelector('#hwTip').textContent='Quasi! Lo zombie è nella corsia in mezzo';return;}
+     l.innerHTML='<span class="hw-z hit">🧟</span><span class="hw-boom">💥 FERMATO!</span>';c.querySelector('#hwTip').textContent='✅ Così si gioca una carta su corsia';sfx&&sfx('crack');vibe();});}},
+ {t:'Il bersaglio',ic:'🎯',p:'Tocca uno zombie: diventa il <b>bersaglio</b>. Difensori e torrette sparano prima a lui, con <b>+35% di danni</b>. Prova sul bruto!',
+  demo:()=>`<div class="hw-field sm"><div class="hw-house">🏠</div><div class="hw-lane"><span class="hw-z stop">🧟</span></div><div class="hw-lane"><span class="hw-z stop big" data-ht>🧟‍♂️</span></div><div class="hw-lane"><span class="hw-z stop">🧟</span></div></div><p class="hw-ok" id="hwTgt">👆 tocca lo zombie grande</p>`,
+  bind:c=>{c.querySelector('[data-ht]').onclick=e=>{e.currentTarget.classList.add('tgt');c.querySelector('#hwTgt').textContent='✅ Bersaglio segnato: +35% di danni. Usalo su bruti, caschi e boss.';vibe();};}},
+ {t:'L’abilità della tua casa',ic:'⚡',p:'Il pulsante rotondo è un colpo speciale con ricarica. Con la casa vera dipende dal <b>tuo quartiere</b>.',
+  demo:()=>{const t=typeof terrHab==='function'?terrHab():null;return`<div class="hw-hab"><button data-hh><span>${t?t.ic:'🐕'}</span>${t?esc(t.n):'Cane'}</button><p class="hw-ok" id="hwHab">${t?esc(t.why):'Ogni tipo di casa ha la sua: cane, trattore, faro, valanga…'}</p></div>`;},
+  bind:c=>{c.querySelector('[data-hh]').onclick=e=>{e.currentTarget.classList.add('fire');const t=typeof terrHab==='function'?terrHab():null;c.querySelector('#hwHab').textContent=t?({vicini:'👥 I tuoi vicini veri arrivano e colpiscono!',idranti:'🚒 Getto degli idranti su tutte le corsie!',campane:'🔔 Campane a martello: orda bloccata!',fiume:'🌊 La piena travolge la corsia bassa!',collina:'⛰ Sassi dalla collina!'}[t.k]):'🐕 WOOF! Il cane respinge una corsia.';vibe();setTimeout(()=>e.currentTarget&&e.currentTarget.classList.remove('fire'),700);};}},
+ {t:'Il gioco è sul tuo territorio vero',ic:'🗺️',p:'Quello che c’è davvero intorno a casa tua cambia la partita.',
+  demo:()=>`<div class="hw-chips">${[['🌧️','Meteo vero','se piove davvero, piove anche nella notte del gioco'],['🎯','Missioni del giorno','sui posti veri della tua zona'],['⛰️','Salite e fiumi veri','rallentano o aiutano l’orda'],['🏥','Servizi vicini','ospedale e carabinieri ti rinforzano'],['⭐','Sponsor','sono presidi: più barricata a chi abita vicino'],['👥','Vicini registrati','ti aiutano in battaglia']].map(c=>`<div><span>${c[0]}</span><b>${c[1]}</b><small>${c[2]}</small></div>`).join('')}</div>`},
+ {t:'Dopo la notte',ic:'⭐',p:'Fino a <b>3 stelle</b> per notte. Con le monete compri potenziamenti e case del quartiere. E ogni cosa che fai per la <b>casa vera</b> ti rende più forte anche qui.',
+  demo:()=>`<div class="hw-end"><div class="hw-stars">⭐⭐⭐</div><div class="hw-loop"><span>🏠 Casa vera più sicura</span><b>⇄</b><span>🧟 Più forte nel gioco</span></div></div>`}];
+function howHTML(i){const h=HOW[i];return`<div class="hw" data-hi="${i}"><div class="hw-dots">${HOW.map((_,k)=>`<i class="${k===i?'on':k<i?'done':''}"></i>`).join('')}</div>
+  <div class="hw-panel"><div class="hw-num">${i+1}/${HOW.length}</div><div class="hw-ic">${h.ic}</div><h3>${h.t}</h3><p>${h.p}</p><div class="hw-demo">${h.demo()}</div></div>
+  <div class="hw-nav"><button class="btn ghost small" data-hprev ${i?'':'style="visibility:hidden"'}>← Indietro</button>${i<HOW.length-1?`<button class="btn" data-hnext>Avanti →</button>`:`<button class="btn" data-hplay>🧟 Gioca la prima notte</button>`}</div>
+  ${i===HOW.length-1?`<button class="btn small ghost wide" data-hall style="margin-top:10px">📚 Tutte le regole, le carte e i nemici</button>`:'<button class="hw-skip" data-hskip>Salta: so già giocare</button>'}</div>`;}
+openRules=function(start){let i=Math.max(0,Math.min(HOW.length-1,start||0));
+  openSheet('📖 Come si gioca',howHTML(i),card=>{const draw=()=>{const w=card.querySelector('.hw');w.outerHTML=howHTML(i);bind();};
+    const bind=()=>{const w=card.querySelector('.hw');const h=HOW[i];if(h.bind)h.bind(w);
+      const n=w.querySelector('[data-hnext]');if(n)n.onclick=()=>{i++;draw();};const p=w.querySelector('[data-hprev]');if(p)p.onclick=()=>{i--;draw();};
+      const s=w.querySelector('[data-hskip]');if(s)s.onclick=()=>{try{G.howSeen=1;}catch(e){}closeSheet();};
+      const pl=w.querySelector('[data-hplay]');if(pl)pl.onclick=()=>{try{G.howSeen=1;}catch(e){}closeSheet();if(typeof G!=='undefined'&&G.type){go('orda');setTimeout(()=>{const f=app.querySelector('#fight');if(f)f.scrollIntoView({behavior:'smooth',block:'center'});},200);}else go('orda');};
+      const a=w.querySelector('[data-hall]');if(a)a.onclick=()=>{try{G.howSeen=1;}catch(e){}openSheet('📚 Tutte le regole',rulesHTML(),c2=>{const b=c2.querySelector('[data-tutagain]');if(b)b.onclick=()=>{G.tutDone=false;toast('Il tutorial ripartirà alla prossima battaglia');closeSheet();};});};
+      let x0=null;w.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true});
+      w.addEventListener('touchend',e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)<60||e.target.closest('.hw-demo'))return;if(dx<0&&i<HOW.length-1){i++;draw();}else if(dx>0&&i>0){i--;draw();}},{passive:true});};
+    bind();});};
+/* anche dalla pagina "Come funziona" */
+window.rulesSheet=()=>openRules(0);
+/* la prima volta nel gioco parte da sola */
+const _renderHubHow=renderHub;renderHub=function(){const r=_renderHubHow.apply(this,arguments);try{if(G.type&&!G.howSeen&&!document.querySelector('#sheet.open')&&(G.level||1)<=2){G.howSeen=1;setTimeout(()=>{if(!document.querySelector('#sheet.open'))openRules(0);},700);}}catch(e){}return r;};
+</script>
+<script>
+/* =========================================================
+   MANUALE COMPLETO DEL GIOCO (capitoli apribili)
+   I numeri arrivano dai dati del gioco: restano sempre giusti.
+   ========================================================= */
+function manualHTML(){const sec=(id,t,body,open)=>`<details class="man" ${open?'open':''} id="man-${id}"><summary>${t}</summary><div class="man-b">${body}</div></details>`;
+  const tab=(rows,cols)=>`<div class="mtab">${rows.map(r=>`<div>${r.map((c,i)=>i===0?`<span>${c}</span>`:i===1?`<b>${c}</b>`:`<small>${c}</small>`).join('')}</div>`).join('')}</div>`;
+  const eur=n=>'🪙 '+n;
+  const S1=sec('scopo','🎯 Lo scopo del gioco',`<p>Ogni partita è una <b>notte</b>: l’orda arriva e tu difendi <b>casa tua</b> e il <b>quartiere</b> fino all’alba. Se cade casa tua la notte è persa; gli altri edifici persi escono dal quartiere e fanno scendere di livello.</p>
+    <p>Vincendo sali di <b>livello</b>: più zombie, più veloci, più premi. Scegli la difficoltà prima della notte:</p>${tab(Object.values(DIFF).map(d=>['⚔️',d.n,`zombie ×${String(d.hp).replace('.',',')} di vita · monete ×${String(d.coin).replace('.',',')}`]))}`,true);
+  const S2=sec('schede','📱 Le schede del gioco',tab([['🏘️','Quartiere','la mappa, la notte, le missioni, le spedizioni, il bollettino del territorio'],['🔧','Potenzia','casa, attrezzi anti-zombie, carte'],['👥','Amici','amici, vicini, aiuti e inviti'],['🏆','Arena','tornei e sfide con gli altri superstiti']]));
+  const S3=sec('casa','🏠 La tua casa e i potenziamenti',`<p>Puoi giocare con <b>“La tua casa vera”</b> (forma, piani e tipo presi dalla mappa) o con una casa a scelta. Ogni tipo ha resistenza, barricata, monete di partenza e un’abilità diversa.</p>
+    <p>In <b>Potenzia</b> migliori la casa:</p>${tab(HUP.map(u=>['🔨',u.name,`${u.lv.join(' → ')}<br>${u.eff} · costi ${u.cost.map(eur).join(', ')}`]))}`);
+  const S4=sec('quartiere','🏘️ Il quartiere vero',`<p>Con “Quartiere vero” la mappa del gioco è la tua zona: vie, case, campi e fiumi veri. Le frecce rosse <b>“🧟 ORDA DA VIA…”</b> mostrano da quali strade vere entra l’orda.</p>
+    <p><b>Edifici in vendita (🪙):</b> sono case vere intorno alla tua. Comprali per allargare la difesa: ognuno è un edificio in più da proteggere, ma ti dà inquilini o un servizio. I servizi che puoi aprire:</p>${tab(Object.values(BLD).map(b=>[b.ic||'🏢',b.name,`${b.eff} · da ${eur(b.cost)}`]))}
+    <p><b>Punti da fortificare:</b> sono posti veri (la rotonda o l’incrocio, i lampioni della via principale, la chiesa, le case dei vicini, i campi). Ognuno dà un aiuto fisso durante la notte:</p>${tab(SLOTS.map(s=>['🛡️',esc(s.name),s.eff]))}`);
+  const S5=sec('piano','🛡️ Prima della notte: il piano',`<p>La <b>ricognizione</b> ti dice quanti zombie arrivano, di che tipo e verso quali edifici. Distribuisci i <b>punti difesa</b>: 🪵 barricata +40%, 🪤 3 trappole, 🎯 una torretta. “Piano automatico” li mette per te dove servono di più. L’orda punta agli edifici più deboli.</p>`);
+  const S6=sec('carte','🃏 Durante la notte: provviste e carte',`<p>Le <b>provviste</b> (barra gialla in basso a sinistra) si ricaricano da sole. Ogni carta costa provviste (numero giallo). Le carte “su corsia” si <b>trascinano</b> sulla corsia, oppure tocchi la carta e poi la corsia. Hai 4 carte in mano: quando ne usi una entra la successiva.</p>${tab(RULES_CARDS.map(c=>[c[0],c[1]+` <i class="mcost">${c[2]}</i>`,`${c[3]} · ${c[4]}`]))}`);
+  const S7=sec('tattica','🎯 Bersaglio, combo e rifornimenti',`<p><b>Bersaglio:</b> tocca uno zombie, diventa il bersaglio (mirino azzurro): difensori, torrette e rinforzi sparano prima a lui con <b>+35% di danni</b>. Usalo su bruti, caschi e boss.</p>
+    <p><b>Combo:</b> ogni zombie scacciato ridà un po’ di provviste; 3, 5 o 8 di fila (entro 2 secondi l’uno dall’altro) danno provviste extra.</p><p><b>Rifornimenti:</b> a metà notte scegli 1 bonus tra 3.</p>
+    <p><b>Più edifici:</b> nella mappa dell’assedio tocca un edificio per correre a difenderlo; “Vai dove serve” ti porta dove c’è più pericolo.</p>`);
+  const S8=sec('abilita','⚡ L’abilità della casa',`<p>Il pulsante rotondo è un colpo speciale con ricarica. Con la casa vera dipende dal <b>tuo quartiere vero</b>, in quest’ordine:</p>${tab([['👥','Vicini veri','se ci sono utenti registrati entro 1,5 km: arrivano coi loro nick e colpiscono 3 zombie + 2 per ogni vicino'],['🚒','Idranti','vigili del fuoco entro 3 km: getto su tutte le corsie'],['🔔','Campane','chiesa vera nel quartiere: orda bloccata 2 secondi'],['🌊','Piena','fiume o lago entro 500 m: travolge la corsia bassa'],['⛰️','Collina','casa in alto o in pendenza: sassi su 7 zombie']])}<p>Con le altre case: cane, trattore, faro, valanga, onda, clacson, pigne o condomini, secondo il tipo.</p>`);
+  const S9=sec('attrezzi','🧰 Attrezzi anti-zombie',`<p>Si sbloccano e migliorano in <b>Potenzia</b>; in battaglia hanno una ricarica.</p>${tab(TOOLS.map(t=>[t.ic||'🧰',t.name,`${t.d} · ricarica ${t.cd} s · sblocco ${t.unlock?eur(t.unlock):'gratis'}`]))}`);
+  const S10=sec('nemici','🧟 I nemici',`${tab(RULES_Z.map(z=>[z[0],z[1],z[2]]))}<p><b>Zombie del tuo territorio</b> (riconoscibili dal simbolo sopra la testa):</p>${tab(Object.values(ZVAR).map(v=>[v[0],v[1].split(':')[0],v[1].split(':')[1]||'']))}`);
+  const S11=sec('notte','🌦️ La notte vera: meteo e luna',`<p>L’evento della notte dipende dal <b>meteo reale</b> della tua zona e dalla <b>luna vera</b>:</p>${tab([['🌧️','Pioggia','zombie più lenti; se abiti in zona bassa la barricata perde il 10%'],['🌫️','Nebbia','si vede poco, gli zombie spuntano all’ultimo'],['⛈️','Blackout','temporale o vento forte: si vede solo vicino alla luce'],['🌕','Luna piena','orda più veloce, ma monete doppie'],['☀️','Notte tranquilla','nessun evento']])}`);
+  const S12=sec('giorno','🎒 Il giorno: spedizioni e missioni',`<p><b>Spedizioni:</b> mandi una squadra in un posto vero della zona (supermercato, negozio per la casa, farmacia, distributore, sponsor). Il tempo dipende dalla <b>distanza vera</b> e dalle <b>salite</b>; torna con materiali (cibo, legno, metallo, batterie, medicine). Più è lontano, più c’è rischio. Gli sponsor veri: una volta al giorno, senza rischi.</p>
+    <p><b>Missioni di oggi:</b> 3 al giorno sui posti veri (spedizioni, difese, meteo, sponsor, servizi). Ognuna ha un premio; tutte e 3 aprono lo <b>scrigno da 💎 10</b>. Cambiano a mezzanotte.</p>`);
+  const S13=sec('territorio','🗺️ I bonus del territorio vero',`<p>Il pannello “Il territorio decide la notte” mostra cosa ti aiuta o ti penalizza davvero:</p>${tab([['🏥','Ospedale entro 1,5 km','resistenza casa +10%'],['💊','Farmacia entro 800 m','resistenza +5%'],['🚓','Forze dell’ordine entro 2 km','barricata +10%'],['🚒','Vigili del fuoco entro 3 km','barricata +5%'],['⛰️','Casa in altura','barricata +10%'],['💧','Zona bassa vicino all’acqua','barricata −10%'],['🥫','Supermercato oltre 2 km','resistenza −5%'],['⭐','Ogni sponsor entro 3 km (max 3)','barricata +5%']])}
+    <p><b>Terreno:</b> salite vere rallentano l’orda (−20% zombie), discese la accelerano (+20%), le alture danno una vedetta.</p>`);
+  const S14=sec('premi','⭐ Premi',`<p>Fino a <b>3 stelle</b> per notte (casa poco danneggiata, nessun edificio perso). In alto c’è l’<b>obiettivo bonus</b> dell’ondata. Raccogli il <b>bottino</b> (monete, gemme, cuori) toccandolo prima che sparisca. Ci sono anche <b>medaglie</b> per le imprese speciali.</p>
+    <p><b>Monete 🪙</b>: potenziamenti, edifici, attrezzi. <b>Gemme 💎</b>: bonus speciali e acquisti rari.</p>`);
+  const S15=sec('community','👥 Community e inviti',`<p><b>Mappa della community:</b> se accetti, gli altri vedono il tuo nickname, l’indice della casa e il livello, in una posizione approssimata di circa 200 m. Mai l’indirizzo.</p>
+    <p><b>Inviti</b> (menu ☰): chi entra col tuo link e valuta la casa ti dà 💎 5; se abita entro 1,5 km diventa uno dei tuoi <b>vicini veri</b> e la tua abilità in battaglia si rafforza.</p>`);
+  const S16=sec('vera','🔄 Casa vera ⇄ gioco',`<p>Quello che fai per la casa vera ti rende più forte nel gioco: la valutazione ti fa partire avvantaggiato, lo <b>Scudo</b> (0–5) cresce con le azioni sulla casa vera, i <b>Crediti Casa Vera</b> arrivano da sconti e preventivi usati davvero.</p>
+    <p><b>Ho cambiato casa:</b> monete, gemme, livello, attrezzi e crediti vengono con te; edifici e potenziamenti restano nella casa vecchia con un rimborso (70% edifici, 50% punti e potenziamenti, una volta ogni 30 giorni).</p>
+    <p><b>Salvataggi:</b> con l’accesso fatto la partita è sempre allineata tra iPhone, Mac e computer.</p>`);
+  const S17=sec('classico','🕹️ Stile classico',`<p>Se lo scegli nella campagna: tocchi gli zombie per colpirli (testa = critico) e trascini il dito per colpirne tanti; il tocco consuma energia.</p>`);
+  return`<div class="manual"><p class="muted" style="font-size:13px;margin:0 0 8px">Tocca un capitolo per aprirlo.</p>${[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17].join('')}
+    <div class="row" style="gap:8px;margin-top:12px;flex-wrap:wrap"><button class="btn small" data-howagain>📖 Rivedi le 7 tavole</button><button class="btn small ghost" data-tutagain>Rifai il tutorial alla prossima battaglia</button></div></div>`;}
+rulesHTML=manualHTML;
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-howagain]');if(!b)return;openRules(0);});
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
