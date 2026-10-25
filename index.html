@@ -675,6 +675,32 @@ body.bigtxt{font-size:118%}body.bigtxt p,body.bigtxt small,body.bigtxt .muted{fo
 .terrl li{display:flex;gap:8px;align-items:flex-start;font-size:13px;font-weight:400;padding:4px 8px;border-left:5px solid #3f9b5f;background:#fff}
 .terrl li.ko{border-left-color:#d7263d}
 .terrl li span{flex:0 0 auto}
+
+/* scheda attività a fumetto */
+.bzc{margin:-4px 0 0}
+.bzc-hero{position:relative;display:flex;gap:12px;align-items:center;background:var(--c);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:12px;background-image:radial-gradient(rgba(20,15,31,.12) 1.2px,transparent 1.5px);background-size:7px 7px}
+.bzc-ic{flex:0 0 auto;display:grid;place-items:center;width:62px;height:62px;border-radius:50%;background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-size:32px;transform:rotate(-6deg)}
+.bzc-t{flex:1;min-width:0}
+.bzc-cat{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;background:var(--ink);color:var(--moon);padding:1px 7px;border-radius:3px}
+.bzc-t h4{font-family:var(--display);font-weight:400;font-size:27px;line-height:1.02;margin:4px 0 3px;color:var(--ink);word-break:break-word}
+.bzc-t small{font-size:12.5px;font-weight:700;color:var(--ink)}
+.bzc-badge{position:absolute;right:6px;top:-12px;font-family:var(--display);font-size:13px;line-height:1;text-align:center;background:#d7263d;color:#fff;border:3px solid var(--ink);padding:6px 7px;transform:rotate(8deg);box-shadow:2px 2px 0 var(--ink)}
+.bzc-rate{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 4px}
+.bzc-act{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin:12px 0}
+.bzc-act a{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:var(--ink);font-weight:700;font-size:13px;background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:9px 4px}
+.bzc-act a span{font-size:24px}
+.bzc-act a:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.bzc-free{border:3px dashed #b8860b;background:#fff8d6;padding:12px;margin-top:4px}
+.bzc-free b{font-family:var(--display);font-weight:400;font-size:20px;display:block;margin-bottom:6px}
+.bzc-free ul{list-style:none;padding:0;margin:0 0 10px;display:grid;gap:5px;font-size:13.5px;font-weight:400}
+.bzc-own{display:block;width:100%;text-align:left;background:none;border:0;border-top:2px dashed rgba(20,15,31,.25);padding:10px 2px 2px;font-weight:700;font-size:14px;color:#2f5fb8;cursor:pointer}
+.bzc-note{font-size:13px;font-weight:400;background:#eef4ff;border-left:5px solid #2f5fb8;padding:8px 10px;margin:4px 0 0}
+
+.thouse{display:flex;gap:10px;align-items:center;margin:8px 0;padding:8px;background:#fff;border:2px solid var(--ink)}
+.thouse svg{flex:0 0 auto;border:2px solid var(--ink)}
+.thouse div{display:flex;flex-direction:column;gap:2px;font-size:13px;font-weight:400}
+.thouse b{font-size:18px}
+.pick[data-type=vera]{border-color:#d7263d;box-shadow:5px 5px 0 #d7263d}
 </style>
 </head>
 <body>
@@ -1157,7 +1183,7 @@ function treeShape(x,y,s=1){return`<g transform="translate(${x} ${y}) scale(${s}
 /* ---------- scena del gioco: casa dettagliata ---------- */
 function houseScene(a,opt={}){
   const id='g'+(opt.sid||'');
-  const W=480,G=282;
+  const W=480,G=282;const HS=hsParts(a,id,G);
   const door={b4:['#4a5260','#d7263d'],blindata:['#7c8794',null],legno:['#8a5a34',null],vetro:['#9fd3e6',null],ns:['#8a5a34',null]}[a.porta]||['#8a5a34',null];
   const anti=a.vetri==='anti';
   const glass=anti?'#bfe3f2':'#f7d64a';
@@ -1235,17 +1261,12 @@ function houseScene(a,opt={}){
    ${tank}${orto}${dogH}${crates}${gen}
    <g stroke="${INK}" stroke-width="3" stroke-linejoin="round">
      ${gar}
-     <rect x="140" y="128" width="180" height="${G-128}" fill="#4b3f7a"/><rect x="140" y="128" width="180" height="${G-128}" fill="url(#ht${id})"/>
-     <path d="M140 196 H320" stroke-width="2"/>
-     <rect x="268" y="74" width="22" height="44" fill="#4b3f7a"/><rect x="264" y="70" width="30" height="8" fill="#2b2240"/>
-     <path d="M124 134 L230 62 L336 134Z" fill="#d7263d"/>
-     <path d="M146 120 L230 70 L314 120 M158 112 L230 76 L302 112" fill="none" stroke-width="1.5" opacity=".6"/>
-     <path d="M120 136 H340" stroke-width="4"/>
+     ${HS.body}
    </g>
-   ${solar}${ant}${mast}${smoke}
+   <g transform="translate(0 ${HS.dy})">${solar}${ant}${mast}${smoke}</g>
    <g stroke="${INK}" stroke-width="3" stroke-linejoin="round">
-     ${win(160,146,false)}${win(262,146,false)}
-     ${win(160,212,true)}${win(262,212,true)}
+     ${HS.upper(win)}
+     ${win(160,212,true)}${win(262,212,true)}${HS.ground(win)}
      ${side}
      <rect x="206" y="${G-6}" width="48" height="6" fill="#cfc6e6"/>
      <rect x="212" y="222" width="36" height="${G-228}" fill="${door[0]}"/>
@@ -4990,6 +5011,17 @@ const POI_CAND=['hardware','doityourself','locksmith','security','electrical','t
 const POI_N={hardware:'Ferramenta',doityourself:'Fai da te',locksmith:'Fabbro',security:'Sicurezza e allarmi',electrical:'Materiale elettrico',trade:'Materiali edili',paint:'Colori',glaziery:'Vetreria',building_materials:'Materiali edili',
   hospital:'Ospedale',clinic:'Clinica',pharmacy:'Farmacia',police:'Forze dell’ordine',fire_station:'Vigili del fuoco',townhall:'Municipio',town_hall:'Municipio',drinking_water:'Fontanella',
   supermarket:'Supermercato',convenience:'Alimentari',grocery:'Alimentari',bakery:'Panificio',cafe:'Bar',bar:'Bar',restaurant:'Ristorante',fast_food:'Fast food',fuel:'Distributore',bank:'Banca',hairdresser:'Parrucchiere',clothes:'Abbigliamento',butcher:'Macelleria',florist:'Fiori'};
+const ZICON={cand:['🔧','#ffe680','#b8860b',1],super:['🛒','#bfe8c9'],bar:['☕','#f3d9b1'],rist:['🍝','#ffd0b5'],pane:['🥖','#f6e2b3'],fuel:['⛽','#d9dde3'],bank:['🏦','#d6e4f5'],hair:['💈','#f5d6e8'],abiti:['👕','#e2d6f5'],hotel:['🛏️','#d6f0f5'],shop:['🛍️','#eee6d6'],
+  osp:['🏥','#ffffff','#d7263d',1],farm:['💊','#ffffff','#3f9b5f',1],cc:['🚓','#ffffff','#2f5fb8',1],vvf:['🚒','#ffffff','#e2702d',1],mun:['🏛️','#ffffff','#2f5fb8',1],acqua:['💧','#ffffff','#2f7fb8',1]};
+function zIcon(map,id){if(!id||id.indexOf('zi-')!==0||map.hasImage(id))return;const night=/-n$/.test(id);const k=id.slice(3).replace(/-n$/,'');const d=ZICON[k]||ZICON.shop;
+  const S2=72,c=document.createElement('canvas');c.width=c.height=S2;const g=c.getContext('2d');const big=!!d[3];const r=big?29:24,cx=S2/2-2,cy=S2/2-2;
+  g.fillStyle='#140f1f';g.beginPath();g.arc(cx+4,cy+4,r,0,7);g.fill();
+  g.fillStyle=night&&!big?'#3b2f6e':d[1];g.beginPath();g.arc(cx,cy,r,0,7);g.fill();
+  g.lineWidth=big?6:4;g.strokeStyle=d[2]||'#140f1f';if(k==='cand')g.setLineDash([7,4]);g.beginPath();g.arc(cx,cy,r-g.lineWidth/2+1,0,7);g.stroke();g.setLineDash([]);
+  if(big&&k!=='cand'){g.lineWidth=2.5;g.strokeStyle='#140f1f';g.beginPath();g.arc(cx,cy,r+1,0,7);g.stroke();}
+  g.font=`${big?30:25}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(d[0],cx,cy+2);
+  if(k==='cand'){g.fillStyle='#d7263d';g.beginPath();g.arc(cx+r-4,cy-r+5,9,0,7);g.fill();g.fillStyle='#fff';g.font='bold 13px sans-serif';g.fillText('€',cx+r-4,cy-r+6);}
+  try{map.addImage(id,g.getImageData(0,0,S2,S2),{pixelRatio:2});}catch(e){}}
 const ZPAL={day:{bg:'#efe4c8',res:'#e8dcbf',park:'#a9d38a',wood:'#6faa6a',farm:'#ecd98f',water:'#6fb3e6',bld:'#f4e7cf',bldl:'#140f1f',road:'#fffaf0',main:'#f7d64a',cas:'#140f1f',rail:'#5a5470'},
   night:{bg:'#1b1438',res:'#241a4a',park:'#24452f',wood:'#1d3a27',farm:'#3a3320',water:'#203a73',bld:'#3b2f6e',bldl:'#07050c',road:'#6a5aa0',main:'#c9a31a',cas:'#07050c',rail:'#8a80b0'}};
 function zStyle(n){const P=n?ZPAL.night:ZPAL.day;const R=['interpolate',['exponential',1.6],['zoom']];const MJ=['motorway','trunk','primary'],SC=['secondary','tertiary'];
@@ -5000,12 +5032,15 @@ function zStyle(n){const P=n?ZPAL.night:ZPAL.day;const R=['interpolate',['expone
   const CAND=['in',SUB,['literal',POI_CAND]];
   const BIZ=['all',['!',PUB],['!',CAND],['in',CLS,['literal',['shop','grocery','bakery','cafe','bar','restaurant','fast_food','fuel','clothing_store','car','beer','alcohol_shop','ice_cream','lodging','bank','hairdresser','furniture','florist','jewelry','optician','pet','shoes','sports','stationery','mobile_phone']]]];
   const NM=['coalesce',['get','name:it'],['get','name']];const FONT=['Noto Sans Bold'];
+  const HID=['!',['in',NM,['literal',window.ZHID||[]]]];
+  const KEY=['coalesce',SUB,CLS];
+  const BIZC=['match',KEY,['supermarket','convenience','grocery'],'super',['cafe','bar','pub'],'bar',['restaurant','fast_food'],'rist','bakery','pane','fuel','fuel',['bank','atm'],'bank',['hairdresser','beauty'],'hair',['clothes','clothing_store','shoes'],'abiti',['hotel','guest_house','lodging'],'hotel','shop'];
+  const PUBC=['match',KEY,['hospital','clinic'],'osp','pharmacy','farm','police','cc','fire_station','vvf',['townhall','town_hall'],'mun','drinking_water','acqua','osp'];
+  const TXT={'text-font':FONT,'text-anchor':'top','text-optional':true,'text-max-width':9};
   const POIS=[
-   {id:'poi-biz',type:'circle',source:'omt','source-layer':'poi',minzoom:15,filter:BIZ,paint:{'circle-radius':['interpolate',['linear'],['zoom'],15,3.5,18,7],'circle-color':n?'#6a5aa0':'#9aa4b0','circle-stroke-color':P.cas,'circle-stroke-width':1.5}},
-   {id:'poi-pub',type:'circle',source:'omt','source-layer':'poi',minzoom:12,filter:PUB,paint:{'circle-radius':['interpolate',['linear'],['zoom'],12,4,17,10],'circle-color':'#ffffff','circle-stroke-color':'#2f5fb8','circle-stroke-width':3}},
-   {id:'poi-pub-t',type:'symbol',source:'omt','source-layer':'poi',minzoom:12,filter:PUB,layout:{'text-field':['match',['coalesce',SUB,CLS],'pharmacy','+','hospital','H','clinic','H','police','C','fire_station','VF','drinking_water','~','M'],'text-font':FONT,'text-size':['interpolate',['linear'],['zoom'],12,8,17,12],'text-allow-overlap':true,'text-ignore-placement':true},paint:{'text-color':'#2f5fb8'}},
-   {id:'poi-cand',type:'circle',source:'omt','source-layer':'poi',minzoom:12,filter:CAND,paint:{'circle-radius':['interpolate',['linear'],['zoom'],12,5,17,12],'circle-color':'#fff8d6','circle-stroke-color':'#b8860b','circle-stroke-width':3.5}},
-   {id:'poi-cand-t',type:'symbol',source:'omt','source-layer':'poi',minzoom:14,filter:CAND,layout:{'text-field':NM,'text-font':FONT,'text-size':11.5,'text-anchor':'top','text-offset':[0,1.1],'text-optional':true,'text-max-width':9},paint:{'text-color':'#140f1f','text-halo-color':'#fff8d6','text-halo-width':2.2}}];
+   {id:'poi-biz',type:'symbol',source:'omt','source-layer':'poi',minzoom:15,filter:['all',BIZ,HID],layout:{'icon-image':['concat','zi-',BIZC,n?'-n':''],'icon-size':['interpolate',['linear'],['zoom'],15,.5,18,.85],'icon-padding':1,...TXT,'text-field':['step',['zoom'],'',17,NM],'text-size':10.5,'text-offset':[0,1.2]},paint:{'text-color':n?'#f3e9d2':'#140f1f','text-halo-color':n?'#140f1f':'#fffaf0','text-halo-width':2}},
+   {id:'poi-pub',type:'symbol',source:'omt','source-layer':'poi',minzoom:12,filter:['all',PUB,HID],layout:{'icon-image':['concat','zi-',PUBC],'icon-size':['interpolate',['linear'],['zoom'],12,.45,17,.95],'icon-allow-overlap':true,...TXT,'text-field':['step',['zoom'],'',16,NM],'text-size':11,'text-offset':[0,1.5]},paint:{'text-color':'#1f3f80','text-halo-color':'#fff','text-halo-width':2.2}},
+   {id:'poi-cand',type:'symbol',source:'omt','source-layer':'poi',minzoom:12,filter:['all',CAND,HID],layout:{'icon-image':'zi-cand','icon-size':['interpolate',['linear'],['zoom'],12,.5,17,1.05],'icon-allow-overlap':true,...TXT,'text-field':['step',['zoom'],'',14,NM],'text-size':12,'text-offset':[0,1.7]},paint:{'text-color':'#140f1f','text-halo-color':'#ffe680','text-halo-width':2.6}}];
   return{version:8,glyphs:'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',sources:{omt:{type:'vector',url:'https://tiles.openfreemap.org/planet'},
     dem:{type:'raster-dem',tiles:DEM,encoding:'terrarium',tileSize:256,maxzoom:14},dem3:{type:'raster-dem',tiles:DEM,encoding:'terrarium',tileSize:256,maxzoom:14}},layers:[
    {id:'bg',type:'background',paint:{'background-color':P.bg}},
@@ -5052,6 +5087,7 @@ async function liveMap(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[ad
   el.innerHTML=`<div class="lmap ${o.night?'night':''}"><div class="lm-gl"></div><div class="lm-frame"></div><button class="lm-mode" type="button">${o.night?'☀️ Giorno':'🌙 Notte'}</button><button class="lm-3d" type="button">🏙️ 3D</button></div>`;
   const box=el.querySelector('.lmap'),gl=box.querySelector('.lm-gl');let night=!!o.night;
   const map=new maplibregl.Map({container:gl,style:zStyle(night),center:[m.lon,m.lat],zoom:o.zoom||16,maxZoom:19,dragRotate:false,pitchWithRotate:false,attributionControl:false});
+  map.on('styleimagemissing',e=>zIcon(map,e.id));(window.__zmaps=window.__zmaps||[]).push(map);
   try{map.touchZoomRotate.disableRotation();}catch(e){}
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-left');
   map.addControl(new maplibregl.AttributionControl({customAttribution:'© OpenStreetMap · OpenFreeMap',compact:true}));
@@ -5064,9 +5100,9 @@ async function liveMap(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[ad
   const spEl=(sk,nm)=>elDiv('lm-sp',`<b>${esc(SPONSORS[sk].logo)}</b><i>⭐</i><em>${esc(nm||SPONSORS[sk].name)}</em>`);
   /* tocchi su attività, servizi e posti sponsor disegnati dalla mappa */
   const poiInfo=f=>{const p=f.properties||{};const sub=p.subclass||p.class||'';const c=f.geometry.coordinates;const nm=p['name:it']||p.name||POI_N[sub]||'Attività';return{sub,nm,ll:[c[1],c[0]],d:lmDist(m.lat,m.lon,c[1],c[0])};};
-  map.on('click','poi-cand',e=>{const f=e.features&&e.features[0];if(!f)return;const x=poiInfo(f);if(typeof bizSheet==='function')bizSheet({i:'t'+(f.id||x.nm),ic:'📌',name:x.nm,cat:POI_N[x.sub]||'Attività per la casa',d:x.d,ll:x.ll,cand:true},z);});
+  map.on('click','poi-cand',e=>{const f=e.features&&e.features[0];if(!f)return;const x=poiInfo(f);if(typeof bizSheet==='function')bizSheet({i:'t'+(f.id||x.nm),ic:({locksmith:'🔑',electrical:'💡',paint:'🎨',glaziery:'🪟',trade:'🧱',building_materials:'🧱',security:'🛡️'})[x.sub]||'🔧',name:x.nm,cat:POI_N[x.sub]||'Attività per la casa',d:x.d,ll:x.ll,cand:true},z);});
   map.on('click','poi-pub',e=>{const f=e.features&&e.features[0];if(!f)return;const x=poiInfo(f);lmPoi(x.nm,POI_N[x.sub]||'Servizio pubblico',x.d,x.ll,true);});
-  map.on('click','poi-biz',e=>{const f=e.features&&e.features[0];if(!f)return;const x=poiInfo(f);if(typeof bizSheet==='function')bizSheet({i:'t'+(f.id||x.nm),ic:'🛍️',name:x.nm,cat:POI_N[x.sub]||'Attività',d:x.d,ll:x.ll},z);});
+  map.on('click','poi-biz',e=>{const f=e.features&&e.features[0];if(!f)return;const x=poiInfo(f);if(typeof bizSheet==='function')bizSheet({i:'t'+(f.id||x.nm),ic:(ZICON[({supermarket:'super',convenience:'super',grocery:'super',cafe:'bar',bar:'bar',pub:'bar',restaurant:'rist',fast_food:'rist',bakery:'pane',fuel:'fuel',bank:'bank',hairdresser:'hair',clothes:'abiti',hotel:'hotel'})[x.sub]]||ZICON.shop)[0],name:x.nm,cat:POI_N[x.sub]||'Attività',d:x.d,ll:x.ll},z);});
   ['poi-cand','poi-pub','poi-biz'].forEach(id=>{map.on('mouseenter',id,()=>{map.getCanvas().style.cursor='pointer';});map.on('mouseleave',id,()=>{map.getCanvas().style.cursor='';});});
   if(useGeo)Object.entries(GEO).forEach(([sk,g])=>{if(!g||g.lat==null||!SPONSORS[sk])return;add('spons',[g.lon,g.lat],spEl(sk),()=>sponsorSheet(sk,z));});
   /* aree community */
@@ -5080,7 +5116,7 @@ async function liveMap(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[ad
     map.addLayer({id:'fx-line',type:'line',source:'fx',filter:['==',['geometry-type'],'LineString'],paint:{'line-color':'#7bd36b','line-width':3,'line-dasharray':[2,1.5]}});
     map.addLayer({id:'fx-pt',type:'circle',source:'fx',filter:['==',['geometry-type'],'Point'],paint:{'circle-radius':['coalesce',['get','r'],5],'circle-color':['coalesce',['get','c'],'#7bd36b'],'circle-stroke-color':'#140f1f','circle-stroke-width':1.5,'circle-opacity':['coalesce',['get','o'],1],'circle-stroke-opacity':['coalesce',['get','o'],1]}});};
   addOver();map.on('click','comm-fill',e=>{const f=e.features&&e.features[0];if(f&&lm&&lm.onCell)lm.onCell(+f.properties.i);});
-  const LV={spons:vis('spons'),biz:vis('biz'),pub:vis('pub')};const POIL={spons:['poi-cand','poi-cand-t'],biz:['poi-biz'],pub:['poi-pub','poi-pub-t']};
+  const LV={spons:vis('spons'),biz:vis('biz'),pub:vis('pub')};const POIL={spons:['poi-cand'],biz:['poi-biz'],pub:['poi-pub']};
   const applyLV=()=>Object.entries(POIL).forEach(([k,ids])=>ids.forEach(id=>{try{if(map.getLayer(id))map.setLayoutProperty(id,'visibility',LV[k]?'visible':'none');}catch(e){}}));
   const setLayer=(k,on)=>{if(LV[k]!==undefined){LV[k]=on;applyLV();}if(k==='comm'){st.comm=on;['comm-fill','comm-line'].forEach(id=>{if(map.getLayer(id))map.setLayoutProperty(id,'visibility',on?'visible':'none');});return;}(MK[k]||[]).concat(k==='spons'?MK.cand:[]).forEach(x=>{x.getElement().style.display=on?'':'none';});};
   ['spons','biz','pub'].forEach(k=>setLayer(k,vis(k)));
@@ -5165,6 +5201,22 @@ qSiege=function(){if(!S.qLive)return _qSiege19();const lm=S.qLive,map=lm.map,m=l
      basse vere, bonus da servizi e sponsor, spedizioni verso
      posti veri con tempi che contano distanza e dislivello
    ========================================================= */
+function trHouse(els,lat,lon){if(!els||!els.length)return null;const k=Math.cos(lat*Math.PI/180);const XY=p=>[(p.lon-lon)*111320*k,(p.lat-lat)*110540];
+  const W=els.filter(e=>e.type==='way'&&e.geometry&&e.geometry.length>3);const inR=(r,x,y)=>{let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const[xi,yi]=r[i],[xj,yj]=r[j];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;};
+  let me=W.find(e=>inR(e.geometry.map(XY),0,0));
+  if(!me){let bd=25;W.forEach(e=>{const P=e.geometry.map(XY);const c=P.reduce((a,p)=>[a[0]+p[0]/P.length,a[1]+p[1]/P.length],[0,0]);const d=Math.hypot(...c);if(d<bd){bd=d;me=e;}});}
+  if(!me)return null;const t=me.tags||{};const P=me.geometry.map(XY);
+  let area=0;for(let i=0,j=P.length-1;i<P.length;j=i++)area+=(P[j][0]+P[i][0])*(P[j][1]-P[i][1]);area=Math.abs(area/2);
+  let len=0,ang=0;for(let i=1;i<P.length;i++){const L=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);if(L>len){len=L;ang=Math.atan2(P[i][1]-P[i-1][1],P[i][0]-P[i-1][0]);}}
+  const ca=Math.cos(-ang),sa=Math.sin(-ang);const R=P.map(([x,y])=>[x*ca-y*sa,x*sa+y*ca]);const xs=R.map(p=>p[0]),ys=R.map(p=>p[1]);
+  const L1=Math.max(...xs)-Math.min(...xs),L2=Math.max(...ys)-Math.min(...ys);
+  const nodes=new Set(me.nodes||[]);const att=W.filter(e=>e!==me&&(e.nodes||[]).filter(n=>nodes.has(n)).length>=2).length;
+  const bt=t.building||'yes';let lv=+t['building:levels']||(t.height?Math.round(parseFloat(t.height)/3):0);
+  let kind=bt==='apartments'||lv>=4?'apt':bt==='terraced'||att>=2?'schiera':bt==='semidetached_house'||att===1?'bifamiliare':['farm','farm_auxiliary','barn','farmhouse'].includes(bt)||area>450&&lv<=2?'casale':'villa';
+  if(!lv)lv=kind==='apt'?(area>600?5:4):kind==='casale'?2:2;
+  const roof=t['roof:shape']||(kind==='apt'?'flat':'gabled');
+  return{kind,bt,levels:Math.min(12,lv),roof,area:Math.round(area),len:Math.round(Math.max(L1,L2)),wid:Math.round(Math.min(L1,L2)),att,
+    col:t['building:colour']||'',rcol:t['roof:colour']||'',mat:t['building:material']||'',poly:R.map(p=>[Math.round(p[0]*10)/10,Math.round(p[1]*10)/10])};}
 const TR_N=11,TR_STEP=60,TR_FR=2500,TR_U=1.2;
 const trSig=ms=>{const c=new AbortController();setTimeout(()=>c.abort(),ms);return c.signal;};
 function trM(la1,lo1,la2,lo2){const k=Math.cos(la1*Math.PI/180);return Math.hypot((la2-la1)*110540,(lo2-lo1)*111320*k);}
@@ -5210,7 +5262,7 @@ function trPick(o){return new Promise(res=>{let cur={lat:o.lat,lon:o.lon,label:o
     card.querySelector('[data-pkno]').onclick=()=>{closeSheet();res(null);};
     const box=card.querySelector('#pkMap');
     loadML().then(()=>{box.innerHTML='';map=new maplibregl.Map({container:box,style:zStyle(false),center:[o.lon,o.lat],zoom:o.acc&&o.acc>120?16:18,maxZoom:19.5,dragRotate:false,attributionControl:false});
-      try{map.touchZoomRotate.disableRotation();}catch(e){}map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-left');
+      map.on('styleimagemissing',e2=>zIcon(map,e2.id));try{map.touchZoomRotate.disableRotation();}catch(e){}map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-left');
       map.on('load',()=>{try{if(o.acc&&o.acc>8){map.addSource('acc',{type:'geojson',data:trCircle(o.lat,o.lon,o.acc)});map.addLayer({id:'acc',type:'fill',source:'acc',paint:{'fill-color':'#2f5fb8','fill-opacity':.12}});map.addLayer({id:'acc-l',type:'line',source:'acc',paint:{'line-color':'#2f5fb8','line-width':2,'line-dasharray':[2,2]}});}}catch(e){}});
       const el=elDiv('lm-tu pk','<svg viewBox="0 0 44 44" width="48" height="48"><path d="M4 21 L22 5 L40 21 V41 H4Z" fill="#d7263d" stroke="#140f1f" stroke-width="3" stroke-linejoin="round"/><text x="22" y="35" text-anchor="middle" font-family="Bangers,Impact" font-size="15" fill="#fff">TU</text></svg>');
       const mk=new maplibregl.Marker({element:el,anchor:'bottom',draggable:true}).setLngLat([o.lon,o.lat]).addTo(map);
@@ -5264,11 +5316,13 @@ function trKind(t){const a=t.amenity,s=t.shop,c=t.craft;
   if(a==='fuel')return'dist';if(a==='drinking_water')return'acqua';if(a==='police')return'cc';if(a==='fire_station')return'vvf';if(t.emergency==='assembly_point'||a==='townhall')return'racc';return null;}
 /* attività che possono diventare sponsor (sicurezza della casa) */
 function trCand(t){return['hardware','doityourself','locksmith','security','electrical','trade','paint','glaziery'].includes(t.shop)||['locksmith','electrician','metal_construction','window_construction','builder','carpenter','plumber'].includes(t.craft);}
-async function terrFetch(addr){const w=await trWhere(addr);const{lat,lon}=w;const key='zsh_tr2_'+lat.toFixed(4)+'_'+lon.toFixed(4);
+async function terrFetch(addr){const w=await trWhere(addr);const{lat,lon}=w;const key='zsh_tr3_'+lat.toFixed(4)+'_'+lon.toFixed(4);
   try{const c=JSON.parse(localStorage.getItem(key)||'null');if(c&&Date.now()-c.t<14*864e5)return{...c.r,acc:w.acc,src:w.src};}catch(e){}
   const A=`(around:${TR_FR},${lat},${lon})`;
   const q=`[out:json][timeout:25];(nwr["amenity"~"^(hospital|clinic|pharmacy|police|fire_station|fuel|drinking_water|townhall)$"]${A};nwr["shop"~"^(supermarket|convenience|hardware|doityourself|locksmith|security|electrical|trade|paint|glaziery)$"]${A};nwr["craft"~"^(locksmith|electrician|metal_construction|window_construction|builder|carpenter|plumber)$"]${A};nwr["emergency"="assembly_point"]${A};nwr["natural"="water"](around:700,${lat},${lon});way["building"](around:250,${lat},${lon});nwr["shop"](around:500,${lat},${lon}););out center tags;way["waterway"~"^(river|canal|stream)$"](around:700,${lat},${lon});out tags geom;`;
-  let els=null;try{els=await trOverpass(q,18000);}catch(e){console.warn('servizi non raggiungibili',e);}const ov=!!els;els=els||[];const fac=[],seen=new Set();let bld=0,shops=0,water=null;
+  const hP=trOverpass(`[out:json][timeout:15];way["building"](around:45,${lat},${lon});out body geom;`,15000).catch(()=>null);
+  let els=null;try{els=await trOverpass(q,18000);}catch(e){console.warn('servizi non raggiungibili',e);}const ov=!!els;els=els||[];
+  let house=null;try{house=trHouse(await hP,lat,lon);}catch(e){}const fac=[],seen=new Set();let bld=0,shops=0,water=null;
   els.forEach(e=>{const t=e.tags||{};const la=e.lat!=null?e.lat:(e.center&&e.center.lat),lo=e.lon!=null?e.lon:(e.center&&e.center.lon);
     if(t.waterway&&e.geometry){let d=1e9;e.geometry.forEach(p=>{d=Math.min(d,trM(lat,lon,p.lat,p.lon));});if(!water||d<water.d)water={d:Math.round(d),n:t.name||({river:'il fiume',canal:'il canale',stream:'il torrente'}[t.waterway]),k:t.waterway};return;}
     if(t.natural==='water'){const d=la!=null?Math.min(700,trM(lat,lon,la,lo)):700;if(!water||d<water.d)water={d:Math.round(d),n:t.name||'lo specchio d’acqua',k:t.water||'lake'};return;}
@@ -5291,7 +5345,7 @@ async function terrFetch(addr){const w=await trWhere(addr);const{lat,lon}=w;cons
     const pos=home-mean>=8&&home>=p80?'altura':((home-mean<=-5&&home<=p20)||(water&&water.d<250&&home-mean<=-1))?'bassa':slope>=5?'pendio':'piano';
     T={grid,home:Math.round(home),mean:Math.round(mean*10)/10,min:Math.round(s[0]),max:Math.round(s[s.length-1]),slope,rel1k,pos};}
   const type=!ov?null:T&&(T.home>=700||T.max-T.min>=80)?'montagna':water&&water.d<=250&&water.k!=='stream'?'lago':bld>=230||(bld>=150&&shops>=12)?'centro':bld>=70?'periferia':'campagna';
-  const r={lat,lon,fac:F,bld,shops,water,type,ov,...(T||{}),t0:Date.now()};
+  const r={lat,lon,fac:F,bld,shops,water,type,ov,house,...(T||{}),t0:Date.now()};
   if(ov&&T)try{localStorage.setItem(key,JSON.stringify({t:Date.now(),r}));}catch(e){}
   return{...r,acc:w.acc,src:w.src};}
 function terrApply(z,R){if(!R.ov)return{...z,real:R};const res=[],k=Math.cos(R.lat*Math.PI/180);
@@ -5393,7 +5447,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610251523';
+const ZSH_BUILD='202610251558';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -5405,6 +5459,100 @@ const ZSH_BUILD='202610251523';
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')check();});window.addEventListener('focus',check);setInterval(check,20*60*1000);setTimeout(check,4000);}).catch(()=>{});
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had)reload('sw');});
   try{if(sessionStorage.getItem('zsh_upd')){sessionStorage.removeItem('zsh_upd');setTimeout(()=>toast('✨ App aggiornata all’ultima versione'),1500);}}catch(e){}})();
+</script>
+<script>
+/* =========================================================
+   SCHEDA ATTIVITÀ A FUMETTO + attività nascoste (solo admin)
+   ========================================================= */
+const BZ_COL=[[/ferr|fai da te|fabbr|sicur|allarm|elettric|edil|serrament|vetr|color|carpent|idraul|falegn|casa/i,'#ffe680'],[/super|aliment|panif|macell|fiori/i,'#bfe8c9'],[/bar|ristor|fast|caff/i,'#ffd0b5'],[/farm|ospedal|clinic|sanit/i,'#c8f0d4'],[/carabin|polizi|ordine|vigili|municip|pubblic/i,'#cfe0ff']];
+const bzCol=c=>(BZ_COL.find(([r])=>r.test(c||''))||[0,'#efe4c8'])[1];
+window.ZHID=window.ZHID||[];
+async function zIsAdmin(){if(window.ZADMIN!=null)return window.ZADMIN;try{const sb=typeof SB!=='undefined'&&SB;if(!sb||!S.user||!S.user.id)return false;
+  const{data}=await sb.from('admins').select('user_id').eq('user_id',S.user.id).maybeSingle();window.ZADMIN=!!data;return window.ZADMIN;}catch(e){return false;}}
+function zApplyHidden(){try{const L=zStyle(false).layers;(window.__zmaps||[]).forEach(map=>{['poi-biz','poi-pub','poi-cand'].forEach(id=>{try{const l=L.find(x=>x.id===id);if(l&&map.getLayer(id))map.setFilter(id,l.filter);}catch(e){}});});}catch(e){}}
+(async()=>{try{const sb=await waitSB();if(!sb)return;const{data,error}=await sb.from('hidden_pois').select('name');if(!error&&data){window.ZHID=data.map(r=>r.name);zApplyHidden();}}catch(e){}})();
+async function zHide(name,ll){try{const{error}=await SB.from('hidden_pois').insert({name,lat:ll?ll[0]:null,lon:ll?ll[1]:null});if(error)throw error;
+    window.ZHID.push(name);zApplyHidden();closeSheet();toast('🚫 '+name+' non compare più sulla mappa');}
+  catch(e){toast('Non riuscito: in Supabase manca la tabella “hidden_pois” (vedi istruzioni)');}}
+function bzCard(b,pub){const tel=(b.tel||'').replace(/[^\d+]/g,'');const web=b.web?(/^https?:/.test(b.web)?b.web:'https://'+b.web):'';
+  const nav=b.ll?`https://www.google.com/maps/dir/?api=1&destination=${b.ll[0]},${b.ll[1]}&travelmode=walking`:mapsLink(b.name,S.zone);
+  const walk=Math.max(1,Math.round((b.d||0)/75));const key='biz-'+((S.zone&&S.zone.seed)||7)+'-'+String(b.i).replace(/\W/g,'');
+  return`<div class="bzc">
+   <div class="bzc-hero" style="--c:${pub?'#cfe0ff':bzCol(b.cat)}"><span class="bzc-ic">${b.ic||'📍'}</span>
+     <div class="bzc-t"><span class="bzc-cat">${esc(b.cat||'Attività')}${pub?' · servizio pubblico':''}</span><h4>${esc(b.name)}</h4>
+     <small>📍 ${dist(b.d||0)} da casa tua · 🚶 ${walk} min a piedi</small></div>${b.cand?'<span class="bzc-badge">POSTO<br>LIBERO</span>':''}</div>
+   ${pub?'':`<div class="bzc-rate">${rvLine(key,5,4)}${rvBtn(key,b.name,5,4)}</div>`}
+   <div class="bzc-act"><a href="${nav}" target="_blank" rel="noopener"><span>🧭</span>Portami lì</a>${tel?`<a href="tel:${tel}"><span>📞</span>Chiama</a>`:''}${web?`<a href="${esc(web)}" target="_blank" rel="noopener"><span>🌐</span>Sito</a>`:''}</div>
+   ${pub?`<p class="bzc-note">${b.zfx||'Nel gioco i servizi vicini rinforzano la tua casa e il quartiere.'}</p>`:b.cand?`<div class="bzc-free"><b>📌 Può diventare il presidio sponsor della zona</b>
+     <ul><li>⭐ Bollino giallo col nome, visibile a tutto il quartiere</li><li>🎟️ Offerta con codice personale da mostrare in cassa</li><li>📩 Richieste di preventivo da chi abita qui</li><li>🛡️ Nel gioco: presidio che dà +5% barricata ai vicini</li></ul>
+     <button class="btn wide" data-claim>Diventa sponsor</button></div>`:`<button class="bzc-own" data-claim>È la tua attività? Mettiti in evidenza →</button>`}
+   <div data-admin></div></div>`;}
+bizSheet=function(b,z){openSheet(b.cand?'📌 Posto sponsor libero':'🛍️ Attività della zona',bzCard(b,false),card=>{
+  const c=card.querySelector('[data-claim]');if(c)c.onclick=()=>{closeSheet();S.motivo=b.cand?'sponsor':'negozio';S.motivoBiz=b.name;go('contatti');};
+  zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+b.name+'” dalla mappa per tutti?'))zHide(b.name,b.ll);};}});});};
+lmPoi=function(name,cat,d,ll,pub){const ic={Farmacia:'💊',Ospedale:'🏥',Clinica:'🏥','Forze dell’ordine':'🚓','Vigili del fuoco':'🚒',Municipio:'🏛️',Fontanella:'💧'}[cat]||'📍';
+  const fx={Farmacia:'Nel gioco: farmacia entro 800 m = resistenza casa +5%.',Ospedale:'Nel gioco: ospedale entro 1,5 km = resistenza casa +10%.',Clinica:'Nel gioco: presidio sanitario vicino = più resistenza.','Forze dell’ordine':'Nel gioco: forze dell’ordine entro 2 km = barricata +10%.','Vigili del fuoco':'Nel gioco: vigili del fuoco entro 3 km = barricata +5%.'}[cat];
+  const b={i:name,ic,name,cat,d,ll,zfx:fx};openSheet(pub?'🛡️ Servizio della zona':'🛍️ Attività della zona',bzCard(b,pub),card=>{
+    zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+name+'” dalla mappa per tutti?'))zHide(name,ll);};}});});};
+</script>
+<script>
+/* =========================================================
+   CASA VERA A FUMETTO: proporzioni, piani, tetto e vicini
+   presi dall'edificio vero (OpenStreetMap) + risposte
+   ========================================================= */
+const KIND_N={apt:'Condominio',schiera:'Villetta a schiera',bifamiliare:'Bifamiliare',villa:'Casa indipendente',casale:'Casale'};
+function hsShape(a){a=a||{};const R=S.zone&&S.zone.real&&S.zone.real.house;
+  const kt={villa:'villa',bifam:'bifamiliare',schiera:'schiera',apt_pt:'apt',apt_12:'apt',apt_3:'apt',cascina:'casale'}[a.tipo];
+  const kind=kt||(R&&R.kind)||'villa';
+  let fl=R&&R.levels?R.levels:kind==='apt'?(a.tipo==='apt_3'?5:4):({'1':1,'2':2,'3':3}[a.piani]||2);
+  if(!R&&a.piani&&kind!=='apt')fl={'1':1,'2':2,'3':3}[a.piani]||fl;fl=Math.max(1,Math.min(6,fl));
+  const w=Math.round(Math.max(180,Math.min(300,R&&R.len?140+R.len*3.2:{apt:260,casale:280,schiera:190,bifamiliare:200,villa:180}[kind])));
+  const roof=(R&&R.roof)||(kind==='apt'?'flat':'gabled');
+  const okC=c=>/^#[0-9a-f]{3,6}$/i.test(c)||/^[a-z]{3,15}$/i.test(c);
+  const wall=R&&R.col&&okC(R.col)?R.col:a.materiale==='legno'?'#8a5a34':a.materiale==='ca'||a.materiale==='prefab'?'#6f6a85':'#4b3f7a';
+  const brick=a.materiale==='mattoni'&&!(R&&R.col);
+  const rcol=R&&R.rcol&&okC(R.rcol)?R.rcol:'#d7263d';
+  return{kind,fl,w,roof:/flat/.test(roof)?'flat':/hip|pyramid/.test(roof)?'hipped':'gabled',wall,brick,rcol,R};}
+function hsParts(a,id,G){const H=hsShape(a);const cx=230,x0=cx-H.w/2,x1=cx+H.w/2,U=H.fl-1;
+  const rh=H.roof==='flat'?12:Math.min(72,H.w*.36);const fh=U?Math.min(68,(196-30-rh)/U):0;const yT=196-U*fh;const top=yT-rh;
+  const fill=H.brick?`url(#brick${id})`:H.wall;let b='';
+  /* vicini attaccati (schiera, bifamiliare) */
+  const nbw=(xa,xb)=>`<rect x="${xa}" y="${yT+10}" width="${xb-xa}" height="${G-yT-10}" fill="#3b2f6e"/><rect x="${xa}" y="${yT+10}" width="${xb-xa}" height="${G-yT-10}" fill="url(#ht${id})"/><path d="M${xa-4} ${yT+12} H${xb+4}" stroke-width="4"/><rect x="${(xa+xb)/2-10}" y="${yT+30}" width="20" height="20" fill="#1d1640"/>`;
+  if(H.kind==='schiera'||H.kind==='bifamiliare')b+=nbw(Math.max(0,x0-80),x0);if(H.kind==='schiera')b+=nbw(x1,Math.min(480,x1+80));
+  b+=`<rect x="${x0}" y="${yT}" width="${H.w}" height="${G-yT}" fill="${fill}"/><rect x="${x0}" y="${yT}" width="${H.w}" height="${G-yT}" fill="url(#ht${id})"/>`;
+  for(let i=0;i<=U;i++)b+=`<path d="M${x0} ${196-i*fh} H${x1}" stroke-width="2"/>`;
+  if(H.roof==='flat')b+=`<rect x="${x0-6}" y="${yT-12}" width="${H.w+12}" height="14" fill="#2b2240"/>`+(H.kind==='apt'?`<rect x="${x1-50}" y="${yT-30}" width="26" height="18" fill="#9aa4b0"/><path d="M${x1-37} ${yT-30} V${yT-40}" stroke-width="2"/>`:'');
+  else{const ch=`<rect x="${cx+H.w*.2}" y="${top+rh*.25}" width="20" height="${rh*.6}" fill="${H.wall}"/><rect x="${cx+H.w*.2-4}" y="${top+rh*.25-6}" width="28" height="8" fill="#2b2240"/>`;
+    b+=ch+(H.roof==='hipped'?`<path d="M${x0-16} ${yT+6} L${x0+H.w*.22} ${top} L${x1-H.w*.22} ${top} L${x1+16} ${yT+6}Z" fill="${H.rcol}"/>`:`<path d="M${x0-16} ${yT+6} L${cx} ${top} L${x1+16} ${yT+6}Z" fill="${H.rcol}"/><path d="M${x0+8} ${yT-8} L${cx} ${top+8} L${x1-8} ${yT-8}" fill="none" stroke-width="1.5" opacity=".6"/>`)+`<path d="M${x0-20} ${yT+8} H${x1+20}" stroke-width="4"/>`;}
+  const n=Math.max(2,Math.round(H.w/90));const xs=Array.from({length:n},(_,i)=>x0+(H.w/n)*(i+.5)-19);
+  const upper=win=>{let o='';const sc=Math.min(1,(fh-12)/40);for(let f=1;f<=U;f++){const y=196-f*fh+(fh-34*sc)/2;
+      xs.forEach(x=>{o+=sc>=.98?win(x,y,false):`<g transform="translate(${x+19*(1-sc)} ${y}) scale(${sc})">${win(0,0,false)}</g>`;if(H.kind==='apt')o+=`<path d="M${x-6} ${y+34*sc+4} H${x+44}" stroke-width="3"/>${[0,1,2,3,4].map(k=>`<path d="M${x-4+k*11} ${y+34*sc+4} v-9" stroke-width="1.5"/>`).join('')}`;});}return o;};
+  const ground=win=>{let o='';if(x0+56<156)o+=win(x0+14,212,true);if(x1-52>304)o+=win(x1-52,212,true);return o;};
+  return{body:b,upper,ground,dy:top-62,H};}
+</script>
+<script>
+/* la casa vera vista dall'alto, nel riquadro Territorio vero */
+function trHouseCard(H){if(!H||!H.poly||H.poly.length<3)return'';const xs=H.poly.map(p=>p[0]),ys=H.poly.map(p=>p[1]);const mx=Math.min(...xs),Mx=Math.max(...xs),my=Math.min(...ys),My=Math.max(...ys);
+  const sc=Math.min(118/Math.max(1,Mx-mx),78/Math.max(1,My-my));const pts=H.poly.map(([x,y])=>`${(10+(x-mx)*sc).toFixed(1)},${(10+(My-y)*sc).toFixed(1)}`).join(' ');
+  const roofN={flat:'piano',gabled:'a due falde',hipped:'a padiglione'}[H.roof]||H.roof;
+  return`<div class="thouse"><svg viewBox="0 0 140 100" width="140" height="100"><rect width="140" height="100" fill="#efe4c8"/><polygon points="${pts}" fill="#140f1f" transform="translate(4 4)"/><polygon points="${pts}" fill="#d7263d" stroke="#140f1f" stroke-width="3" stroke-linejoin="round"/></svg>
+   <div><b class="disp">🏠 La tua casa vera</b><span>${KIND_N[H.kind]||'Edificio'}${H.att?` · attaccata a ${H.att} ${H.att===1?'casa':'case'}`:''}</span><span>≈ ${H.len} × ${H.wid} m · ${H.area} m² a terra</span><span>${H.levels} ${H.levels===1?'piano':'piani'} · tetto ${roofN}</span><small class="muted">La simulazione e il gioco la disegnano così.</small></div></div>`;}
+const _terrSummaryH=terrSummary;terrSummary=function(R){const h=_terrSummaryH(R);if(!R||!R.house)return h;return h.replace('<div class="terrchips">',trHouseCard(R.house)+'<div class="terrchips">');};
+/* valutazione: tipo di casa e piani compilati dalla mappa */
+const _azHouse=analyzeZone;
+analyzeZone=async function(address){const z=await _azHouse(address);try{const H=z&&z.real&&z.real.house;if(H&&S.answers){S.aiFilled=S.aiFilled||{};
+    const t={villa:'villa',bifamiliare:'bifam',schiera:'schiera',casale:'cascina'}[H.kind];if(t&&!S.answers.tipo){S.answers.tipo=t;S.aiFilled.tipo=true;}
+    if(H.kind!=='apt'&&!S.answers.piani){S.answers.piani=H.levels>=3?'3':String(H.levels);S.aiFilled.piani=true;}}}catch(e){}return z;};
+/* gioco: "La tua casa vera" come casa da difendere */
+function trSetupVera(){try{const R=S.zone&&S.zone.real,H=R&&R.house;if(!H)return;const base={apt:'apt',schiera:'schiera',bifamiliare:'bifamiliare',casale:'casale',villa:'villa'}[H.kind]||'villa';
+  const B=HTYPES[base]||HTYPES.villa;const zone={centro:'centro',periferia:'periferia',campagna:'campagna',lago:'fiume',montagna:'montagna'}[R.type||S.zone.type]||B.zone;
+  const v={...B,base,name:'La tua casa vera',zone,zl:(KIND_N[H.kind]||'Casa')+' · dalla mappa',hp:Math.round(B.hp+Math.min(4,H.levels-1)*6),
+    pitch:`${KIND_N[H.kind]||'Casa'}, ${H.levels} ${H.levels===1?'piano':'piani'}, ${H.len}×${H.wid} m${H.att?', attaccata ai vicini':''}: è casa tua, nel tuo quartiere vero.`};
+  if(!HTYPES.vera){const rest={...HTYPES};Object.keys(HTYPES).forEach(k=>delete HTYPES[k]);HTYPES.vera=v;Object.assign(HTYPES,rest);if(!NEWTYPES.includes('vera'))NEWTYPES.push('vera');}else Object.assign(HTYPES.vera,v);}catch(e){console.warn('casa vera',e);}}
+const _custHouseV=custHouseSVG;custHouseSVG=function(kind,c,w,h){if(kind==='vera')kind=(HTYPES.vera&&HTYPES.vera.base)||'villa';return _custHouseV(kind,c,w,h);};
+const _renderPickV=renderPick;renderPick=function(){trSetupVera();return _renderPickV.apply(this,arguments);};
+const _renderHubV=renderHub;renderHub=function(){trSetupVera();if(G.type==='vera'&&!HTYPES.vera)G.type='villa';return _renderHubV.apply(this,arguments);};
+setTimeout(trSetupVera,0);
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
