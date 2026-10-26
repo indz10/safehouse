@@ -3206,10 +3206,10 @@ async function renderBattle(){
         if(G.friends.length&&Math.random()<.5){const f=G.friends[Math.floor(Math.random()*G.friends.length)];if(!(G.help||[]).some(h=>h.fid===f.id)&&G.famOut!==f.id)(G.help=G.help||[]).push({fid:f.id,lvl:Math.max(3,Math.round(f.lv*.8))});}
         const saved=sites.filter(s=>!s.main&&!s.lost).length;
         if(win){missionAdd('w',1);G.wins=(G.wins||0)+1;if(G.wins%3===0)G.spins=(G.spins||0)+1;G.stars=G.stars||{};const oldS=G.stars[L]||0;if(stars>oldS){G.stars[L]=stars;if(G.replay){G.gems+=(stars-oldS)*2;}}const bonus=20+L*5+saved*10;G.coins+=bonus+rentNow+fb;st.earned+=bonus;if(!G.replay)G.level++;G.best=Math.max(G.best,G.level-1);if(L%3===0)G.gems+=5;}
-        lostSites.forEach(s=>{delete G.lots[s.id];});const drop=lostSites.length;if(drop&&!G.replay)G.level=Math.max(1,G.level-drop);G.replay=null;
+        const drop=lostSites.length;let fix=0;lostSites.forEach(s=>{const l=LOTS.find(x=>x.id===s.id);fix+=Math.round(((l&&l.cost)||300)*.2);});fix=Math.min(fix,G.coins);G.coins-=fix;G.replay=null;
         html=`<div class="sfx" style="font-size:36px;${win?'':'color:#d7263d'}">${win?'QUARTIERE DIFESO!':'CASA INVASA!'}</div>${win?`<div class="endstars">${[1,2,3].map(i=>`<span class="${i<=stars?'on':''}" style="animation-delay:${i*.18}s">★</span>`).join('')}</div>`:''}
           <p style="margin:6px 0 4px">${win?`Monete: <b>${st.earned}</b>${saved?` (bonus ${saved} edifici difesi)`:''}${rentNow?` · affitti e negozi: <b>${rentNow}</b>`:''}${fb?` · bonus amici: <b>${fb}</b>`:''}.`:`Monete guadagnate: <b>${st.earned}</b>, restano tue.`}</p>
-          ${drop?`<p class="lostline">💀 Edifici persi: ${lostSites.map(s=>esc(s.name)).join(', ')}. <b>Torni indietro di ${drop} ${drop===1?'livello':'livelli'}</b> (ora ondata ${G.level}). Fortificali e addestra chi ci vive.</p>`:''}`;}
+          ${drop?`<p class="lostline">🔧 Edifici danneggiati: ${lostSites.map(s=>esc(s.name)).join(', ')}. Riparazioni: <b>−${fix} monete</b>. Restano tuoi: fortificali per la prossima notte.</p>`:''}`;}
       const box=$('#endbox');if(!box)return;document.body.classList.add('bended');if(win&&!coop&&!G.replay)setTimeout(()=>showChest(L),700);const bo=$('#boon');if(bo)bo.remove();const co=document.getElementById('coach');if(co)co.remove();
       box.innerHTML=`<div class="panel ${win?'moon':'night'}" style="margin-top:14px">${html}<div class="row"><button class="btn small" id="toHub">${coop?'Torna al tuo quartiere':'Fortifica il quartiere'}</button>${coop?'':`<button class="btn small alt" id="again">${win?'Ondata '+G.level:'Riprova'}</button>`}</div></div>`;
       box.scrollIntoView({behavior:'smooth',block:'center'});
@@ -5611,7 +5611,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610252222';
+const ZSH_BUILD='202610260902';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -6050,7 +6050,7 @@ function tmEvent(k,id,ok){const T=G&&G.tm;if(!T||T.day!==tmDay())return;let hit=
   T.list.forEach(m=>{if(m.done)return;let p=false;
     if(m.k===k&&(m.id===id||k==='win'))p=true;if(k==='win'&&m.k==='def'&&G.q&&G.q[m.id]>=1)p=true;if(k==='evwin'&&m.k==='ev'&&m.id===id)p=true;if(k==='win'&&m.k==='win')p=true;
     if(m.k==='exp'&&k==='exp'&&m.id===id&&!ok)p=false;
-    if(p){m.prog=Math.min(m.goal,m.prog+1);if(m.prog>=m.goal){m.done=true;hit=true;toast(`🎯 Missione completata: riscatta il premio!`);sfx&&sfx('coin');}}});
+    if(p){m.prog=Math.min(m.goal,m.prog+1);if(m.prog>=m.goal){m.done=true;m.cl=true;hit=true;G.coins+=m.rw.c;G.gems+=m.rw.g||0;setTimeout(()=>toast(`🎯 Missione completata: +🪙 ${m.rw.c}${m.rw.g?' +💎 '+m.rw.g:''}`),1600);try{sfx('coin');}catch(e){}}}});
   if(hit)try{saveLocal();}catch(e){}}
 window.onExpDone=(id,ok)=>tmEvent('exp',id,ok);
 window.onWaveEnd=(win,L,ev,coop)=>{if(!win||coop)return;tmEvent('win','x');if(ev)tmEvent('evwin',ev);};
@@ -6522,6 +6522,13 @@ document.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest
 const _renderMenuA=renderMenu;renderMenu=function(){_renderMenuA();try{if(!S.user||document.querySelector('[data-admlink]'))return;const ref=document.querySelector('.dr-user');if(!ref)return;
   zIsAdmin().then(ok=>{if(!ok||document.querySelector('[data-admlink]'))return;ref.insertAdjacentHTML('afterend','<a class="mi" data-admlink="1" href="admin.html" target="_blank"><span>🛠️</span>Pannello admin INDZ</a>');});
   (async()=>{try{const{data}=await SB.from('sponsor_users').select('sponsor_id').eq('user_id',S.user.id).limit(1);if(data&&data.length&&!document.querySelector('[data-neglink]'))ref.insertAdjacentHTML('afterend','<a class="mi" data-neglink="1" href="negozio.html" target="_blank"><span>🏪</span>Pannello del mio negozio</a>');}catch(e){}})();}catch(e){}};
+</script>
+<script>
+/* 3) su iPhone il tocco sui pulsanti dei premi arriva sempre (anche quando il "click" si perde) */
+(function(){const SEL='[data-ch],[data-chok],[data-tmc],[data-tmx],#dClaim,[data-expok],[data-invcl],#toHub,#again,[data-pgo],[data-pauto]';let sx=0,sy=0,st=0;
+  document.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();},{passive:true,capture:true});
+  document.addEventListener('touchend',e=>{const el=e.target.closest&&e.target.closest(SEL);if(!el||el.disabled||el.hidden)return;const t=e.changedTouches[0];
+    if(Math.hypot(t.clientX-sx,t.clientY-sy)>12||Date.now()-st>800)return;e.preventDefault();el.click();},{passive:false,capture:true});})();
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
