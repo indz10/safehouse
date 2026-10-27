@@ -846,6 +846,91 @@ a.onl{font-weight:700;color:#1f3f80}
 .lm-w b{display:grid;place-items:center;width:24px;height:24px;border-radius:6px;border:2.5px solid var(--ink);box-shadow:2px 2px 0 var(--ink);font-size:12px;font-weight:400;background:#fff0a0}
 .lm-w.mine b{background:#ffe680}.lm-w.home b{background:#e2d6f5}.lm-w.myhome b{background:#f6b8bf}
 .lm-w em{position:absolute;left:50%;top:100%;transform:translate(-50%,2px);white-space:nowrap;font-style:normal;font-size:10px;font-weight:700;background:#fff0a0;border:1.5px solid var(--ink);padding:0 4px;border-radius:3px}
+
+.rpan{background:linear-gradient(180deg,#2b2240,#3b2f6e);color:#f3e9d2;border-color:var(--ink)}
+.rpan.live{animation:rPulse 1.6s infinite}@keyframes rPulse{50%{box-shadow:0 0 0 4px #d7263d,6px 6px 0 var(--ink)}}
+.rhead{display:flex;justify-content:space-between;align-items:center;gap:8px}.rhead .disp{font-size:24px;color:var(--moon)}
+.rtime{font-family:var(--display);font-size:20px;background:var(--moon);color:var(--ink);padding:2px 8px;border:2px solid var(--ink)}
+.rlive{font-weight:800;color:#fff;background:#d7263d;padding:2px 8px;border:2px solid var(--ink)}
+.rtxt{font-size:14px;font-weight:400;margin:6px 0 10px;color:#f3e9d2}.rpan .muted{color:#c9b8ff}
+.rrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rok{font-weight:700;color:#bfe8c9}
+.rlast{margin-top:10px;padding:8px 10px;background:rgba(255,255,255,.08);border:2px dashed #c9b8ff}
+.rres{display:flex;gap:8px;margin:6px 0}.rres span{font-weight:700;padding:2px 8px;border:2px solid var(--ink);color:var(--ink)}.rres .ok{background:#bfe8c9}.rres .ko{background:#f6b8bf}
+.rpan .btn.ghost{background:#fff;color:var(--ink)}
+.rbar{position:absolute;left:8px;bottom:8px;z-index:5;display:flex;gap:6px;align-items:center;background:#2b2240;color:#f3e9d2;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:5px 8px;font-size:12.5px;font-weight:700}
+.rbar button{background:var(--moon);border:2px solid var(--ink);font-weight:700;font-size:12px;padding:3px 6px;cursor:pointer}
+.rcap{position:absolute;left:8px;right:8px;top:8px;z-index:6;background:#d7263d;color:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:6px 10px;font-weight:800;font-size:13.5px;display:flex;justify-content:space-between;align-items:center}
+.rcap button{background:#fff;border:2px solid var(--ink);font-weight:800;cursor:pointer}
+.rz{font-size:22px;filter:drop-shadow(1px 2px 0 #140f1f);pointer-events:none}
+.rres-m{font-size:24px;width:36px;height:36px;display:grid;place-items:center;border-radius:50%;border:3px solid var(--ink);animation:slam .35s both;pointer-events:none}
+.rres-m.ok{background:#bfe8c9}.rres-m.ko{background:#f6b8bf}.rres-m.mine{box-shadow:0 0 0 4px var(--moon)}
+#tourHL{position:fixed;z-index:180;border:4px solid var(--moon);box-shadow:0 0 0 9999px rgba(20,15,31,.55);pointer-events:none;border-radius:6px}
+#tourBox{position:fixed;left:12px;right:12px;bottom:calc(var(--nav-h,64px) + 14px + env(safe-area-inset-bottom));z-index:190;max-width:520px;margin:0 auto;background:#fff;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:12px}
+#tourBox p{font-size:15px;font-weight:400;margin:6px 0 10px}
+.tdots{display:flex;gap:5px}.tdots i{width:9px;height:9px;border-radius:50%;border:2px solid var(--ink)}.tdots i.on{background:var(--moon)}.tdots i.done{background:#c9b8ff}
+
+/* orda del mondo */
+.opan{background:linear-gradient(180deg,#241a4a,#3b2f6e);color:#f3e9d2;border-color:var(--ink)}
+.opan.live{animation:olive 1.2s ease-in-out infinite alternate}@keyframes olive{to{box-shadow:6px 6px 0 #d7263d}}
+.opt{font-size:24px;color:var(--moon)}.osub{font-weight:400;font-size:14px;margin:6px 0 10px;color:#f3e9d2}
+.olive{background:#d7263d;color:#fff;font-weight:700;font-size:12px;padding:2px 8px;border:2px solid var(--ink)}
+.onext{display:flex;align-items:baseline;gap:10px;margin:8px 0 10px}.onext span{font-size:13px;opacity:.85}.onext b{font-family:var(--display);font-weight:400;font-size:40px;color:var(--moon);line-height:1}.onext small{font-size:13px;font-weight:700}
+.ostep{display:grid;gap:6px}
+.ostep>div{display:grid;grid-template-columns:28px 1fr auto;grid-template-rows:auto auto;column-gap:8px;align-items:center;background:#fff;color:var(--ink);border:2px solid var(--ink);padding:7px 8px}
+.ostep i{grid-row:1/3;font-style:normal;font-family:var(--display);font-size:20px;background:var(--moon);border:2px solid var(--ink);border-radius:50%;width:28px;height:28px;display:grid;place-items:center}
+.ostep b{font-size:14px}.ostep small{font-size:12px;font-weight:400;grid-column:2}.ostep .btn{grid-row:1/3;grid-column:3}
+.ostep .done{background:#e3f5e8}
+.olast{margin-top:10px;background:#fff3b0;color:var(--ink);border:3px solid var(--ink);padding:8px 10px;display:flex;flex-direction:column;gap:4px}
+.olast.ok{background:#e3f5e8}.olast b{font-size:13px}.olast span{font-size:15px;font-weight:700}.olast .btn{align-self:flex-start;margin-top:4px}
+.opan .bzc-rep{color:#c9b8ff}
+.odyou{display:flex;flex-direction:column;gap:2px;margin:6px 0 4px;padding:6px 2px}.odyou b{font-size:22px}.odyou span{font-size:13px;font-weight:400;color:#5a5470}
+.obanner{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 10px 0;padding:7px 10px;background:#241a4a;color:#f3e9d2;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-size:13.5px}
+.obanner b{color:var(--moon)}.obanner.live{background:#7a1020}.obanner .ok{font-weight:700;color:#bfe8c9}
+.lmap .lm-orda{position:absolute;right:10px;top:136px;z-index:4;border:3px solid var(--ink);background:#d7263d;color:#fff;font-weight:700;font-size:13px;padding:6px 10px;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.lm-ob{font-size:15px;filter:drop-shadow(1px 1px 0 #140f1f)}.lm-ob.mine{font-size:20px}
+.lm-z{font-size:18px;pointer-events:none;filter:drop-shadow(1px 1px 0 #140f1f)}.lm-z.hit{font-size:24px;animation:zhit .5s ease-out}
+@keyframes zhit{from{transform:scale(2)}to{transform:scale(1)}}
+.oplay{position:absolute;left:10px;right:10px;bottom:34px;z-index:5;background:rgba(36,26,74,.94);color:#f3e9d2;border:3px solid var(--ink);padding:8px 10px;display:flex;flex-direction:column;font-size:13px}
+.oplay b{font-family:var(--display);font-weight:400;font-size:20px;color:var(--moon)}
+.otour{position:fixed;inset:0;z-index:140}
+.ot-hole{position:fixed;border:3px solid var(--moon);border-radius:8px;box-shadow:0 0 0 9999px rgba(20,15,31,.66);pointer-events:none}
+.ot-box{position:fixed;left:14px;right:14px;max-width:460px;margin:0 auto;background:#fff;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:12px}
+.ot-box small{font-weight:700;color:#7c7a8a}.ot-box p{margin:4px 0 10px;font-size:15px;font-weight:400}
+
+@keyframes rPulse{50%{box-shadow:0 0 0 4px #d7263d,6px 6px 0 var(--ink)}}
+.hero2{position:relative;height:min(52svh,430px);min-height:330px;overflow:hidden;border-bottom:4px solid var(--ink)}
+.hero2 svg.scene{position:absolute;inset:0;width:100%;height:100%}
+.hero2 .h2t{position:absolute;left:16px;right:16px;top:calc(14px + env(safe-area-inset-top))}
+.hero2 h1{font-size:clamp(46px,14vw,80px);color:#fff;-webkit-text-stroke:3px var(--ink);text-shadow:5px 5px 0 var(--blood);transform:rotate(-3deg);transform-origin:left;line-height:.95;animation:slam .55s cubic-bezier(.2,1.6,.4,1) both}
+.hero2 h1 span{display:block;color:var(--moon)}
+.hero2 .boom{position:absolute;right:10px;bottom:14px;font-size:30px;transform:rotate(9deg)}
+.cta2{display:grid;gap:10px;padding:14px 16px 16px;background:var(--night,#241a4a)}
+.cta2 .caption{font-size:15px}
+.steps3{display:grid;gap:8px;margin:6px 0 14px}.steps3>div{position:relative;background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:10px 12px 10px 46px;display:flex;flex-direction:column}
+.steps3 .n{position:absolute;left:10px;top:10px;width:26px;height:26px;border-radius:50%;background:var(--moon);border:2px solid var(--ink);display:grid;place-items:center;font-weight:800}
+.steps3 b{font-size:15px}.steps3 small{font-size:12.5px;font-weight:400}
+.hcard .hidx{font-family:var(--display);font-size:54px;color:#fff;line-height:1}
+.hgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}.hgrid>div{background:rgba(255,255,255,.1);border:2px solid #c9b8ff;padding:6px;text-align:center;color:#fff;display:flex;flex-direction:column}.hgrid b{font-size:16px}.hgrid small{font-size:11px;color:#c9b8ff}
+.rmini{background:linear-gradient(180deg,#2b2240,#3b2f6e);color:#f3e9d2}.rmini .disp{color:var(--moon)}.rmini.live{animation:rPulse 1.6s infinite}.rmini .btn.ghost{background:#fff;color:var(--ink)}
+.rmini .rtime{font-family:var(--display);font-size:20px;background:var(--moon);color:var(--ink);padding:2px 8px;border:2px solid var(--ink)}
+.rrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.qact{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px}.qact button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 6px;background:#f1ebf9;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-weight:700;font-size:13.5px;cursor:pointer;color:var(--ink)}.qact span{font-size:26px}
+.splogo{display:grid;place-items:center;min-width:40px;height:40px;background:var(--moon);border:2px solid var(--ink);font-family:var(--display);font-size:16px}
+.apan{background:linear-gradient(180deg,#e3f5e8,#fff)}.spanx{background:linear-gradient(180deg,#fff3c4,#fff)}
+.rtxt2{font-size:13.5px;font-weight:400;margin:4px 0 10px}.rok2{font-weight:700;color:#2e7d4a;font-size:13px}.rko2{font-weight:700;color:#d7263d;font-size:12.5px}
+.ah{margin:12px 0 4px;font-size:15px}.arow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-top:1px dashed rgba(20,15,31,.2)}.arow>div{display:flex;flex-direction:column}.arow small{font-size:11.5px;font-weight:400;color:#5a5470}
+.rbon{display:inline-block;background:#bfe8c9;color:var(--ink);font-weight:700;padding:0 6px;border:2px solid var(--ink);margin-right:6px}
+.shopg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.shopg>div,.shopu>div{background:#fff;border:2px solid var(--ink);padding:8px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}.shopg b{font-size:16px}.shopg small,.shopu small{font-size:11.5px;font-weight:400}
+.passx{margin-top:8px;background:#241a4a;color:#f3e9d2;border:3px solid var(--ink);padding:8px 10px;display:flex;flex-direction:column;gap:4px}.passx b{color:var(--moon)}.passx small{font-size:12px}.passx .btn{align-self:flex-start;background:#fff}
+.shopu{display:grid;gap:6px}.shopu>div{align-items:flex-start;text-align:left}
+.lm-w.npc b{background:#d9dde3}
+
+.lpan{background:linear-gradient(180deg,#fff0f6,#fff)}
+.lgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.lgrid button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);cursor:pointer;color:var(--ink)}
+.lgrid button span{font-size:28px}.lgrid button b{font-size:14px}.lgrid button small{font-size:11.5px;font-weight:400}
+.lgrid button.hot{background:#fff3b0;animation:lHot 1.8s infinite}@keyframes lHot{50%{transform:translateY(-2px)}}
+.ayb{margin-top:6px}.ayk.chips{display:flex;flex-wrap:wrap;gap:6px}.ayk .chip small{font-weight:400}
 </style>
 </head>
 <body>
@@ -5627,7 +5712,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610261519';
+const ZSH_BUILD='202610270027';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -6562,7 +6647,7 @@ window.HQW={blocked:new Set(),st:new Map(),t:0,key:''};
 const wNum=n=>Number(n||0).toLocaleString('it-IT');
 async function wRpc(fn,args){if(typeof SB==='undefined'||!SB||!S.user)throw new Error('Accedi per entrare nel mondo unico');const{data,error}=await SB.rpc(fn,args||{});if(error)throw error;return data;}
 async function wMine(silent){if(typeof SB==='undefined'||!SB||!S.user||W.busy)return;W.busy=true;
-  try{const d=await wRpc('world_mine');if(!d)return;W.on=true;W.m=d;
+  try{let d;try{d=await wRpc('world_mine2');}catch(x){d=await wRpc('world_mine');}if(!d)return;W.on=true;W.m=d;
     const news=(d.news||[]).filter(n=>n.delta>0);if(news.length&&!silent){const tot=news.reduce((a,n)=>a+n.delta,0);const big=news.find(n=>/abitante|esclus|inattiv|Bonus/.test(n.reason));
       setTimeout(()=>toast(big?`🏠 ${big.reason}: +🧱 ${wNum(big.delta)}`:`🧱 +${wNum(tot)} Mattoni`),1200);}
     if((d.news||[]).length)wRpc('world_seen').catch(()=>{});
@@ -6625,7 +6710,7 @@ function wAfterChange(){try{if(S.tab==='orda'&&G.view==='hub')renderHub();}catch
 async function wDrawMap(lm,force){if(!lm||!lm.map||!W.on)return;const map=lm.map;if(map.getZoom()<14){(lm._w||[]).forEach(x=>x.remove());lm._w=[];return;}
   const b=map.getBounds();const key=[b.getSouth(),b.getWest(),b.getNorth(),b.getEast()].map(v=>v.toFixed(3)).join(',');if(!force&&lm._wk===key)return;lm._wk=key;
   let rows=[];try{rows=await wRpc('world_view',{p_minlat:b.getSouth(),p_minlon:b.getWest(),p_maxlat:b.getNorth(),p_maxlon:b.getEast()})||[];}catch(e){return;}
-  (lm._w||[]).forEach(x=>x.remove());lm._w=[];
+  (lm._w||[]).forEach(x=>x.remove());lm._w=[];lm._wrows=rows;
   rows.forEach(r=>{const st=W_ST[r.status]||W_ST.owned;const el=elDiv('lm-w '+r.status,`<b>${st[0]}</b>${r.status==='owned'&&r.nick?`<em>@${esc(r.nick)}</em>`:r.status==='mine'?'<em>tua</em>':''}`);
     el.addEventListener('click',e=>{e.stopPropagation();wSheet(r.building_id,r.lat,r.lon);});lm._w.push(new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([r.lon,r.lat]).addTo(map));});}
 /* codice dell'edificio dal disegno della mappa: stesso per tutti (stesse mappe), istantaneo, senza server */
@@ -6689,6 +6774,308 @@ const _vZonaWorld=vZona;vZona=function(){_vZonaWorld();try{const t=document.quer
 /* manuale: capitolo del mondo unico */
 const _manualW=manualHTML;manualHTML=function(){return _manualW().replace('<details class="man"',`<details class="man"><summary>🌍 Il mondo unico</summary><div class="man-b"><p>Tutti gli utenti registrati giocano nello <b>stesso mondo vero</b>. La tua casa è tua (si conferma in due giorni). Con i <b>🧱 Mattoni</b> compri le case libere vere: prima vicino a casa, poi, salendo di livello, sempre più lontano, fino al mondo intero.</p><p>Ogni casa rende <b>affitti</b> ogni giorno e si può potenziare fino al livello 5. Se l’abitante vero si iscrive, la casa passa a lui e tu ricevi indietro tutto il valore più un bonus (25%, 75% se l’avevi invitato tu).</p><p><b>Mattoni</b>: notti vinte, missioni, accesso del giorno, casa valutata, codici usati in negozio, amici invitati, affitti. Ogni giorno c’è un tetto. Le case di chi non gioca da 30 giorni tornano libere (rimborso 50%).</p><p>Nel quartiere del gioco gli edifici veri comprati nel mondo sono tuoi edifici da difendere; quelli di altri giocatori o abitati sono segnati e non si comprano.</p></div></details><details class="man"`);};
 setTimeout(()=>{if(S.user&&!W.m)wMine(true);},4000);
+</script>
+<script>
+/* =========================================================
+   L'ORDA DEL MONDO (semplice da usare, stesso concetto)
+   - ogni giorno alle 9:00 e alle 21:00 un'orda attacca tutte le
+     case del mondo unico, in automatico (esito dal server)
+   - prima: "Prepara le case" (+15 difesa) e potenziale
+   - dopo: guardi l'assalto sulla mappa vera e riscatti i premi
+   - le notti giocate a mano restano: "Difendi tu"
+   - giro guidato facoltativo
+   ========================================================= */
+window.OR={s:null,t:0,busy:false};
+const orTime=t=>new Date(t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+function orLeft(t){const ms=new Date(t)-Date.now();if(ms<=0)return'adesso';const h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4);return h?`${h} h ${m} min`:`${m} min`;}
+function orLive(){return OR.s&&Date.now()-new Date(OR.s.prev_at)<20*60*1000;}
+async function orLoad(force){if(OR.busy||(!force&&Date.now()-OR.t<45000))return OR.s;if(typeof SB==='undefined'||!SB)return null;OR.busy=true;
+  try{const{data,error}=await SB.rpc('world_raid_status');if(!error&&data){OR.s=data;OR.t=Date.now();orRefresh();}}catch(e){}finally{OR.busy=false;}return OR.s;}
+function orChance(){const m=W.m;if(!m)return null;const prep=OR.s&&OR.s.prepared;const L=[];if(m.home)L.push({lv:1,home:true});(m.houses||[]).forEach(h=>L.push({lv:h.level,home:false}));if(!L.length)return null;
+  const p=L.map(x=>{const pw=45+12*x.lv+(prep?15:0)+(x.home?5:0);return Math.max(0,Math.min(1,(pw-40+1)/60));});return Math.round(p.reduce((a,b)=>a+b,0)/p.length*100);}
+/* ---- pannello: la cosa principale del gioco ---- */
+function orPanelHTML(){const s=OR.s;
+  if(!S.user)return`<div class="panel opan"><b class="disp opt">🧟 L’orda del mondo</b><p class="osub">Ogni giorno alle 9 e alle 21 un’orda attacca tutte le case del mondo vero. Accedi per difendere la tua.</p><button class="btn" onclick="loginSheet()">Accedi</button></div>`;
+  if(!s||!s.next_at)return`<div class="panel opan"><b class="disp opt">🧟 L’orda del mondo</b><p class="osub"><span class="spin"></span> Controllo quando arriva… (serve il blocco SQL “orda del mondo” su Supabase)</p></div>`;
+  const live=orLive(),ch=orChance();const nH=s.total||0;
+  const last=nH?`<div class="olast ${s.held===s.total?'ok':''}"><b>Ultima orda · ore ${orTime(s.prev_at)}</b><span>${s.held===s.total?'🛡️ Tutte le tue case hanno tenuto!':`🛡️ ${s.held} tenute · 💥 ${s.total-s.held} sfondate`}</span>
+     ${s.claimed?'<small>✅ Premi riscattati</small>':`<button class="btn" data-ocl>🎁 Riscatta: 🧱 ${s.mattoni} + 🪙 ${30*s.held}${s.held===s.total?' + 💎 2':''}</button>`}</div>`:'';
+  return`<div class="panel opan ${live?'live':''}"><div class="row spread"><b class="disp opt">🧟 L’orda del mondo</b>${live?'<span class="olive">● IN CORSO</span>':''}</div>
+   <div class="onext"><span>Prossima orda</span><b>${orTime(s.next_at)}</b><small>tra ${orLeft(s.next_at)}</small></div>
+   <div class="ostep"><div class="${s.prepared?'done':''}"><i>1</i><b>Prepara</b>${s.prepared?'<small>✅ Case pronte (+15 difesa)</small>':'<button class="btn small" data-oprep>🛡️ Prepara le case</button>'}</div>
+     <div><i>2</i><b>Fortifica</b><small>${ch!=null?`Probabilità di tenere: <b>${ch}%</b>`:'Valuta la casa per entrare'}</small><button class="btn small ghost" data-ofort>🔨 Fortifica</button></div>
+     <div><i>3</i><b>Dopo l’orda</b><small>Guarda l’assalto e riscatta</small><button class="btn small ghost" data-owatch>👀 Guarda l’assalto</button></div></div>
+   ${last}
+   <div class="row" style="gap:10px;flex-wrap:wrap;margin-top:8px"><button class="bzc-rep" data-ocal style="margin:0">📅 Ricordamelo ogni giorno</button><button class="bzc-rep" data-otour style="margin:0">🧭 Giro guidato</button></div></div>`;}
+function orBind(root){const p=(root||document).querySelector('.opan');if(!p)return;
+  const pr=p.querySelector('[data-oprep]');if(pr)pr.onclick=async()=>{pr.disabled=true;try{const{data}=await SB.rpc('world_prepare');toast(data&&data.ok?'🛡️ Case preparate: +15 difesa per la prossima orda':'Non riuscito');}catch(e){toast('Non riuscito');}orLoad(true);};
+  const cl=p.querySelector('[data-ocl]');if(cl)cl.onclick=async()=>{cl.disabled=true;try{const{data}=await SB.rpc('world_raid_claim');
+      if(data&&data.ok){if(typeof G!=='undefined'&&G.type){G.coins+=30*data.held;if(data.held===data.total)G.gems+=2;G.spins=(G.spins||0)+1;}try{saveLocal();sfx('coin');vibe();}catch(e){}toast(`🎁 +🧱 ${data.mattoni} · +🪙 ${30*data.held}${data.held===data.total?' · +💎 2':''} · +1 giro di ruota 🎡`);if(typeof wMine==='function')wMine(true);}
+      else toast(data&&data.msg||'Non riuscito');}catch(e){toast('Non riuscito');}orLoad(true);};
+  const f=p.querySelector('[data-ofort]');if(f)f.onclick=()=>orFortify();
+  const wa=p.querySelector('[data-owatch]');if(wa)wa.onclick=()=>orWatch();
+  const ca=p.querySelector('[data-ocal]');if(ca)ca.onclick=orCalendar;const to=p.querySelector('[data-otour]');if(to)to.onclick=()=>orTour(0);}
+function orRefresh(){document.querySelectorAll('.opan').forEach(p=>{const n=document.createElement('div');n.innerHTML=orPanelHTML();const np=n.firstElementChild;if(p.dataset.grp)np.dataset.grp=p.dataset.grp;const par=p.parentElement;p.replaceWith(np);orBind(par);});
+  const b=document.querySelector('.obanner');if(b){const n=document.createElement('div');n.innerHTML=orBannerHTML();b.replaceWith(n.firstElementChild);orBindBanner();}}
+function orFortify(){const m=W.m;if(!m){toast('Accedi e valuta la casa');return;}const L=[];if(m.home)L.push({bid:m.home.building_id,lat:m.home.lat,lon:m.home.lon,t:'❤️ Casa tua'});(m.houses||[]).forEach(h=>L.push({bid:h.building_id,lat:h.lat,lon:h.lon,t:`🔑 Casa ${h.building_id.slice(1,7)} · livello ${h.level}`}));
+  openSheet('🔨 Fortifica le tue case',`<p style="font-weight:400">Ogni livello dà <b>+12 difesa</b> contro l’orda (massimo 5). “Prepara” dà +15. Nel gioco, i potenziamenti della casa la rendono più forte nelle notti.</p>${L.map((x,i)=>`<button class="strow" data-of="${i}"><span>🏠</span><div><b>${x.t}</b><small>Tocca per potenziarla</small></div></button>`).join('')||'<p class="muted">Ancora nessuna casa nel mondo: valuta la tua.</p>'}
+   <button class="btn ghost small" data-ogame style="margin-top:10px">🏠 Potenziamenti della casa nel gioco</button>`,card=>{
+   card.querySelectorAll('[data-of]').forEach(b=>b.onclick=()=>{const x=L[+b.dataset.of];wSheet(x.bid,x.lat,x.lon);});
+   card.querySelector('[data-ogame]').onclick=()=>{closeSheet();G.sub='pot';go('orda');};});}
+/* promemoria nel calendario del telefono (8:45 e 20:45, ogni giorno) */
+function orCalendar(){const d=new Date();const pad=n=>String(n).padStart(2,'0');const day=`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+  const ev=(hm,lab,id)=>`BEGIN:VEVENT\r\nUID:zsh-orda-${id}@safehousezombie\r\nDTSTAMP:${day}T000000Z\r\nDTSTART;TZID=Europe/Rome:${day}T${hm}00\r\nDURATION:PT15M\r\nRRULE:FREQ=DAILY\r\nSUMMARY:🧟 Orda del mondo alle ${lab}\r\nDESCRIPTION:Prepara le case su ZombieSafeHouse\\, poi guarda l’assalto e riscatta i premi.\r\nURL:${location.origin}/\r\nBEGIN:VALARM\r\nTRIGGER:PT0M\r\nACTION:DISPLAY\r\nDESCRIPTION:Prepara le case: l’orda arriva tra 15 minuti\r\nEND:VALARM\r\nEND:VEVENT\r\n`;
+  const ics=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//INDZ//ZombieSafeHouse//IT\r\n${ev('0845','9:00','mattina')}${ev('2045','21:00','sera')}END:VCALENDAR\r\n`;
+  const a=document.createElement('a');a.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);a.download='orda-del-mondo.ics';document.body.appendChild(a);a.click();a.remove();
+  toast('📅 Apri il file e tocca “Aggiungi tutto”: ti avvisa alle 8:45 e alle 20:45');}
+/* ---- striscia in cima: sempre chiaro cosa fare ---- */
+function orBannerHTML(){const s=OR.s;if(!S.user||!s||!s.next_at)return'<div class="obanner" hidden></div>';
+  const todo=s.total&&!s.claimed?`<button class="btn small" data-bcl>🎁 Riscatta l’orda delle ${orTime(s.prev_at)}</button>`:!s.prepared?'<button class="btn small" data-bpr>🛡️ Prepara le case</button>':'<span class="ok">✅ Case pronte</span>';
+  return`<div class="obanner ${orLive()?'live':''}"><span>🧟 ${orLive()?'<b>Orda in corso!</b>':`Prossima orda alle <b>${orTime(s.next_at)}</b> · tra ${orLeft(s.next_at)}`}</span>${todo}</div>`;}
+function orBindBanner(){const b=document.querySelector('.obanner');if(!b)return;const c=b.querySelector('[data-bcl]');if(c)c.onclick=()=>{G.sub='q';go('orda');setTimeout(()=>{const x=document.querySelector('[data-ocl]');if(x)x.scrollIntoView({behavior:'smooth',block:'center'});},400);};
+  const p=b.querySelector('[data-bpr]');if(p)p.onclick=async()=>{p.disabled=true;try{await SB.rpc('world_prepare');toast('🛡️ Case preparate: +15 difesa');}catch(e){}orLoad(true);};}
+function orPutBanner(){try{if(!S.user||!OR.s||app.querySelector('.obanner')||!['mappa','valuta'].includes(S.tab)||(S.tab==='orda'&&G.view==='battle'))return;const h=document.createElement('div');h.innerHTML=orBannerHTML();app.insertBefore(h.firstElementChild,app.firstChild);orBindBanner();}catch(e){}}
+const _goOR=go;go=function(tab){_goOR(tab);orPutBanner();};
+/* ---- nel gioco: l'orda del mondo in cima, le notti a mano ("Difendi tu") sotto ---- */
+const _splitHubOR=splitHub;splitHub=function(){_splitHubOR();try{orPutBanner();if((G.sub||'q')!=='q'||app.querySelector('.opan'))return;const pg=app.querySelector('.page');if(!pg)return;
+  const first=[...pg.children].find(e=>!e.hidden&&e.dataset.grp==='q')||pg.firstElementChild;if(!first)return;
+  first.insertAdjacentHTML('beforebegin',orPanelHTML());const p=app.querySelector('.opan');p.dataset.grp='q';orBind(pg);
+  const f=app.querySelector('#fight');if(f&&!app.querySelector('.odyou')){const host=[...pg.children].find(e=>e===f||e.contains(f));if(host)host.insertAdjacentHTML('beforebegin','<div class="odyou" data-grp="q"><b class="disp">⚔️ Difendi tu</b><span>Vuoi giocare di più? Difendi la casa tu, con carte, bersaglio e abilità. Premi in più a ogni notte.</span></div>');}}catch(e){console.warn('orda',e);}};
+/* ---- l'assalto sulla mappa vera (visto da tutti) ---- */
+async function orView(lm){if(!lm||!lm.map||typeof SB==='undefined'||!SB)return[];const b=lm.map.getBounds();
+  try{const{data}=await SB.rpc('world_raid_view',{p_minlat:b.getSouth(),p_minlon:b.getWest(),p_maxlat:b.getNorth(),p_maxlon:b.getEast()});return data||[];}catch(e){return[];}}
+async function orBadges(lm){if(!lm||!lm.map||lm.map.getZoom()<13)return;const rows=await orView(lm);(lm._ob||[]).forEach(x=>x.remove());lm._ob=[];
+  rows.forEach(r=>{const el=elDiv('lm-ob '+(r.held?'held':'fell')+(r.mine?' mine':''),r.held?'🛡️':'💥');lm._ob.push(new maplibregl.Marker({element:el,anchor:'bottom',offset:[14,-14]}).setLngLat([r.lon,r.lat]).addTo(lm.map));});}
+async function orPlay(lm){if(!lm||!lm.map||lm._playing)return;lm._playing=true;const map=lm.map;const rows=(await orView(lm)).slice(0,30);const box=map.getContainer().closest('.lmap')||map.getContainer();
+  const ban=document.createElement('div');ban.className='oplay';ban.innerHTML=`<b>🧟 ORDA DELLE ${OR.s?orTime(OR.s.prev_at):''}</b><span>${rows.length?`${rows.filter(r=>r.held).length} case hanno tenuto · ${rows.filter(r=>!r.held).length} sfondate`:'Nessuna casa del mondo in questa zona: allarga la mappa'}</span>`;box.appendChild(ban);
+  (lm._ob||[]).forEach(x=>x.remove());lm._ob=[];const zs=[];const k=Math.cos((rows[0]?rows[0].lat:45)*Math.PI/180);
+  rows.forEach((r,i)=>{for(let j=0;j<4;j++){const a=Math.random()*Math.PI*2,d=220+Math.random()*180;const s=[r.lat+Math.sin(a)*d/110540,r.lon+Math.cos(a)*d/(111320*k)];
+    const el=elDiv('lm-z','🧟');const mk=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([s[1],s[0]]).addTo(map);zs.push({mk,s,r,t0:performance.now()+i*180+j*260,dur:5200+Math.random()*2200});}});
+  const end=()=>{zs.forEach(z=>z.mk.remove());setTimeout(()=>{ban.remove();lm._playing=false;},2500);orBadges(lm);};
+  const step=now=>{let alive=0;zs.forEach(z=>{const p=Math.max(0,Math.min(1,(now-z.t0)/z.dur));if(p<1)alive++;const lat=z.s[0]+(z.r.lat-z.s[0])*p,lon=z.s[1]+(z.r.lon-z.s[1])*p;z.mk.setLngLat([lon,lat]);
+      if(p>=1&&!z.hit){z.hit=1;z.mk.getElement().textContent=z.r.held?'🛡️':'💥';z.mk.getElement().classList.add('hit');}});if(alive)requestAnimationFrame(step);else end();};
+  if(rows.length)requestAnimationFrame(step);else end();}
+function orWatch(){S.zv='mondo';go('mappa');let n=0;const t=setInterval(()=>{const lm=(window.__zlms||[]).slice(-1)[0];n++;if(lm&&lm.map&&document.body.contains(lm.map.getContainer())){clearInterval(t);setTimeout(()=>orPlay(lm),900);}if(n>40)clearInterval(t);},300);}
+const _liveMapOR=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapOR(el,addr,o);try{const box=lm.map.getContainer().closest('.lmap');
+  if(box&&!box.querySelector('.lm-orda')){box.insertAdjacentHTML('beforeend','<button class="lm-orda" type="button">🧟 Orda</button>');box.querySelector('.lm-orda').onclick=e=>{e.stopPropagation();orPlay(lm);};}
+  lm.map.on('moveend',()=>{clearTimeout(lm._obt);lm._obt=setTimeout(()=>{if(!lm._playing)orBadges(lm);},500);});
+  setTimeout(()=>{if(orLive()&&!lm._autoplay){lm._autoplay=1;orPlay(lm);}else orBadges(lm);},1500);}catch(e){}return lm;};
+/* ---- giro guidato (facoltativo) ---- */
+const OT=[
+ {tab:()=>{S.zv='mondo';go('mappa');},sel:'.lmap',t:'Questa è la <b>mappa vera</b>. La casetta rossa <b>TU</b> è casa tua: nel mondo unico è tua e nessuno può comprarla.'},
+ {tab:null,sel:'.lmap',t:'Tocca una <b>casa qualsiasi</b>: se è libera la compri con i <b>🧱 Mattoni</b>. Se un giorno chi ci abita si iscrive, a te torna tutto, più un bonus.'},
+ {tab:null,sel:'.lm-orda',t:'Con <b>🧟 Orda</b> guardi l’ultimo assalto sulla mappa: 🛡️ case che hanno tenuto, 💥 case sfondate. Anche quelle degli altri.'},
+ {tab:()=>{G.sub='q';go('orda');},sel:'.opan',t:'Ogni giorno alle <b>9</b> e alle <b>21</b> arriva l’<b>orda del mondo</b>, da sola. Qui vedi quando.'},
+ {tab:null,sel:'.opan .ostep',t:'Prima: tocca <b>Prepara</b> (+15 difesa) e, se vuoi, <b>Fortifica</b>. Dopo: <b>guarda l’assalto</b> e <b>riscatta</b> i premi. Tutto qui.'},
+ {tab:null,sel:'.wpan',t:'Qui ci sono i tuoi <b>Mattoni</b>, le tue case e gli <b>affitti</b> da riscuotere ogni giorno.'},
+ {tab:null,sel:'.tmp',t:'Ogni giorno <b>3 missioni</b> sui posti veri della tua zona: premi in più.'},
+ {tab:null,sel:'.odyou',t:'E se vuoi giocare di più: <b>Difendi tu</b> la casa nelle notti, con carte e abilità. È facoltativo.'}];
+function orTour(i){try{G.tourDone=1;}catch(e){}if(i===0)closeSheet();const st=OT[i];document.querySelectorAll('.otour').forEach(x=>x.remove());if(!st){toast('🧭 Giro finito: buona difesa!');return;}
+  if(st.tab)st.tab();setTimeout(()=>{const el=[...document.querySelectorAll(st.sel)].find(e=>e.offsetParent!==null);if(!el){orTour(i+1);return;}
+    el.scrollIntoView({block:'center'});setTimeout(()=>{const r=el.getBoundingClientRect();const o=document.createElement('div');o.className='otour';
+      const top=r.bottom+190<innerHeight?r.bottom+12:Math.max(12,r.top-200);
+      o.innerHTML=`<div class="ot-hole" style="left:${r.left-6}px;top:${r.top-6}px;width:${r.width+12}px;height:${Math.min(r.height+12,innerHeight-20)}px"></div>
+        <div class="ot-box" style="top:${top}px"><small>${i+1} di ${OT.length}</small><p>${st.t}</p><div class="row" style="gap:8px;justify-content:space-between"><button class="btn ghost small" data-otx>Esci</button><button class="btn small" data-otn>${i<OT.length-1?'Avanti →':'Fine'}</button></div></div>`;
+      document.body.appendChild(o);o.querySelector('[data-otn]').onclick=()=>orTour(i+1);o.querySelector('[data-otx]').onclick=()=>o.remove();},350);},st.tab?1000:200);}
+/* la prima volta nel mondo: proposta del giro guidato */
+function orOffer(){if(!S.user||typeof G==='undefined'||G.tourDone||document.querySelector('#sheet.open'))return;G.tourDone=1;
+  openSheet('🧭 Vuoi un giro guidato?',`<p style="font-weight:400">Un minuto per capire tutto: la mappa vera, le case da comprare, l’<b>orda del mondo</b> delle 9 e delle 21, i premi da riscattare.</p><div class="row" style="gap:8px;margin-top:12px"><button class="btn" data-oty>Sì, fammi vedere</button><button class="btn ghost small" data-otn2>No, grazie</button></div>`,c=>{c.querySelector('[data-oty]').onclick=()=>orTour(0);c.querySelector('[data-otn2]').onclick=closeSheet;});}
+/* menu */
+const _renderMenuOR=renderMenu;renderMenu=function(){_renderMenuOR();try{const ref=document.querySelector('.dr-user');if(!ref||document.querySelector('[data-mtour]'))return;
+  ref.insertAdjacentHTML('afterend','<button class="mi" data-mtour="1"><span>🧭</span>Giro guidato</button>');document.querySelector('[data-mtour]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}orTour(0);};}catch(e){}};
+/* aggiornamenti */
+const _renderHubOR=renderHub;renderHub=function(){const r=_renderHubOR.apply(this,arguments);orLoad();if(typeof W!=='undefined'&&W.on&&!G.tourDone&&G.howSeen)setTimeout(orOffer,1500);return r;};
+setInterval(()=>{if(!document.hidden&&S.user){orLoad(Date.now()-OR.t>60000);document.querySelectorAll('.onext small').forEach(x=>{if(OR.s)x.textContent='tra '+orLeft(OR.s.next_at);});}},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user)orLoad(true);});
+setTimeout(()=>{if(S.user)orLoad(true);},3500);
+/* manuale */
+const _manualOR=manualHTML;manualHTML=function(){return _manualOR().replace('<details class="man"',`<details class="man" open><summary>🧟 L’orda del mondo (la cosa principale)</summary><div class="man-b"><p>Ogni giorno alle <b>9:00</b> e alle <b>21:00</b> un’orda attacca <b>tutte le case del mondo unico</b>, da sola. Ogni casa tiene o viene sfondata in base alla sua difesa: <b>45 + 12 per livello</b> (massimo 5), <b>+15 se hai premuto “Prepara”</b>, +5 per casa tua. La forza dell’orda cambia per ogni casa e ogni orda (da 40 a 99).</p><p><b>Prima</b>: Prepara e Fortifica. <b>Dopo</b>: guarda l’assalto sulla mappa (🛡️ tenute, 💥 sfondate) e <b>riscatta</b> prima dell’orda successiva: 🧱 8 + 4 × livello per ogni casa che tiene (2 per quelle sfondate), 🪙 30 per casa che tiene, 💎 2 se tengono tutte.</p><p>Le notti giocate a mano restano: sono “Difendi tu”, facoltative, con i loro premi.</p></div></details><details class="man"`);};
+</script>
+<script>
+/* =========================================================
+   MONDO v3 — semplice e unico
+   - case dei superstiti simulati 🤖 (1 su 6, dichiarati)
+   - alleati e rivali in tutto il mondo
+   - orda su misura del livello, case comprabili ovunque
+   - pagina Casa rifatta: la tua casa, l'orda, il tuo impero, sponsor veri
+   - bottega (gemme e pass: acquisti veri quando l'app sarà negli store)
+   ========================================================= */
+/* md5 compatto: serve a riconoscere le case dei simulati come fa il server */
+function md5hex(s){function L(x,c){return(x<<c)|(x>>>(32-c));}function A(x,y){const l=(x&0xFFFF)+(y&0xFFFF);return(((x>>16)+(y>>16)+(l>>16))<<16)|(l&0xFFFF);}
+  function C(q,a,b,x,s,t){return A(L(A(A(a,q),A(x,t)),s),b);}function F(a,b,c,d,x,s,t){return C((b&c)|(~b&d),a,b,x,s,t);}function G2(a,b,c,d,x,s,t){return C((b&d)|(c&~d),a,b,x,s,t);}
+  function H(a,b,c,d,x,s,t){return C(b^c^d,a,b,x,s,t);}function I(a,b,c,d,x,s,t){return C(c^(b|~d),a,b,x,s,t);}
+  s=unescape(encodeURIComponent(s));const n=s.length,w=[];for(let i=0;i<n;i++)w[i>>2]|=s.charCodeAt(i)<<((i%4)*8);w[n>>2]|=0x80<<((n%4)*8);w[(((n+8)>>6)+1)*16-2]=n*8;
+  let a=1732584193,b=-271733879,c=-1732584194,d=271733878;for(let i=0;i<w.length;i+=16){const[oa,ob,oc,od]=[a,b,c,d];const x=k=>w[i+k]|0;
+    a=F(a,b,c,d,x(0),7,-680876936);d=F(d,a,b,c,x(1),12,-389564586);c=F(c,d,a,b,x(2),17,606105819);b=F(b,c,d,a,x(3),22,-1044525330);a=F(a,b,c,d,x(4),7,-176418897);d=F(d,a,b,c,x(5),12,1200080426);c=F(c,d,a,b,x(6),17,-1473231341);b=F(b,c,d,a,x(7),22,-45705983);
+    a=F(a,b,c,d,x(8),7,1770035416);d=F(d,a,b,c,x(9),12,-1958414417);c=F(c,d,a,b,x(10),17,-42063);b=F(b,c,d,a,x(11),22,-1990404162);a=F(a,b,c,d,x(12),7,1804603682);d=F(d,a,b,c,x(13),12,-40341101);c=F(c,d,a,b,x(14),17,-1502002290);b=F(b,c,d,a,x(15),22,1236535329);
+    a=G2(a,b,c,d,x(1),5,-165796510);d=G2(d,a,b,c,x(6),9,-1069501632);c=G2(c,d,a,b,x(11),14,643717713);b=G2(b,c,d,a,x(0),20,-373897302);a=G2(a,b,c,d,x(5),5,-701558691);d=G2(d,a,b,c,x(10),9,38016083);c=G2(c,d,a,b,x(15),14,-660478335);b=G2(b,c,d,a,x(4),20,-405537848);
+    a=G2(a,b,c,d,x(9),5,568446438);d=G2(d,a,b,c,x(14),9,-1019803690);c=G2(c,d,a,b,x(3),14,-187363961);b=G2(b,c,d,a,x(8),20,1163531501);a=G2(a,b,c,d,x(13),5,-1444681467);d=G2(d,a,b,c,x(2),9,-51403784);c=G2(c,d,a,b,x(7),14,1735328473);b=G2(b,c,d,a,x(12),20,-1926607734);
+    a=H(a,b,c,d,x(5),4,-378558);d=H(d,a,b,c,x(8),11,-2022574463);c=H(c,d,a,b,x(11),16,1839030562);b=H(b,c,d,a,x(14),23,-35309556);a=H(a,b,c,d,x(1),4,-1530992060);d=H(d,a,b,c,x(4),11,1272893353);c=H(c,d,a,b,x(7),16,-155497632);b=H(b,c,d,a,x(10),23,-1094730640);
+    a=H(a,b,c,d,x(13),4,681279174);d=H(d,a,b,c,x(0),11,-358537222);c=H(c,d,a,b,x(3),16,-722521979);b=H(b,c,d,a,x(6),23,76029189);a=H(a,b,c,d,x(9),4,-640364487);d=H(d,a,b,c,x(12),11,-421815835);c=H(c,d,a,b,x(15),16,530742520);b=H(b,c,d,a,x(2),23,-995338651);
+    a=I(a,b,c,d,x(0),6,-198630844);d=I(d,a,b,c,x(7),10,1126891415);c=I(c,d,a,b,x(14),15,-1416354905);b=I(b,c,d,a,x(5),21,-57434055);a=I(a,b,c,d,x(12),6,1700485571);d=I(d,a,b,c,x(3),10,-1894986606);c=I(c,d,a,b,x(10),15,-1051523);b=I(b,c,d,a,x(1),21,-2054922799);
+    a=I(a,b,c,d,x(8),6,1873313359);d=I(d,a,b,c,x(15),10,-30611744);c=I(c,d,a,b,x(6),15,-1560198380);b=I(b,c,d,a,x(13),21,1309151649);a=I(a,b,c,d,x(4),6,-145523070);d=I(d,a,b,c,x(11),10,-1120210379);c=I(c,d,a,b,x(2),15,718787259);b=I(b,c,d,a,x(9),21,-343485551);
+    a=A(a,oa);b=A(b,ob);c=A(c,oc);d=A(d,od);}
+  return[a,b,c,d].map(v=>{let h='';for(let j=0;j<4;j++)h+=('0'+((v>>(j*8))&255).toString(16)).slice(-2);return h;}).join('');}
+const npcByte=bid=>parseInt(md5hex('npc'+bid).slice(0,2),16);
+const isNpc=bid=>npcByte(bid)<42;
+const NPC_N=['nonna_ninja','il_geometra','bunkerboy','luna_rossa','vedetta','zia_pina','mister_grate','cascinaz','tetto_sicuro','lampione','fortezza','spranga','ilfabbro','sentinella','orto_blindato','catenaccio'];
+const npcNick=bid=>NPC_N[parseInt(md5hex('nick'+bid).slice(0,2),16)%NPC_N.length];
+W_ST.npc=['🤖','Casa di un superstite simulato','#d9dde3'];
+/* codice edificio da un anello del disegno della mappa (stesso calcolo del tocco) */
+function wGidRing(R0){const R=R0.slice(0,-1);if(R.length<3)return null;let A=0,cx=0,cy=0;for(let i=0;i<R.length;i++){const[x1,y1]=R[i],[x2,y2]=R[(i+1)%R.length];const c=x1*y2-x2*y1;A+=c;cx+=(x1+x2)*c;cy+=(y1+y2)*c;}
+  if(Math.abs(A)<1e-12){cx=R.reduce((a,p)=>a+p[0],0)/R.length;cy=R.reduce((a,p)=>a+p[1],0)/R.length;}else{cx/=3*A;cy/=3*A;}const la=+cy.toFixed(5),lo=+cx.toFixed(5);return{bid:'g'+la.toFixed(5)+'_'+lo.toFixed(5),lat:la,lon:lo};}
+/* scheda: case dei simulati */
+const _wSheetN=wSheet;wSheet=async function(bid,lat,lon){await _wSheetN(bid,lat,lon);try{const c=document.querySelector('#sheet.open .bzc-cat');if(c&&/simulato/.test(c.textContent)){const h=document.querySelector('#sheet.open .bzc-t h4');if(h)h.textContent='🤖 @'+npcNick(bid);
+    const box=document.querySelector('#sheet.open .bzc');if(box&&!box.querySelector('.npcn'))box.insertAdjacentHTML('afterend','<p class="npcn muted" style="font-size:12.5px;margin:8px 0 0">È un <b>personaggio del gioco</b>, non una persona: tiene vivo il mondo finché arrivano giocatori veri. Puoi comprargli la casa (+30%). Se l’abitante vero si iscrive, la casa passa a lui con le regole di sempre.</p>');}}catch(e){}};
+/* mappa: case dei simulati visibili da vicino */
+function wDrawNpc(lm){try{const map=lm.map;(lm._npc||[]).forEach(x=>x.remove());lm._npc=[];if(map.getZoom()<15.6||!W.on)return;
+  const taken=new Set((lm._wrows||[]).map(r=>r.building_id));const fs=map.queryRenderedFeatures({layers:['bld']});const seen=new Set();let n=0;
+  for(const f of fs){const g=f.geometry;const polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];
+    for(const pl of polys){if(n>=40)break;const q=pl[0]&&wGidRing(pl[0]);if(!q||seen.has(q.bid)||taken.has(q.bid))continue;seen.add(q.bid);if(!isNpc(q.bid))continue;
+      if(lm.m&&trM(q.lat,q.lon,lm.m.lat,lm.m.lon)<8)continue;n++;const el=elDiv('lm-w npc','<b>🤖</b>');el.addEventListener('click',e=>{e.stopPropagation();wSheet(q.bid,q.lat,q.lon);});
+      lm._npc.push(new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([q.lon,q.lat]).addTo(map));}}}catch(e){}}
+const _wDrawMapN=wDrawMap;wDrawMap=async function(lm,force){await _wDrawMapN(lm,force);try{const b=lm.map.getBounds();lm._wrows=(lm._w||[]).length?lm._wrows:lm._wrows;}catch(e){}setTimeout(()=>wDrawNpc(lm),250);};
+/* l'assalto colpisce anche i simulati della zona (esito uguale per tutti) */
+const _orViewN=orView;orView=async function(lm){const rows=await _orViewN(lm);try{const map=lm.map;if(map.getZoom()<14.5)return rows;const fs=map.queryRenderedFeatures({layers:['bld']});const add=[];const seen=new Set(rows.map(r=>r.building_id));
+    for(const f of fs){const g=f.geometry;const polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];for(const pl of polys){const q=pl[0]&&wGidRing(pl[0]);if(!q||seen.has(q.bid))continue;seen.add(q.bid);
+      if(isNpc(q.bid)&&add.length<8)add.push({building_id:q.bid,lat:q.lat,lon:q.lon,held:parseInt(md5hex(((OR.s&&OR.s.prev_id)||'x')+q.bid).slice(0,2),16)%60<34,kind:'npc',mine:false});}}
+    return rows.concat(add);}catch(e){return rows;}};
+/* ---- ALLEATI E RIVALI (tutto il mondo) ---- */
+window.AL={help:[],riv:[],t:0};
+async function alLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return;if(!force&&Date.now()-AL.t<60000)return;AL.t=Date.now();
+  try{const a=await SB.rpc('world_help_list');if(!a.error)AL.help=a.data||[];const b=await SB.rpc('world_rivals');if(!b.error)AL.riv=b.data||[];}catch(e){}alRefresh();}
+function alHTML(){if(!S.user)return'';const s=OR.s||{};
+  return`<div class="panel apan"><b class="disp" style="font-size:22px">🤝 Alleati e rivali</b>
+   <p class="rtxt2">Tutto il mondo gioca insieme: aiuta chi chiede rinforzi (guadagni Mattoni), oppure manda un’orda a un rivale. I giocatori molto più deboli di te sono protetti.</p>
+   <div class="rrow">${s.asked?`<span class="rok2">🆘 Aiuto chiesto · ${s.helpers||0} alleati · difesa ${s.next_bonus>=0?'+':''}${s.next_bonus||0}</span>`:`<button class="btn" data-ahelp>🆘 Chiedi aiuto per la prossima orda</button>`}</div>
+   ${s.attacks_in?`<p class="notice" style="margin:8px 0">🧟 ${s.attacks_in} ${s.attacks_in===1?'rivale ti ha':'rivali ti hanno'} mandato un’orda: −${Math.min(16,8*s.attacks_in)} di difesa. Chiedi aiuto o preparati!</p>`:''}
+   <h4 class="ah">🛡️ Chiedono aiuto (${AL.help.length})</h4>${AL.help.length?AL.help.slice(0,8).map(h=>`<div class="arow"><div><b>@${esc(h.nick)}</b><small>livello ${h.wlevel} · ${h.dist_km!=null?wNum(h.dist_km)+' km':'—'} · ${h.helpers} alleati</small></div>${h.mine_helped?'<span class="rok2">✔ aiutato</span>':`<button class="btn small" data-asend="${h.user_id}">Manda rinforzi</button>`}</div>`).join(''):'<p class="muted" style="font-size:12.5px">Nessuna richiesta ora.</p>'}
+   <h4 class="ah">🧟 Rivali alla tua portata (${AL.riv.length})</h4>${AL.riv.length?AL.riv.slice(0,8).map(h=>`<div class="arow"><div><b>@${esc(h.nick)}</b><small>livello ${h.wlevel} · ${h.dist_km!=null?wNum(h.dist_km)+' km':'—'}</small></div>${h.attacked?'<span class="rko2">orda mandata</span>':`<button class="btn small ghost" data-aatk="${h.user_id}">Manda orda · 🧱30</button>`}</div>`).join(''):'<p class="muted" style="font-size:12.5px">Nessun rivale alla tua portata per ora: invita qualcuno!</p>'}
+   <button class="btn ghost small" data-ainv style="margin-top:8px">📨 Invita qualcuno nel mondo</button></div>`;}
+function alBind(){const p=app.querySelector('.apan');if(!p)return;const h=p.querySelector('[data-ahelp]');if(h)h.onclick=async()=>{h.disabled=true;try{const{data,error}=await SB.rpc('world_ask_help');if(error)throw error;toast('🆘 '+data.msg);}catch(e){toast(e.message||'Non riuscito');}await orLoad(true);alLoad(true);};
+  p.querySelectorAll('[data-asend]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const{data,error}=await SB.rpc('world_send_help',{p_target:b.dataset.asend});if(error)throw error;toast((data.ok?'🛡️ ':'')+data.msg);if(typeof wMine==='function')wMine(true);}catch(e){toast(e.message||'Non riuscito');}alLoad(true);});
+  p.querySelectorAll('[data-aatk]').forEach(b=>b.onclick=async()=>{if(!confirm('Mandare un’orda a questo rivale? Costa 30 Mattoni.'))return;b.disabled=true;try{const{data,error}=await SB.rpc('world_send_attack',{p_target:b.dataset.aatk});if(error)throw error;toast((data.ok?'🧟 ':'')+data.msg);if(typeof wMine==='function')wMine(true);}catch(e){toast(e.message||'Non riuscito');}alLoad(true);});
+  const iv=p.querySelector('[data-ainv]');if(iv)iv.onclick=()=>inviteSheet();}
+function alRefresh(){try{const p=app.querySelector('.apan');if(p){const n=document.createElement('div');n.innerHTML=alHTML();const np=n.firstElementChild;if(!np)return;np.dataset.grp=p.dataset.grp||'q';p.replaceWith(np);alBind();}}catch(e){}}
+const _splitHubA=splitHub;splitHub=function(){_splitHubA();try{
+  /* niente più schede con giocatori finti: gli alleati veri sono qui */
+  app.querySelectorAll('[data-sub="amici"],[data-sub="arena"]').forEach(b=>b.remove());if(G.sub==='amici'||G.sub==='arena')G.sub='q';
+  if((G.sub||'q')!=='q'||app.querySelector('.apan')||!S.user)return;const r=app.querySelector('.opan');const h=alHTML();if(!h)return;
+  if(r)r.insertAdjacentHTML('afterend',h);else{const pg=app.querySelector('.page');if(pg)pg.insertAdjacentHTML('afterbegin',h);}
+  const p=app.querySelector('.apan');if(p){p.dataset.grp='q';alBind();alLoad();}}catch(e){console.warn('alleati',e);}};
+/* premi dell'orda: anche le taglie, e raddoppio monete con le gemme */
+const _orPanelV3=orPanelHTML;orPanelHTML=function(){let h=_orPanelV3();const s=OR.s||{};
+  if(s.bounty)h=h.replace('Riscatta: 🧱',`🎯 taglie incluse · Riscatta: 🧱`);
+  if(s.next_bonus)h=h.replace('Prossima orda',`<span class="rbon">${s.next_bonus>0?'+':''}${s.next_bonus} difesa da aiuti/orde</span> Prossima orda`);
+  return h;};
+/* ---- BOTTEGA: gemme, pass, e cosa si fa con le gemme ---- */
+function shopHTML(){return`<div class="panel spanx"><b class="disp" style="font-size:22px">💎 Bottega</b>
+  <p class="rtxt2">Gemme e Pass si compreranno con un tocco quando l’app sarà su App Store e Google Play. Oggi le gemme si guadagnano giocando.</p>
+  <div class="shopg">${[['💎 80','0,99 €'],['💎 450','4,99 €'],['💎 1.000','9,99 €']].map(([a,b])=>`<div><b>${a}</b><small>${b}</small><button class="btn small ghost" disabled>Presto</button></div>`).join('')}</div>
+  <div class="passx"><b>⭐ Pass del Superstite · 4,99 €/mese</b><small>Case preparate in automatico a ogni orda · +20% affitti · 1 casa in più · premi doppi nelle missioni</small><button class="btn small ghost" disabled>Presto</button></div>
+  <h4 class="ah">Cosa fai con le gemme, già oggi</h4><div class="shopu">
+   <div><b>💰 10 💎 → 🪙 250</b><small>cambio in Potenzia</small></div><div><b>🔧 20 💎</b><small>ripara tutto durante una notte</small></div><div><b>✨ 5 💎</b><small>raddoppia le monete dell’ultima orda</small><button class="btn small" data-dbl ${G.gems>=5&&OR.s&&OR.s.claimed&&window.__dbl!==OR.s.prev_id?'':'disabled'}>Raddoppia</button></div></div></div>`;}
+const _splitHubS=splitHub;splitHub=function(){_splitHubS();try{if((G.sub||'q')!=='q'||app.querySelector('.spanx'))return;const pg=app.querySelector('.page');if(!pg)return;pg.insertAdjacentHTML('beforeend',shopHTML());const p=app.querySelector('.spanx');p.dataset.grp='q';
+  const d=p.querySelector('[data-dbl]');if(d)d.onclick=()=>{const s=OR.s;if(!s||G.gems<5||window.__dbl===s.prev_id)return;const c=30*(s.held||0)+10*((s.total||0)-(s.held||0));G.gems-=5;G.coins+=c;window.__dbl=s.prev_id;toast(`✨ Monete raddoppiate: +🪙 ${c}`);renderHub();};}catch(e){}};
+
+/* ---- PAGINA CASA, rifatta e pulita ---- */
+function vNextSlot(){const n=new Date();for(const d of[0,1])for(const h of[9,21]){const t=new Date(n.getFullYear(),n.getMonth(),n.getDate()+d,h,0,0);if(t>n)return t;}return n;}
+setInterval(()=>{document.querySelectorAll('[data-oleft]').forEach(e=>{e.textContent=orLeft((OR.s&&OR.s.next_at)||vNextSlot());});},20000);
+renderHome=function(){const z=S.zone,Rr=S.result,m=W&&W.m,s=OR.s;const next=(s&&s.next_at)||vNextSlot();
+  const hero=`<section class="hero2">${heroSVG()}<div class="h2t"><h1>Zombie<span>Safe House</span></h1></div><div class="boom sfx">GRRRAAH!</div></section>`;
+  const sp=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&SPONSORS[k]);const near=z&&z.real?sp.map(([k,g])=>({k,d:trM(z.real.lat,z.real.lon,g.lat,g.lon)})).sort((a,b)=>a.d-b.d).slice(0,3):sp.slice(0,3).map(([k])=>({k,d:null}));
+  const spons=near.length?`<div class="panel"><div class="row spread"><b class="disp" style="font-size:22px">⭐ Sponsor vicino a te</b><button class="btn ghost small" data-hmap>Mappa</button></div>${near.map(x=>`<button class="strow" data-hsp="${x.k}"><span class="splogo">${esc(SPONSORS[x.k].logo)}</span><div><b>${esc(SPONSORS[x.k].name)}</b><small>${esc(SP_CAT[x.k]||'Sponsor')}${x.d!=null?' · '+dist(Math.round(x.d)):''} · offerte e codici sconto</small></div></button>`).join('')}</div>`:'';
+  let body;
+  if(!Rr){body=`<div class="cta2"><div class="caption">Mezzanotte. La luna è piena. Quanto resiste la tua casa all’orda?</div>
+     <button class="btn wide" data-go="valuta">📷 Valuta la mia casa</button><button class="btn alt wide" data-go="orda">🧟 Prova il gioco con una casa d’esempio</button><button class="btn ghost wide" data-howhome>❓ Come funziona</button></div>
+    <div class="page dots"><div class="steps3">${[['📷','Valuti la tua casa vera','45 domande e foto: indice da 1 a 10 e cosa migliorare'],['🌍','Entri nel mondo vero','La tua casa è tua; compri case libere vicino o in Australia'],['🧟','Ogni 12 ore arriva l’orda','Prepari le case, guardi l’assalto, riscatti i premi']].map((x,i)=>`<div><span class="n">${i+1}</span><b>${x[0]} ${x[1]}</b><small>${x[2]}</small></div>`).join('')}</div>${spons}${homeFoot()}</div>`;}
+  else{const[g,col]=grade(Rr.idx);const live=orLive();
+   body=`<div class="page dots">
+    <div class="panel night hcard"><div class="row spread"><div><span class="bzc-cat">La tua casa</span><h3 style="color:#fff;margin:4px 0">${esc(z?z.address:'')}</h3><b style="color:${col}">${g}</b></div><div class="hidx">${fmtI(Rr.idx)}</div></div>
+     <div class="hgrid"><div><b>${m?'🧱 '+wNum(m.mattoni):'🧱 …'}</b><small>Mattoni</small></div><div><b>${m?m.wlevel:'…'}</b><small>livello mondo</small></div><div><b>${m?1+m.houses.length:'…'}</b><small>case</small></div></div></div>
+    <div class="panel rmini ${live?'live':''}"><div class="row spread"><b class="disp" style="font-size:22px">🧟 ${live?'Orda in corso!':'Prossima orda'}</b><span class="rtime">⏱ <span data-oleft>${orLeft(next)}</span></span></div>
+     <div class="rrow" style="margin-top:8px">${s&&s.prepared?'<span class="rok2">✅ Case preparate</span>':'<button class="btn" data-hprep>🛡️ Prepara le case</button>'}${s&&s.total&&!s.claimed?'<button class="btn alt" data-hgo>🎁 Riscatta i premi</button>':''}<button class="btn ghost small" data-hwatch>👀 Guarda l’assalto</button></div></div>
+    <div class="qact">${[['🌍','Il mio impero','orda'],['🗺️','Mappa del mondo','mappa'],['🤝','Alleati e rivali','orda'],['📷','La mia casa','valuta']].map(x=>`<button data-qa="${x[2]}"><span>${x[0]}</span>${x[1]}</button>`).join('')}</div>
+    ${spons}
+    <div class="panel moon"><b>📻 Radio Operatore</b><p style="font-weight:400;margin:4px 0 8px">Dubbi su punteggio, foto o privacy? Chiedi.</p><button class="btn small" data-go="radio">Apri la radio</button></div>
+    ${homeFoot()}</div>`;}
+  app.innerHTML=hero+body;bindGo&&bindGo();
+  app.querySelectorAll('[data-hsp]').forEach(b=>b.onclick=()=>sponsorSheet(b.dataset.hsp,S.zone||{seed:7}));
+  const hm=app.querySelector('[data-hmap]');if(hm)hm.onclick=()=>{S.zv='mondo';go('mappa');};
+  const hw=app.querySelector('[data-howhome]');if(hw)hw.onclick=()=>openRules(0);
+  const hp=app.querySelector('[data-hprep]');if(hp)hp.onclick=async()=>{if(!S.user){loginSheet();return;}hp.disabled=true;try{const{data,error}=await SB.rpc('world_prepare');if(error)throw error;toast('🛡️ '+data.msg);}catch(e){toast(e.message||'Non riuscito');}await orLoad(true);renderHome();};
+  const hg=app.querySelector('[data-hgo]');if(hg)hg.onclick=()=>{G.sub='q';go('orda');};
+  const hwt=app.querySelector('[data-hwatch]');if(hwt)hwt.onclick=()=>orWatch();
+  app.querySelectorAll('[data-qa]').forEach(b=>b.onclick=()=>{const t=b.dataset.qa;if(t==='mappa')S.zv='mondo';if(t==='orda')G.sub='q';go(t);});
+  if(S.user&&!OR.s)orLoad(true).then(()=>{if(S.tab==='home')renderHome();});if(S.user&&!W.m&&typeof wMine==='function')wMine(true).then(()=>{if(S.tab==='home')renderHome();});};
+function homeFoot(){return`<footer class="foot"><div class="disp" style="font-size:24px;color:var(--moon)">ZombieSafeHouse</div><p>La casa sicura, raccontata con un fumetto. Un marchio INDZ, nato in provincia di Mantova.</p>
+  <div class="row wrap" style="gap:8px;margin-top:10px"><button class="btn small alt" data-go="contatti">Chi siamo e contatti</button><button class="btn small ghost" data-go="contatti" data-mot2="sponsor">Diventa sponsor</button></div><small>© 2026 INDZ</small></footer>`;}
+/* manuale */
+const _manualV3=manualHTML;manualHTML=function(){return _manualV3().replace('<details class="man"',`<details class="man"><summary>🤝 Alleati, rivali e simulati</summary><div class="man-b"><p><b>Chiedi aiuto</b> per la prossima orda: chiunque nel mondo può mandarti rinforzi (+5 di difesa ciascuno, fino a +20) e chi aiuta guadagna Mattoni. <b>Manda un’orda</b> a un rivale: costa 30 Mattoni, gli toglie 8 di difesa e, se la sua casa cade, prendi una taglia di 25 Mattoni. Chi è molto più debole di te (3 livelli sotto) è protetto.</p><p>L’orda è <b>su misura</b>: cresce con il tuo livello, così chi arriva dopo può crescere. Le case si comprano <b>ovunque</b>: il prezzo sale con la distanza da casa tua.</p><p>🤖 Circa una casa su sei è di un <b>superstite simulato</b>, un personaggio del gioco: si può comprare (+30%).</p></div></details><details class="man"`);};
+</script>
+<script>
+/* la sezione con gli amici simulati non compare più (la fortuna resta) */
+try{OGRP['Amici e quartiere']='nascosto';}catch(e){}
+</script>
+<script>
+/* =========================================================
+   ALLEATI: REGALI E PRESTITI + PREMI E FORTUNA IN PRIMO PIANO
+   - alleati = chi vi siete aiutati negli ultimi 30 giorni, inviti
+   - Mattoni: regalo o prestito (torna da solo dopo 3 giorni)
+   - monete e materiali: regalo (casella da ritirare); le gemme non si regalano
+   - ruota, gratta e vinci, premio del giorno, barattolo: in alto
+   ========================================================= */
+window.AY={list:[],loans:[],t:0};
+const GK={mattoni:['🧱','Mattoni'],monete:['🪙','Monete'],cibo:['🥫','Cibo'],legno:['🪵','Legno'],metallo:['🔩','Metallo'],batterie:['🔋','Batterie'],medicine:['💊','Medicine']};
+async function ayLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return;if(!force&&Date.now()-AY.t<60000)return;AY.t=Date.now();
+  try{const a=await SB.rpc('world_allies');if(!a.error)AY.list=a.data||[];const l=await SB.rpc('world_loans');if(!l.error)AY.loans=l.data||[];}catch(e){}ayRefresh();}
+/* regali ricevuti: monete, gemme, materiali entrano nella partita */
+async function ayInbox(){if(!S.user||typeof SB==='undefined'||!SB||typeof G==='undefined'||!G.type)return;try{const{data,error}=await SB.rpc('world_gifts_in');if(error||!data||!data.length)return;
+  const got=[];for(const g of data){const r=await SB.rpc('world_gift_claim',{p_id:g.id});if(r.data&&r.data.ok){const k=g.kind;
+    if(k==='monete')G.coins+=g.amount;else if(k==='gemme')G.gems+=g.amount;else{G.mat=G.mat||{};G.mat[k]=(G.mat[k]||0)+g.amount;}got.push(`${GK[k][0]} ${g.amount} da @${g.nick}`);}}
+  if(got.length){try{saveLocal();sfx('coin');}catch(e){}toast('🎁 Regali ricevuti: '+got.join(' · '));}}catch(e){}}
+const _wMineAY=wMine;wMine=async function(silent){await _wMineAY(silent);ayInbox();};
+function ayHTML(){if(!S.user)return'';const L=AY.list,LO=AY.loans;
+  return`<div class="ayb"><h4 class="ah">🤝 I tuoi alleati (${L.length})</h4>
+   ${L.length?L.map(a=>`<div class="arow"><div><b>@${esc(a.nick)}</b><small>livello ${a.wlevel}${a.dist_km!=null?' · '+wNum(a.dist_km)+' km':''}</small></div><button class="btn small" data-agive="${a.user_id}" data-anick="${esc(a.nick)}">🎁 Regala / Presta</button></div>`).join(''):'<p class="muted" style="font-size:12.5px">Diventate alleati aiutandovi in un’orda o invitandovi: poi potete regalarvi e prestarvi Mattoni, e regalarvi monete e materiali (le gemme no).</p>'}
+   ${LO.length?`<h4 class="ah">📒 Prestiti in corso</h4>${LO.map(l=>`<div class="arow"><div><b>${l.dir==='dato'?'Hai prestato':'Devi restituire'} 🧱 ${l.left_due}</b><small>${l.dir==='dato'?'a':'a'} @${esc(l.nick)} · ${new Date(l.due_at)>new Date()?'torna il '+new Date(l.due_at).toLocaleDateString('it-IT',{day:'numeric',month:'short'}):'in restituzione'}</small></div></div>`).join('')}`:''}</div>`;}
+function ayRefresh(){try{const p=app.querySelector('.apan');if(!p)return;const old=p.querySelector('.ayb');const n=document.createElement('div');n.innerHTML=ayHTML();const nb=n.firstElementChild;if(!nb)return;if(old)old.replaceWith(nb);else{const iv=p.querySelector('[data-ainv]');if(iv)iv.insertAdjacentElement('beforebegin',nb);else p.appendChild(nb);}ayBind();}catch(e){}}
+function ayBind(){app.querySelectorAll('[data-agive]').forEach(b=>b.onclick=()=>aySheet(b.dataset.agive,b.dataset.anick));}
+function aySheet(uid,nick){let kind='mattoni',loan=true;const have=k=>k==='mattoni'?(W.m?W.m.mattoni:0):k==='monete'?G.coins:k==='gemme'?G.gems:((G.mat||{})[k]||0);
+  const draw=card=>{card.querySelector('.ayk').innerHTML=Object.entries(GK).map(([k,v])=>`<button class="chip ${k===kind?'on':''}" data-k="${k}">${v[0]} ${v[1]}<small> (${wNum(have(k))})</small></button>`).join('');
+    card.querySelector('.aym').innerHTML=kind==='mattoni'?`<button class="chip ${loan?'on':''}" data-m="1">🤝 Presta (torna fra 3 giorni)</button><button class="chip ${!loan?'on':''}" data-m="0">🎁 Regala</button>`:'<span class="muted" style="font-size:12.5px">Monete, gemme e materiali si possono solo regalare.</span>';
+    card.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{kind=b.dataset.k;if(kind!=='mattoni')loan=false;draw(card);});card.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{loan=b.dataset.m==='1';draw(card);});};
+  openSheet('🎁 A @'+esc(nick),`<p style="font-weight:400">Cosa vuoi dare?</p><div class="ayk chips" style="margin:6px 0"></div><div class="aym" style="margin:6px 0"></div>
+   <label class="disp" style="font-size:16px">Quantità</label><input id="ayN" type="number" inputmode="numeric" min="1" value="50" class="field">
+   <p class="muted" style="font-size:12px;margin:6px 0">Limiti al giorno: 300 Mattoni, 1.000 monete, 20 gemme, 10 per materiale.</p>
+   <button class="btn wide" data-ayok>Conferma</button>`,card=>{draw(card);card.querySelector('[data-ayok]').onclick=async()=>{const n=Math.floor(+card.querySelector('#ayN').value||0);if(n<1){toast('Scrivi una quantità');return;}
+     if(have(kind)<n){toast('Non ne hai abbastanza');return;}const btn=card.querySelector('[data-ayok]');btn.disabled=true;
+     try{const{data,error}=await SB.rpc('world_give',{p_to:uid,p_kind:kind,p_amount:n,p_loan:kind==='mattoni'&&loan});if(error)throw error;
+       if(data.ok){if(kind==='monete')G.coins-=n;else if(kind==='gemme')G.gems-=n;else if(kind!=='mattoni'){G.mat[kind]-=n;}try{saveLocal();}catch(e){}toast('✅ '+data.msg);closeSheet();wMine(true);ayLoad(true);}else{toast(data.msg);btn.disabled=false;}}
+     catch(e){toast(e.message||'Non riuscito');btn.disabled=false;}};});}
+/* il pannello alleati mostra anche gli alleati, regali e prestiti */
+const _alHTMLAY=alHTML;alHTML=function(){const h=_alHTMLAY();return h?h.replace('<button class="btn ghost small" data-ainv',ayHTML()+'<button class="btn ghost small" data-ainv'):h;};
+const _alBindAY=alBind;alBind=function(){_alBindAY();ayBind();ayLoad();};
+/* aiutare un alleato regala anche un biglietto del gratta e vinci */
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-asend]');if(!b||typeof G==='undefined')return;setTimeout(()=>{G.scratch=(G.scratch||0)+1;try{saveLocal();}catch(x){}},800);},true);
+/* ---- PREMI E FORTUNA, in alto nel gioco ---- */
+function luckTopHTML(){try{luckInit();}catch(e){}const ds=(typeof dailyState==='function')?dailyState():null;const tot=(typeof jarTotal==='function')?jarTotal():0;const goal=(G.jar&&G.jar.goal)||60;
+  return`<div class="panel lpan"><b class="disp" style="font-size:22px">🎁 Premi e fortuna</b>
+   <div class="lgrid">
+    <button data-lt="daily" class="${ds&&!ds.claimed?'hot':''}"><span>📅</span><b>Premio del giorno</b><small>${ds?(ds.claimed?'riscosso · torna domani':'giorno '+ds.next+' di 7: riscuoti!'):''}</small></button>
+    <button data-lt="wheel" class="${G.spins>0?'hot':''}"><span>🎡</span><b>Ruota</b><small>${G.spins||0} ${G.spins===1?'giro':'giri'}</small></button>
+    <button data-lt="scratch" class="${G.scratch>0?'hot':''}"><span>🎟️</span><b>Gratta e vinci</b><small>${G.scratch||0} ${G.scratch===1?'biglietto':'biglietti'}</small></button>
+    <button data-lt="jar"><span>🫙</span><b>Barattolo</b><small>${Math.min(tot,goal)}/${goal}</small></button></div>
+   <p class="muted" style="font-size:12px;margin:8px 0 0">Giri e biglietti si guadagnano riscattando l’orda, vincendo notti e aiutando gli alleati.</p></div>`;}
+function luckTopBind(){const p=app.querySelector('.lpan');if(!p)return;p.querySelectorAll('[data-lt]').forEach(b=>b.onclick=()=>{const k=b.dataset.lt;
+  if(k==='wheel'){if(G.spins>0)wheelSheet();else toast('Niente giri: riscatta l’orda o vinci una notte');return;}
+  if(k==='scratch'){if(G.scratch>0)scratchSheet();else toast('Niente biglietti: aiuta un alleato o vinci una notte');return;}
+  const t=k==='daily'?document.getElementById('dClaim'):document.querySelector('[data-luck]');if(t){const f=t.closest('details');if(f)f.open=true;const sec=t.closest('[data-grp]');if(sec&&sec.hidden){G.sub=sec.dataset.grp;renderHub();setTimeout(()=>{const t2=k==='daily'?document.getElementById('dClaim'):document.querySelector('[data-luck]');if(t2){const f2=t2.closest('details');if(f2)f2.open=true;t2.scrollIntoView({behavior:'smooth',block:'center'});}},150);return;}
+    t.scrollIntoView({behavior:'smooth',block:'center'});if(k==='daily'&&!t.disabled)setTimeout(()=>t.click(),600);}});}
+const _splitHubL=splitHub;splitHub=function(){_splitHubL();try{if((G.sub||'q')!=='q'||app.querySelector('.lpan'))return;const anchor=app.querySelector('.apan')||app.querySelector('.opan');const h=luckTopHTML();
+  if(anchor)anchor.insertAdjacentHTML('afterend',h);else{const pg=app.querySelector('.page');if(pg)pg.insertAdjacentHTML('afterbegin',h);}const p=app.querySelector('.lpan');if(p){p.dataset.grp='q';luckTopBind();}}catch(e){console.warn('fortuna',e);}};
+/* manuale */
+const _manualAY=manualHTML;manualHTML=function(){return _manualAY().replace('<details class="man"',`<details class="man"><summary>🎁 Regali, prestiti e fortuna</summary><div class="man-b"><p><b>Alleati</b> sono i giocatori con cui vi siete aiutati negli ultimi 30 giorni e chi hai invitato (o chi ti ha invitato). Agli alleati puoi <b>prestare Mattoni</b> (tornano da soli dopo 3 giorni) o <b>regalare</b> Mattoni, monete, gemme e materiali. Limiti al giorno: 300 Mattoni, 1.000 monete, 20 gemme, 10 per materiale; gli account nuovi possono regalare dopo 3 giorni.</p><p><b>Ruota, gratta e vinci, premio del giorno e barattolo</b> sono in alto nel gioco: giri e biglietti si guadagnano riscattando l’orda, vincendo notti e aiutando gli alleati.</p></div></details><details class="man"`);};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
