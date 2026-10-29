@@ -941,7 +941,7 @@ a.onl{font-weight:700;color:#1f3f80}
 .mfmore{position:absolute;right:10px;top:58px;z-index:6;width:44px;height:44px;background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-size:24px;font-weight:900;line-height:1;cursor:pointer}
 .mfbar{position:absolute;left:8px;right:8px;top:8px;z-index:6;display:flex;justify-content:space-between;align-items:center;gap:6px;background:#2b2240;color:#f3e9d2;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:6px 8px;font-size:13px;font-weight:700}
 .mfbar b{color:var(--moon)}.mfbar button{background:var(--moon);border:2px solid var(--ink);font-weight:800;font-size:12px;padding:4px 7px;white-space:nowrap}
-.f-case-off .lm-w,.f-spons-off .lm-sp,.f-spons-off .lm-cand,.f-serv-off .lm-pub,.f-serv-off .lm-biz,.f-serv-off .lm-cust,.f-vac-off .lm-vac,.f-all-off .lm-usr{display:none!important}
+.f-case-off .lm-w,.f-spons-off .lm-sp,.f-spons-off .lm-sp2,.f-spons-off .lm-cand,.f-serv-off .lm-pub,.f-serv-off .lm-biz,.f-serv-off .lm-cust,.f-vac-off .lm-vac,.f-all-off .lm-usr{display:none!important}
 .lm-vac b{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#cfe0ff;border:3px solid var(--ink);box-shadow:2px 2px 0 var(--ink);font-size:14px;font-weight:400}
 .lm-vac em{position:absolute;left:50%;top:100%;transform:translate(-50%,2px);white-space:nowrap;font-style:normal;font-size:10px;font-weight:700;background:#fff;border:1.5px solid var(--ink);padding:0 4px}
 .mfmenu{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mfmenu button{background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:12px 6px;font-weight:800;font-size:14px;color:var(--ink);text-align:left}
@@ -962,6 +962,31 @@ body[data-tab=orda] #accFab,body[data-tab=io] #accFab{bottom:calc(var(--nav-h) +
 .hero2.mini h1{font-size:30px!important;-webkit-text-stroke:1.2px var(--ink)!important;text-shadow:2px 2px 0 var(--blood)}
 .hero2.mini .boom{display:none}
 .hero2.mini svg.scene{display:none}.hero2.mini{background:radial-gradient(circle at 86% 38%,#f7d64a 0 26px,transparent 27px),linear-gradient(180deg,#241a4a,#3b2f6e)!important;height:96px!important;border-bottom:4px solid var(--ink)}.hero2.mini .h2t{top:14px!important}
+
+.lm-sp{display:none!important}
+.lm-sp2{position:relative;cursor:pointer;filter:drop-shadow(2px 3px 0 #140f1f)}
+.lm-sp2 .sp2{display:flex;align-items:center;gap:5px;background:#f7d64a;border:3px solid #140f1f;border-radius:22px;padding:3px 9px 3px 3px;white-space:nowrap;animation:spPulse 2.2s ease-in-out infinite}
+.lm-sp2 .sp2 b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#140f1f;color:#f7d64a;font-family:var(--display);font-size:15px}
+.lm-sp2 .spn{font-weight:800;font-size:12.5px;color:#140f1f}.lm-sp2 .spo{background:#d7263d;color:#fff;font-weight:800;font-size:11px;padding:1px 6px;border-radius:9px;border:2px solid #140f1f}
+.lm-sp2 .spp{display:block;width:0;height:0;margin:0 auto;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid #140f1f}
+@keyframes spPulse{50%{transform:scale(1.06)}}
+.mfsp{position:absolute;left:10px;top:58px;z-index:6;background:#f7d64a;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-weight:800;font-size:13.5px;padding:8px 10px;color:var(--ink)}
+.splist .strow{width:100%}
+#ioBtn{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:var(--moon);border:3px solid var(--moon);color:var(--ink);font-family:var(--display);font-size:22px;line-height:1;display:grid;place-items:center;cursor:pointer;z-index:5}
+#ioBtn.on{box-shadow:0 0 0 3px #fff}
+#topbar .ucount{margin-right:50px}
+#nav button{position:relative}.nbadge{position:absolute;top:4px;left:calc(50% + 8px);min-width:18px;height:18px;border-radius:9px;background:#d7263d;color:#fff;font-style:normal;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 4px;border:2px solid #140f1f}
+.shead{display:flex;justify-content:space-between;align-items:center;gap:10px}.shead small{display:block;color:#c9b8ff;font-size:12.5px}
+.schips{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}.schips button{background:#fff;border:2.5px solid var(--ink);box-shadow:2px 2px 0 var(--ink);font-weight:800;font-size:13px;padding:6px 10px;color:var(--ink)}.schips button.on{background:var(--moon)}
+.sitem{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px dashed rgba(20,15,31,.18)}.sitem:first-of-type{border-top:0}
+.sic{font-size:22px;width:30px;text-align:center;flex:0 0 auto}.stx{flex:1;font-size:14px;font-weight:400;line-height:1.35}.stx small{display:block;font-size:11.5px;color:#5a5470}
+.snick{font-weight:800;color:#3b2f6e;cursor:pointer;text-decoration:underline;text-decoration-thickness:2px;text-decoration-color:rgba(59,47,110,.3)}.scom{color:#5a5470;font-size:12.5px}
+.sper{background:linear-gradient(180deg,#fff3c4,#fff);border-color:var(--ink)}
+.sav{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--moon);border:2.5px solid var(--ink);font-family:var(--display);font-size:18px;flex:0 0 auto}.sav.big{width:58px;height:58px;font-size:30px}
+.srank{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px dashed rgba(20,15,31,.18)}.srank.me{background:#fff3c4;margin:0 -8px;padding:7px 8px}.rpos{width:30px;text-align:center;font-weight:800;font-size:16px}
+.plhead{display:flex;gap:12px;align-items:center;margin-bottom:12px}.plhead small{display:block;color:#5a5470;font-size:13px}
+.placts{display:flex;flex-direction:column;gap:8px}.placts .btn{width:100%}
+.shouts{display:grid;grid-template-columns:1fr 1fr;gap:6px}.shouts button{background:#fff;border:2.5px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:9px 6px;font-size:13px;font-weight:700;text-align:left;color:var(--ink)}
 </style>
 </head>
 <body>
@@ -5743,7 +5768,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610292202';
+const ZSH_BUILD='202610292239';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -6038,7 +6063,7 @@ const _restZ=restore;restore=function(d){const r=_restZ(d);try{if(d&&d.S&&d.S.pu
 function zDrawUsers(lm){if(!lm||!lm.map)return;(lm._usr||[]).forEach(x=>x.remove());lm._usr=[];const me=S.user&&S.user.id;const now=Date.now();
   window.ZUSERS.forEach(u=>{if(u.user_id===me)return;const on=u.seen_at&&now-new Date(u.seen_at).getTime()<6*60*1000;
     const col=u.indice==null?'#9aa4b0':u.indice<=4?'#3f9b5f':u.indice<=6?'#f7d64a':'#d7263d';
-    const el=elDiv('lm-usr',`<b style="background:${col}">${esc((u.nick||'?')[0].toUpperCase())}</b>${on?'<i></i>':''}<em>@${esc(u.nick)}</em>`);
+    const el=elDiv('lm-usr',`<b style="background:${col}">${esc((u.nick||'?')[0].toUpperCase())}</b>${on?'<i></i>':''}<em>@${esc(u.nick)}</em>`);el.dataset.uid=u.user_id;
     el.addEventListener('click',e=>{e.stopPropagation();openSheet('👤 @'+esc(u.nick),`<div class="bzc"><div class="bzc-hero" style="--c:#e2d6f5"><span class="bzc-ic" style="background:${col}">${esc((u.nick||'?')[0].toUpperCase())}</span><div class="bzc-t"><span class="bzc-cat">Superstite${on?' · online ora':''}</span><h4>@${esc(u.nick)}</h4><small>${u.comune?esc(u.comune)+' · ':''}zona indicativa (circa 200 m)</small></div></div>
       <div class="terrb" style="margin-top:12px"><span class="ok">🏠 Indice ${u.indice!=null?String(u.indice).replace('.',','):'–'}</span><span class="ok">🎮 Livello ${u.livello||'–'}</span></div>
       <p class="muted" style="font-size:13px">Per privacy non vedi l'indirizzo né i punti deboli della sua casa.</p></div>`);});
@@ -7241,6 +7266,135 @@ function renderIo(){const u=S.user;const m=window.W&&W.m;const nick=u?(u.nick||(
 try{const _opb=orPutBanner;orPutBanner=function(){if(S.tab!=='valuta')return;return _opb();};}catch(e){}
 /* il giro guidato segue le nuove schede */
 try{if(typeof OT!=='undefined'&&Array.isArray(OT))OT.forEach(st=>{if(st&&st.sel&&/wpan|apan/.test(st.sel)){const t=st.tab;st.tab=()=>{G.ss='impero';if(t)t();else go('orda');};}if(st&&st.sel&&/opan|lpan|tmp/.test(st.sel)){const t=st.tab;st.tab=()=>{G.ss='oggi';if(t)t();else go('orda');};}});}catch(e){}
+</script>
+<script>
+/* =========================================================
+   👥 SUPERSTITI: il social al centro
+   bacheca · per te · squadra · classifiche · scheda giocatore · saluti
+   + ⭐ SPONSOR sulla mappa: tutti, grandi, con offerta, con elenco
+   ========================================================= */
+const SHOUTS=['','👋 Ciao vicino!','🛡️ Ti copro io stanotte','🙏 Grazie dei rinforzi!','🧟 Attento, arriva l’orda!','🤝 Facciamo squadra?','💪 Bella difesa!','😈 Ci vediamo all’orda…','🎁 Grazie del regalo!','🏠 Bella casa!','🆘 Mi serve aiuto!','🔥 Che assalto!','🌙 Buona guardia stanotte'];
+window.SOC={feed:{},rank:{},allies:[],pend:[],per:[],t:{},tab:'bacheca',scope:'zona',rs:'zona',rp:'settimana'};
+const socAgo=t=>{const s=Math.max(1,Math.round((Date.now()-new Date(t))/1000));return s<60?'ora':s<3600?Math.round(s/60)+' min fa':s<86400?Math.round(s/3600)+' h fa':Math.round(s/86400)+' g fa';};
+async function socRpc(fn,args){if(typeof SB==='undefined'||!SB||!S.user)throw new Error('Accedi per entrare tra i superstiti');const{data,error}=await SB.rpc(fn,args||{});if(error)throw error;return data;}
+function socNick(id,nick){return`<b class="snick" data-pl="${esc(id||'')}">@${esc(nick||'superstite')}</b>`;}
+function socLine(f){const a=socNick(f.actor,f.actor_nick),t=f.target?socNick(f.target,f.target_nick):'';const where=f.comune?` <span class="scom">· ${esc(f.comune)}</span>`:'';
+  const K={join:['🏠',`${a} è entrato nel mondo${where}`],buy:['🔑',`${a} ha comprato una casa${f.info==='npc'?' da un superstite simulato':''}${where}`],ask:['🆘',`${a} chiede aiuto per la prossima orda${where}`],
+    help:['🛡️',`${a} ha mandato rinforzi a ${t}`],attack:['🧟',`${a} ha mandato un’orda contro ${t}`],gift:['🎁',`${a} ha ${f.info==='prestito'?'prestato Mattoni':'fatto un regalo'} a ${t}`],
+    ally:['🤝',`${a} e ${t} sono alleati`],ally_req:['🤝',`${a} propone un’alleanza a ${t}`],shout:['💬',`${a} → ${t}: «${esc((SHOUTS[+f.info]||'').replace(/^\S+\s/,''))}»`]};
+  const k=K[f.kind]||['📣',a];const act=f.kind==='ask'&&f.actor!==(S.user&&S.user.id)?`<button class="btn small" data-shelp="${esc(f.actor)}">Manda rinforzi</button>`:'';
+  return`<div class="sitem"><span class="sic">${k[0]}</span><div class="stx">${k[1]}<small>${socAgo(f.created_at)}</small></div>${act}</div>`;}
+async function socLoad(what,force){const key=what+(what==='feed'?SOC.scope:what==='rank'?SOC.rs+SOC.rp:'');if(!force&&Date.now()-(SOC.t[key]||0)<30000)return;SOC.t[key]=Date.now();
+  try{if(what==='feed')SOC.feed[SOC.scope]=await socRpc('world_feed_list',{p_scope:SOC.scope})||[];
+    else if(what==='per'){SOC.per=await socRpc('world_feed_list',{p_scope:'pervoi'})||[];SOC.pend=await socRpc('world_ally_pending')||[];socBadge();}
+    else if(what==='rank')SOC.rank[SOC.rs+SOC.rp]=await socRpc('world_rank',{p_scope:SOC.rs,p_period:SOC.rp})||[];
+    else if(what==='allies')SOC.allies=await socRpc('world_allies')||[];SOC.err=null;}catch(e){SOC.err=e.message;if(what==='feed'&&SOC.feed[SOC.scope]==null)SOC.feed[SOC.scope]=[];if(what==='rank'&&SOC.rank[SOC.rs+SOC.rp]==null)SOC.rank[SOC.rs+SOC.rp]=[];}
+  if(S.tab==='social')socPaint();}
+/* numerino rosso sulla scheda: novità per te dall'ultima visita */
+function socBadge(){try{const seen=+(localStorage.getItem('zsh_soc_seen')||0);const n=(SOC.per||[]).filter(f=>new Date(f.created_at).getTime()>seen).length+(SOC.pend||[]).length;
+  const b=document.querySelector('#nav [data-tab=social]');if(!b)return;let d=b.querySelector('.nbadge');if(n>0){if(!d){b.insertAdjacentHTML('beforeend','<i class="nbadge"></i>');d=b.querySelector('.nbadge');}d.textContent=n>9?'9+':n;}else if(d)d.remove();}catch(e){}}
+setInterval(()=>{if(S.user&&document.visibilityState==='visible')socLoad('per');},60000);
+/* ---------------- la scheda ---------------- */
+function renderSocial(){app.innerHTML=`<div class="page dots soc">
+  <div class="panel night shead"><div><b class="disp" style="font-size:28px;color:var(--moon)">👥 Superstiti</b><small>${typeof STATS!=='undefined'&&STATS.reg?`${STATS.reg} nel mondo · 🟢 ${STATS.on||0} online ora`:'Il mondo gioca insieme'}</small></div><button class="btn small" data-sinv>📨 Invita</button></div>
+  <div class="oseg2 sseg">${[['bacheca','📰 Bacheca'],['squadra','🤝 Squadra'],['classifiche','🏆 Classifiche']].map(([k,l])=>`<button data-st="${k}" class="${SOC.tab===k?'on':''}">${l}</button>`).join('')}</div>
+  <div id="socBody"></div></div>`;
+  app.querySelector('[data-sinv]').onclick=()=>{if(!S.user)return loginSheet();inviteSheet();};
+  app.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{SOC.tab=b.dataset.st;app.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));socPaint();socFetchTab();});
+  try{localStorage.setItem('zsh_soc_seen',Date.now());}catch(e){}socPaint();socFetchTab();setTimeout(socBadge,200);}
+function socFetchTab(){if(!S.user)return;socLoad('per');if(SOC.tab==='bacheca')socLoad('feed');if(SOC.tab==='squadra')socLoad('allies');if(SOC.tab==='classifiche')socLoad('rank');}
+function socPaint(){const B=app.querySelector('#socBody');if(!B)return;
+  if(!S.user){B.innerHTML=`<div class="panel"><p style="font-weight:400">Accedi per vedere chi difende il mondo con te, allearti, salutare e scalare le classifiche.</p><button class="btn" onclick="loginSheet()">Accedi o registrati</button></div>`;return;}
+  const per=(SOC.per||[]).slice(0,6),pend=SOC.pend||[];
+  const perHTML=(pend.length||per.length)?`<div class="panel sper"><b class="disp" style="font-size:20px">📬 Per te</b>
+    ${pend.map(p=>`<div class="sitem"><span class="sic">🤝</span><div class="stx">${socNick(p.user_id,p.nick)} vuole allearsi con te<small>livello ${p.wlevel}</small></div><button class="btn small" data-ayes="${p.user_id}">Accetta</button><button class="btn small ghost" data-ano="${p.user_id}">No</button></div>`).join('')}
+    ${per.map(socLine).join('')}</div>`:'';
+  let body='';
+  if(SOC.tab==='bacheca'){const L=SOC.feed[SOC.scope];body=`<div class="schips">${[['zona','📍 Zona'],['alleati','🤝 Alleati'],['mondo','🌍 Mondo']].map(([k,l])=>`<button data-sc="${k}" class="${SOC.scope===k?'on':''}">${l}</button>`).join('')}</div>
+    <div class="panel">${L==null?'<p class="muted"><span class="spin"></span> Carico…</p>':L.length?L.map(socLine).join(''):`<p class="muted">${SOC.scope==='zona'?'Ancora niente nella tua zona: invita un vicino!':'Ancora niente qui.'}</p>`}</div>`;}
+  else if(SOC.tab==='squadra'){const A=SOC.allies||[];body=`<div class="panel"><b class="disp" style="font-size:20px">🤝 La tua squadra (${A.length})</b><p class="muted" style="font-size:12.5px;margin:4px 0 8px">Alleati: chi accetta la tua proposta, chi vi siete aiutati nelle orde, chi hai invitato o ti ha invitato.</p>
+    ${A.length?A.map(a=>`<div class="sitem"><span class="sav">${esc((a.nick||'?')[0].toUpperCase())}</span><div class="stx">${socNick(a.user_id,a.nick)}<small>livello ${a.wlevel}${a.dist_km!=null?' · '+wNum(a.dist_km)+' km':''}</small></div><button class="btn small" data-pl="${a.user_id}">Apri</button></div>`).join(''):'<p class="muted">Nessun alleato ancora. Proponi un’alleanza dalla bacheca, dalla mappa o dalle classifiche, oppure invita qualcuno.</p>'}</div>
+    <div class="panel"><b>🔎 Trova superstiti</b><p class="muted" style="font-size:12.5px;margin:4px 0 8px">Sulla mappa accendi il filtro 🤝 Alleati: vedi chi è visibile vicino a te e lo tocchi per allearti.</p><button class="btn ghost small" data-smap>🗺️ Apri la mappa</button></div>`;}
+  else{const L=SOC.rank[SOC.rs+SOC.rp];body=`<div class="schips">${[['zona','📍 Zona'],['mondo','🌍 Mondo']].map(([k,l])=>`<button data-rs="${k}" class="${SOC.rs===k?'on':''}">${l}</button>`).join('')}<span style="flex:1"></span>${[['settimana','Settimana'],['sempre','Sempre']].map(([k,l])=>`<button data-rp="${k}" class="${SOC.rp===k?'on':''}">${l}</button>`).join('')}</div>
+    <div class="panel">${L==null?'<p class="muted"><span class="spin"></span> Carico…</p>':L.length?L.map(r=>`<div class="srank ${r.me?'me':''}"><span class="rpos">${r.pos<=3?['🥇','🥈','🥉'][r.pos-1]:r.pos}</span><div class="stx">${socNick(r.user_id,r.nick)}<small>livello ${r.wlevel}${r.comune?' · '+esc(r.comune):''}</small></div><b>🧱 ${wNum(r.punti)}</b></div>`).join(''):'<p class="muted">Nessuno in classifica ancora.</p>'}
+    <p class="muted" style="font-size:12px;margin-top:8px">Punti = Mattoni guadagnati giocando (orde, missioni, affitti, aiuti). Regali e prestiti non contano.</p></div>`;}
+  const errN=SOC.err?`<p class="notice">Il social non risponde ora (${esc(SOC.err)}). Se compare “does not exist”, manca il blocco SQL del social su Supabase.</p>`:'';
+  B.innerHTML=errN+perHTML+body;
+  B.querySelectorAll('[data-sc]').forEach(b=>b.onclick=()=>{SOC.scope=b.dataset.sc;socPaint();socLoad('feed');});
+  B.querySelectorAll('[data-rs]').forEach(b=>b.onclick=()=>{SOC.rs=b.dataset.rs;socPaint();socLoad('rank');});
+  B.querySelectorAll('[data-rp]').forEach(b=>b.onclick=()=>{SOC.rp=b.dataset.rp;socPaint();socLoad('rank');});
+  B.querySelectorAll('[data-ayes],[data-ano]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const r=await socRpc('world_ally_answer',{p_requester:b.dataset.ayes||b.dataset.ano,p_yes:!!b.dataset.ayes});toast('🤝 '+r.msg);}catch(e){toast(e.message);}socLoad('per',true);socLoad('allies',true);});
+  B.querySelectorAll('[data-shelp]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const r=await socRpc('world_send_help',{p_target:b.dataset.shelp});toast((r.ok?'🛡️ ':'')+r.msg);}catch(e){toast(e.message);}});
+  const sm=B.querySelector('[data-smap]');if(sm)sm.onclick=()=>{S.mf=S.mf||{};S.mf.all=true;go('mappa');};}
+/* ---------------- scheda del giocatore (da ovunque) ---------------- */
+document.addEventListener('click',e=>{const n=e.target.closest&&e.target.closest('[data-pl]');if(!n||!n.dataset.pl)return;e.preventDefault();e.stopPropagation();playerSheet(n.dataset.pl);},true);
+async function playerSheet(uid){if(!S.user){loginSheet();return;}openSheet('👤 Superstite','<p><span class="spin"></span> Carico…</p>',()=>{});let p;
+  try{p=await socRpc('world_player',{p_user:uid});}catch(e){openSheet('👤 Superstite',`<p class="notice">${esc(e.message)}</p>`);return;}
+  const allyBtn=p.me?'':p.ally==='ok'?'<span class="rok2">🤝 Siete alleati</span>':p.ally==='out'?'<span class="muted">Proposta inviata: aspetta che accetti</span>':p.ally==='in'?'<button class="btn" data-pa="yes">✅ Accetta l’alleanza</button>':'<button class="btn" data-pa="req">🤝 Proponi alleanza</button>';
+  openSheet('👤 Superstite',`<div class="plhead"><span class="sav big">${esc((p.nick||'?')[0].toUpperCase())}</span><div><b class="disp" style="font-size:26px">@${esc(p.nick)}</b><small>Livello mondo ${p.wlevel} · ${p.houses} ${p.houses===1?'casa comprata':'case comprate'}${p.comune?' · '+esc(p.comune):''}</small></div></div>
+    ${p.me?'<p class="muted">Questo sei tu.</p>':`<div class="placts">${allyBtn}
+      ${p.asked&&!p.helped?'<button class="btn alt" data-pa="help">🛡️ Manda rinforzi (chiede aiuto)</button>':p.helped?'<span class="rok2">🛡️ Rinforzi mandati per questa orda</span>':''}
+      ${p.ally==='ok'?'<button class="btn ghost" data-pa="gift">🎁 Regala o presta</button>':''}
+      ${p.home&&!p.protected&&!p.attacked&&p.ally!=='ok'?'<button class="btn ghost" data-pa="atk">🧟 Manda un’orda · 🧱30</button>':p.protected?'<small class="muted">È molto più debole di te: è protetto dalle tue orde.</small>':''}</div>
+    <h4 style="margin:14px 0 6px">💬 Saluta</h4><div class="shouts">${SHOUTS.slice(1).map((s,i)=>`<button data-sh="${i+1}">${esc(s)}</button>`).join('')}</div>`}`,card=>{
+    card.querySelectorAll('[data-pa]').forEach(b=>b.onclick=async()=>{const k=b.dataset.pa;b.disabled=true;try{let r;
+      if(k==='req')r=await socRpc('world_ally_request',{p_target:uid});else if(k==='yes')r=await socRpc('world_ally_answer',{p_requester:uid,p_yes:true});
+      else if(k==='help')r=await socRpc('world_send_help',{p_target:uid});
+      else if(k==='atk'){if(!confirm('Mandare un’orda a @'+p.nick+'? Costa 30 Mattoni.')){b.disabled=false;return;}r=await socRpc('world_send_attack',{p_target:uid});}
+      else if(k==='gift'){closeSheet();try{aySheet(uid,p.nick);}catch(e){G.ss='impero';go('orda');}return;}
+      toast(r.msg||'Fatto');playerSheet(uid);socLoad('allies',true);}catch(e){toast(e.message||'Non riuscito');b.disabled=false;}});
+    card.querySelectorAll('[data-sh]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const r=await socRpc('world_shout',{p_to:uid,p_code:+b.dataset.sh});toast((r.ok?'💬 ':'')+r.msg);}catch(e){toast(e.message);}setTimeout(()=>b.disabled=false,1500);});});}
+/* ---------------- barra: 👥 Superstiti al posto di Io; Io sull'avatar in alto ---------------- */
+ICON.social='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="8.5" cy="8" r="3.3"/><circle cx="16.5" cy="9" r="2.7"/><path d="M2.5 20c0-3.6 2.7-6 6-6s6 2.4 6 6M14 14.6c3.4-.4 7 1.4 7 5"/></svg>';
+NAV_ACT.social='social';NAV_ACT.io='io';
+renderNav=function(){try{document.body.dataset.tab=S.tab;}catch(e){}const items=[['home','Casa'],['mappa','Mappa'],['orda','Orda'],['social','Superstiti']];const act=NAV_ACT[S.tab]||S.tab;
+  $('#nav').innerHTML=items.map(([k,l])=>`<button class="${act===k?'on':''}" data-tab="${k}" aria-label="${l}">${ICON[k]}<span>${l}</span></button>`).join('');
+  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{try{vibe();}catch(e){}go(b.dataset.tab);});socBadge();ioBtn();};
+function ioBtn(){try{let b=document.getElementById('ioBtn');const top=document.querySelector('.topbar')||document.querySelector('header');if(!top)return;
+  if(!b){top.insertAdjacentHTML('beforeend','<button id="ioBtn" aria-label="Il mio profilo"></button>');b=document.getElementById('ioBtn');b.onclick=()=>go('io');}
+  const nk=S.user?(S.user.nick||(S.user.email||'?').split('@')[0]):'';b.textContent=S.user?(nk[0]||'?').toUpperCase():'👤';b.classList.toggle('on',S.tab==='io');}catch(e){}}
+const _goSoc=go;go=function(tab){if(tab!=='social')return _goSoc(tab);window.__last='apre superstiti';document.body.classList.remove('inbattle');
+  if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab='social';renderNav();window.scrollTo(0,0);try{setMusic('app');}catch(e){}try{closeSheet();}catch(e){}renderSocial();};
+/* in Casa: le novità dei superstiti, per entrarci ogni giorno */
+const _renderHomeSoc=renderHome;renderHome=function(){_renderHomeSoc();try{if(!S.user||!S.result||app.querySelector('.hsoc'))return;const after=app.querySelector('.hval')||app.querySelector('.hcard');if(!after)return;
+  const L=(SOC.feed.zona||SOC.feed.mondo||[]).slice(0,3);
+  after.insertAdjacentHTML('afterend',`<div class="panel hsoc"><div class="row spread"><b class="disp" style="font-size:20px">👥 Dai superstiti</b><button class="btn ghost small" data-hsoc>Apri</button></div>${L.length?L.map(socLine).join(''):'<p class="muted" style="font-size:12.5px">Qui vedi chi entra, compra, chiede aiuto o ti saluta.</p>'}</div>`);
+  app.querySelector('[data-hsoc]').onclick=()=>go('social');if(!SOC.feed.zona){SOC.scope='zona';socLoad('feed').then(()=>{if(S.tab==='home'&&SOC.feed.zona&&SOC.feed.zona.length){const h=app.querySelector('.hsoc');if(h)h.remove();renderHome();}});}}catch(e){}};
+
+/* ---------------- ⭐ SPONSOR SULLA MAPPA, FATTI BENE ---------------- */
+/* 1) gli sponsor senza segnaposto prendono la posizione dal loro indirizzo */
+(async function spFixGeo(){try{const sb=await waitSB();if(!sb)return;const{data}=await sb.from('sponsors').select('id,name,slug,address,comune,lat,lon').eq('active',true);if(!data)return;
+  let ch=false;for(const r of data){const k=r.slug||slugify(r.name);if(!SPONSORS[k]||(SP_GEO[k]&&SP_GEO[k].lat!=null))continue;const q=[r.address,r.comune].filter(Boolean).join(', ');if(!q)continue;
+    let g=null;try{g=JSON.parse(localStorage.getItem('zsh_spg_'+r.id)||'null');}catch(e){}
+    if(!g){try{const w=await lmGeocode(q);g={lat:w.lat,lon:w.lon};localStorage.setItem('zsh_spg_'+r.id,JSON.stringify(g));}catch(e){continue;}}
+    SP_GEO[k]=Object.assign(SP_GEO[k]||{id:r.id},{lat:g.lat,lon:g.lon});ch=true;}
+  if(ch)(window.__zlms||[]).forEach(lm=>{try{spDraw(lm);}catch(e){}});}catch(e){}})();
+/* 2) segnaposto grandi: logo, nome, offerta; sempre sopra agli altri; ridisegnati quando arrivano i dati */
+const spOFF=()=>typeof SP_OFF!=='undefined'?SP_OFF:{},spCAT=()=>typeof SP_CAT!=='undefined'?SP_CAT:{};
+function spShortOff(k){const o=spOFF()[k]||'';const m=o.match(/-?\s?\d+\s?%/);return m?('−'+m[0].replace(/[-\s]/g,'')):o?'Offerta':'';}
+function spDraw(lm){if(!lm||!lm.map)return;(lm._sp2||[]).forEach(x=>x.remove());lm._sp2=[];const z=S.zone||{seed:7};
+  Object.entries(window.SP_GEO||{}).forEach(([k,g])=>{if(!g||g.lat==null||!SPONSORS[k])return;const off=spShortOff(k);
+    const el=elDiv('lm-sp2',`<div class="sp2"><b>${esc(SPONSORS[k].logo)}</b><span class="spn">${esc(SPONSORS[k].name.slice(0,22))}</span>${off?`<span class="spo">${esc(off)}</span>`:''}</div><i class="spp"></i>`);
+    el.style.zIndex='6';el.addEventListener('click',e=>{e.stopPropagation();try{dbEvent&&dbEvent(k,'map_tap');}catch(x){}sponsorSheet(k,z);});
+    lm._sp2.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([g.lon,g.lat]).addTo(lm.map));});}
+/* 3) elenco degli sponsor per distanza, con "portami lì" */
+function spList(lm){let c=null;try{c=lm&&lm.map&&lm.map.getCenter?lm.map.getCenter():null;}catch(e){}const o=c?{lat:c.lat,lon:c.lng}:(S.zone&&S.zone.real)||null;
+  const L=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&SPONSORS[k]).map(([k,g])=>({k,g,d:o?trM(o.lat,o.lon,g.lat,g.lon):0})).sort((a,b)=>a.d-b.d);
+  openSheet(`⭐ Sponsor (${L.length})`,L.length?`<div class="splist">${L.map(x=>`<button class="strow" data-spk="${x.k}"><span class="splogo">${esc(SPONSORS[x.k].logo)}</span><div><b>${esc(SPONSORS[x.k].name)}</b><small>${esc(spCAT()[x.k]||'Sponsor')} · ${dist(Math.round(x.d))}${spOFF()[x.k]?' · '+esc(spOFF()[x.k]):''}</small></div></button>`).join('')}</div>`:'<p class="muted">Nessuno sponsor ancora.</p>',card=>{
+    card.querySelectorAll('[data-spk]').forEach(b=>b.onclick=()=>{const k=b.dataset.spk,g=SP_GEO[k];closeSheet();try{lm.map.flyTo({center:[g.lon,g.lat],zoom:17});}catch(e){}setTimeout(()=>sponsorSheet(k,S.zone||{seed:7}),900);});});}
+const _liveMapSp=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapSp(el,addr,o);try{spDraw(lm);setTimeout(()=>spDraw(lm),2500);
+}catch(e){}return lm;};
+/* i dati degli sponsor arrivati dopo: ridisegno senza ricaricare la pagina */
+(function(){let last='';setInterval(()=>{try{const sig=Object.entries(window.SP_GEO||{}).map(([k,g])=>k+(g&&g.lat)).join('|');if(sig!==last){last=sig;(window.__zlms||[]).forEach(lm=>spDraw(lm));}}catch(e){}},3000);})();
+/* nella Mappa: pulsante "⭐ Sponsor" con l'elenco, accanto a "⋯" */
+const _renderMappaSp=renderMappa;renderMappa=function(){_renderMappaSp();try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('.mfsp'))return;
+  const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null).length;w.insertAdjacentHTML('beforeend',`<button class="mfsp" data-mfsp>⭐ ${n} sponsor</button>`);
+  w.querySelector('[data-mfsp]').onclick=()=>spList(window.__mf);}catch(e){}};
+/* i giocatori sulla mappa (filtro 🤝): toccandoli si apre la loro scheda */
+document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('.lm-usr');if(!m)return;const id=m.dataset.uid;if(id&&S.user){e.stopPropagation();playerSheet(id);}},true);
+S.mf=S.mf||{};if(S.mf.all===false&&!S.mfAllSet){S.mf.all=true;S.mfAllSet=1;}
+/* Io: niente più voce nella barra; ci si arriva dall'avatar in alto */
+setTimeout(()=>{try{renderNav();}catch(e){}},300);
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
