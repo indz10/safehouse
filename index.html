@@ -956,6 +956,7 @@ a.onl{font-weight:700;color:#1f3f80}
 
 #accFab{width:46px!important;height:46px!important;font-size:19px!important;opacity:.92}
 body[data-tab=mappa] #accFab{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 66px)!important}
+body[data-tab=social] #accFab{display:none!important}
 body[data-tab=orda] #accFab,body[data-tab=io] #accFab{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 70px)!important;right:6px!important}
 
 .hero2.mini{height:128px!important;min-height:0!important}
@@ -974,7 +975,6 @@ body[data-tab=orda] #accFab,body[data-tab=io] #accFab{bottom:calc(var(--nav-h) +
 .splist .strow{width:100%}
 #ioBtn{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:var(--moon);border:3px solid var(--moon);color:var(--ink);font-family:var(--display);font-size:22px;line-height:1;display:grid;place-items:center;cursor:pointer;z-index:5}
 #ioBtn.on{box-shadow:0 0 0 3px #fff}
-#topbar .ucount{margin-right:50px}
 #nav button{position:relative}.nbadge{position:absolute;top:4px;left:calc(50% + 8px);min-width:18px;height:18px;border-radius:9px;background:#d7263d;color:#fff;font-style:normal;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 4px;border:2px solid #140f1f}
 .shead{display:flex;justify-content:space-between;align-items:center;gap:10px}.shead small{display:block;color:#c9b8ff;font-size:12.5px}
 .schips{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}.schips button{background:#fff;border:2.5px solid var(--ink);box-shadow:2px 2px 0 var(--ink);font-weight:800;font-size:13px;padding:6px 10px;color:var(--ink)}.schips button.on{background:var(--moon)}
@@ -987,6 +987,157 @@ body[data-tab=orda] #accFab,body[data-tab=io] #accFab{bottom:calc(var(--nav-h) +
 .plhead{display:flex;gap:12px;align-items:center;margin-bottom:12px}.plhead small{display:block;color:#5a5470;font-size:13px}
 .placts{display:flex;flex-direction:column;gap:8px}.placts .btn{width:100%}
 .shouts{display:grid;grid-template-columns:1fr 1fr;gap:6px}.shouts button{background:#fff;border:2.5px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:9px 6px;font-size:13px;font-weight:700;text-align:left;color:var(--ink)}
+
+.sseg.four{grid-template-columns:repeat(4,1fr)}.sseg.four button{font-size:12.5px;padding:9px 1px}
+.pzwrap{display:flex;flex-direction:column;gap:8px}
+.pzrules{margin-left:auto;background:none;border:0;text-decoration:underline;font-weight:700;color:#5a5470;font-size:13px}
+.pzlist{height:max(260px,calc(100svh - 430px));overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:10px;display:flex;flex-direction:column;gap:8px}
+.pzm{max-width:84%;align-self:flex-start;background:#f1ebf9;border:2.5px solid var(--ink);border-radius:14px 14px 14px 4px;padding:6px 9px;cursor:pointer}
+.pzm.mine{align-self:flex-end;background:#fff3b0;border-radius:14px 14px 4px 14px}
+.pzh{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}.pzh span{font-size:11px;color:#5a5470;font-weight:700}.pzh small{font-size:11px;color:#5a5470;margin-left:auto}
+.pzb{font-size:15px;line-height:1.35;word-break:break-word;white-space:pre-wrap}
+.pzquick{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}.pzquick button{flex:0 0 auto;background:#fff;border:2px solid var(--ink);border-radius:16px;padding:5px 10px;font-size:13px;font-weight:700;color:var(--ink)}
+.pzin{display:flex;flex-direction:column;gap:6px;position:sticky;bottom:calc(var(--nav-h,64px) + env(safe-area-inset-bottom) + 6px);background:var(--paper,#f3e9d2);padding:6px 0}
+.pzrow{display:flex;gap:6px}.pzin input{flex:1;min-width:0;border:3px solid var(--ink);padding:10px;font-size:16px;font-family:inherit;background:#fff}
+.nolog{background:#fff3c4;border-color:#d7263d}
+.pznews{width:100%;text-align:left;background:#fff3c4;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-weight:800;font-size:14px;padding:9px 10px;margin-bottom:8px;color:var(--ink)}
+#ioBtn.nolog{background:#fff;font-size:20px}
+.pressed{transform:translate(2px,2px)!important;filter:brightness(.94);transition:transform .08s}
+
+/* barra in alto */
+#topbar{gap:8px!important}
+#topbar .tbname{font-family:var(--display);font-size:19px;color:#fff;letter-spacing:.4px;line-height:1;white-space:nowrap}#topbar .tbname span{color:var(--moon)}
+#topbar .ucount{margin-left:auto;font-size:11px;opacity:.85}
+@media (max-width:370px){#topbar .tbname{display:none}}
+@media (max-width:520px){#topbar .ucount{display:none!important}#topbar .tbname{margin-right:auto}}
+.hero2.mini{display:none!important}
+.zmstats{display:block;margin-top:4px;font-size:12px;color:#c9b8ff}
+#zbell,#zmenuBtn{flex:0 0 auto;width:42px;height:42px;border-radius:12px;border:2.5px solid var(--moon);background:transparent;color:#fff;font-size:20px;display:grid;place-items:center;position:relative;cursor:pointer}
+#zmenuBtn{background:var(--moon);gap:4px;align-content:center;justify-items:center}#zmenuBtn i{display:block;width:20px;height:3px;border-radius:2px;background:var(--ink)}
+#zbell .nbadge{top:-6px;left:auto;right:-6px}
+.musicfab{display:none!important}
+/* menu a tendina */
+#zmenu{position:fixed;inset:0;z-index:300}
+#zmenu .zmback{position:absolute;inset:0;background:rgba(20,15,31,.55);opacity:0;transition:opacity .2s}
+#zmenu .zmpanel{position:absolute;top:0;right:0;bottom:0;width:min(88vw,380px);background:var(--paper,#f3e9d2);border-left:4px solid var(--ink);box-shadow:-6px 0 0 rgba(20,15,31,.35);overflow-y:auto;-webkit-overflow-scrolling:touch;transform:translateX(105%);transition:transform .22s ease-out;padding:calc(10px + env(safe-area-inset-top)) 14px calc(20px + env(safe-area-inset-bottom))}
+#zmenu.open .zmback{opacity:1}#zmenu.open .zmpanel{transform:none}
+.zmtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.zmtop .disp{font-size:28px}
+.zmx{width:40px;height:40px;border:3px solid var(--ink);background:#fff;box-shadow:3px 3px 0 var(--ink);font-size:18px;font-weight:900}
+.zmhead{display:flex;gap:12px;align-items:center;background:#241a4a;color:#fff;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:12px}
+.zmhead b{font-size:18px;color:var(--moon)}.zmhead small{display:block;color:#c9b8ff;font-size:12.5px}
+.zmav{flex:0 0 auto;width:52px;height:52px;border-radius:50%;background:var(--moon);color:var(--ink);border:3px solid #fff;display:grid;place-items:center;font-family:var(--display);font-size:26px}
+.zmwal{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.zmwal span{background:rgba(255,255,255,.12);border:1.5px solid #c9b8ff;border-radius:10px;padding:2px 7px;font-size:12.5px;font-weight:700}
+.zmquick{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 4px}
+.zmquick button{display:flex;flex-direction:column;align-items:center;gap:2px;background:#fff;border:2.5px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:8px 2px;font-weight:800;font-size:11.5px;color:var(--ink)}.zmquick button span{font-size:22px}.zmquick button.on{background:var(--moon)}
+.zmsec{margin-top:14px}.zmsec h5{margin:0 0 4px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#5a5470}
+.zmrow{display:flex;align-items:center;gap:10px;width:100%;background:#fff;border:0;border-bottom:1px solid rgba(20,15,31,.12);padding:12px 10px;text-align:left;color:var(--ink);font-size:15px}
+.zmsec .zmrow:first-of-type{border-radius:10px 10px 0 0}.zmsec .zmrow:last-child{border-radius:0 0 10px 10px;border-bottom:0}
+.zmrow span{width:26px;text-align:center;font-size:19px}.zmrow b{flex:1;font-weight:700}.zmrow i{font-style:normal;color:#5a5470;font-size:20px}
+.zsw{width:44px;height:26px;border-radius:13px;background:#cfc6e6;border:2px solid var(--ink);position:relative;flex:0 0 auto}.zsw em{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--ink);transition:left .15s}
+.zsw.on{background:#3f9b5f}.zsw.on em{left:20px}
+.zmver{text-align:center;font-size:11px;color:#5a5470;margin-top:16px}
+
+.regbar{position:absolute;left:8px;right:8px;bottom:calc(58px + env(safe-area-inset-bottom,0px));z-index:8;background:#241a4a;color:#fff;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.regt b{color:var(--moon);font-size:15px;display:block}.regtx{font-size:13.5px;line-height:1.35;display:block;min-height:18px}
+.regbtn{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.regbtn button{background:var(--moon);border:2px solid var(--ink);font-weight:800;font-size:14px;padding:5px 10px;color:var(--ink)}.regbtn button[data-rg=x]{margin-left:auto;background:#fff}.regn{font-weight:800;font-size:13px}
+.mapfull:has(.regbar) .mfbar{display:none}
+.acard{background:linear-gradient(180deg,#ffe3e6,#fff)}
+.pushon{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700;font-size:13px;background:#bfe8c9;border:2px solid var(--ink);padding:6px 8px}
+
+html,body{overflow-x:hidden;max-width:100%}
+.regbar{box-sizing:border-box;max-width:calc(100% - 16px);overflow:hidden}.regt,.regtx,.regt b{min-width:0;overflow-wrap:anywhere;white-space:normal}
+.regbtn{min-width:0}.regbtn button{flex:0 0 auto}
+.mapfull .oplay{top:8px;bottom:auto;left:8px;right:8px;max-width:calc(100% - 16px);box-sizing:border-box}
+
+.mapfull:has(.oplay) .mfsp,.mapfull:has(.oplay) .mfmore{top:118px}
+body:has(.regbar) #accFab{display:none!important}
+.oplay.sim{background:rgba(59,47,110,.95);border-style:dashed}
+
+/* ===== L'ORDA A FUMETTO ===== */
+#fumetto{position:fixed;inset:0;z-index:400;background:#0c0912;display:flex;flex-direction:column;padding:calc(6px + env(safe-area-inset-top)) 8px calc(8px + env(safe-area-inset-bottom));overflow:hidden}
+.ftop{display:flex;align-items:center;gap:8px;color:#fff;padding:4px 2px 8px}.ftop b{font-family:var(--display);font-size:20px;color:var(--moon);letter-spacing:.5px}.ftop span{flex:1;font-size:12.5px;color:#c9b8ff;font-weight:700}
+.ftop button{width:38px;height:38px;border:3px solid #fff;background:none;color:#fff;font-weight:900;font-size:16px}
+.fpage{flex:1;display:grid;grid-template-rows:27% 1fr 30%;gap:7px;min-height:0;background:#f3e9d2;padding:7px;border:3px solid #f3e9d2}
+.frow{display:grid;grid-template-columns:1.05fr 1fr;gap:7px;min-height:0}
+.fpan{position:relative;overflow:hidden;border:4px solid #140f1f;background:#241a4a;opacity:0;transform:scale(1.18) rotate(-1.5deg);transition:opacity .25s,transform .35s cubic-bezier(.2,1.6,.4,1)}
+.fpan.in{opacity:1;transform:none}
+.p3{transform:scale(1.18) rotate(1.5deg)}
+.fbg,.fbg svg{position:absolute;inset:0;width:100%;height:100%}.fbg svg{object-fit:cover}
+.fsvg{position:absolute;inset:0;width:100%;height:100%}
+.fcap{position:absolute;left:6px;top:6px;background:#fff;border:3px solid #140f1f;padding:3px 8px;font-weight:800;font-size:12.5px;max-width:70%}
+.fcap.r{left:auto;right:6px;top:auto;bottom:6px;background:var(--moon)}
+.fcap.b{top:auto;bottom:6px;left:6px;right:6px;max-width:none;font-size:12.5px;line-height:1.3}
+.fsfx{position:absolute;font-family:Bangers,Impact,sans-serif;color:#fff;-webkit-text-stroke:2px #140f1f;text-shadow:3px 3px 0 #140f1f,0 0 14px rgba(255,90,60,.7);transform:rotate(-8deg);letter-spacing:1px;opacity:0;transition:opacity .2s .35s,transform .3s .35s}
+.fpan.in .fsfx{opacity:1}
+.s1{right:10px;top:34px;font-size:26px;color:#c9ffd0}
+.s2{left:6px;top:8px;font-size:24px;color:var(--moon)}
+.win{left:50%;top:22%;font-size:48px;color:var(--moon);transform:translateX(-50%) rotate(-6deg) scale(.4)}.fpan.in .win{transform:translateX(-50%) rotate(-6deg) scale(1)}
+.lose{left:50%;top:22%;font-size:44px;color:#ff5a3c;transform:translateX(-50%) rotate(5deg) scale(.4)}.fpan.in .lose{transform:translateX(-50%) rotate(5deg) scale(1)}
+.fhorde{position:absolute;left:0;right:0;bottom:0;height:78%;}
+.fhorde .zart{position:absolute;bottom:0;width:46%;height:auto;filter:drop-shadow(0 0 6px rgba(0,0,0,.6));transform:translateX(-120%);transition:transform 1.1s cubic-bezier(.3,.8,.3,1) var(--d,0s)}
+.fhorde .w0{left:-6%;bottom:2%;width:52%;z-index:3}.fhorde .w1{left:30%;bottom:12%;width:40%;z-index:2}.fhorde .w2{left:58%;bottom:20%;width:32%;z-index:1;filter:brightness(.7)}.fhorde .w3{left:12%;bottom:26%;width:28%;z-index:0;filter:brightness(.55)}.fhorde .w4{left:66%;bottom:30%;width:24%;z-index:0;filter:brightness(.45)}
+.fpan.in .fhorde .zart{transform:none;animation:zbob .45s ease-in-out infinite alternate;animation-delay:calc(1.1s + var(--d,0s))}
+@keyframes zbob{to{translate:0 -4px;rotate:2deg}}
+.fhorde.in .zart{transform:none}.p4 .fhorde{height:60%}.p4 .fhorde .zart{width:30%}.p4 .fhorde .w0{left:30%}.p4 .fhorde .w1{left:52%}
+.fhands{position:absolute;inset:0}.fhand{position:absolute;left:-60%;width:78%;transition:left .35s cubic-bezier(.2,1.4,.4,1)}
+.fhand.h0{top:30%}.fhand.h1{top:52%;transition-delay:.12s}.fhand.h2{top:70%;transition-delay:.24s}
+.fpan.in .fhand{left:-4%}
+.fx{pointer-events:none}.fbam{transform-origin:205px 150px;transform:scale(0);transition:transform .25s cubic-bezier(.2,1.8,.4,1) .45s}.fpan.in .fbam{transform:scale(1)}
+.fthrow .zart{position:absolute;bottom:18%;width:26%;opacity:.9}.fthrow .t0{left:4%;transform:rotate(-30deg)}.fthrow .t1{right:4%;transform:scaleX(-1) rotate(-30deg)}
+.fpan.in .fthrow .t0{animation:flyl .9s ease-out both .2s}.fpan.in .fthrow .t1{animation:flyr .9s ease-out both .2s}
+@keyframes flyl{from{transform:translate(60%,0) rotate(0)}to{transform:translate(-30%,-40%) rotate(-70deg)}}@keyframes flyr{from{transform:scaleX(-1) translate(60%,0) rotate(0)}to{transform:scaleX(-1) translate(-30%,-40%) rotate(-70deg)}}
+.fshield{transform-origin:200px 140px;animation:shp 1.2s ease-in-out infinite alternate}@keyframes shp{to{opacity:.65;transform:scale(1.03)}}
+.ffire{transform-origin:center bottom;animation:ffl .35s ease-in-out infinite alternate;animation-delay:var(--d)}@keyframes ffl{to{transform:scaleY(1.18) skewX(4deg)}}
+.p4.ko .fbg{filter:saturate(.7) brightness(.75)}
+.fbot{display:flex;gap:8px;padding-top:8px}.fbot .btn{flex:1}
+#fumetto.done .fpage{animation:none}
+
+.fpage{grid-template-rows:minmax(0,26fr) minmax(0,44fr) minmax(0,30fr)!important}
+.frow{height:100%;grid-template-rows:100%}
+.frow>.fpan,.fpage>.fpan{height:100%;min-height:0}
+.p4 .fhorde{height:72%!important;bottom:4%!important}.p4 .fhorde .zart{width:19%!important;bottom:0!important}.p4 .fhorde .w0{left:34%!important}.p4 .fhorde .w1{left:56%!important}
+.p4 .fsfx{top:10%!important}
+.fthrow .zart{width:17%!important;bottom:26%!important}
+
+.fsfx{z-index:6}.fcap{z-index:7}
+.p4.ko .fhorde{height:58%!important;bottom:22%!important}.p4.ko .fhorde .zart{width:15%!important}.p4.ko .fhorde .w0{left:6%!important}.p4.ko .fhorde .w1{left:auto!important;right:6%!important}
+.fbot .btn{font-size:15px!important;padding:10px 8px!important;line-height:1.15}
+
+/* ===== HOMEPAGE A DISEGNO ===== */
+.hscene{position:relative;overflow:hidden;background:#241a4a;margin:0}
+.hsart,.hsart svg{position:absolute;inset:0;width:100%;height:100%}
+.hstitle{position:absolute;left:16px;right:16px;top:14px;z-index:2}
+.hstitle h1{font-size:clamp(44px,13vw,76px);color:#fff;-webkit-text-stroke:3px var(--ink);text-shadow:5px 5px 0 var(--blood);transform:rotate(-3deg);transform-origin:left;line-height:.92;margin:0;animation:slam .55s cubic-bezier(.2,1.6,.4,1) both}
+.hstitle h1 span{display:block;color:var(--moon)}
+.hstitle p{display:inline-block;margin:10px 0 0;background:var(--moon);color:var(--ink);border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:5px 10px;font-weight:800;font-size:14px;transform:rotate(-1.5deg)}
+.hschips{position:absolute;right:10px;top:12px;z-index:2;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.hschips span{background:rgba(20,15,31,.82);color:#fff;border:2px solid var(--moon);border-radius:14px;padding:3px 9px;font-weight:800;font-size:12.5px}.hschips b{color:var(--moon)}
+.hsbtns{position:absolute;left:14px;right:14px;bottom:16px;z-index:3;display:flex;flex-direction:column;gap:9px}
+.hsbig{font-family:var(--display);font-size:30px;letter-spacing:.5px;background:var(--blood);color:#fff;border:4px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:14px 10px;animation:hsPulse 2.4s ease-in-out infinite}
+@keyframes hsPulse{50%{transform:scale(1.025)}}
+.hsmid{font-family:var(--display);font-size:22px;background:var(--moon);color:var(--ink);border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:10px}
+.hsrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.hsrow button{background:#fff;color:var(--ink);border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-weight:800;font-size:14px;padding:10px 4px}
+.cback{background:none;border:0;font-weight:800;font-size:15px;color:#3b2f6e;padding:4px 0 10px}
+/* ===== LE TUE CASE NEL MONDO ===== */
+.mhouses{position:absolute;left:8px;right:8px;bottom:calc(56px + env(safe-area-inset-bottom,0px));z-index:7;background:rgba(243,233,210,.97);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:6px 8px}
+.mhhead{display:flex;justify-content:space-between;align-items:center}.mhhead b{font-size:14px}.mhhead button{background:none;border:0;font-size:16px;font-weight:900;padding:0 4px}
+.mhlist{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:6px 0 2px}
+.mhc{flex:0 0 auto;min-width:96px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;background:#fff;border:2.5px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:6px 8px;text-align:left;color:var(--ink)}
+.mhc span{font-size:20px}.mhc b{font-size:13.5px}.mhc small{font-size:11px;color:#5a5470;font-weight:700}.mhc.add{background:#fff3b0}
+.mapfull:has(.mhouses) .regbar{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+/* ===== SCHEDA DELLA CASA ===== */
+.hshead{display:flex;justify-content:space-between;align-items:center;background:#241a4a;color:#fff;border:3px solid var(--ink);padding:10px}.hshead b{font-size:18px;color:var(--moon)}.hshead small{display:block;color:#c9b8ff;font-size:12.5px}
+.hsdef{text-align:right}.hsdef b{font-family:var(--display);font-size:30px;color:#fff!important}
+.hslast{margin:8px 0 0;font-weight:800;padding:6px 8px;border:2px solid var(--ink)}.hslast.ok{background:#bfe8c9}.hslast.ko{background:#f6b8bf}
+.hwal{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0 2px}.hwal span{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:3px 9px;font-weight:800;font-size:13px}.hwal .btn{margin-left:auto}
+.hh{margin:14px 0 6px;font-size:15px}
+.hact{display:flex;align-items:center;gap:10px;width:100%;background:#fff;border:2.5px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:9px 10px;margin-bottom:7px;text-align:left;color:var(--ink)}
+.hact span{font-size:22px}.hact div{flex:1;display:flex;flex-direction:column}.hact b{font-size:14.5px}.hact small{font-size:12px;color:#5a5470}.hact i{font-style:normal;font-weight:800;font-size:13.5px;white-space:nowrap}
+.hact:disabled{opacity:.6}.need{color:#d7263d!important;font-weight:800}
+.hai{background:#f1ebf9;border-left:5px solid #3b2f6e;padding:6px 9px;margin-bottom:6px;display:flex;flex-direction:column}.hai b{font-size:14px}.hai small{font-size:12px;color:#5a5470}
+
+.hschips{position:static!important;flex-direction:row!important;justify-content:center;flex-wrap:wrap}
+body[data-tab=home] #accFab,body[data-tab=mappa] #accFab{display:none!important}
 </style>
 </head>
 <body>
@@ -5768,7 +5919,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610292239';
+const ZSH_BUILD='202610310903';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -6903,7 +7054,7 @@ async function orView(lm){if(!lm||!lm.map||typeof SB==='undefined'||!SB)return[]
 async function orBadges(lm){if(!lm||!lm.map||lm.map.getZoom()<13)return;const rows=await orView(lm);(lm._ob||[]).forEach(x=>x.remove());lm._ob=[];
   rows.forEach(r=>{const el=elDiv('lm-ob '+(r.held?'held':'fell')+(r.mine?' mine':''),r.held?'🛡️':'💥');lm._ob.push(new maplibregl.Marker({element:el,anchor:'bottom',offset:[14,-14]}).setLngLat([r.lon,r.lat]).addTo(lm.map));});}
 async function orPlay(lm){if(!lm||!lm.map||lm._playing)return;lm._playing=true;const map=lm.map;const rows=(await orView(lm)).slice(0,30);const box=map.getContainer().closest('.lmap')||map.getContainer();
-  const ban=document.createElement('div');ban.className='oplay';ban.innerHTML=`<b>🧟 ORDA DELLE ${OR.s?orTime(OR.s.prev_at):''}</b><span>${rows.length?`${rows.filter(r=>r.held).length} case hanno tenuto · ${rows.filter(r=>!r.held).length} sfondate`:'Nessuna casa del mondo in questa zona: allarga la mappa'}</span>`;box.appendChild(ban);
+  const ban=document.createElement('div');ban.className='oplay';ban.innerHTML=`<b>🧟 ORDA DELLE ${OR.s?orTime(OR.s.prev_at):''}</b><span>${rows.length?`${(n=>n===1?'1 casa ha tenuto':n+' case hanno tenuto')(rows.filter(r=>r.held).length)} · ${(n=>n===1?'1 sfondata':n+' sfondate')(rows.filter(r=>!r.held).length)}`:'Nessuna casa del mondo in questa zona: allarga la mappa'}</span>`;box.appendChild(ban);
   (lm._ob||[]).forEach(x=>x.remove());lm._ob=[];const zs=[];const k=Math.cos((rows[0]?rows[0].lat:45)*Math.PI/180);
   rows.forEach((r,i)=>{for(let j=0;j<4;j++){const a=Math.random()*Math.PI*2,d=220+Math.random()*180;const s=[r.lat+Math.sin(a)*d/110540,r.lon+Math.cos(a)*d/(111320*k)];
     const el=elDiv('lm-z','🧟');const mk=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([s[1],s[0]]).addTo(map);zs.push({mk,s,r,t0:performance.now()+i*180+j*260,dur:5200+Math.random()*2200});}});
@@ -7395,6 +7546,420 @@ document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest
 S.mf=S.mf||{};if(S.mf.all===false&&!S.mfAllSet){S.mf.all=true;S.mfAllSet=1;}
 /* Io: niente più voce nella barra; ci si arriva dall'avatar in alto */
 setTimeout(()=>{try{renderNav();}catch(e){}},300);
+</script>
+<script>
+/* =========================================================
+   💬 PIAZZA: la chat della community (Zona · Mondo)
+   + accesso sempre chiaro, avatar aggiornato, segnaposto giocatori,
+     contatore sponsor vivo, riscontro a ogni tocco
+   ========================================================= */
+window.PZ={room:'zona',msgs:{zona:[],mondo:[]},last:{zona:0,mondo:0},timer:null,busy:false,admin:false,err:null};
+const PZ_QUICK=['👏 Grande!','😂','🔥 Che orda!','🧟 Arrivano!','🛡️ Tenuto!','🤝 Chi si allea?','😤 Rivincita!','🙏 Grazie!'];
+async function pzLoad(force){if(!S.user||PZ.busy)return;PZ.busy=true;const r=PZ.room;
+  try{const{data,error}=await SB.rpc('world_chat_list',{p_room:r,p_after:force?0:PZ.last[r]});if(error)throw error;
+    const add=(data||[]).slice().reverse();if(force)PZ.msgs[r]=add;else if(add.length)PZ.msgs[r]=PZ.msgs[r].concat(add.filter(m=>!PZ.msgs[r].some(x=>x.id===m.id))).slice(-120);
+    if(PZ.msgs[r].length)PZ.last[r]=PZ.msgs[r][PZ.msgs[r].length-1].id;PZ.err=null;if(add.length||force)pzPaintList(force);}
+  catch(e){PZ.err=e.message;pzPaintList(true);}finally{PZ.busy=false;}}
+function pzStart(){pzStop();pzLoad(true);PZ.timer=setInterval(()=>{if(S.tab==='social'&&SOC.tab==='piazza'&&document.visibilityState==='visible')pzLoad(false);else pzStop();},5000);
+  try{if(typeof zIsAdmin==='function')zIsAdmin().then(a=>{PZ.admin=!!a;});}catch(e){}}
+function pzStop(){if(PZ.timer){clearInterval(PZ.timer);PZ.timer=null;}}
+function pzHTML(){if(!S.user)return`<div class="panel"><b class="disp" style="font-size:20px">💬 Piazza</b><p style="font-weight:400">Per scrivere in piazza devi essere collegato <b>in questa app</b>.</p><button class="btn" onclick="loginSheet()">Accedi</button>${pzSafariNote()}</div>`;
+  return`<div class="pzwrap"><div class="schips">${[['zona','📍 La mia zona'],['mondo','🌍 Mondo']].map(([k,l])=>`<button data-pzr="${k}" class="${PZ.room===k?'on':''}">${l}</button>`).join('')}<button class="pzrules" data-pzrules>Regole</button></div>
+   <div class="pzlist" id="pzList"><p class="muted"><span class="spin"></span> Carico la piazza…</p></div>
+   <div class="pzin"><div class="pzquick">${PZ_QUICK.map(q=>`<button data-pzq="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+   <div class="pzrow"><input id="pzTxt" maxlength="280" placeholder="Scrivi in piazza… (complimenti, sfide, sfottò)" autocomplete="off"><button class="btn" data-pzsend>Invia</button></div></div></div>`;}
+function pzSafariNote(){return'<p class="muted" style="font-size:12px;margin-top:8px">Su iPhone l’app sulla schermata Home ha un accesso separato da Safari: entra anche qui con la stessa email e password.</p>';}
+function pzPaintList(toBottom){const L=document.getElementById('pzList');if(!L)return;const M=PZ.msgs[PZ.room]||[];const near=L.scrollHeight-L.scrollTop-L.clientHeight<80;
+  L.innerHTML=(PZ.err?`<p class="notice">La piazza non risponde ora (${esc(PZ.err)}). Se compare “does not exist”, manca il blocco SQL della piazza su Supabase.</p>`:'')+
+    (M.length?M.map(m=>`<div class="pzm ${m.mine?'mine':''}" data-pzid="${m.id}"><div class="pzh">${m.mine?'':`<b class="snick" data-pl="${esc(m.user_id)}">@${esc(m.nick)}</b><span>liv. ${m.wlevel}</span>`}<small>${socAgo(m.created_at)}</small></div><div class="pzb">${esc(m.body)}</div></div>`).join(''):(PZ.err?'':`<p class="muted">Ancora silenzio in ${PZ.room==='zona'?'zona':'piazza'}: rompi il ghiaccio!</p>`));
+  if(toBottom||near)L.scrollTop=L.scrollHeight;
+  L.querySelectorAll('.pzm').forEach(el=>el.onclick=ev=>{if(ev.target.closest('[data-pl]'))return;const m=M.find(x=>String(x.id)===el.dataset.pzid);if(m)pzActions(m);});}
+function pzBind(){const B=app.querySelector('#socBody');if(!B)return;
+  B.querySelectorAll('[data-pzr]').forEach(b=>b.onclick=()=>{PZ.room=b.dataset.pzr;B.querySelectorAll('[data-pzr]').forEach(x=>x.classList.toggle('on',x===b));pzLoad(true);});
+  B.querySelectorAll('[data-pzq]').forEach(b=>b.onclick=()=>{const t=document.getElementById('pzTxt');t.value=(t.value?t.value+' ':'')+b.dataset.pzq;t.focus();});
+  const r=B.querySelector('[data-pzrules]');if(r)r.onclick=()=>openSheet('📜 Regole della piazza',`<p style="font-weight:400">In piazza si chiacchiera, ci si fanno i complimenti, ci si sfida e ci si sfotte: anche litigare va bene.</p><p style="font-weight:400"><b>Non sono ammessi</b> bestemmie, insulti pesanti (razziali, sessuali, sull’origine), minacce e dati personali (indirizzi, telefoni).</p><p style="font-weight:400">Tocca un messaggio per <b>🚩 segnalarlo</b> (con 3 segnalazioni sparisce) o per <b>🚫 bloccare</b> chi ti dà fastidio. I messaggi restano 90 giorni.</p>`);
+  const send=async()=>{const t=document.getElementById('pzTxt');const v=(t.value||'').trim();if(!v)return;const btn=B.querySelector('[data-pzsend]');btn.disabled=true;
+    try{const{data,error}=await SB.rpc('world_chat_send',{p_room:PZ.room,p_body:v});if(error)throw error;if(data&&data.ok){t.value='';await pzLoad(false);const L=document.getElementById('pzList');if(L)L.scrollTop=L.scrollHeight;}else toast(data.msg||'Non inviato');}
+    catch(e){toast(e.message||'Non inviato');}finally{setTimeout(()=>{btn.disabled=false;},600);}};
+  const sb=B.querySelector('[data-pzsend]');if(sb)sb.onclick=send;const ti=document.getElementById('pzTxt');if(ti)ti.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send();}};}
+function pzActions(m){openSheet('💬 Messaggio',`<div class="pzm ${m.mine?'mine':''}" style="margin-bottom:12px"><div class="pzh"><b>@${esc(m.nick)}</b><small>${socAgo(m.created_at)}</small></div><div class="pzb">${esc(m.body)}</div></div>
+  <div class="placts">${m.mine?'':`<button class="btn" data-pa="pro">👤 Apri il profilo di @${esc(m.nick)}</button><button class="btn ghost" data-pa="re">↩️ Rispondi</button>`}
+  ${m.mine?'':'<button class="btn ghost" data-pa="rep">🚩 Segnala</button><button class="btn ghost" data-pa="blk">🚫 Blocca @'+esc(m.nick)+'</button>'}${PZ.admin?'<button class="btn alt" data-pa="hide">🗑 Nascondi (admin)</button>':''}</div>`,card=>{
+  card.querySelectorAll('[data-pa]').forEach(b=>b.onclick=async()=>{const k=b.dataset.pa;
+    if(k==='pro'){closeSheet();playerSheet(m.user_id);return;}
+    if(k==='re'){closeSheet();const t=document.getElementById('pzTxt');if(t){t.value='@'+m.nick+' ';t.focus();}return;}
+    b.disabled=true;try{let r;if(k==='rep'||k==='hide'){r=await socRpc('world_chat_report',{p_id:m.id});}else if(k==='blk'){if(!confirm('Bloccare @'+m.nick+'? Non vedrai più i suoi messaggi.')){b.disabled=false;return;}r=await socRpc('world_block',{p_user:m.user_id,p_on:true});}
+      toast(r.msg||'Fatto');closeSheet();pzLoad(true);}catch(e){toast(e.message||'Non riuscito');b.disabled=false;}});});}
+/* la piazza è la prima voce di Superstiti */
+SOC.tab='piazza';
+const _renderSocialPz=renderSocial;renderSocial=function(){_renderSocialPz();try{const seg=app.querySelector('.sseg');if(seg&&!seg.querySelector('[data-st=piazza]')){
+    seg.insertAdjacentHTML('afterbegin','<button data-st="piazza">💬 Piazza</button>');seg.classList.add('four');
+    seg.querySelectorAll('[data-st]').forEach(b=>{b.classList.toggle('on',b.dataset.st===SOC.tab);b.onclick=()=>{SOC.tab=b.dataset.st;seg.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));socPaint();socFetchTab();};});}
+  if(!S.user){const h=app.querySelector('.shead');if(h&&!app.querySelector('.nolog'))h.insertAdjacentHTML('afterend',`<div class="panel nolog"><b>🔒 Non sei collegato in questa app</b>${pzSafariNote()}<button class="btn" onclick="loginSheet()">Accedi</button></div>`);}}catch(e){}socPaint();};
+const _socPaintPz=socPaint;socPaint=function(){if(SOC.tab!=='piazza'){pzStop();return _socPaintPz();}const B=app.querySelector('#socBody');if(!B)return;
+  const n=(SOC.pend||[]).length+(SOC.per||[]).filter(f=>Date.now()-new Date(f.created_at).getTime()<86400000).length;
+  const fresh=!B.querySelector('.pzwrap');if(fresh){B.innerHTML=pzHTML();pzBind();if(S.user)pzStart();}
+  let nb=B.querySelector('.pznews');if(n&&S.user){if(!nb){B.insertAdjacentHTML('afterbegin','<button class="pznews" data-pznews></button>');nb=B.querySelector('.pznews');nb.onclick=()=>{SOC.tab='bacheca';renderSocial();};}nb.textContent=`📬 Hai ${n} ${n===1?'novità':'novità'} per te${(SOC.pend||[]).length?' · '+SOC.pend.length+(SOC.pend.length===1?' proposta':' proposte')+' di alleanza':''} →`;}else if(nb)nb.remove();};
+const _socFetchPz=socFetchTab;socFetchTab=function(){if(SOC.tab==='piazza'){if(S.user)socLoad('per');return;}return _socFetchPz();};
+/* ---------------- accesso chiaro e avatar sempre aggiornato ---------------- */
+const _onLoginPz=onLogin;onLogin=async function(u,fresh){const r=await _onLoginPz(u,fresh);try{renderNav();if(S.tab==='social')renderSocial();}catch(e){}return r;};
+setInterval(()=>{try{const b=document.getElementById('ioBtn');if(!b)return;const want=S.user?((S.user.nick||(S.user.email||'?').split('@')[0])[0]||'?').toUpperCase():'👤';if(b.textContent!==want){b.textContent=want;b.classList.toggle('nolog',!S.user);}}catch(e){}},2000);
+/* in Casa, se non sei collegato, lo vedi subito */
+const _renderHomePz=renderHome;renderHome=function(){_renderHomePz();try{if(S.user||!S.result||app.querySelector('.nolog'))return;const c=app.querySelector('.hcard');if(c)c.insertAdjacentHTML('beforebegin',`<div class="panel nolog"><b>🔒 Non sei collegato in questa app</b><p style="font-weight:400;margin:4px 0">Accedi per salvare i progressi, avere la tua casa nel mondo e giocare con gli altri.</p>${pzSafariNote()}<button class="btn" onclick="loginSheet()">Accedi</button></div>`);}catch(e){}};
+/* ---------------- giocatori sulla mappa: sempre la scheda nuova ---------------- */
+document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('.lm-usr');if(!m||!m.dataset.uid)return;e.stopPropagation();e.preventDefault();
+  if(S.user&&m.dataset.uid===S.user.id){go('io');return;}playerSheet(m.dataset.uid);},true);
+/* il tuo segnaposto non compare come "altro giocatore" */
+setInterval(()=>{try{if(!S.user)return;document.querySelectorAll('.lm-usr').forEach(m=>{if(m.dataset.uid===S.user.id)m.style.display='none';});}catch(e){}},2500);
+/* ---------------- contatore sponsor vivo ---------------- */
+setInterval(()=>{try{const b=document.querySelector('.mfsp');if(!b)return;const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null).length;const t=n?`⭐ ${n} sponsor`:'⭐ Sponsor';if(b.textContent!==t)b.textContent=t;}catch(e){}},1500);
+/* ---------------- riscontro a ogni tocco ---------------- */
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('button,.btn,[role=button],.strow,.iorow');if(!b||b.disabled)return;b.classList.add('pressed');setTimeout(()=>b.classList.remove('pressed'),160);},{passive:true,capture:true});
+</script>
+<script>
+/* =========================================================
+   BARRA IN ALTO + MENU A TENDINA (come nelle app moderne)
+   logo · contatore · 🔔 novità · ☰ menu
+   il menu raggiunge TUTTO: casa, gioco, community, aiuto, account
+   ========================================================= */
+function zmItems(){const u=S.user;const adm=!!window.__zmAdmin,shop=!!window.__zmShop;
+  return[
+   ['La mia casa',[['📷','Valuta o aggiorna la casa','valuta'],['📋','Piano d’azione e sponsor','home'],['📍','Correggi la posizione','pos'],['🚚','Ho cambiato casa','move']]],
+   ['Gioco',[['☀️','Oggi: orda, premi, missioni','g:oggi'],['🌍','Il mio impero','g:impero'],['⚔️','Difendi tu (notti)','g:difendi'],['🎁','Premi e fortuna','g:oggi'],['💎','Bottega','io']]],
+   ['Community',[['💬','Piazza (chat)','s:piazza'],['📰','Bacheca','s:bacheca'],['🤝','La mia squadra','s:squadra'],['🏆','Classifiche','s:classifiche'],['📨','Invita amici e vicini','invite']]],
+   ['Aiuto',[['🧭','Giro guidato','tour'],['📖','Come si gioca','rules'],['📻','Radio Operatore','radio'],['⭐','Sponsor e come diventarlo','sponsor'],['✉️','Chi siamo e contatti','contatti']]],
+   ['Account',[...(u?[['👤','Il mio profilo','io']]:[]),['toggle','Visibile sulla mappa','vis',u?!!S.pubOk:null],['toggle','Suoni del gioco','snd',!(typeof G!=='undefined'&&G.mute)],['toggle','Musica','mus',!!(window.AUD&&AUD.on&&AUD.started)],
+     ['🔒','Privacy','url:privacy.html'],['📄','Termini','url:termini.html'],...(adm?[['🛠️','Pannello admin INDZ','url:admin.html']]:[]),...(shop?[['🏪','Pannello del mio negozio','url:negozio.html']]:[]),
+     ...(u?[['🚪','Esci dall’account','logout'],['🗑','Elimina il mio account','del']]:[])]]];}
+function zmHTML(){const u=S.user,m=window.W&&W.m;const nk=u?(u.nick||(u.email||'?').split('@')[0]):'';
+  const head=u?`<div class="zmhead"><span class="zmav">${esc((nk[0]||'?').toUpperCase())}</span><div><b>@${esc(nk)}</b><small>Livello mondo ${m?m.wlevel:'…'}</small>${typeof STATS!=='undefined'&&STATS.reg?`<span class="zmstats">👥 ${STATS.reg} superstiti · 🟢 ${STATS.on||0} online ora</span>`:''}<div class="zmwal"><span>🧱 ${m?wNum(m.mattoni):'…'}</span><span>💎 ${(typeof G!=='undefined'&&G.gems)||0}</span><span>🪙 ${(typeof G!=='undefined'&&G.coins)||0}</span></div></div></div>`
+    :`<div class="zmhead"><span class="zmav">👤</span><div><b>Ospite</b><small>Accedi per salvare i progressi e giocare con gli altri</small><button class="btn small" data-zm="login" style="margin-top:6px">Accedi o registrati</button></div></div>`;
+  const quick=[['🏠','Casa','home'],['🗺️','Mappa','mappa'],['🧟','Orda','orda'],['👥','Superstiti','social']].map(([i,l,k])=>`<button data-zm="${k}" class="${(NAV_ACT[S.tab]||S.tab)===k?'on':''}"><span>${i}</span>${l}</button>`).join('');
+  const sec=zmItems().map(([t,L])=>`<div class="zmsec"><h5>${t}</h5>${L.map(it=>it[0]==='toggle'?(it[3]==null?'':`<button class="zmrow" data-zm="${it[2]}"><span>${it[2]==='vis'?'👥':it[2]==='snd'?'🔊':'🎵'}</span><b>${it[1]}</b><i class="zsw ${it[3]?'on':''}"><em></em></i></button>`)
+      :`<button class="zmrow" data-zm="${it[2]}"><span>${it[0]}</span><b>${it[1]}</b><i>›</i></button>`).join('')}</div>`).join('');
+  return`<div class="zmback" data-zmclose></div><aside class="zmpanel" role="dialog" aria-label="Menu"><div class="zmtop"><b class="disp">Menu</b><button class="zmx" data-zmclose aria-label="Chiudi">✕</button></div>${head}<div class="zmquick">${quick}</div>${sec}<p class="zmver">ZombieSafeHouse · un marchio INDZ · v${(window.ZV||'').toString().slice(-6)||'—'}</p></aside>`;}
+function zmOpen(){zmClose(true);document.body.insertAdjacentHTML('beforeend',`<div id="zmenu">${zmHTML()}</div>`);requestAnimationFrame(()=>document.getElementById('zmenu').classList.add('open'));
+  const M=document.getElementById('zmenu');M.querySelectorAll('[data-zmclose]').forEach(b=>b.onclick=()=>zmClose());
+  M.querySelectorAll('[data-zm]').forEach(b=>b.onclick=()=>zmDo(b.dataset.zm,b));
+  /* scorri a destra per chiudere */
+  let x0=null;const P=M.querySelector('.zmpanel');P.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true});P.addEventListener('touchend',e=>{if(x0!=null&&e.changedTouches[0].clientX-x0>70)zmClose();x0=null;},{passive:true});
+  (async()=>{try{if(!S.user)return;if(typeof zIsAdmin==='function'&&await zIsAdmin()&&!window.__zmAdmin){window.__zmAdmin=true;zmRefresh();}
+    if(!window.__zmShopChk){window.__zmShopChk=1;const{data}=await SB.from('sponsor_users').select('sponsor_id').eq('user_id',S.user.id).limit(1);if(data&&data.length){window.__zmShop=true;zmRefresh();}}}catch(e){}})();}
+function zmRefresh(){const M=document.getElementById('zmenu');if(!M)return;const sc=M.querySelector('.zmpanel').scrollTop;M.innerHTML=zmHTML();M.classList.add('open');M.querySelector('.zmpanel').scrollTop=sc;
+  M.querySelectorAll('[data-zmclose]').forEach(b=>b.onclick=()=>zmClose());M.querySelectorAll('[data-zm]').forEach(b=>b.onclick=()=>zmDo(b.dataset.zm,b));}
+function zmClose(now){const M=document.getElementById('zmenu');if(!M)return;if(now){M.remove();return;}M.classList.remove('open');setTimeout(()=>M.remove(),220);}
+function zmDo(k,b){try{
+  if(k==='vis'){try{zTogglePublic();}catch(e){S.pubOk=!S.pubOk;}setTimeout(zmRefresh,150);return;}
+  if(k==='snd'){if(typeof G!=='undefined')G.mute=!G.mute;try{saveLocal();}catch(e){}zmRefresh();return;}
+  if(k==='mus'){try{if(AUD.on&&AUD.started)musicOff();else musicOn();}catch(e){}setTimeout(zmRefresh,120);return;}
+  zmClose();
+  if(['home','mappa','orda','social','io','radio','sponsor','contatti','valuta'].includes(k)){if(k==='valuta')S.step=S.result?3:0;go(k);return;}
+  if(k.startsWith('g:')){G.ss=k.slice(2);go('orda');return;}
+  if(k.startsWith('s:')){SOC.tab=k.slice(2);go('social');return;}
+  if(k.startsWith('url:')){window.open(k.slice(4),'_blank');return;}
+  if(k==='pos'){S.step=0;go('valuta');return;}
+  if(k==='move'){try{moveSheet();}catch(e){go('valuta');}return;}
+  if(k==='invite'){if(!S.user)return loginSheet();inviteSheet();return;}
+  if(k==='tour'){go('orda');setTimeout(()=>{try{orTour(0);}catch(e){}},700);return;}
+  if(k==='rules'){openRules(0);return;}
+  if(k==='login'){loginSheet();return;}
+  if(k==='logout'){if(confirm('Uscire dall’account?')){try{SB.auth.signOut();}catch(e){}S.user=null;location.reload();}return;}
+  if(k==='del'){try{deleteSheet();}catch(e){location.href='elimina-account.html';}return;}
+  }catch(e){toast('Non disponibile ora');}}
+/* ---------------- barra in alto rinnovata ---------------- */
+function zTopbar(){try{const T=document.getElementById('topbar');if(!T)return;
+  if(!T.querySelector('.tbname')){const lg=T.querySelector('.tb-logo');if(lg)lg.insertAdjacentHTML('afterend','<b class="tbname">Zombie<span>SafeHouse</span></b>');}
+  if(!document.getElementById('zbell')){T.insertAdjacentHTML('beforeend','<button id="zbell" aria-label="Novità">🔔</button><button id="zmenuBtn" aria-label="Apri il menu"><i></i><i></i><i></i></button>');
+    document.getElementById('zmenuBtn').onclick=zmOpen;document.getElementById('zbell').onclick=()=>{SOC.tab='bacheca';go('social');};}
+  const io=document.getElementById('ioBtn');if(io)io.remove();
+  const n=(()=>{try{const seen=+(localStorage.getItem('zsh_soc_seen')||0);return(SOC.per||[]).filter(f=>new Date(f.created_at).getTime()>seen).length+(SOC.pend||[]).length;}catch(e){return 0;}})();
+  const bb=document.getElementById('zbell');let d=bb.querySelector('.nbadge');if(n>0){if(!d){bb.insertAdjacentHTML('beforeend','<i class="nbadge"></i>');d=bb.querySelector('.nbadge');}d.textContent=n>9?'9+':n;}else if(d)d.remove();}catch(e){}}
+ioBtn=function(){zTopbar();};
+const _renderNavZm=renderNav;renderNav=function(){_renderNavZm();zTopbar();};
+setInterval(zTopbar,3000);setTimeout(zTopbar,200);
+/* musica: niente più pulsante volante, sta nel menu */
+setTimeout(()=>{try{const f=document.querySelector('.musicfab');if(f)f.style.display='none';}catch(e){}},300);
+/* tasto indietro del telefono / gesto: chiude prima il menu */
+window.addEventListener('keydown',e=>{if(e.key==='Escape')zmClose();});
+</script>
+<script>
+/* =========================================================
+   🎬 REGIA DEGLI ASSALTI + 🔮 SIMULAZIONE + 🔔 NOTIFICHE
+   - ultimo assalto o simulazione della prossima orda, casa per casa
+     (anche le case lontane, fino in Australia)
+   - notifiche push: 30 minuti prima, all'orda, novità personali
+   ========================================================= */
+window.REG={mode:'last',i:0,H:[],busy:false};
+function regHouses(){const H=[];const m=window.W&&W.m;
+  if(m&&m.home&&m.home.lat!=null)H.push({lat:m.home.lat,lon:m.home.lon,lv:1,home:true,label:'❤️ Casa tua'});
+  else if(S.zone&&S.zone.real)H.push({lat:S.zone.real.lat,lon:S.zone.real.lon,lv:1,home:true,label:'❤️ Casa tua'});
+  ((m&&m.houses)||[]).forEach((h,i)=>H.push({lat:h.lat,lon:h.lon,lv:h.level||1,home:false,bid:h.building_id,label:`🔑 Casa ${i+1}`}));return H;}
+/* simulazione: stessa formula del server, con un'orda "possibile" */
+function regSimRows(){const s=OR.s||{};const lvl=s.wlevel||((window.W&&W.m&&W.m.wlevel)||1);const bon=s.next_bonus!=null?s.next_bonus:(s.prepared?15:0);
+  return REG.H.map(h=>{const atk=30+Math.floor(Math.random()*60)+4*Math.min(Math.max(lvl,1),30);const pw=45+12*Math.max(h.lv,1)+bon+(h.home?5:0);
+    return{building_id:h.bid||('home'+h.lat),lat:h.lat,lon:h.lon,held:pw>=atk,kind:h.home?'home':'owned',mine:true,sim:{atk,pw}};});}
+const _orViewReg=orView;orView=async function(lm){if(REG.mode==='sim'&&REG.active){const rows=regSimRows();
+    try{const map=lm.map;const fs=map.queryRenderedFeatures({layers:['bld']});const seen=new Set();let n=0;for(const f of fs){const g=f.geometry;const polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];
+      for(const pl of polys){if(n>=6)break;const q=pl[0]&&wGidRing(pl[0]);if(!q||seen.has(q.bid))continue;seen.add(q.bid);if(isNpc(q.bid)){n++;rows.push({building_id:q.bid,lat:q.lat,lon:q.lon,held:Math.random()<.55,kind:'npc',mine:false});}}}}catch(e){}
+    REG.lastRows=rows;return rows;}
+  const r=await _orViewReg(lm);REG.lastRows=r;return r;};
+async function assalto(mode,i){REG.mode=mode||'last';REG.H=regHouses();REG.i=Math.max(0,Math.min(i||0,REG.H.length-1));REG.active=true;
+  if(!OR.s&&S.user){try{await orLoad(true);}catch(e){}}
+  if(S.tab!=='mappa')go('mappa');let n=0;const wait=()=>new Promise(r=>{const t=setInterval(()=>{const lm=window.__mf;n++;if((lm&&lm.map&&document.body.contains(lm.map.getContainer()))||n>50){clearInterval(t);r(lm);}},200);});
+  const lm=await wait();if(!lm||!lm.map){toast('Mappa non pronta: riprova');return;}regBar(lm);regGo(lm);}
+function regGo(lm){const h=REG.H[REG.i];if(!h){regText(lm,'Valuta la tua casa per vedere gli assalti.');return;}
+  regText(lm,`${h.label} · ${REG.mode==='sim'?'simulazione in preparazione…':'l’orda arriva…'}`);
+  try{lm.map.flyTo({center:[h.lon,h.lat],zoom:16.4,pitch:0,duration:1400});}catch(e){}
+  setTimeout(async()=>{try{lm._playing=false;await orPlay(lm);const me=(REG.lastRows||[]).find(r=>r.mine&&Math.abs(r.lat-h.lat)<.0003&&Math.abs(r.lon-h.lon)<.0004);
+      const bans=lm.map.getContainer().closest('.lmap').querySelectorAll('.oplay');const ban=bans[bans.length-1];if(ban&&REG.mode==='sim'){ban.querySelector('b').textContent='🔮 SIMULAZIONE (stima, non è l’orda vera)';ban.classList.add('sim');}
+      setTimeout(()=>{let t;if(REG.mode==='sim'){t=me?(me.held?`🛡️ ${h.label}: in questa simulazione TIENE (difesa ${me.sim.pw} contro ${me.sim.atk}).`:`💥 ${h.label}: in questa simulazione CEDE (difesa ${me.sim.pw} contro ${me.sim.atk}). Prepara le case o potenziala!`):'';}
+        else{const real=(OR.s&&OR.s.houses||[]).find(x=>Math.abs(x.lat-h.lat)<.0003&&Math.abs(x.lon-h.lon)<.0004);
+          t=real?(real.held?`🛡️ ${h.label}: ha TENUTO all’orda delle ${orTime(OR.s.prev_at)}.`:`💥 ${h.label}: è stata SFONDATA all’orda delle ${orTime(OR.s.prev_at)}.`):`ℹ️ ${h.label} non era ancora nel mondo durante l’ultima orda: guarda la 🔮 simulazione.`;}
+        regText(lm,t);},REG.mode==='sim'?6500:7000);}catch(e){regText(lm,'Assalto non disponibile ora.');}},1600);}
+function regBar(lm){const box=lm.map.getContainer().closest('.mapfull')||lm.map.getContainer().closest('.lmap');if(!box)return;let b=box.querySelector('.regbar');if(b)b.remove();
+  box.insertAdjacentHTML('beforeend',`<div class="regbar"><div class="regt"><b>${REG.mode==='sim'?'🔮 Simulazione':'🎬 Ultimo assalto'}</b><span class="regtx"></span></div>
+    <div class="regbtn">${REG.H.length>1?'<button data-rg="prev">◀</button><span class="regn"></span><button data-rg="next">▶</button>':''}<button data-rg="again">⟳</button><button data-rg="mode">${REG.mode==='sim'?'🎬 Ultimo':'🔮 Simula'}</button><button data-rg="x">✕</button></div></div>`);
+  b=box.querySelector('.regbar');b.querySelectorAll('[data-rg]').forEach(x=>x.onclick=e=>{e.stopPropagation();const k=x.dataset.rg;
+    if(k==='x'){REG.active=false;b.remove();return;}if(k==='mode'){REG.mode=REG.mode==='sim'?'last':'sim';regBar(lm);regGo(lm);return;}
+    if(k==='prev')REG.i=(REG.i-1+REG.H.length)%REG.H.length;if(k==='next')REG.i=(REG.i+1)%REG.H.length;regGo(lm);});}
+function regText(lm,t){const b=document.querySelector('.regbar');if(!b)return;b.querySelector('.regtx').textContent=t;const n=b.querySelector('.regn');if(n)n.textContent=`${REG.i+1}/${REG.H.length}`;}
+/* uscendo dalla mappa la regia si spegne */
+const _goReg=go;go=function(t){if(t!=='mappa')REG.active=false;return _goReg(t);};
+/* ---- punti di accesso ben visibili ---- */
+function regCardHTML(){return`<div class="panel acard"><div class="row spread"><b class="disp" style="font-size:21px">🎬 Gli assalti</b>${OR.s&&OR.s.prev_at?`<small class="muted">ultima orda ${orTime(OR.s.prev_at)}</small>`:''}</div>
+  <p style="font-weight:400;font-size:13.5px;margin:4px 0 8px">Guarda l’orda arrivare sulle tue case, una per una, anche quelle lontane. Oppure simula la prossima con le difese di adesso.</p>
+  <div class="rrow"><button class="btn" data-acl>🎬 Ultimo assalto</button><button class="btn alt" data-acs>🔮 Simula la prossima</button></div>
+  <div id="pushRow" style="margin-top:10px"></div></div>`;}
+const _splitHubReg=splitHub;splitHub=function(){_splitHubReg();try{if(G.view!=='hub'||app.querySelector('.acard'))return;const o=app.querySelector('.opan');if(!o)return;o.insertAdjacentHTML('afterend',regCardHTML());const c=app.querySelector('.acard');
+  c.querySelector('[data-acl]').onclick=()=>assalto('last');c.querySelector('[data-acs]').onclick=()=>assalto('sim');pushRow();try{ssApply();}catch(e){}}catch(e){}};
+try{const _ssOfReg=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.acard'))return'oggi';return _ssOfReg(el);};}catch(e){}
+/* mappa: i pulsanti della barra dell'orda aprono la regia */
+const _renderMappaReg=renderMappa;renderMappa=function(){_renderMappaReg();try{const r=app.querySelector('[data-mfraid]');if(r){r.textContent='🎬 Assalti';r.onclick=e=>{e.stopPropagation();assalto('last');};}}catch(e){}};
+/* menu: due voci nuove */
+try{const _zmItemsReg=zmItems;zmItems=function(){const L=_zmItemsReg();const g=L.find(x=>x[0]==='Gioco');if(g)g[1].unshift(['🎬','Guarda gli assalti','a:last'],['🔮','Simula la prossima orda','a:sim']);const a=L.find(x=>x[0]==='Account');if(a)a[1].unshift(['🔔','Notifiche delle orde','push']);return L;};
+  const _zmDoReg=zmDo;zmDo=function(k,b){if(k==='a:last'||k==='a:sim'){zmClose();assalto(k.slice(2));return;}if(k==='push'){zmClose();pushSheet();return;}return _zmDoReg(k,b);};}catch(e){}
+
+/* ---------------- 🔔 NOTIFICHE PUSH ---------------- */
+const pushOk=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+const isStandalone=()=>{try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}};
+const isIOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent);
+const b64u=s=>{const p='='.repeat((4-s.length%4)%4);const r=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)));};
+async function pushState(){try{if(!pushOk())return isIOS()&&!isStandalone()?'home':'nosupport';if(Notification.permission==='denied')return'denied';
+  const reg=await navigator.serviceWorker.getRegistration();const sub=reg&&await reg.pushManager.getSubscription();return sub&&Notification.permission==='granted'?'on':(isIOS()&&!isStandalone()?'home':'off');}catch(e){return'off';}}
+async function pushEnable(){if(!S.user){loginSheet();return;}const st=await pushState();if(st==='home'||st==='nosupport'){pushSheet();return;}
+  try{const perm=await Notification.requestPermission();if(perm!=='granted'){toast('Notifiche non permesse: puoi attivarle da Impostazioni › Notifiche › ZombieSafeHouse');pushRow();return;}
+    const{data,error}=await SB.functions.invoke('zsh-push',{body:{task:'key'}});if(error||!data||!data.publicKey)throw new Error('servizio notifiche non attivo (manca la funzione zsh-push)');
+    const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(data.publicKey)});
+    const j=sub.toJSON();const r=await SB.rpc('push_subscribe',{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth});if(r.error)throw r.error;
+    try{await SB.functions.invoke('zsh-push',{body:{task:'test',endpoint:j.endpoint}});}catch(e){}toast('🔔 Notifiche attive: tra poco arriva una notifica di prova');}
+  catch(e){toast('Notifiche non attivate: '+(e.message||e));}pushRow();}
+async function pushOff(){try{const reg=await navigator.serviceWorker.getRegistration();const sub=reg&&await reg.pushManager.getSubscription();if(sub){try{await SB.rpc('push_unsubscribe',{p_endpoint:sub.endpoint});}catch(e){}await sub.unsubscribe();}toast('Notifiche spente');}catch(e){}pushRow();}
+async function pushRow(){const el=document.getElementById('pushRow');if(!el)return;const st=await pushState();
+  el.innerHTML=st==='on'?'<div class="pushon">🔔 Notifiche attive: ti avvisiamo 30 minuti prima di ogni orda <button class="btn ghost small" data-poff>Spegni</button></div>'
+    :`<button class="btn wide ${st==='denied'?'ghost':''}" data-pon>🔔 Avvisami prima di ogni orda</button>${st==='home'?'<small class="muted">Su iPhone funziona solo con l’app aggiunta alla schermata Home.</small>':st==='denied'?'<small class="muted">Hai bloccato le notifiche: riattivale da Impostazioni › Notifiche.</small>':''}`;
+  const on=el.querySelector('[data-pon]');if(on)on.onclick=pushEnable;const off=el.querySelector('[data-poff]');if(off)off.onclick=pushOff;}
+async function pushSheet(){const st=await pushState();
+  const body=st==='home'?`<p style="font-weight:400">Su iPhone le notifiche arrivano solo all’app <b>aggiunta alla schermata Home</b>:</p><ol style="font-weight:400;padding-left:18px"><li>Apri il sito in <b>Safari</b></li><li>Tocca <b>Condividi</b> (quadrato con freccia)</li><li><b>Aggiungi alla schermata Home</b></li><li>Apri l’app dall’icona, accedi e torna qui</li></ol>`
+    :st==='nosupport'?'<p style="font-weight:400">Questo browser non supporta le notifiche. Su iPhone serve iOS 16.4 o più recente e l’app aggiunta alla schermata Home.</p>'
+    :st==='denied'?'<p style="font-weight:400">Hai bloccato le notifiche. Riattivale da <b>Impostazioni › Notifiche › ZombieSafeHouse</b>, poi torna qui.</p>'
+    :st==='on'?'<p style="font-weight:400">✅ Notifiche attive su questo telefono: 30 minuti prima di ogni orda (8:30 e 20:30), all’orda, e quando un superstite ti cerca.</p><button class="btn ghost" data-ps="off">Spegni le notifiche</button>'
+    :'<p style="font-weight:400">Ricevi un avviso <b>30 minuti prima di ogni orda</b> (8:30 e 20:30), quando l’orda attacca e quando qualcuno ti propone un’alleanza, ti aiuta o ti attacca.</p><button class="btn" data-ps="on">🔔 Attiva le notifiche</button>';
+  openSheet('🔔 Notifiche delle orde',body+'<p class="muted" style="font-size:12px;margin-top:10px">Senza notifiche trovi sempre il conto alla rovescia in alto nella mappa e nella scheda Orda.</p>',c=>{const a=c.querySelector('[data-ps=on]');if(a)a.onclick=()=>{closeSheet();pushEnable();};const o=c.querySelector('[data-ps=off]');if(o)o.onclick=()=>{closeSheet();pushOff();};});}
+/* un tocco sulla notifica apre il posto giusto */
+function zGoUrl(u){try{const q=new URL(u,location.href).searchParams;if(q.get('assalto'))setTimeout(()=>assalto(q.get('assalto')==='sim'?'sim':'last'),300);else if(q.get('go')){const g=q.get('go');if(g==='social')SOC.tab='bacheca';if(g==='orda')G.ss='oggi';go(g);}}catch(e){}}
+try{navigator.serviceWorker&&navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.zgo)zGoUrl(e.data.zgo);});}catch(e){}
+setTimeout(()=>{try{if(/[?&](assalto|go)=/.test(location.search)){const u=location.href;history.replaceState(null,'',location.pathname);zGoUrl(u);}}catch(e){}},1800);
+</script>
+<script>
+/* =========================================================
+   📖 L'ORDA A FUMETTO (stile manga/anime, disegnata in vettoriale)
+   4 vignette: la notte · l'orda arriva · l'impatto · il risultato
+   + zombie disegnati sulla mappa al posto delle faccine
+   ========================================================= */
+const ZV=[ /* varianti dei personaggi: pelle, vestito, pantaloni, capelli, occhi */
+ {sk:'#a9bfa0',ss:'#6f8b72',sh:'#c8323f',sd:'#8e1f2b',pa:'#3b3f5c',pd:'#262a42',ha:'#2b2235',ey:'#ffe14d'},
+ {sk:'#b7b9a0',ss:'#7c7f68',sh:'#3d6fb3',sd:'#284d80',pa:'#4a3b2e',pd:'#30261d',ha:'#5b2f22',ey:'#ff5a3c'},
+ {sk:'#9fb7b0',ss:'#66807a',sh:'#e8e1cf',sd:'#b9b09a',pa:'#23232f',pd:'#14141c',ha:'#d9d3c4',ey:'#7cf0ff'},
+ {sk:'#a8b394',ss:'#717c5f',sh:'#6b4a8c',sd:'#4a3163',pa:'#5c5c5c',pd:'#3c3c3c',ha:'#141019',ey:'#ffe14d'},
+ {sk:'#b8a99a',ss:'#7d6f62',sh:'#2f7a52',sd:'#1f5538',pa:'#3a3f52',pd:'#252937',ha:'#8a1f2b',ey:'#ff5a3c'}];
+let ZSEQ=0;
+/* uno zombie in stile anime, rivolto a destra; ~120×230 */
+function zArt(i,o={}){const v=ZV[i%ZV.length];const id='z'+(ZSEQ++);const lean=o.lean!=null?o.lean:(i%2?6:-2);
+  return`<svg viewBox="0 0 120 230" class="zart ${o.cls||''}" style="${o.style||''}"><defs>
+   <radialGradient id="${id}g"><stop offset="0" stop-color="${v.ey}" stop-opacity=".95"/><stop offset=".45" stop-color="${v.ey}" stop-opacity=".35"/><stop offset="1" stop-color="${v.ey}" stop-opacity="0"/></radialGradient>
+   <linearGradient id="${id}s" x1="0" x2="1"><stop offset=".55" stop-color="${v.sk}"/><stop offset=".56" stop-color="${v.ss}"/></linearGradient>
+   <linearGradient id="${id}t" x1="0" x2="1"><stop offset=".6" stop-color="${v.sh}"/><stop offset=".61" stop-color="${v.sd}"/></linearGradient></defs>
+  <ellipse cx="60" cy="224" rx="36" ry="6" fill="#000" opacity=".4"/>
+  <g transform="rotate(${lean} 60 222)" stroke="#140f1f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+   <path d="M47 150 L37 214 L30 220 L52 222 L56 162 Z" fill="${v.pa}"/><path d="M66 150 L78 212 L90 219 L94 213 L80 150 Z" fill="${v.pd}"/>
+   <path d="M30 220 L52 222 L53 227 L28 226 Z" fill="#1c1622"/><path d="M78 212 L94 213 L97 219 L80 220 Z" fill="#1c1622"/>
+   <path d="M82 100 Q100 104 112 100 L116 96 L119 101 L114 104 L118 108 L112 108 L114 113 Q98 114 80 112 Z" fill="${v.ss}"/>
+   <path d="M38 92 Q60 82 86 92 L90 152 L82 146 L76 158 L68 148 L60 160 L52 148 L44 158 L40 146 L33 154 Z" fill="url(#${id}t)"/>
+   <path d="M50 104 L56 118 M70 112 L66 128" stroke="${v.sd}" stroke-width="2.5"/>
+   <path d="M60 86 Q48 96 52 110" fill="none" stroke-width="2"/>
+   <path d="M40 58 Q37 30 61 25 Q86 28 83 58 Q81 80 61 86 Q43 82 40 58 Z" fill="url(#${id}s)"/>
+   <path d="M35 52 L28 30 L43 37 L44 16 L56 30 L63 10 L70 29 L84 17 L82 37 L94 33 L85 55 Q72 37 61 38 Q48 38 35 52 Z" fill="${v.ha}"/>
+   <path d="M44 55 Q52 48 58 55 Q52 62 44 57 Z" fill="#26162b" stroke-width="2"/><path d="M65 55 Q72 48 80 54 Q73 62 65 57 Z" fill="#26162b" stroke-width="2"/>
+   <path d="M47 71 Q61 64 75 71 Q69 82 61 82 Q52 82 47 71 Z" fill="#3a0d14"/>
+   <path d="M50 71 L53 76 L56 70 L59 76 L62 70 L65 76 L68 70 L71 75 L73 71" fill="#f3ead6" stroke-width="1.5"/>
+   <path d="M42 98 Q78 100 106 90 L110 86 L114 91 L110 95 L116 97 L110 100 L114 104 L106 104 Q76 114 40 112 Z" fill="${v.sk}"/>
+   <path d="M64 102 L68 108 M74 100 L78 106" stroke="#7a1a24" stroke-width="2"/>
+   <path d="M52 34 L49 44 M58 31 L56 40" stroke="#7a1a24" stroke-width="2"/>
+  </g>
+  <g transform="rotate(${lean} 60 222)"><circle cx="52" cy="55" r="11" fill="url(#${id}g)"/><circle cx="72" cy="55" r="11" fill="url(#${id}g)"/>
+   <ellipse cx="52" cy="55" rx="3.2" ry="2.2" fill="${v.ey}"/><ellipse cx="72" cy="55" rx="3.2" ry="2.2" fill="${v.ey}"/>
+   <path d="M47 33 Q55 28 64 30" stroke="#fff" stroke-width="2" fill="none" opacity=".55"/></g></svg>`;}
+/* linee di velocità e retinatura */
+function speedLines(cx,cy,n,W,H){let s='';for(let i=0;i<n;i++){const a=i/n*Math.PI*2+Math.random()*.08;const r1=Math.min(W,H)*(.22+Math.random()*.18),r2=Math.max(W,H)*1.2;const w=.8+Math.random()*3.2;
+  const p=(r,d)=>[cx+Math.cos(a+d)*r,cy+Math.sin(a+d)*r];const[a1,b1]=p(r1,0),[a2,b2]=p(r2,w/300),[a3,b3]=p(r2,-w/300);s+=`<path d="M${a1|0} ${b1|0}L${a2|0} ${b2|0}L${a3|0} ${b3|0}Z" fill="#140f1f" opacity="${.35+Math.random()*.55}"/>`;}return s;}
+const TONE=id=>`<pattern id="${id}" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.4" fill="#140f1f" opacity=".28"/></pattern>`;
+function burst(cx,cy,r,txt,col,rot=-8,fs=34){let p='';const n=18;for(let i=0;i<n*2;i++){const a=i/(n*2)*Math.PI*2;const rr=i%2?r*.62:r*(1+Math.random()*.12);p+=`${(cx+Math.cos(a)*rr)|0},${(cy+Math.sin(a)*rr)|0} `;}
+  return`<polygon points="${p}" fill="${col}" stroke="#140f1f" stroke-width="4"/><text x="${cx}" y="${cy+fs*.35}" text-anchor="middle" font-family="Bangers,Impact,sans-serif" font-size="${fs}" fill="#fff" stroke="#140f1f" stroke-width="5" paint-order="stroke" transform="rotate(${rot} ${cx} ${cy})">${txt}</text>`;}
+/* le 4 vignette */
+function fumettoHTML(h,res,ctx){const held=res.held,hh=ctx.time||'21:00',where=ctx.where||'',prep=ctx.prep;
+  let house='';try{house=houseScene(S.answers||SAMPLE,{sid:'fu'+(ZSEQ++)});}catch(e){house='';}
+  const z5=[0,1,2,3,4];
+  const p1=`<div class="fpan p1"><div class="fbg">${house}</div><div class="fcap">🌕 Ore ${hh}${where?' · '+esc(where):''}</div><div class="fcap r">${esc(h.label.replace(/^[^\s]+\s/,''))}</div><div class="fsfx s1">GRRR…</div></div>`;
+  const p2=`<div class="fpan p2"><svg viewBox="0 0 300 380" preserveAspectRatio="xMidYMid slice" class="fsvg"><defs>${TONE('t2'+ZSEQ)}<radialGradient id="fog${ZSEQ}"><stop offset="0" stop-color="#5b4d8f"/><stop offset="1" stop-color="#140f1f"/></radialGradient></defs>
+     <rect width="300" height="380" fill="url(#fog${ZSEQ})"/><rect width="300" height="380" fill="url(#t2${ZSEQ})"/>${speedLines(150,150,46,300,380)}
+     <ellipse cx="150" cy="370" rx="190" ry="40" fill="#0c0912"/></svg>
+     <div class="fhorde">${z5.map((k,i)=>zArt(k+(h.lat*1000|0),{cls:'w'+i,style:`--d:${i*.12}s`})).join('')}</div><div class="fsfx s2">ARRIVANO!</div></div>`;
+  const door=`<svg viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice" class="fsvg"><defs>${TONE('t3'+ZSEQ)}</defs><rect width="300" height="300" fill="#3b2f6e"/>${speedLines(200,120,36,300,300)}
+     <rect x="120" y="20" width="150" height="270" fill="#6b4226" stroke="#140f1f" stroke-width="5"/>${[0,1,2,3,4].map(i=>`<line x1="${150+i*25}" y1="22" x2="${150+i*25}" y2="288" stroke="#4a2c18" stroke-width="3"/>`).join('')}
+     <circle cx="250" cy="160" r="7" fill="#f7d64a" stroke="#140f1f" stroke-width="3"/>
+     ${prep?`<rect x="105" y="90" width="180" height="22" fill="#a0703f" stroke="#140f1f" stroke-width="4" transform="rotate(-8 195 101)"/><rect x="105" y="190" width="180" height="22" fill="#a0703f" stroke="#140f1f" stroke-width="4" transform="rotate(7 195 201)"/>`:''}
+     ${held?'':'<path d="M180 120 L200 150 L188 168 L214 200 M200 150 L232 140" stroke="#140f1f" stroke-width="4" fill="none"/>'}
+     <rect width="300" height="300" fill="url(#t3${ZSEQ})"/></svg>`;
+  const hands=[0,1,2].map(i=>`<svg viewBox="0 0 160 80" class="fhand h${i}"><path d="M0 50 Q60 44 110 30 L118 20 L126 26 L122 32 L134 30 L130 38 L140 42 L128 46 L134 54 L120 52 Q70 70 0 74 Z" fill="${ZV[i].sk}" stroke="#140f1f" stroke-width="4" stroke-linejoin="round"/><path d="M60 52 L64 60 M80 46 L84 54" stroke="#7a1a24" stroke-width="3"/></svg>`).join('');
+  const p3=`<div class="fpan p3">${door}<div class="fhands">${hands}</div><svg viewBox="0 0 300 300" class="fsvg fx"><g class="fbam">${burst(205,150,62,held?'BAM!':'CRACK!',held?'#f7d64a':'#d7263d',-10,held?40:34)}</g></svg></div>`;
+  const p4=held?`<div class="fpan p4 ok"><div class="fbg">${house}</div><svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" class="fsvg fx"><defs><radialGradient id="sh${ZSEQ}"><stop offset=".55" stop-color="#7cf0ff" stop-opacity="0"/><stop offset=".8" stop-color="#7cf0ff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity=".85"/></radialGradient></defs>
+       <ellipse cx="200" cy="140" rx="150" ry="120" fill="url(#sh${ZSEQ})" stroke="#fff" stroke-width="4" class="fshield"/></svg>
+       <div class="fthrow">${[1,3].map((k,i)=>zArt(k,{cls:'t'+i,lean:i?-40:40})).join('')}</div><div class="fsfx win">TENUTA!</div><div class="fcap b">${esc(ctx.reward||'Le difese hanno retto. Riscatta i premi!')}</div></div>`
+    :`<div class="fpan p4 ko"><div class="fbg">${house}</div><svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" class="fsvg fx"><rect width="400" height="220" fill="#d7263d" opacity=".28"/>
+       ${[0,1,2,3,4,5].map(i=>`<path class="ffire" style="--d:${i*.15}s" d="M${60+i*55} 220 Q${50+i*55} 170 ${70+i*55} 140 Q${75+i*55} 175 ${92+i*55} 150 Q${100+i*55} 190 ${88+i*55} 220 Z" fill="${i%2?'#f7d64a':'#ff7a2f'}" stroke="#140f1f" stroke-width="3"/>`).join('')}</svg>
+       <div class="fhorde in">${[2,4].map((k,i)=>zArt(k,{cls:'w'+i})).join('')}</div><div class="fsfx lose">SFONDATA!</div><div class="fcap b">${esc(ctx.advice||'Prepara le case e potenziale prima della prossima orda.')}</div></div>`;
+  return`<div class="fpage">${p1}<div class="frow">${p2}${p3}</div>${p4}</div>`;}
+/* mostra la tavola: vignette che entrano una alla volta, tocco per saltare */
+function fumetto(h,res,ctx,onEnd){const old=document.getElementById('fumetto');if(old)old.remove();
+  document.body.insertAdjacentHTML('beforeend',`<div id="fumetto" class="${res.held?'held':'fell'}"><div class="ftop"><b>${ctx.sim?'🔮 SIMULAZIONE':'🧟 L’ORDA DELLE '+esc(ctx.time||'')}</b><span>${esc(h.label)}${ctx.n>1?` · ${ctx.i+1}/${ctx.n}`:''}</span><button data-fx>✕</button></div>${fumettoHTML(h,res,ctx)}
+    <div class="fbot"><button class="btn ghost" data-fmap>🗺️ Vedi sulla mappa</button>${ctx.n>1?'<button class="btn" data-fnext>Casa successiva ▶</button>':'<button class="btn" data-fx2>Fatto</button>'}</div></div>`);
+  const F=document.getElementById('fumetto');const P=[...F.querySelectorAll('.fpan')];let k=0;try{setMusic('battle');}catch(e){}
+  const next=()=>{if(k<P.length){P[k].classList.add('in');try{if(k===2)vibe();sfx&&sfx(k===3?(res.held?'win':'lose'):'hit');}catch(e){}k++;if(k<P.length)F._t=setTimeout(next,k===1?1300:1500);else F.classList.add('done');}};
+  F._t=setTimeout(next,200);F.addEventListener('click',e=>{if(e.target.closest('button'))return;clearTimeout(F._t);while(k<P.length){P[k].classList.add('in');k++;}F.classList.add('done');});
+  const close=(go2)=>{clearTimeout(F._t);F.remove();try{setMusic('app');}catch(e){}if(onEnd)onEnd(go2);};
+  F.querySelectorAll('[data-fx],[data-fx2]').forEach(b=>b.onclick=()=>close('x'));const m=F.querySelector('[data-fmap]');if(m)m.onclick=()=>close('map');const n=F.querySelector('[data-fnext]');if(n)n.onclick=()=>close('next');}
+/* risultato di una casa: vero (ultima orda) o simulato */
+function fuRes(h,mode){if(mode==='sim'){const r=regSimRows().find(x=>Math.abs(x.lat-h.lat)<.0003&&Math.abs(x.lon-h.lon)<.0004)||{held:true,sim:{pw:0,atk:0}};return{held:r.held,sim:r.sim};}
+  const real=(OR.s&&OR.s.houses||[]).find(x=>Math.abs(x.lat-h.lat)<.0003&&Math.abs(x.lon-h.lon)<.0004);return real?{held:!!real.held,real:true}:{held:true,none:true};}
+/* l'assalto parte dal fumetto, poi (se vuoi) la mappa */
+const _assaltoFu=assalto;assalto=async function(mode,i){REG.mode=mode||'last';REG.H=regHouses();REG.i=Math.max(0,Math.min(i||0,REG.H.length-1));if(!OR.s&&S.user){try{await orLoad(true);}catch(e){}}
+  const show=()=>{const h=REG.H[REG.i];if(!h){toast('Valuta la tua casa per vedere gli assalti');return;}const r=fuRes(h,REG.mode);
+    if(r.none&&REG.mode!=='sim'){toast('Questa casa non c’era ancora durante l’ultima orda: ecco la simulazione');REG.mode='sim';return show();}
+    const s=OR.s||{};const ctx={sim:REG.mode==='sim',time:REG.mode==='sim'?(s.next_at?orTime(s.next_at):'21:00'):(s.prev_at?orTime(s.prev_at):''),where:(S.zone&&S.zone.address||'').split(',').slice(-1)[0].trim(),
+      prep:REG.mode==='sim'?!!s.prepared:!!s.prev_prepared,i:REG.i,n:REG.H.length,
+      reward:REG.mode==='sim'?`Simulazione: difesa ${r.sim.pw} contro ${r.sim.atk}. Prepara le case per stare tranquillo.`:`Premi da riscattare: 🧱 ${s.mattoni||0}`,
+      advice:REG.mode==='sim'?`Simulazione: difesa ${r.sim.pw} contro ${r.sim.atk}. Prepara le case (+15) o potenziala (+12 per livello).`:'Prepara le case (+15) e chiedi aiuto agli alleati prima della prossima orda.'};
+    fumetto(h,r,ctx,how=>{if(how==='next'){REG.i=(REG.i+1)%REG.H.length;show();}else if(how==='map'){_assaltoFu(REG.mode,REG.i);}});};
+  show();};
+/* sulla mappa: zombie disegnati al posto delle faccine */
+(function(){const css=document.createElement('style');const svg=encodeURIComponent(zArt(0,{lean:4}).replace(/class="zart[^"]*"/,'xmlns="http://www.w3.org/2000/svg"'));
+  css.textContent=`.lm-z{width:30px;height:56px;font-size:0!important;background:url("data:image/svg+xml,${svg}") center bottom/contain no-repeat;animation:zwalk .5s ease-in-out infinite alternate;filter:drop-shadow(0 0 4px rgba(255,225,77,.5))}
+  .lm-z.hit{width:auto;height:auto;font-size:24px!important;background:none;animation:none}@keyframes zwalk{from{transform:rotate(-5deg) translateY(0)}to{transform:rotate(5deg) translateY(-2px)}}`;document.head.appendChild(css);})();
+</script>
+<script>
+/* =========================================================
+   HOMEPAGE A DISEGNO + LE TUE CASE NEL MONDO + SCHEDA DELLA CASA
+   - home: un disegno a tutto schermo con i pulsanti (🌍 Vai al mondo…)
+   - nel mondo: in basso le tue case; un tocco e la mappa ci vola sopra
+   - tocco sulla casa: cosa fare con 🧱 Mattoni e 💎 gemme, acquisto in app,
+     migliorie consigliate dall'IA, community, lavori veri degli sponsor entro 50 km
+   ========================================================= */
+/* ---------------- la vecchia pagina Casa diventa "La mia casa" ---------------- */
+const renderCasaDash=renderHome;NAV_ACT.casa='home';
+const _goM2=go;go=function(tab){if(tab!=='casa')return _goM2(tab);window.__last='apre la mia casa';document.body.classList.remove('inbattle');
+  if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab='casa';renderNav();window.scrollTo(0,0);try{closeSheet();}catch(e){}renderCasaDash();
+  try{const top=app.querySelector('.page');if(top&&!app.querySelector('.cback'))top.insertAdjacentHTML('afterbegin','<button class="cback" data-cback>‹ Torna alla home</button>');const b=app.querySelector('[data-cback]');if(b)b.onclick=()=>go('home');}catch(e){}};
+/* ---------------- HOMEPAGE: tutta un disegno ---------------- */
+renderHome=function(){const m=window.W&&W.m,s=OR.s;const has=!!S.result;const next=(s&&s.next_at)||vNextSlot();
+  app.innerHTML=`<section class="hscene"><div class="hsart">${heroSVG()}</div>
+    <div class="hstitle"><h1>Zombie<span>Safe House</span></h1><p>${has?'Il mondo ti aspetta, superstite.':'Quanto resiste la tua casa all’orda?'}</p></div>
+    <div class="hsbtns">${S.user&&m?`<div class="hschips"><span>🧱 ${wNum(m.mattoni)}</span><span>💎 ${(typeof G!=='undefined'&&G.gems)||0}</span><span>🧟 tra <b data-oleft>${orLeft(next)}</b></span></div>`:''}
+      <button class="hsbig" data-hs="mondo">🌍 Vai al mondo</button>
+      ${has?'<button class="hsmid" data-hs="casa">🏠 La mia casa</button>':'<button class="hsmid" data-hs="valuta">📷 Valuta la mia casa</button>'}
+      <div class="hsrow"><button data-hs="orda">🧟 Orda</button><button data-hs="social">👥 Superstiti</button><button data-hs="menu">☰ Tutto</button></div>
+    </div></section>`;
+  try{const sv=app.querySelector('.hsart svg');if(sv){sv.setAttribute('preserveAspectRatio','xMidYMid slice');}const sc=app.querySelector('.hscene');const nav=$('#nav');sc.style.height=Math.max(460,innerHeight-sc.getBoundingClientRect().top-(nav?nav.offsetHeight:64))+'px';}catch(e){}
+  app.querySelectorAll('[data-hs]').forEach(b=>b.onclick=()=>{const k=b.dataset.hs;if(k==='mondo'){S.mfHouses=true;go('mappa');}else if(k==='menu')zmOpen();else go(k);});
+  if(S.user&&!W.m&&typeof wMine==='function'&&Date.now()-(window.__homeAsk||0)>30000){window.__homeAsk=Date.now();wMine(true).then(()=>{if(S.tab==='home'&&W.m)renderHome();}).catch(()=>{});}};
+/* ---------------- NEL MONDO: le tue case in basso ---------------- */
+function myHouses(){const m=window.W&&W.m;const L=[];const home=m&&m.home&&m.home.lat!=null?m.home:(S.zone&&S.zone.real?{lat:S.zone.real.lat,lon:S.zone.real.lon,status:'pending'}:null);
+  if(home)L.push({home:true,bid:home.building_id||'',lat:home.lat,lon:home.lon,level:1,label:'Casa tua',ic:'❤️'});
+  ((m&&m.houses)||[]).forEach((h,i)=>L.push({home:false,bid:h.building_id,lat:h.lat,lon:h.lon,level:h.level||1,value:h.value||0,label:'Casa '+(i+1),ic:'🔑'}));
+  const o=L[0];L.forEach(h=>{h.km=o?trM(o.lat,o.lon,h.lat,h.lon)/1000:0;});return L;}
+function kmTxt(k){return k<1?Math.round(k*1000)+' m':k<100?k.toFixed(1).replace('.',',')+' km':wNum(Math.round(k))+' km';}
+function mhBar(){const w=app.querySelector('.mapfull');if(!w)return;let b=w.querySelector('.mhouses');const L=myHouses();
+  const html=`<div class="mhhead"><b>🏠 Le tue case (${L.length})</b><button data-mhx>${S.mhOpen===false?'▲':'▼'}</button></div>
+    <div class="mhlist" ${S.mhOpen===false?'hidden':''}>${L.length?L.map((h,i)=>`<button class="mhc" data-mh="${i}"><span>${h.ic}</span><b>${h.label}</b><small>${h.home?'livello '+h.level:'liv. '+h.level+' · '+kmTxt(h.km)}</small></button>`).join(''):`<p class="muted" style="font-size:12.5px;margin:4px">${S.user?'Valuta la tua casa: diventa la prima del tuo impero.':'Accedi per avere le tue case nel mondo.'}</p>`}
+     <button class="mhc add" data-mhadd><span>➕</span><b>Compra</b><small>tocca una casa libera</small></button></div>`;
+  if(!b){w.insertAdjacentHTML('beforeend',`<div class="mhouses">${html}</div>`);b=w.querySelector('.mhouses');}else b.innerHTML=html;
+  b.querySelector('[data-mhx]').onclick=()=>{S.mhOpen=S.mhOpen===false;mhBar();};
+  b.querySelectorAll('[data-mh]').forEach(x=>x.onclick=()=>{const h=L[+x.dataset.mh];mhFly(h,true);});
+  const ad=b.querySelector('[data-mhadd]');if(ad)ad.onclick=()=>openSheet('➕ Comprare una casa','<p style="font-weight:400">Avvicina la mappa e <b>tocca una casa</b>: se è libera (o di un superstite simulato 🤖) vedi il prezzo in 🧱 Mattoni e il pulsante Compra. Puoi comprare ovunque, anche in Australia: il prezzo sale con la distanza da casa tua.</p><p class="muted" style="font-size:12.5px">Per andare lontano usa ⋯ → 🔍 Cerca un luogo.</p>');}
+function mhFly(h,open){const lm=window.__mf;if(!lm||!lm.map)return;try{lm.map.flyTo({center:[h.lon,h.lat],zoom:17,pitch:0,duration:h.km>500?3200:1500});}catch(e){}
+  if(open)setTimeout(()=>houseSheet(h),h.km>500?3300:1600);}
+const _renderMappaM2=renderMappa;renderMappa=function(){_renderMappaM2();try{mhBar();setTimeout(mhBar,1500);}catch(e){}};
+/* ---------------- SCHEDA DELLA CASA ---------------- */
+async function houseSheet(h){openSheet(`${h.ic} ${h.label}`,'<p><span class="spin"></span> Carico la casa…</p>',()=>{});let q=null;
+  try{if(S.user&&h.bid)q=await wRpc('world_quote',{p_bid:h.bid,p_lat:h.lat,p_lon:h.lon});}catch(e){}
+  const m=W.m||{};const mat=m.mattoni||0,gems=(typeof G!=='undefined'&&G.gems)||0;const lvl=(q&&q.level)||h.level||1;const up=150*lvl;const s=OR.s||{};
+  const real=(s.houses||[]).find(x=>Math.abs(x.lat-h.lat)<.0003&&Math.abs(x.lon-h.lon)<.0004);
+  const pw=45+12*lvl+(s.next_bonus!=null?s.next_bonus:(s.prepared?15:0))+(h.home?5:0);const wl=s.wlevel||m.wlevel||1;const chance=Math.max(3,Math.min(97,Math.round((pw-(30+4*Math.min(wl,30))+1)/60*100)));
+  const need=n=>mat>=n?'':`<small class="need">Ti mancano 🧱 ${wNum(n-mat)}</small>`;
+  const act=(k,ic,t,sub,cost,dis)=>`<button class="hact" data-ha="${k}" ${dis?'disabled':''}><span>${ic}</span><div><b>${t}</b><small>${sub}</small>${cost?need(cost):''}</div>${cost?`<i>🧱 ${wNum(cost)}</i>`:'<i>›</i>'}</button>`;
+  /* migliorie consigliate dall'IA */
+  let ai='';try{if(h.home&&S.result&&typeof planItems==='function'){const P=planItems().slice(0,3);ai=P.length?P.map(p=>`<div class="hai"><b>${esc(p.t)}</b><small>${p.c===0?'gratis':'circa '+p.c+' €'}${p.gain?' · indice −'+String(p.gain).replace('.',','):''}</small></div>`).join(''):'<p class="muted">La valutazione non trova punti deboli importanti.</p>';}
+    else ai=['Porta blindata o rinforzata','Grate o vetri antisfondamento al piano terra','Luci con sensore e telecamera'].map(t=>`<div class="hai"><b>${t}</b><small>nel gioco: +1 livello di difesa con il potenziamento</small></div>`).join('');}catch(e){}
+  /* lavori veri degli sponsor entro 50 km */
+  const sp=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&SPONSORS[k]).map(([k,g])=>({k,d:trM(h.lat,h.lon,g.lat,g.lon)})).filter(x=>x.d<=50000).sort((a,b)=>a.d-b.d).slice(0,8);
+  const off=typeof SP_OFF!=='undefined'?SP_OFF:{},cat=typeof SP_CAT!=='undefined'?SP_CAT:{};
+  openSheet(`${h.ic} ${h.label}`,`<div class="hshead"><div><b>Livello ${lvl}</b><small>${h.home?'La tua casa vera':'Comprata nel mondo · '+kmTxt(h.km)+' da casa tua'}</small></div><div class="hsdef"><b>${chance}%</b><small>probabilità di tenere</small></div></div>
+    ${real?`<p class="hslast ${real.held?'ok':'ko'}">${real.held?'🛡️ All’ultima orda ha TENUTO':'💥 All’ultima orda è stata SFONDATA'}</p>`:''}
+    <div class="hwal"><span>🧱 ${wNum(mat)} Mattoni</span><span>💎 ${gems} gemme</span><button class="btn small ghost" data-ha="shop">＋ Acquista</button></div>
+    <h4 class="hh">⚒️ Cosa puoi fare</h4>
+    ${lvl<5?act('up','⬆️',`Potenzia al livello ${lvl+1}`,'+12 di difesa a ogni orda, più affitti',up,false):'<p class="muted">Livello massimo raggiunto.</p>'}
+    ${act('prep','🛡️',s.prepared?'Case già preparate ✓':'Prepara per la prossima orda','+15 di difesa a tutte le tue case (gratis)',0,!!s.prepared)}
+    ${act('help','🆘',s.asked?'Aiuto già chiesto ✓':'Chiedi aiuto agli alleati','+5 di difesa per ogni alleato che risponde',0,!!s.asked)}
+    ${act('watch','🎬','Guarda l’assalto su questa casa','fumetto dell’ultima orda o simulazione',0,false)}
+    ${!h.home?act('rent','🏦','Riscuoti gli affitti','ogni casa rende ogni giorno',0,false)+act('sell','🔑','Vendi la casa','ricevi il 70% del valore',0,false):''}
+    <h4 class="hh">🤖 Migliorie consigliate dall’IA</h4>${ai}
+    <div class="row" style="gap:8px;margin-top:8px">${h.home?'<button class="btn ghost small" data-ha="plan">📋 Tutto il piano</button><button class="btn ghost small" data-ha="foto">📷 Analizza con le foto</button>':''}<button class="btn ghost small" data-ha="comm">💬 Chiedi alla community</button></div>
+    <h4 class="hh">🔧 Lavori veri in zona (50 km)</h4>
+    ${sp.length?sp.map(x=>`<button class="strow" data-hsp="${x.k}"><span class="splogo">${esc(SPONSORS[x.k].logo)}</span><div><b>${esc(SPONSORS[x.k].name)}</b><small>${esc(cat[x.k]||'Sponsor')} · ${kmTxt(x.d/1000)}${off[x.k]?' · '+esc(off[x.k]):''}</small></div></button>`).join('')
+      :'<p class="muted" style="font-size:13px">Ancora nessuno sponsor entro 50 km. Conosci un’attività della zona? Invitala a diventare sponsor.</p><button class="btn ghost small" data-ha="spon">⭐ Diventa sponsor</button>'}`,card=>{
+    card.querySelectorAll('[data-hsp]').forEach(b=>b.onclick=()=>sponsorSheet(b.dataset.hsp,S.zone||{seed:7}));
+    card.querySelectorAll('[data-ha]').forEach(b=>b.onclick=async()=>{const k=b.dataset.ha;try{
+      if(k==='shop'){shopSheet(up>mat?up-mat:0);return;}
+      if(k==='up'){if(mat<up){shopSheet(up-mat);return;}b.disabled=true;const r=await wRpc('world_upgrade',{p_bid:(q&&q.status?h.bid:h.bid)});toast(r.ok?`⬆️ Livello ${r.level}!`:r.msg);await wMine(true);houseSheet(myHouses().find(x=>x.bid===h.bid)||h);return;}
+      if(k==='prep'){b.disabled=true;const{data,error}=await SB.rpc('world_prepare');if(error)throw error;toast('🛡️ '+data.msg);await orLoad(true);houseSheet(h);return;}
+      if(k==='help'){b.disabled=true;const{data,error}=await SB.rpc('world_ask_help');if(error)throw error;toast('🆘 '+data.msg);await orLoad(true);houseSheet(h);return;}
+      if(k==='watch'){closeSheet();const i=myHouses().findIndex(x=>x.bid===h.bid&&x.home===h.home);assalto('last',Math.max(0,i));return;}
+      if(k==='rent'){const r=await wRpc('world_collect');toast(r.ok?`🏦 +🧱 ${wNum(r.got)}`:(r.msg||'Ancora niente'));await wMine(true);houseSheet(h);return;}
+      if(k==='sell'){if(!confirm('Vendere la casa? Ricevi il 70% del valore.'))return;const r=await wRpc('world_sell',{p_bid:h.bid});toast(r.ok?`Venduta: +🧱 ${wNum(r.back)}`:r.msg);closeSheet();await wMine(true);mhBar();return;}
+      if(k==='plan'){closeSheet();go('casa');return;}if(k==='foto'){closeSheet();S.step=1;go('valuta');return;}
+      if(k==='comm'){closeSheet();SOC.tab='piazza';PZ.room='zona';go('social');setTimeout(()=>{const t=document.getElementById('pzTxt');if(t){t.value=`Consigli per la mia casa${h.home?'':' a '+kmTxt(h.km)}? Cosa conviene migliorare prima? `;t.focus();}},900);return;}
+      if(k==='spon'){closeSheet();go('sponsor');return;}}catch(e){toast(e.message||'Non riuscito');b.disabled=false;}});});}
+/* tocco su una casa tua sulla mappa → la sua scheda */
+const _wSheetM2=wSheet;wSheet=async function(bid,lat,lon){const h=myHouses().find(x=>(x.bid&&x.bid===bid)||(Math.abs(x.lat-lat)<.0002&&Math.abs(x.lon-lon)<.0003));if(h&&S.user)return houseSheet(h);return _wSheetM2(bid,lat,lon);};
+/* ---------------- ACQUISTO IN APP (Mattoni e gemme) ---------------- */
+function shopSheet(miss){openSheet('🛒 Bottega',`${miss?`<p class="notice">Ti mancano <b>🧱 ${wNum(miss)} Mattoni</b>. Puoi guadagnarli giocando oppure comprarli.</p>`:''}
+  <h4 class="hh">🧱 Mattoni</h4><div class="shopg">${[['🧱 500','1,99 €'],['🧱 1.500','4,99 €'],['🧱 4.000','9,99 €']].map(([a,b])=>`<div><b>${a}</b><small>${b}</small><button class="btn small ghost" disabled>Presto</button></div>`).join('')}</div>
+  <h4 class="hh">💎 Gemme</h4><div class="shopg">${[['💎 80','0,99 €'],['💎 450','4,99 €'],['💎 1.000','9,99 €']].map(([a,b])=>`<div><b>${a}</b><small>${b}</small><button class="btn small ghost" disabled>Presto</button></div>`).join('')}</div>
+  <div class="passx" style="margin-top:10px"><b>⭐ Pass del Superstite · 4,99 €/mese</b><small>Case preparate in automatico · +20% affitti · 1 casa in più · premi doppi nelle missioni</small></div>
+  <p class="muted" style="font-size:12.5px;margin-top:10px">Gli acquisti si attivano quando l’app sarà su App Store e Google Play (lo richiedono le loro regole). Intanto: <b>Mattoni</b> con orde, missioni, affitti, codici sconto usati in negozio e amici invitati; <b>gemme</b> con premio del giorno, ruota, gratta e vinci e scrigni.</p>
+  <div class="row" style="gap:8px;margin-top:8px"><button class="btn small" data-sg="orda">🧟 Vai a guadagnarli</button><button class="btn small ghost" data-sg="inv">📨 Invita (+150 🧱)</button></div>`,c=>{
+  c.querySelector('[data-sg=orda]').onclick=()=>{closeSheet();G.ss='oggi';go('orda');};c.querySelector('[data-sg=inv]').onclick=()=>{closeSheet();if(!S.user)return loginSheet();inviteSheet();};});}
+/* il menu porta anche a "La mia casa" */
+try{const _zmDoM2=zmDo;zmDo=function(k,b){if(k==='home'&&b&&/Piano/.test(b.textContent)){zmClose();go('casa');return;}return _zmDoM2(k,b);};}catch(e){}
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
