@@ -1148,6 +1148,12 @@ body[data-tab=casa] .rmini,body[data-tab=casa] .qact,body[data-tab=casa] .hsoc{d
 .opx{margin-top:10px;padding-top:10px;border-top:2px dashed #c9b8ff}.opx .btn.ghost{background:#fff;color:var(--ink)}
 .opx #pushRow{margin-top:8px}
 .mftog{display:grid;gap:6px}.mftog button{display:flex;justify-content:space-between;align-items:center;background:#fff;border:2.5px solid var(--ink);padding:9px 10px;font-weight:800;font-size:14px;color:var(--ink)}
+
+#zsound{flex:0 0 auto;width:42px;height:42px;border-radius:12px;border:2.5px solid var(--moon);background:transparent;color:#fff;font-size:19px;display:grid;place-items:center;cursor:pointer}
+#zsound.off{border-color:#7c7a8a;opacity:.85}
+@media (max-width:400px){#topbar .tbname{font-size:16px}#zsound,#zbell,#zmenuBtn{width:38px;height:38px}}
+.hwhy{font-size:12.5px;font-weight:400;color:#5a5470;margin:4px 0 0}
+.earnfirst{background:#e3f5e8;border:2.5px solid var(--ink);padding:8px 10px;margin:8px 0}.earnfirst b{font-size:14px}.earnfirst ul{margin:4px 0 0 16px;padding:0;font-size:13px;font-weight:400;line-height:1.5}
 </style>
 </head>
 <body>
@@ -5929,7 +5935,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610310945';
+const ZSH_BUILD='202610311035';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -8012,6 +8018,32 @@ const _zmDoS1=zmDo;zmDo=function(k,b){if(k==='casa'){zmClose();go('casa');return
 try{if(typeof OT!=='undefined'&&Array.isArray(OT)){for(let i=OT.length-1;i>=0;i--){const st=OT[i];if(st&&st.sel&&/wpan|apan/.test(st.sel))OT.splice(i,1);}}}catch(e){}
 /* ---- manuale: testo dei regali allineato alle regole vere ---- */
 const _manualS1=manualHTML;manualHTML=function(){return _manualS1().replace(/o <b>regalare<\/b> Mattoni, monete, gemme e materiali\. Limiti al giorno: 300 Mattoni, 1\.000 monete, 20 gemme, 10 per materiale/,'o <b>regalare</b> Mattoni, monete e materiali (le gemme no). Limiti al giorno: 300 Mattoni, 300 monete, 10 per materiale');};
+</script>
+<script>
+/* =========================================================
+   CORREZIONI dalle foto
+   1) pulsante audio 🔊/🔇 sempre visibile in alto
+   2) "Acquista" → "🧱 Più Mattoni" con spiegazione chiara
+   3) richiesta d'aiuto: gli alleati la vedono (bacheca, per te, push)
+   ========================================================= */
+/* ---- 1) audio: un tocco spegne/accende musica e suoni ---- */
+function zSoundOn(){try{return!(typeof G!=='undefined'&&G.mute)||!!(window.AUD&&AUD.on&&AUD.started);}catch(e){return true;}}
+function zSoundBtn(){try{const T=document.getElementById('topbar');if(!T)return;let b=document.getElementById('zsound');
+  if(!b){const bell=document.getElementById('zbell');if(!bell)return;bell.insertAdjacentHTML('beforebegin','<button id="zsound" aria-label="Audio"></button>');b=document.getElementById('zsound');
+    b.onclick=()=>{const on=zSoundOn();try{if(typeof G!=='undefined')G.mute=on;}catch(e){}try{if(on)musicOff();else musicOn();}catch(e){}try{saveLocal();}catch(e){}try{localStorage.setItem('zsh_mute',on?'1':'0');}catch(e){}zSoundBtn();toast(on?'🔇 Audio spento':'🔊 Audio acceso');};}
+  const on=zSoundOn();b.textContent=on?'🔊':'🔇';b.classList.toggle('off',!on);}catch(e){}}
+const _zTopbarFx=zTopbar;zTopbar=function(){_zTopbarFx();zSoundBtn();};setTimeout(zSoundBtn,400);
+/* se l'audio era stato spento, resta spento alla riapertura */
+setTimeout(()=>{try{if(localStorage.getItem('zsh_mute')==='1'){if(typeof G!=='undefined')G.mute=true;try{musicOff();}catch(e){}zSoundBtn();}}catch(e){}},1200);
+/* ---- 2) "Acquista" più chiaro ---- */
+const _houseSheetFx=houseSheet;houseSheet=async function(h){await _houseSheetFx(h);try{const b=document.querySelector('#sheet.open .hwal [data-ha=shop]');if(b){b.textContent='🧱 Più Mattoni';b.classList.remove('ghost');}
+  const w=document.querySelector('#sheet.open .hwal');if(w&&!w.querySelector('.hwhy'))w.insertAdjacentHTML('afterend','<p class="hwhy">I 🧱 Mattoni servono per potenziare e comprare case. Toccando <b>Più Mattoni</b> vedi come guadagnarne subito (orde, missioni, affitti, inviti) e i pacchetti in vendita quando l’app sarà negli store.</p>');}catch(e){}};
+const _shopSheetFx=shopSheet;shopSheet=function(miss){_shopSheetFx(miss);try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('.earnfirst'))return;const h=c.querySelector('.sheet-h, h3, .disp');
+  const box=`<div class="earnfirst"><b>Come avere Mattoni adesso, gratis</b><ul><li>🧟 Riscatta i premi di ogni orda (2 al giorno)</li><li>🎯 3 missioni al giorno: 15 🧱 ciascuna</li><li>🏦 Affitti delle tue case, ogni giorno</li><li>📨 Ogni amico che entra e valuta la casa: 150 🧱</li><li>🎟️ Ogni codice sconto usato in un negozio sponsor: 100 🧱</li></ul></div>`;
+  const first=c.querySelector('.notice')||c.querySelector('h4.hh');if(first)first.insertAdjacentHTML(first.classList.contains('notice')?'afterend':'beforebegin',box);}catch(e){}};
+/* ---- 3) richieste d'aiuto degli alleati in bacheca e "per te" ---- */
+const _socLineFx=socLine;socLine=function(f){if(f.kind!=='ask_ally')return _socLineFx(f);const a=socNick(f.actor,f.actor_nick);
+  return`<div class="sitem"><span class="sic">🆘</span><div class="stx">${a} chiede il tuo aiuto per la prossima orda<small>${socAgo(f.created_at)}</small></div><button class="btn small" data-shelp="${esc(f.actor)}">Manda rinforzi</button></div>`;};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
