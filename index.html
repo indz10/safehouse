@@ -1196,6 +1196,93 @@ body[data-tab=casa] .rmini,body[data-tab=casa] .qact,body[data-tab=casa] .hsoc{d
 .kitbox b{display:block;font-family:var(--display);font-size:24px;color:var(--moon)}.kitbox small{font-size:12px}
 .eqriv,.eqhs,.eqpr,.eqpad{font-size:12.5px;font-weight:400;background:#e3f5e8;border-left:5px solid #2f7a52;padding:6px 9px;margin:8px 0 0}
 .eqpr{background:#fff3b0;border-left-color:#c79a00}
+
+/* ===== IL FRONTE ===== */
+.fronte{padding:10px 10px 12px;background:#241a4a;color:#fff}
+.frtop{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin-bottom:8px}.frtop b.disp{font-size:24px;color:var(--moon)}.frtop small{display:block;font-size:12.5px;color:#d9ccff}.frtop small b{color:#fff}
+.frclock{text-align:right}.frclock b{font-family:var(--display);font-size:24px;letter-spacing:1px}.frclock small{font-size:11.5px;color:#d9ccff}
+.frmapw{position:relative;height:min(58vh,460px);min-height:300px;border:3px solid var(--ink);overflow:hidden;background:#1a1333}
+.frmap,.frmap .lmap{position:absolute;inset:0;height:100%!important}
+.frmapw.dark .frmap{filter:brightness(.45) saturate(.6)}
+.frfx{position:absolute;inset:0;pointer-events:none;z-index:4}
+.fx-pioggia{background:repeating-linear-gradient(105deg,rgba(200,220,255,.0) 0 14px,rgba(200,220,255,.35) 14px 15px,rgba(200,220,255,0) 15px 28px);background-size:56px 56px;animation:frrain .45s linear infinite}
+@keyframes frrain{to{background-position:-14px 56px}}
+.fx-nebbia{background:radial-gradient(circle at 50% 50%,rgba(230,230,240,0) 0 70px,rgba(230,230,240,.55) 170px,rgba(230,230,240,.82) 100%);animation:frfog 6s ease-in-out infinite alternate}
+@keyframes frfog{to{opacity:.8}}
+.fx-blackout{background:radial-gradient(circle at 50% 50%,rgba(0,0,0,0) 0 60px,rgba(0,0,0,.55) 200px);animation:frflick 4s steps(1) infinite}
+@keyframes frflick{0%,100%{opacity:1}48%{opacity:.85}50%{opacity:.4}52%{opacity:1}}
+.fx-luna{background:radial-gradient(circle at 88% 8%,rgba(255,240,170,.75) 0 26px,rgba(255,240,170,.25) 60px,rgba(255,240,170,0) 140px)}
+.frwx{position:absolute;left:8px;bottom:8px;z-index:5;background:rgba(20,15,31,.85);color:#fff;border:2px solid var(--moon);border-radius:14px;padding:3px 10px;font-weight:800;font-size:12.5px}
+.frcal{position:absolute;right:8px;bottom:8px;z-index:5;width:38px;height:38px;border-radius:12px;border:2.5px solid var(--ink);background:var(--moon);font-size:18px}
+.frz{width:calc(24px*var(--sc,1));cursor:pointer;position:relative;transition:opacity .4s}
+.frzb{animation:frwalk .42s ease-in-out infinite alternate;animation-delay:var(--bd,0s);transform-origin:bottom center;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5))}
+.frzb svg{width:100%;height:auto;display:block}
+@keyframes frwalk{from{transform:rotate(-6deg) translateY(0)}to{transform:rotate(6deg) translateY(-2px)}}
+.frzi{position:absolute;top:-8px;right:-10px;font-style:normal;font-size:11px;background:#fff;border:1.5px solid var(--ink);border-radius:50%;width:17px;height:17px;display:grid;place-items:center}
+.frz-boss .frzb{filter:drop-shadow(0 0 6px #d7263d)}.frz-oro .frzb{filter:drop-shadow(0 0 7px #f7d64a) sepia(1) saturate(4) hue-rotate(5deg)}
+.frz.glow .frzb{filter:brightness(.25) drop-shadow(0 0 4px #ffe14d)}
+.frhome{position:relative;width:54px;height:54px;display:grid;place-items:center;z-index:3}
+.frhome b{font-size:30px;filter:drop-shadow(2px 2px 0 var(--ink))}
+.frring{position:absolute;inset:-6px;border-radius:50%;border:4px solid var(--ok,#5bd16a);box-shadow:0 0 18px var(--ok,#5bd16a);animation:frpulse 1.6s ease-in-out infinite}
+@keyframes frpulse{50%{transform:scale(1.08);opacity:.75}}
+.frhome span{position:absolute;bottom:-14px;background:var(--ink);color:#fff;font-weight:800;font-size:11px;padding:0 6px;border-radius:8px}
+.frhome.hit b{animation:frhit .35s}@keyframes frhit{30%{transform:scale(1.3) rotate(-8deg)}60%{transform:scale(.9) rotate(5deg)}}
+.frinfo{margin-top:8px}.frchips{display:flex;flex-wrap:wrap;gap:5px}.frchips span{background:#3b2f6e;border:2px solid #6b5bb5;border-radius:12px;padding:2px 9px;font-size:12px;font-weight:700}
+.frchips .ok{border-color:#5bd16a}.frchips .ko{border-color:#ff7a2f;background:#5a2333}
+.frleg{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px}.frleg button{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;background:#fff;color:var(--ink);border:2.5px solid var(--ink);box-shadow:2px 2px 0 #000;padding:4px 8px;font-size:11px;font-weight:800}
+.frleg button b{font-size:18px;font-weight:400}.frleg small{font-size:10.5px;color:#5a5470}
+.fronte .muted{color:#c9b8ff!important}
+.frzs{display:flex;gap:10px;align-items:flex-start}.frzart{flex:0 0 78px;background:#241a4a;border:3px solid var(--ink);padding:4px}.frzart svg{width:100%;height:auto}.frzs>div:last-child{flex:1}
+.frst{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin:3px 0}.frst span:first-child{width:72px}.frbar{flex:1;height:9px;border:2px solid var(--ink);background:#fff}.frbar i{display:block;height:100%;background:var(--blood)}
+.odplay{background:linear-gradient(180deg,#fff,#ffe9d6)}.odplay>*{margin-top:6px}
+.ofold>summary{font-family:var(--display);font-size:20px}.ofb>*{margin-top:8px}
+
+.fronte .lm-mode,.fronte .lm-3d,.fronte .lm-10,.fronte .lm-orda{display:none!important}
+body[data-tab=orda] #accFab{display:none!important}
+.frcal{width:auto!important;height:auto!important;padding:2px!important;background:transparent!important;border:0!important}.frcal .ocd.mini{margin:0;box-shadow:2px 2px 0 var(--ink);border-width:2.5px}
+.frcal .ocd b{color:var(--ink)!important}
+.flashme{animation:flashme 1.4s ease-out}@keyframes flashme{0%{box-shadow:0 0 0 0 rgba(247,214,74,1)}100%{box-shadow:0 0 0 14px rgba(247,214,74,0)}}
+
+/* case disegnate */
+.hart{width:100%;height:auto;display:block}
+.mycasa small{display:block;color:#5a5470;font-size:12.5px;margin:2px 0 8px}
+.mcart{border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);overflow:hidden;background:#241a4a}.mcart svg{width:100%;height:auto;display:block}
+.mcchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.mcchips span{background:#fff;border:2.5px solid var(--ink);border-radius:14px;padding:3px 10px;font-size:13px;font-weight:700}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.mgc{display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:6px;text-align:left;color:var(--ink)}
+.mgart{width:100%;border:2px solid var(--ink);overflow:hidden}.mgc b{font-size:14px}.mgc small{font-size:11.5px;color:#5a5470}
+.hsart{position:relative;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);overflow:hidden;margin-bottom:8px}.hsart span{position:absolute;left:8px;top:8px;background:var(--moon);border:2px solid var(--ink);font-weight:800;font-size:12.5px;padding:2px 8px}
+.mhart{display:block;width:74px;border:2px solid var(--ink);overflow:hidden}.mhc{min-width:96px}
+/* 3D di nuovo visibile sulla mappa */
+.mapfull .lmap .lm-3d{display:block!important;position:absolute;right:10px!important;top:110px!important;z-index:6}
+
+.rinf{display:flex;flex-wrap:wrap;gap:6px}.rinf span{border:2px solid var(--ink);border-radius:14px;padding:3px 9px;font-size:12.5px;font-weight:700}
+.rinf .ok{background:#bfe8c9}.rinf .no{background:#fff;color:#7a7390;border-style:dashed}
+.hart.real{background:#2b2160}
+
+.tbpan{background:linear-gradient(180deg,#e3f5e8,#fff)}
+.tbrow{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px dashed rgba(20,15,31,.2);font-size:13px}.tbrow span{font-weight:700}.tbrow b{text-align:right}.tbrow b.ok{color:#2f7a52}
+.tbtot{margin-top:6px;background:#241a4a;color:#fff;border:2.5px solid var(--ink);padding:6px 10px;font-size:13.5px}.tbtot b{color:var(--moon);font-size:16px}
+
+/* guida: il tuo prossimo passo */
+.coach{background:#fff3b0;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:10px 12px;margin:0 0 12px;display:flex;flex-direction:column;gap:3px;color:var(--ink)}
+.coach.cmp{margin:0 0 4px;padding:8px 10px;box-shadow:3px 3px 0 var(--ink)}
+.cohd{display:flex;justify-content:space-between;font-family:var(--display);font-size:17px}.cohd small{font-family:inherit;font-size:12px;background:var(--ink);color:#fff;padding:1px 7px;border-radius:10px;align-self:center}
+.coach>b{font-size:15.5px}.coach>small{font-size:12.5px;color:#5a5470}.cobt{display:flex;gap:6px;margin-top:5px}.cobt .btn{flex:1}
+.coach.cmp>small{display:none}
+.costep{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#fff;border:2.5px solid var(--ink);padding:8px 10px;margin-bottom:6px;color:var(--ink)}
+.costep span{font-size:20px}.costep div{flex:1;display:flex;flex-direction:column}.costep b{font-size:14px}.costep small{font-size:12px;color:#5a5470}.costep i{font-style:normal;font-weight:900;font-size:18px}
+.costep.ok{opacity:.55;background:#e3f5e8}
+/* conto della difesa */
+.whyr{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px dashed rgba(20,15,31,.2);font-size:13.5px}.whyr b{min-width:42px;text-align:right}
+.whyr.pos b{color:#2f7a52}.whyr.neg b{color:#d7263d}
+.whytot{display:flex;justify-content:space-between;margin-top:6px;background:#241a4a;color:#fff;border:2.5px solid var(--ink);padding:7px 10px;font-weight:800}.whytot b{color:var(--moon);font-size:18px}
+.whyb{margin-top:4px;background:var(--moon);border:2px solid var(--ink);font-weight:800;font-size:11.5px;padding:2px 8px;color:var(--ink)}
+
+.alwait{background:#fff3b0;border:2.5px solid var(--ink);padding:8px 10px;display:flex;flex-direction:column;gap:3px;margin:6px 0}.alwait small{font-size:12.5px;color:#5a5470}.alwait .btn{align-self:flex-start;margin-top:4px}
+.afsearch{display:flex;gap:6px}.afsearch .field{flex:1;margin:0}
+.afr{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px dashed rgba(20,15,31,.2)}.afr>div{flex:1;display:flex;flex-direction:column}.afr small{font-size:11.5px;color:#5a5470}
+.afbox{margin-top:8px}.rivn .rally{margin-left:auto}
 </style>
 </head>
 <body>
@@ -5977,7 +6064,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611011330';
+const ZSH_BUILD='202611012303';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -8361,6 +8448,539 @@ const _tmBindOf=tmBind;tmBind=function(){_tmBindOf();try{const p=app.querySelect
       if(m.go==='day'){t=app.querySelector('.dayp');const f=t&&t.closest('details');if(f)f.open=true;}else if(m.go==='fight')t=app.querySelector('#fight');else t=app.querySelector('#slotinfo')||app.querySelector('#fight');
       if(t)t.scrollIntoView({behavior:'smooth',block:'center'});toast(m.go==='fight'?'⚔️ Gioca una notte qui: la missione avanza da sola':m.go==='map'?'📍 Ecco il posto della missione':'☀️ Prepara la notte');},200);return;}
   if(orig)orig();};});}catch(e){}};
+</script>
+<script>
+/* =========================================================
+   🗺️ IL FRONTE + SCHEDA ORDA UNICA
+   - mappa vera di casa tua con l'orda che arriva sulle strade vere
+   - zombie di 8 tipi con caratteristiche diverse (velocità, resistenza, speciale)
+   - salite (arancio, più lenti) e discese (rosso, più veloci) dalla griglia delle quote vere
+   - meteo vero dell'ora dell'orda: pioggia, nebbia, blackout, luna piena
+   - una sola scheda: fronte · orda · gioca la notte · premi · missioni · 3 fisarmoniche
+   ========================================================= */
+const FZ={ /* tipi: icona, variante disegno, scala, testi */
+ walker:{ic:'🧟',v:0,sc:1,  sp:'Lento e testardo: arriva sempre.'},
+ runner:{ic:'🏃',v:2,sc:.9, sp:'Velocissimo ma fragile. Le salite lo frenano il doppio.'},
+ casco:{ic:'🪖',v:1,sc:1.05,sp:'Il casco dimezza i colpi: serve la barricata.'},
+ strillone:{ic:'📢',v:3,sc:1,sp:'Urla: gli zombie vicini accelerano del 15%.'},
+ scavatore:{ic:'⛏️',v:4,sc:1, sp:'Scava sotto terra: salite e discese non lo cambiano.'},
+ brute:{ic:'💪',v:1,sc:1.35,sp:'Lento ma fortissimo: sfonda le porte.'},
+ oro:{ic:'💰',v:0,sc:.85,  sp:'Scappa veloce. Toccalo sulla mappa: 20 monete (una volta per orda).'},
+ boss:{ic:'👑',v:3,sc:1.7, sp:'Il Bruto della Sagra: arriva con le orde grandi (livello mondo 8+).'}};
+window.FR={node:null,lm:null,paths:[],zs:[],raf:0,t0:0,last:0,key:'',wx:null,gold:false};
+/* composizione dell'orda in base al livello del mondo */
+function frComp(wl){const n=Math.min(28,8+2*wl);const L=[];const add=(k,c)=>{for(let i=0;i<c;i++)L.push(k);};
+  add('runner',wl>=2?Math.round(n*.15):0);add('casco',wl>=3?Math.round(n*.12):0);add('strillone',Math.max(1,Math.round(n*.08)));add('scavatore',wl>=4?Math.round(n*.08):0);
+  add('brute',wl>=5?Math.max(1,Math.round(n*.06)):0);add('boss',wl>=8?1:0);add('oro',1);while(L.length<n)L.push('walker');return L;}
+/* strade vere → percorsi verso casa (Dijkstra sul grafo delle strade OSM) */
+function frPaths(R,m){const els=((m&&m.els)||[]).filter(e=>e.tags&&e.tags.highway&&e.geometry&&e.geometry.length>1&&!/footway|steps|path|cycleway|service/.test(e.tags.highway));
+  const K=p=>p.lat.toFixed(5)+','+p.lon.toFixed(5);const N={},adj={};const node=p=>{const k=K(p);if(!N[k]){N[k]=[p.lat,p.lon];adj[k]=[];}return k;};
+  els.forEach(e=>{for(let i=1;i<e.geometry.length;i++){const a=node(e.geometry[i-1]),b=node(e.geometry[i]);const d=trM(N[a][0],N[a][1],N[b][0],N[b][1]);adj[a].push([b,d]);adj[b].push([a,d]);}});
+  const keys=Object.keys(N);let out=[];
+  if(keys.length>10){let h=null,hd=1e9;keys.forEach(k=>{const d=trM(R.lat,R.lon,N[k][0],N[k][1]);if(d<hd){hd=d;h=k;}});
+    const dist={},prev={},done=new Set();dist[h]=0;const Q=[h];
+    while(Q.length){let bi=0;for(let i=1;i<Q.length;i++)if(dist[Q[i]]<dist[Q[bi]])bi=i;const u=Q.splice(bi,1)[0];if(done.has(u))continue;done.add(u);if(dist[u]>1100)continue;
+      adj[u].forEach(([v,w])=>{const nd=dist[u]+w;if(dist[v]==null||nd<dist[v]){dist[v]=nd;prev[v]=u;Q.push(v);}});}
+    const sect={};Object.keys(dist).forEach(k=>{const d=dist[k];if(d<350||d>950)return;const b=Math.atan2(N[k][0]-R.lat,(N[k][1]-R.lon)*Math.cos(R.lat*Math.PI/180));const s=Math.floor(((b+Math.PI)/(2*Math.PI))*6)%6;
+      if(!sect[s]||Math.abs(d-650)<Math.abs(dist[sect[s]]-650))sect[s]=k;});
+    out=Object.values(sect).map(k=>{const p=[];let c=k;while(c){p.push(N[c]);c=prev[c];}p.push([R.lat,R.lon]);return p;}).filter(p=>p.length>2);}
+  if(out.length<3){out=[0,1,2,3,4].map(i=>{const a=i*1.256+.4,p=[];for(let j=0;j<=12;j++){const r=600*(1-j/12),w=Math.sin(j*.9+i)*25;const o=trOff(R.lat,R.lon,Math.cos(a)*r+Math.sin(a)*w,Math.sin(a)*r-Math.cos(a)*w);p.push(o);}return p;});}
+  /* pendenza vera di ogni tratto (verso casa: positiva = salita) */
+  return out.map(p=>{const seg=[];let L=0;for(let i=1;i<p.length;i++){const d=Math.max(1,trM(p[i-1][0],p[i-1][1],p[i][0],p[i][1]));let g=0;
+      try{if(R.grid){g=(trElevLL(R,p[i][0],p[i][1])-trElevLL(R,p[i-1][0],p[i-1][1]))/d;}}catch(e){}seg.push({a:p[i-1],b:p[i],d,g,s:L});L+=d;}
+    const climb=seg.reduce((s,x)=>s+Math.max(0,x.g*x.d),0),drop=seg.reduce((s,x)=>s+Math.max(0,-x.g*x.d),0);return{p,seg,L,climb,drop};});}
+const frCol=g=>g>.025?'#ff9f1c':g<-.025?'#d7263d':'#5bd16a';
+/* meteo all'ora dell'orda */
+function frWx(){try{return oggiAt(OGGI.d,oggiNext());}catch(e){return null;}}
+function frWf(w){return !w?1:w.ev==='pioggia'?.8:w.ev==='luna'?1.2:w.ev==='blackout'?.9:1;}
+/* lo zombie disegnato (stile fumetto) */
+function frZel(k,i){const t=FZ[k];const el=document.createElement('div');el.className='frz frz-'+k;el.style.setProperty('--sc',t.sc);el.style.setProperty('--bd',(i%7)*.07+'s');
+  el.innerHTML=`<div class="frzb">${zArt(t.v+(k==='oro'?0:i),{lean:3})}</div>${k!=='walker'?`<i class="frzi">${t.ic}</i>`:''}`;
+  el.addEventListener('click',e=>{e.stopPropagation();frZSheet(k);});return el;}
+function frZSheet(k){const z=ZT[k]||{},t=FZ[k];const wx=FR.wx;const bar=(v,m)=>`<span class="frbar"><i style="width:${Math.min(100,v/m*100)}%"></i></span>`;
+  if(k==='oro'&&!FR.gold){const sid=(OR.s&&OR.s.next_at)||'x';const kk='zsh_gold_'+sid;let got=false;try{got=!!localStorage.getItem(kk);}catch(e){}
+    if(!got){try{localStorage.setItem(kk,'1');}catch(e){}G.coins=(G.coins||0)+20;try{saveLocal();sfx('coin');}catch(e){}toast('💰 Preso lo zombie d’oro: +20 🪙');FR.gold=true;}}
+  openSheet(`${t.ic} ${z.name||k}`,`<div class="frzs"><div class="frzart">${zArt(t.v,{lean:0})}</div><div><p style="font-weight:400;margin:0 0 8px">${t.sp}</p>
+    <div class="frst"><span>Velocità</span>${bar(z.sp||10,48)}</div><div class="frst"><span>Resistenza</span>${bar(z.hp||4,70)}</div><div class="frst"><span>Danno</span>${bar(z.dps||5,22)}</div></div></div>
+    <h4 class="hh">Sul terreno vero</h4><p style="font-weight:400;font-size:13px">${k==='scavatore'?'Le pendenze non lo cambiano.':k==='runner'?'In salita rallenta il doppio degli altri, in discesa vola.':'In salita (strade arancioni) rallenta, in discesa (strade rosse) accelera.'}${wx?` Con il meteo dell’orda: ${esc(wx.eff)}`:''}</p>`);}
+/* il riquadro del fronte (creato una volta e riusato) */
+function frNode(){if(FR.node)return FR.node;const d=document.createElement('div');d.className='panel fronte';
+  d.innerHTML=`<div class="frtop"><div><b class="disp">🗺️ Il fronte</b><small data-frnext>…</small></div><div class="frclock"><b data-clock>--:--</b><small data-frday></small></div></div>
+   <div class="frmapw"><div class="frmap"></div><div class="frfx"></div><div class="frwx"></div><button class="frcal" data-frcal aria-label="Calendario e meteo"><span class="ocd mini"><small data-frmon></small><b data-frdd></b></span></button></div>
+   <div class="frinfo"><div class="frchips" data-frchips></div><div class="frleg" data-frleg></div>
+   <p class="muted" style="font-size:11.5px;margin:6px 0 0">Strade: <b style="color:#2f9e44">verde</b> piano · <b style="color:#e8590c">arancio</b> salita verso casa (zombie più lenti) · <b style="color:#d7263d">rosso</b> discesa (più veloci). Tocca uno zombie per vederlo. L’esito dell’orda del mondo lo decide il server con livello, preparazione e aiuti; meteo e salite cambiano la marcia qui e nelle notti che giochi.</p></div>`;
+  d.querySelector('[data-frcal]').onclick=e=>{e.stopPropagation();oggiSheet();};FR.node=d;return d;}
+async function frMount(){const R=S.zone&&S.zone.real;if(!R||!FR.node)return;const box=FR.node.querySelector('.frmap');const key=(S.zone.address||'')+'|'+R.lat.toFixed(4);
+  frHeader();if(FR.lm&&FR.key===key){try{FR.lm.map.resize();}catch(e){}frLoop();return;}
+  FR.key=key;frStop();try{const nx=oggiNext();FR.lm=await liveMap(box,S.zone.address,{zoom:15.4,night:nx.getHours()>=18||nx.getHours()<7});}catch(e){box.innerHTML='<p class="muted" style="padding:20px">Mappa non disponibile ora.</p>';return;}
+  const m=RM.cache&&RM.cache[S.zone.address];FR.paths=frPaths(R,m);
+  try{const map=FR.lm.map;const draw=()=>{try{const fs=[];FR.paths.forEach(P=>P.seg.forEach(s=>fs.push({type:'Feature',properties:{c:frCol(s.g)},geometry:{type:'LineString',coordinates:[[s.a[1],s.a[0]],[s.b[1],s.b[0]]]}})));
+      if(map.getSource('fr-p'))map.getSource('fr-p').setData({type:'FeatureCollection',features:fs});
+      else{map.addSource('fr-p',{type:'geojson',data:{type:'FeatureCollection',features:fs}});map.addLayer({id:'fr-pc',type:'line',source:'fr-p',paint:{'line-color':'#140f1f','line-width':9,'line-opacity':.55}});
+        map.addLayer({id:'fr-pl',type:'line',source:'fr-p',paint:{'line-color':['get','c'],'line-width':5,'line-opacity':.95}});}}catch(e){}};
+    if(map.isStyleLoaded&&map.isStyleLoaded())draw();map.on('load',draw);map.on('styledata',()=>{if(!map.getSource||!map.getSource('fr-p'))draw();});}catch(e){}
+  /* la casa con l'anello della difesa */
+  try{const h=document.createElement('div');h.className='frhome';h.innerHTML='<div class="frring"></div><b>🏠</b><span data-frpct></span>';FR.home=new maplibregl.Marker({element:h}).setLngLat([R.lon,R.lat]).addTo(FR.lm.map);}catch(e){}
+  frSpawn();frLoop();}
+function frHeader(){try{const d=FR.node;const nx=oggiNext();const n=new Date();FR.wx=frWx();const w=FR.wx;const s=OR.s||{};
+  d.querySelector('[data-frnext]').innerHTML=`Orda delle <b>${String(nx.getHours()).padStart(2,'0')}:00</b> · tra ${orLeft(nx)}`;d.querySelector('[data-frday]').textContent=`${GG[n.getDay()].slice(0,3)} ${n.getDate()} ${MM[n.getMonth()].slice(0,3)}`;const mo=d.querySelector('[data-frmon]'),dd=d.querySelector('[data-frdd]');if(mo)mo.textContent=MMs[n.getMonth()];if(dd)dd.textContent=n.getDate();
+  const fx=d.querySelector('.frfx'),wb=d.querySelector('.frwx');fx.className='frfx'+(w?' fx-'+w.ev:'');d.querySelector('.frmapw').classList.toggle('dark',!!(w&&w.ev==='blackout'));
+  wb.innerHTML=w?`${w.ic} ${w.t}°C · ${esc(w.eff.split(':')[0].replace(/^[^\s]+\s/,''))}`:'meteo…';
+  const wl=s.wlevel||(W.m&&W.m.wlevel)||1;const comp=frComp(wl);const cnt={};comp.forEach(k=>cnt[k]=(cnt[k]||0)+1);
+  const P=FR.paths||[];const up=P.filter(p=>p.climb-p.drop>4).length,dn=P.filter(p=>p.drop-p.climb>4).length;
+  const pw=45+12+(s.next_bonus!=null?s.next_bonus:(s.prepared?15:0))+5;const atk=30+4*Math.min(wl,30)+30;const ch=Math.max(3,Math.min(97,Math.round((pw-(30+4*Math.min(wl,30))+1)/60*100)));
+  d.querySelector('[data-frchips]').innerHTML=[`<span>🧟 ${comp.length} zombie</span>`,`<span>🛡️ ${ch}% di tenere</span>`,w?`<span>${w.ic} ${esc(w.name)}</span>`:'',P.length?`<span>⬆ ${up} vie in salita · ⬇ ${dn} in discesa</span>`:'',s.prepared?'<span class="ok">✓ case preparate</span>':'<span class="ko">⚠ case non preparate</span>'].join('');
+  d.querySelector('[data-frleg]').innerHTML=Object.keys(FZ).filter(k=>cnt[k]).map(k=>`<button data-frz="${k}"><b>${FZ[k].ic}</b>${esc((ZT[k]||{}).name||k)}<small>×${cnt[k]}</small></button>`).join('');
+  d.querySelectorAll('[data-frz]').forEach(b=>b.onclick=()=>frZSheet(b.dataset.frz));
+  const pc=d.querySelector('[data-frpct]');if(pc)pc.textContent=ch+'%';const ring=d.querySelector('.frring');if(ring)ring.style.setProperty('--ok',ch>=50?'#5bd16a':'#d7263d');}catch(e){}}
+function frSpawn(){(FR.zs||[]).forEach(z=>{try{z.mk.remove();}catch(e){}});FR.zs=[];if(!FR.lm||!FR.paths.length)return;const s=OR.s||{};const wl=s.wlevel||(W.m&&W.m.wlevel)||1;
+  frComp(wl).forEach((k,i)=>{const el=frZel(k,i);const P=FR.paths[i%FR.paths.length];const mk=new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([P.p[0][1],P.p[0][0]]).addTo(FR.lm.map);
+    FR.zs.push({k,el,mk,P,x:-(i/FR.paths.length|0)*70-Math.random()*60,v:((ZT[k]||{}).sp||16)*1.5*(k==='oro'?.9:1)});});}
+function frStop(){cancelAnimationFrame(FR.raf);FR.raf=0;}
+function frLoop(){frStop();FR.last=performance.now();const step=t=>{FR.raf=requestAnimationFrame(step);if(S.tab!=='orda'||document.hidden||!FR.node||!FR.node.isConnected)return;
+  const dt=Math.min(.1,(t-FR.last)/1000);FR.last=t;const w=FR.wx;const wf=frWf(w);const R=S.zone&&S.zone.real;if(!R)return;
+  const st=FR.zs.filter(z=>z.k==='strillone'&&z.x>0).map(z=>z.pos).filter(Boolean);
+  FR.zs.forEach(z=>{const P=z.P;let g=0;if(z.x>=0){const sg=P.seg.find(s=>z.x>=s.s&&z.x<s.s+s.d)||P.seg[P.seg.length-1];g=sg?sg.g:0;}
+    let f=z.k==='scavatore'?1:Math.max(.45,Math.min(1.45,1-g*(z.k==='runner'?6:3)));
+    if(z.pos&&st.some(p=>trM(p[0],p[1],z.pos[0],z.pos[1])<45)&&z.k!=='strillone')f*=1.15;
+    z.x+=z.v*f*wf*dt;
+    if(z.x>=P.L){z.x=-40-Math.random()*120;try{const h=FR.node.querySelector('.frhome');if(h){h.classList.remove('hit');void h.offsetWidth;h.classList.add('hit');}}catch(e){}}
+    const d=Math.max(0,z.x);const sg=P.seg.find(s=>d>=s.s&&d<=s.s+s.d)||P.seg[P.seg.length-1];const u=sg?Math.min(1,(d-sg.s)/sg.d):0;
+    const la=sg.a[0]+(sg.b[0]-sg.a[0])*u,lo=sg.a[1]+(sg.b[1]-sg.a[1])*u;z.pos=[la,lo];try{z.mk.setLngLat([lo,la]);}catch(e){}
+    const toH=trM(la,lo,R.lat,R.lon);let op=z.x<0?0:1;if(w&&w.ev==='nebbia')op=toH<150?1:.18;z.el.style.opacity=op;z.el.classList.toggle('glow',!!(w&&w.ev==='blackout'&&toH>120));});};
+  FR.raf=requestAnimationFrame(step);}
+/* ---------- SCHEDA ORDA UNICA ---------- */
+window.ORDA_ONE=true;
+try{const _ssApplyFr=ssApply;ssApply=function(){if(!(ORDA_ONE&&S.tab==='orda'))return _ssApplyFr();const pg=app.querySelector('.page');if(!pg)return;[...pg.children].forEach(el=>{const g=ssOf(el);el.hidden=(g==='x')||el.dataset.ohide==='1';});};}catch(e){}
+function frFold(cls,title,els){if(!els.length)return null;const d=document.createElement('details');d.className='fold ofold '+cls;G.ofo=G.ofo||{};d.open=!!G.ofo[cls];
+  d.innerHTML=`<summary>${title}</summary>`;const b=document.createElement('div');b.className='ofb';els.forEach(e=>b.appendChild(e));d.appendChild(b);d.addEventListener('toggle',()=>{G.ofo[cls]=d.open;});return d;}
+function ordaUnify(){if(!ORDA_ONE||S.tab!=='orda'||G.view!=='hub')return;const pg=app.querySelector('.page');if(!pg||pg.dataset.one)return;
+  if(!pg.querySelector('.opan'))return;pg.dataset.one='1';const kids=[...pg.children];const B={main:[],play:[],camp:[],tools:[],friends:[],hide:[]};let mode='camp';
+  kids.forEach(el=>{const tx=(el.textContent||'').trim();
+    if(el.matches('.oseg2,.otabs,.odyou'))return el.remove();
+    if(el.matches('.ocal'))return B.hide.push(el);
+    if(ssOf(el)==='x')return;
+    if(el.matches('.opan,.lpan,.tmp'))return B.main.push(el);
+    if(el.matches('.scudo,.diffseg,#fight')||(el.matches('.row.spread')&&/^Livello/.test(tx)&&/casa/i.test(tx)))return B.play.push(el);
+    if(el.tagName==='H3'){if(/Attrezzi|La tua casa|Le tue propriet/.test(tx))mode='tools';else if(/Crediti Casa Vera/.test(tx))mode='friends';else if(/Bottega/.test(tx))mode='shop';else if(/Il quartiere/.test(tx))mode='camp';}
+    else if(el.matches('details.fold')&&/Amici e quartieri condivisi/.test(tx))return B.friends.push(el);
+    else if(el.matches('.duelc'))return B.friends.push(el);
+    else if(el.matches('details.howto')&&/case e inquilini/.test(tx))return B.tools.push(el);
+    if(el.matches('.row.spread')&&/Record/.test(tx))return B.camp.push(el);
+    if(mode==='shop'){if(/Cambia gemme/.test(tx))return B.tools.push(el);return B.hide.push(el);}
+    B[mode].push(el);});
+  B.hide.forEach(e=>{e.hidden=true;e.dataset.ohide='1';});
+  const fr=frNode();const play=document.createElement('div');play.className='panel odplay';play.innerHTML='<b class="disp" style="font-size:22px">⚔️ Gioca la notte</b><p style="font-weight:400;font-size:12.5px;margin:2px 0 8px">Difendi tu il quartiere vero: salite, meteo e zombie sono quelli del fronte qui sopra.</p>';B.play.forEach(e=>play.appendChild(e));
+  const order=[fr,...B.main.filter(e=>e.matches('.opan')),play,...B.main.filter(e=>!e.matches('.opan')),frFold('of-camp','🌙 Campagna, quartiere e bestiario',B.camp),frFold('of-tools','🛠️ Attrezzi, casa e proprietà',B.tools),frFold('of-friends','👥 Amici e sfide',B.friends)].filter(Boolean);
+  order.forEach(e=>pg.appendChild(e));B.hide.forEach(e=>pg.appendChild(e));setTimeout(frMount,30);}
+const _splitHubFr=splitHub;splitHub=function(){_splitHubFr();try{ordaUnify();ssApply();}catch(e){console.warn('orda unica',e);}};
+/* i pulsanti che portano a un riquadro dentro una fisarmonica: la apro */
+(function(){const o=Element.prototype.scrollIntoView;Element.prototype.scrollIntoView=function(a){try{let d=this.closest&&this.closest('details');while(d){d.open=true;d=d.parentElement&&d.parentElement.closest('details');}}catch(e){}return o.call(this,a);};})();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.tab==='orda'&&FR.lm)frLoop();});
+setInterval(()=>{if(S.tab==='orda'&&FR.node&&FR.node.isConnected)frHeader();},30000);
+</script>
+<script>
+/* menu: "Difendi tu" porta al riquadro "Gioca la notte"; "Oggi" in cima al fronte */
+try{const _zmDoFr=zmDo;zmDo=function(k,b){if(k==='g:difendi'||k==='g:oggi'||k==='g:impero'){zmClose();go('orda');setTimeout(()=>{const t=k==='g:difendi'?app.querySelector('.odplay'):app.querySelector('.fronte');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},400);return;}return _zmDoFr(k,b);};}catch(e){}
+try{const _zmItemsFr=zmItems;zmItems=function(){const L=_zmItemsFr();const g=L.find(x=>x[0]==='Gioco');if(g)g[1]=g[1].map(r=>r[2]==='g:difendi'?['⚔️','Gioca la notte','g:difendi']:r);return L;};}catch(e){}
+</script>
+<script>
+/* =========================================================
+   ORDA TUTTA SIMULATA: niente "Difendi tu" (notti, battaglia, campagna, attrezzi)
+   Scheda Orda = 🗺️ Fronte · 🧟 Orda del mondo · 🎁 Premi e fortuna · 🎯 Missioni
+   Le missioni sulle notti diventano missioni sull'orda simulata (stesso premio).
+   ========================================================= */
+window.ORDA_SIM=true;
+/* ---- la scheda: tolgo "Gioca la notte" e le fisarmoniche ---- */
+const _ordaUnifySim=ordaUnify;ordaUnify=function(){_ordaUnifySim();try{if(!ORDA_SIM||S.tab!=='orda')return;const pg=app.querySelector('.page');if(!pg)return;
+  pg.querySelectorAll('.odplay,details.ofold').forEach(e=>{e.hidden=true;e.dataset.ohide='1';});
+  const n=pg.querySelector('.fronte .frinfo p.muted');if(n)n.innerHTML='Strade: <b style="color:#2f9e44">verde</b> piano · <b style="color:#e8590c">arancio</b> salita verso casa (zombie più lenti) · <b style="color:#d7263d">rosso</b> discesa (più veloci). Tocca uno zombie per vederlo. È una simulazione: l’esito dell’orda lo calcola il server con livello, preparazione e aiuti.';
+  const l=pg.querySelector('.lpan');if(l)l.querySelectorAll('p,small').forEach(x=>{if(/vincendo notti/.test(x.textContent))x.textContent='Giri e biglietti si guadagnano riscattando l’orda, completando le missioni e aiutando gli alleati.';});}catch(e){}};
+/* ---- le missioni ---- */
+const SIMM=[['prep','🛡️','Prepara le case prima della prossima orda'],['watch','🎬','Guarda l’assalto a fumetto'],['claim','🎁','Riscatta i premi dell’orda'],['help','🤝','Manda rinforzi o saluta un alleato'],['gold','💰','Acchiappa lo zombie d’oro sul fronte']];
+function tmSimFix(T){if(!T||!T.list||T.sim)return T;let j=(new Date().getDate())%SIMM.length;const used=new Set();
+  T.list=T.list.map(m=>{if(['cp','poi','biz','sp'].includes(m.k))return m;let s=SIMM[j%SIMM.length];while(used.has(s[0])){j++;s=SIMM[j%SIMM.length];}used.add(s[0]);j++;
+    return{k:s[0],id:s[0],ic:s[1],t:s[2],goal:1,prog:0,done:false,cl:false,rw:m.rw||{c:80,g:2},go:s[0]};});T.sim=true;try{saveLocal();}catch(e){}return T;}
+const _tmInitSim=tmInit;tmInit=function(){const T=_tmInitSim();return ORDA_SIM?tmSimFix(T):T;};
+/* eventi che completano le missioni */
+function tmSim(k){try{tmInit();tmEvent(k,k);if(S.tab==='orda')setTimeout(()=>{try{renderHub();}catch(e){}},1700);}catch(e){}}
+setInterval(()=>{try{if(typeof SB==='undefined'||!SB||SB.__tmw||!SB.rpc)return;const o=SB.rpc.bind(SB);
+  SB.rpc=async function(n,a){const r=await o(n,a);try{const ok=r&&!r.error&&!(r.data&&r.data.ok===false);if(ok){if(n==='world_prepare')tmSim('prep');else if(n==='world_raid_claim')tmSim('claim');else if(n==='world_send_help'||n==='world_shout')tmSim('help');}}catch(e){}return r;};SB.__tmw=1;}catch(e){}},1000);
+const _assaltoSim=assalto;assalto=function(){tmSim('watch');return _assaltoSim.apply(this,arguments);};
+const _frZSheetSim=frZSheet;frZSheet=function(k){const before=FR.gold;_frZSheetSim(k);if(k==='oro'&&!before&&FR.gold)tmSim('gold');};
+/* "Vai" delle missioni nuove */
+const _tmBindSim=tmBind;tmBind=function(){_tmBindSim();try{const p=app.querySelector('.tmp');if(!p||!G.tm)return;p.querySelectorAll('[data-tmg]').forEach(b=>{const m=G.tm.list[+b.dataset.tmg];if(!m||!SIMM.some(s=>s[0]===m.k))return;
+  b.onclick=()=>{if(m.k==='watch')return assalto('last');if(m.k==='help'){SOC.tab='squadra';return go('social');}
+    const t=m.k==='gold'?app.querySelector('.fronte'):app.querySelector('.opan');if(t){t.scrollIntoView({behavior:'smooth',block:'start'});t.classList.remove('flashme');void t.offsetWidth;t.classList.add('flashme');}
+    toast(m.k==='prep'?'🛡️ Tocca “Prepara le case”':m.k==='claim'?'🎁 Tocca “Riscatta” quando l’orda è passata':'💰 Cerca lo zombie d’oro sul fronte e toccalo');};});}catch(e){}};
+/* ---- testi e menu senza le notti ---- */
+try{const _luckSim=luckTopBind;luckTopBind=function(){_luckSim();try{const p=app.querySelector('.lpan');if(!p)return;['wheel','scratch'].forEach(k=>{const b=p.querySelector(`[data-lt=${k}]`);if(!b)return;const o=b.onclick;
+  b.onclick=()=>{if(k==='wheel'&&!(G.spins>0))return toast('Niente giri: riscatta l’orda o completa le missioni');if(k==='scratch'&&!(G.scratch>0))return toast('Niente biglietti: aiuta un alleato o completa le missioni');if(o)o();};});}catch(e){}};}catch(e){}
+try{const _zmItemsSim=zmItems;zmItems=function(){const L=_zmItemsSim();const g=L.find(x=>x[0]==='Gioco');if(g)g[1]=g[1].filter(r=>!['g:difendi'].includes(r[2]));return L;};}catch(e){}
+</script>
+<script>
+/* data, ora e meteo stanno nel fronte: il vecchio riquadro "📅 Oggi" non va più rimesso */
+oggiPut=function(){try{app.querySelectorAll('.page > .ocal').forEach(e=>{e.hidden=true;e.dataset.ohide='1';});}catch(e){}};
+</script>
+<script>
+/* =========================================================
+   CASE DISEGNATE DIVERSE
+   - tipo dell'edificio letto dalla mappa vera (OpenStreetMap): villetta, bifamiliare,
+     schiera, condominio, cascina, negozio
+   - il livello si vede addosso: luci (2), recinzione (3), barricate (4), torretta e scudo (5)
+   - colori diversi per ogni casa
+   "La mia casa": in cima la TUA casa vera disegnata dalle risposte, poi le case che possiedi
+   Mappa: pulsante 🏙️ 3D di nuovo visibile
+   ========================================================= */
+const BT={villa:['🏡','Villetta'],bifam:['🏘️','Bifamiliare'],schiera:['🏠','Villetta a schiera'],condo:['🏢','Condominio'],cascina:['🌾','Cascina'],shop:['🏪','Negozio']};
+function bhash(s){let h=0;s=String(s||'');for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h);}
+const WALLS=['#e9c46a','#f4a261','#e5989b','#a8dadc','#cdb4db','#b5e48c','#f1faee','#ffd6a5'],ROOFS=['#d7263d','#8d3b72','#3d405b','#6a994e','#bc6c25','#264653'];
+/* il disegno: 300×200, stile fumetto */
+function houseArt(type,level,seed,o={}){const h=bhash(seed);const wc=WALLS[h%WALLS.length],rc=ROOFS[(h>>3)%ROOFS.length];const L=level||1;const K='#140f1f';const lit=L>=2?'#f7d64a':'#3b3366';const id='ha'+(h%99999)+(o.k||'');
+  const win=(x,y,w=20,hh=18)=>`<rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="${lit}" stroke="${K}" stroke-width="2.5"/><path d="M${x+w/2} ${y}V${y+hh}" stroke="${K}" stroke-width="2"/>${L>=4?`<path d="M${x-3} ${y+4}L${x+w+3} ${y+hh-4}M${x-3} ${y+hh-4}L${x+w+3} ${y+4}" stroke="#8a5a34" stroke-width="4"/>`:''}`;
+  const door=(x,y,w=22,hh=34)=>`<rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="${L>=4?'#7c8794':'#8a5a34'}" stroke="${K}" stroke-width="2.5"/><circle cx="${x+w-6}" cy="${y+hh/2}" r="2.2" fill="#f7d64a"/>${L>=4?`<path d="M${x-4} ${y+10}H${x+w+4}M${x-4} ${y+24}H${x+w+4}" stroke="#a0703f" stroke-width="5"/>`:''}`;
+  let b='';const G=170;
+  if(type==='condo'){b=`<rect x="95" y="38" width="110" height="${G-38}" fill="${wc}" stroke="${K}" stroke-width="3"/><rect x="90" y="30" width="120" height="10" fill="${rc}" stroke="${K}" stroke-width="3"/><path d="M180 30V12M174 16H186" stroke="${K}" stroke-width="2.5"/>`;
+    for(let r=0;r<5;r++)for(let c=0;c<3;c++)b+=win(108+c*32,48+r*22,18,14);b+=door(139,G-30,22,30);}
+  else if(type==='schiera'){[0,1,2].forEach(i=>{const x=60+i*62,me=i===1;b+=`<rect x="${x}" y="80" width="60" height="${G-80}" fill="${me?wc:'#8f86b8'}" stroke="${K}" stroke-width="3"/><path d="M${x-4} 82L${x+30} 50L${x+64} 82Z" fill="${me?rc:'#5a4f8a'}" stroke="${K}" stroke-width="3"/>`+win(x+8,96,18,16)+win(x+34,96,18,16)+door(x+19,G-32,22,32);});}
+  else if(type==='bifam'){b=`<rect x="60" y="76" width="180" height="${G-76}" fill="${wc}" stroke="${K}" stroke-width="3"/><path d="M50 80L150 36L250 80Z" fill="${rc}" stroke="${K}" stroke-width="3"/><path d="M150 40V${G}" stroke="${K}" stroke-width="3"/>`+win(75,92)+win(110,92)+win(170,92)+win(205,92)+door(98,G-34)+door(180,G-34)+`<rect x="196" y="40" width="12" height="22" fill="${rc}" stroke="${K}" stroke-width="2.5"/>`;}
+  else if(type==='cascina'){b=`<rect x="40" y="88" width="130" height="${G-88}" fill="${wc}" stroke="${K}" stroke-width="3"/><path d="M32 92L105 58L178 92Z" fill="${rc}" stroke="${K}" stroke-width="3"/>`+win(55,104)+win(130,104)+door(94,G-34)+
+      `<rect x="172" y="104" width="100" height="${G-104}" fill="#c08552" stroke="${K}" stroke-width="3"/><path d="M168 108L222 80L276 108Z" fill="#8d3b2a" stroke="${K}" stroke-width="3"/><path d="M190 ${G}V128Q222 106 254 128V${G}" fill="#5a3a22" stroke="${K}" stroke-width="3"/><ellipse cx="262" cy="${G-6}" rx="16" ry="9" fill="#e9c46a" stroke="${K}" stroke-width="2.5"/>`;}
+  else if(type==='shop'){b=`<rect x="70" y="60" width="160" height="${G-60}" fill="${wc}" stroke="${K}" stroke-width="3"/><rect x="64" y="52" width="172" height="12" fill="${rc}" stroke="${K}" stroke-width="3"/>`+win(84,72)+win(140,72)+win(196,72)+
+      `<path d="M70 108H230L222 124H78Z" fill="#d7263d" stroke="${K}" stroke-width="3"/><path d="M90 108L86 124M110 108L108 124M130 108L130 124M150 108V124M170 108L172 124M190 108L192 124M210 108L214 124" stroke="#fff" stroke-width="3"/><rect x="82" y="128" width="96" height="${G-128}" fill="#9fd3e6" stroke="${K}" stroke-width="3"/>`+door(190,G-36,26,36);}
+  else{b=`<rect x="80" y="84" width="140" height="${G-84}" fill="${wc}" stroke="${K}" stroke-width="3"/><path d="M68 88L150 40L232 88Z" fill="${rc}" stroke="${K}" stroke-width="3"/><rect x="184" y="48" width="14" height="26" fill="${rc}" stroke="${K}" stroke-width="2.5"/>`+win(96,100)+win(184,100)+door(139,G-36)+
+      `<circle cx="252" cy="${G-28}" r="20" fill="#6a994e" stroke="${K}" stroke-width="3"/><path d="M252 ${G-8}V${G}" stroke="${K}" stroke-width="5"/>`;}
+  const fence=L>=3?`<g stroke="${K}" stroke-width="2.5" fill="#cfc6e6">${Array.from({length:14},(_,i)=>`<path d="M${16+i*20} ${G+18}V${G-4}L${21+i*20} ${G-10}L${26+i*20} ${G-4}V${G+18}Z"/>`).join('')}<path d="M10 ${G+4}H290" fill="none" stroke-width="3"/></g>`:'';
+  const lamp=L>=2?`<path d="M28 ${G}V${G-60}H40" stroke="${K}" stroke-width="3" fill="none"/><circle cx="42" cy="${G-56}" r="6" fill="#f7d64a" stroke="${K}" stroke-width="2"/><path d="M42 ${G-50}L22 ${G}H62Z" fill="#f7d64a" opacity=".25"/>`:'';
+  const top=L>=5?`<defs><radialGradient id="${id}s"><stop offset=".6" stop-color="#7cf0ff" stop-opacity="0"/><stop offset="1" stop-color="#7cf0ff" stop-opacity=".55"/></radialGradient></defs><ellipse cx="150" cy="${G-40}" rx="138" ry="110" fill="url(#${id}s)" stroke="#fff" stroke-width="2.5" opacity=".9"/><path d="M150 18V-2" stroke="${K}" stroke-width="2.5"/><path d="M150 -2H170L164 4L170 10H150" fill="#d7263d" stroke="${K}" stroke-width="2"/>`:'';
+  const stars=[[30,24],[62,14],[250,22],[280,40],[210,12]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.6" fill="#fff"/>`).join('');
+  return`<svg viewBox="0 -6 300 206" class="hart ${o.cls||''}"><rect x="0" y="-6" width="300" height="206" fill="${o.day?'#9fd3e6':'#2b2160'}"/>${o.day?'':stars}<circle cx="268" cy="24" r="14" fill="#f7d64a" stroke="${K}" stroke-width="2.5"/>${top}<rect x="0" y="${G}" width="300" height="40" fill="#3f9b5f" stroke="${K}" stroke-width="3"/>${lamp}${b}${fence}</svg>`;}
+/* tipo dell'edificio dalla mappa vera */
+function btFromTags(t){const b=(t&&t.building)||'',lv=+((t&&t['building:levels'])||0);
+  if(['house','detached','villa','bungalow','cabin','hut'].includes(b))return'villa';if(b==='semidetached_house')return'bifam';if(b==='terrace')return'schiera';
+  if(['apartments','dormitory','hotel'].includes(b))return'condo';if(['farm','farmhouse','barn','farm_auxiliary','stable','cowshed'].includes(b))return'cascina';
+  if(['commercial','retail','office','industrial','warehouse','supermarket','kiosk','shop'].includes(b))return'shop';if(b==='residential')return lv>=3?'condo':'villa';if(lv>=4)return'condo';return null;}
+const BT_MEM={};
+async function bType(lat,lon,seed){const k='zsh_bt_'+lat.toFixed(4)+'_'+lon.toFixed(4);if(BT_MEM[k])return BT_MEM[k];try{const c=localStorage.getItem(k);if(c){BT_MEM[k]=c;return c;}}catch(e){}
+  let t=null;try{const els=await trOverpass(`[out:json][timeout:15];way(around:18,${lat},${lon})["building"];out tags 5;`,12000,5);if(els&&els.length){for(const e of els){t=btFromTags(e.tags);if(t)break;}}}catch(e){}
+  if(!t){const keys=['villa','villa','bifam','schiera','condo','cascina'];t=keys[bhash(seed)%keys.length];}else{try{localStorage.setItem(k,t);}catch(e){}}BT_MEM[k]=t;return t;}
+/* la casa vera: dal tipo scelto all'inizio, altrimenti dalla mappa */
+function homeBT(){const g=(typeof G!=='undefined'&&G.type)||'';if(['apt','residence','attico','loft','ringhiera'].includes(g))return'condo';if(g==='schiera')return'schiera';if(g==='bifamiliare')return'bifam';if(g==='casale')return'cascina';if(g==='villa')return'villa';return null;}
+/* ---------- LA MIA CASA ---------- */
+async function casaTop(){const pg=app.querySelector('.page');if(!pg||pg.querySelector('.mycasa'))return;const r=S.result;const m=W&&W.m;
+  const box=document.createElement('div');box.className='panel mycasa';
+  box.innerHTML=`<b class="disp" style="font-size:24px">🏠 La tua casa vera</b><small>${esc((S.zone&&S.zone.address)||'')}</small>
+    <div class="mcart">${S.answers?houseScene(S.answers,{sid:'my'}):houseArt(homeBT()||'villa',1,'home')}</div>
+    <div class="mcchips">${r&&r.idx!=null?`<span>🛡️ Indice <b>${(Math.round(r.idx*10)/10).toString().replace('.',',')}</b>/10</span>`:''}${m?`<span>🌍 Livello mondo <b>${m.wlevel||1}</b></span><span>🧱 <b>${wNum(m.mattoni)}</b></span>`:''}</div>
+    <p class="muted" style="font-size:12px;margin:6px 0 0">Forma, piani e tetto vengono dall’edificio vero sulla mappa; porta, grate, vetri, luci e allarme dalle tue risposte; assi, recinzione, scudo e alleati dai rinforzi del gioco.</p>`;
+  const after=pg.querySelector('.cback');if(after)after.after(box);else pg.prepend(box);
+  /* le case che possiedi */
+  const L=myHouses().filter(h=>!h.home);if(!L.length)return;const gal=document.createElement('div');gal.className='panel mygal';
+  gal.innerHTML=`<b class="disp" style="font-size:22px">🗺️ Le tue case nel mondo (${L.length})</b><div class="mgrid">${L.map((h,i)=>`<button class="mgc" data-mg="${i}"><div class="mgart" data-mga="${i}">${houseArt('villa',h.level,h.bid,{k:'g'+i})}</div><b>${h.label}</b><small><span data-mgt="${i}">…</span> · liv. ${h.level} · ${kmTxt(h.km)}</small></button>`).join('')}</div>`;
+  box.after(gal);gal.querySelectorAll('[data-mg]').forEach(b=>b.onclick=()=>{const h=L[+b.dataset.mg];S.mfHouses=true;go('mappa');setTimeout(()=>mhFly(h,true),900);});
+  L.forEach(async(h,i)=>{const t=await bType(h.lat,h.lon,h.bid);const a=gal.querySelector(`[data-mga="${i}"]`),tt=gal.querySelector(`[data-mgt="${i}"]`);if(a)a.innerHTML=houseArt(t,h.level,h.bid,{k:'g'+i});if(tt)tt.textContent=BT[t][1];});}
+const _goCase=go;go=function(tab){const r=_goCase(tab);if(tab==='casa')setTimeout(casaTop,30);return r;};
+/* ---------- nella scheda di ogni casa: il suo disegno ---------- */
+const _houseSheetCase=houseSheet;houseSheet=async function(h){await _houseSheetCase(h);try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('.hsart'))return;const hd=c.querySelector('.hshead');if(!hd)return;
+  const t=h.home?(homeBT()||await bType(h.lat,h.lon,h.bid||'home')):await bType(h.lat,h.lon,h.bid);const lvl=+((c.querySelector('.hshead b')||{}).textContent||'').replace(/\D/g,'')||h.level||1;
+  hd.insertAdjacentHTML('beforebegin',`<div class="hsart">${h.home&&S.answers?houseScene(S.answers,{sid:'hs'}):houseArt(t,lvl,h.bid||'home',{k:'s'})}<span>${BT[t][0]} ${BT[t][1]}</span></div>`);}catch(e){}};
+/* ---------- nella barra "Le tue case" del mondo: miniature ---------- */
+const _mhBarCase=mhBar;mhBar=function(){_mhBarCase();try{const L=myHouses();document.querySelectorAll('.mhouses [data-mh]').forEach(b=>{const h=L[+b.dataset.mh];if(!h||b.querySelector('.mhart'))return;const sp=b.querySelector('span');if(!sp)return;
+  const put=t=>{sp.outerHTML=`<span class="mhart">${h.home&&S.answers?houseArt(homeBT()||t,1,'home',{k:'m'}):houseArt(t,h.level,h.bid,{k:'m'+h.bid})}</span>`;};
+  const ht=h.home?homeBT():null;if(ht)put(ht);else bType(h.lat,h.lon,h.bid||'home').then(put);});}catch(e){}};
+</script>
+<script>
+/* =========================================================
+   CASE VERE A FUMETTO
+   Pianta reale, piani, tetto e colori da OpenStreetMap, vicini veri intorno,
+   prospettiva obliqua con contorni spessi e ombre a due toni.
+   Rinforzi visibili: dalla valutazione (porta blindata, grate, vetri, luci, allarme,
+   recinzione) e dal gioco (case preparate, livello, alleati che aiutano).
+   ========================================================= */
+const RH={};const INKC='#140f1f';
+/* ---- dati dell'edificio vero ---- */
+async function bGeom(lat,lon){const k='zsh_bg_'+lat.toFixed(5)+'_'+lon.toFixed(5);if(RH[k])return RH[k];try{const c=localStorage.getItem(k);if(c){RH[k]=JSON.parse(c);return RH[k];}}catch(e){}
+  let els=null;try{els=await trOverpass(`[out:json][timeout:20];way(around:70,${lat},${lon})["building"];out tags geom 40;`,15000,40);}catch(e){}
+  if(!els||!els.length)return null;const kx=111320*Math.cos(lat*Math.PI/180),ky=110540;
+  const B=els.filter(e=>e.geometry&&e.geometry.length>=4).map(e=>{let p=e.geometry.map(g=>[(g.lon-lon)*kx,(g.lat-lat)*ky]);if(p.length>1&&p[0][0]===p[p.length-1][0]&&p[0][1]===p[p.length-1][1])p.pop();
+      if(p.length>40){const st=Math.ceil(p.length/40);p=p.filter((_,i)=>i%st===0);}const t=e.tags||{};return{p:p.map(q=>[Math.round(q[0]*10)/10,Math.round(q[1]*10)/10]),lv:+t['building:levels']||0,roof:t['roof:shape']||'',col:t['building:colour']||'',rcol:t['roof:colour']||'',b:t.building||'',mat:t['building:material']||''};});
+  if(!B.length)return null;
+  const inside=(p)=>{let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const[xi,yi]=p[i],[xj,yj]=p[j];if((yi>0)!==(yj>0)&&0<(xj-xi)*(0-yi)/(yj-yi)+xi)c=!c;}return c;};
+  const cen=p=>[p.reduce((s,q)=>s+q[0],0)/p.length,p.reduce((s,q)=>s+q[1],0)/p.length];
+  let mi=B.findIndex(b=>inside(b.p));if(mi<0){let bd=1e9;B.forEach((b,i)=>{const c=cen(b.p);const d=Math.hypot(c[0],c[1]);if(d<bd){bd=d;mi=i;}});if(bd>30)return null;}
+  const out={main:B[mi],near:B.filter((b,i)=>i!==mi&&Math.hypot(...cen(b.p))<55).slice(0,10)};RH[k]=out;try{localStorage.setItem(k,JSON.stringify(out));}catch(e){}return out;}
+/* ---- disegno ---- */
+const PLASTER=['#efe0c4','#f2e6d0','#e9c9a0','#dcb48c','#f3ece2','#d6dcc8','#e8c4b4','#f0d9a8'];
+function shade(hex,f){try{const n=parseInt(hex.slice(1),16);const r=Math.round(((n>>16)&255)*f),g=Math.round(((n>>8)&255)*f),b=Math.round((n&255)*f);return'#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}catch(e){return hex;}}
+function colOf(c,fb){if(!c)return fb;if(/^#[0-9a-f]{6}$/i.test(c))return c;const N={white:'#f3ece2',beige:'#e9d6b0',yellow:'#efd27a',orange:'#e9a96a',red:'#c4553f',brown:'#9a6a46',grey:'#a8a8ad',gray:'#a8a8ad',pink:'#e8b4b4',green:'#b9c9a0',blue:'#a9c4dc',cream:'#f2e6c8'};return N[String(c).toLowerCase()]||fb;}
+function area(p){let a=0;for(let i=0;i<p.length;i++){const[x1,y1]=p[i],[x2,y2]=p[(i+1)%p.length];a+=x1*y2-x2*y1;}return a/2;}
+/* geo: dati edificio; o: {lvl, a (risposte), prep, helps, seed, k, home} */
+function realHouseSVG(geo,o={}){const m=geo.main;const lvl=o.lvl||1,a=o.a||{};const prep=!!o.prep;
+  /* orientamento: lato più lungo davanti */
+  let best=0,ang=0;m.p.forEach((q,i)=>{const r=m.p[(i+1)%m.p.length];const L=Math.hypot(r[0]-q[0],r[1]-q[1]);if(L>best){best=L;ang=Math.atan2(r[1]-q[1],r[0]-q[0]);}});
+  const ca=Math.cos(-ang),sa=Math.sin(-ang);const rot=p=>p.map(([x,y])=>[x*ca-y*sa,x*sa+y*ca]);
+  const prep2=b=>{let p=rot(b.p);if(area(p)<0)p.reverse();return{...b,q:p};};const M=prep2(m);const NB=geo.near.map(prep2);
+  /* se dopo la rotazione la facciata lunga è dietro, giro di 180° */
+  {const ys=M.q.map(q=>q[1]);const mid=(Math.min(...ys)+Math.max(...ys))/2;const fr=M.q.filter(q=>q[1]<mid).length;if(fr<M.q.length/2-1){[M,...NB].forEach(b=>{b.q=b.q.map(([x,y])=>[-x,-y]);});}}
+  const lvH=b=>{const lv=b.lv||(b===m?(/apartments|residential/.test(b.b)?4:2):2);return Math.max(1,Math.min(12,lv));};
+  const K=.55,S=(x,y,z)=>[x+K*y,-(K*y)-z];
+  const els=[];const H=b=>lvH(b)*3;
+  const wallCol=o.col||colOf(m.col,PLASTER[bhash(o.seed||'x')%PLASTER.length]);
+  const roofType=b=>{const r=(b.roof||'').toLowerCase();if(/flat/.test(r))return'flat';if(/gabled|hipped|pyramidal|half-hipped|skillion/.test(r))return r.includes('gabl')?'gabled':'hipped';
+    const xs=b.q.map(q=>q[0]),ys=b.q.map(q=>q[1]);const bb=(Math.max(...xs)-Math.min(...xs))*(Math.max(...ys)-Math.min(...ys));const ar=Math.abs(area(b.q));if(lvH(b)>=5||ar>600)return'flat';return ar/bb>.82?'gabled':'hipped';};
+  const poly=(pts,fill,extra='')=>`<path d="M${pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L')}Z" fill="${fill}" stroke="${INKC}" stroke-width="2.2" stroke-linejoin="round" vector-effect="non-scaling-stroke" ${extra}/>`;
+  const sgn=pts=>{let s=0;for(let i=0;i<pts.length;i++){const[x1,y1]=pts[i],[x2,y2]=pts[(i+1)%pts.length];s+=x1*y2-x2*y1;}return s;};
+  function drawB(b,isMain){const h=H(b);const wc=isMain?wallCol:'#6c6396',wd=isMain?shade(wallCol,.78):'#564d80';const rc=isMain?colOf(b.rcol,roofType(b)==='flat'?'#8a8f98':'#b5523b'):'#463e6e';
+    const W=[];b.q.forEach((q,i)=>{const r=b.q[(i+1)%b.q.length];const quad=[S(q[0],q[1],0),S(r[0],r[1],0),S(r[0],r[1],h),S(q[0],q[1],h)];if(sgn(quad)<0)W.push({q,r,quad,d:(q[1]+r[1])/2,east:(r[1]-q[1])>Math.abs(r[0]-q[0])*.3});});
+    W.sort((x,y)=>y.d-x.d);let out='';const front=[];
+    W.forEach(w=>{out+=poly(w.quad,w.east?wd:wc);if(!isMain)return;front.push(w);
+      /* finestre su ogni piano */
+      const L=Math.hypot(w.r[0]-w.q[0],w.r[1]-w.q[1]);const n=Math.max(1,Math.floor(L/3.4));const fl=lvH(b);
+      for(let f=0;f<fl;f++)for(let j=0;j<n;j++){const t0=(j+.5)/n-.6/L,t1=(j+.5)/n+.6/L;const P=(t,z)=>S(w.q[0]+(w.r[0]-w.q[0])*t,w.q[1]+(w.r[1]-w.q[1])*t,z);const z0=f*3+.9,z1=f*3+2.2;
+        const quad=[P(t0,z0),P(t1,z0),P(t1,z1),P(t0,z1)];const lit=lvl>=2||a.luci==='sensore'?'#f7d64a':'#efd27a';out+=poly(quad,a.vetri==='anti'?'#bfe3f2':lit,'stroke-width="1.6"');
+        if(f===0&&(a.grate==='tutte'||(a.grate==='alcune'&&j%2===0)))for(let g=1;g<4;g++){const tt=t0+(t1-t0)*g/4;const A=P(tt,z0-.1),B=P(tt,z1+.1);out+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}" stroke="${INKC}" stroke-width="2" vector-effect="non-scaling-stroke"/>`;}
+        if(f===0&&(prep||lvl>=4)){const A=P(t0-.02,z0),B=P(t1+.02,z1),C=P(t0-.02,z1),D=P(t1+.02,z0);out+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}M${C[0]} ${C[1]}L${D[0]} ${D[1]}" stroke="#a0703f" stroke-width="4.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;}}});
+    /* tetto */
+    const rt=roofType(b);const top=b.q.map(q=>S(q[0],q[1],h));
+    if(rt==='flat'){out+=poly(top,rc);if(isMain)out+=poly(b.q.map(q=>S(q[0],q[1],h+.6)),'none','stroke-width="1.4" opacity=".6"');}
+    else if(rt==='gabled'){const xs=b.q.map(q=>q[0]),ys=b.q.map(q=>q[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),ym=(y0+y1)/2,rh=Math.min(4.5,(y1-y0)*.45);
+      out+=poly([S(x0,ym,h+rh),S(x1,ym,h+rh),S(x1,y1,h),S(x0,y1,h)],shade(rc,.8));out+=poly([S(x1,y0,h),S(x1,y1,h),S(x1,ym,h+rh)],wd);out+=poly([S(x0,y0,h),S(x1,y0,h),S(x1,ym,h+rh),S(x0,ym,h+rh)],rc);
+      if(isMain&&b.lv<=3){const cx=x0+(x1-x0)*.72,cy=y0+(ym-y0)*.5;const ch=[S(cx,cy,h+rh*.5),S(cx+.9,cy,h+rh*.5),S(cx+.9,cy,h+rh+1.2),S(cx,cy,h+rh+1.2)];out+=poly(ch,shade(rc,.7));}}
+    else{const c=[b.q.reduce((s,q)=>s+q[0],0)/b.q.length,b.q.reduce((s,q)=>s+q[1],0)/b.q.length];const ap=S(c[0],c[1],h+3);const F=[];
+      b.q.forEach((q,i)=>{const r=b.q[(i+1)%b.q.length];F.push({pts:[S(q[0],q[1],h),S(r[0],r[1],h),ap],d:(q[1]+r[1])/2,f:(r[1]-q[1])>0?.85:1});});F.sort((x,y)=>y.d-x.d);F.forEach(f=>{out+=poly(f.pts,shade(rc,f.f));});}
+    return{svg:out,front,h};}
+  /* ordine: dal più lontano */
+  const all=[...NB.map(b=>({b,main:false})),{b:M,main:true}].sort((x,y)=>{const cy=b=>b.q.reduce((s,q)=>s+q[1],0)/b.q.length;return cy(y.b)-cy(x.b);});
+  let body='';let mainInfo=null;all.forEach(x=>{const r=drawB(x.b,x.main);body+=r.svg;if(x.main)mainInfo=r;});
+  /* porta, luci, allarme, recinzione, alleati, scudo (sulla facciata principale) */
+  let deco='';const fw=(mainInfo&&mainInfo.front||[]).filter(w=>!w.east).sort((x,y)=>Math.hypot(y.r[0]-y.q[0],y.r[1]-y.q[1])-Math.hypot(x.r[0]-x.q[0],x.r[1]-x.q[1]))[0];
+  let doorPt=null;
+  if(fw){const L=Math.hypot(fw.r[0]-fw.q[0],fw.r[1]-fw.q[1]);const P=(t,z)=>S(fw.q[0]+(fw.r[0]-fw.q[0])*t,fw.q[1]+(fw.r[1]-fw.q[1])*t,z);const tc=.5+((bhash(o.seed||'d')%3)-1)*.18,dw=.65/L;
+    const steel=a.porta==='blindata'||a.porta==='b4';const dq=[P(tc-dw,0),P(tc+dw,0),P(tc+dw,2.3),P(tc-dw,2.3)];deco+=poly(dq,steel?'#7c8794':'#8a5a34');doorPt=P(tc,0);
+    if(steel){[.6,1.2,1.8].forEach(z=>{const A=P(tc-dw*.7,z),B=P(tc+dw*.7,z);deco+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}" stroke="${INKC}" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`;});}
+    if(prep||lvl>=4){[.7,1.6].forEach(z=>{const A=P(tc-dw*1.5,z),B=P(tc+dw*1.5,z+.25);deco+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}" stroke="#a0703f" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;});}
+    const kn=P(tc+dw*.6,1.15);deco+=`<circle cx="${kn[0]}" cy="${kn[1]}" r=".25" fill="#f7d64a"/>`;
+    if(a.luci==='sensore'||lvl>=2){const lp=P(tc+dw*2.2,2.6);deco+=`<path d="M${lp[0]} ${lp[1]}L${lp[0]-3} ${lp[1]+5}L${lp[0]+3} ${lp[1]+5}Z" fill="#f7d64a" opacity=".35"/><circle cx="${lp[0]}" cy="${lp[1]}" r=".45" fill="#f7d64a" stroke="${INKC}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;}
+    if(a.allarme==='allarme'||a.allarme==='cam'){const sp=P(.1,mainInfo.h-.9);deco+=`<rect x="${sp[0]}" y="${sp[1]-.8}" width="1" height=".8" fill="#d7263d" stroke="${INKC}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
+      if(a.allarme==='cam'){const cp=P(.9,mainInfo.h-.7);deco+=`<path d="M${cp[0]} ${cp[1]}h.9v.5h-.9z" fill="#3d405b" stroke="${INKC}" stroke-width="1.3" vector-effect="non-scaling-stroke"/>`;}}
+    /* recinzione davanti */
+    if(lvl>=3||(a.recinzione&&a.recinzione!=='no')){const xs=M.q.map(q=>q[0]),ys=M.q.map(q=>q[1]);const yF=Math.min(...ys)-3;const x0=Math.min(...xs)-2,x1=Math.max(...xs)+2;
+      for(let x=x0;x<=x1;x+=1.1){const A=S(x,yF,0),B=S(x,yF,1.1);deco+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}" stroke="${INKC}" stroke-width="2.2" vector-effect="non-scaling-stroke"/>`;}
+      const A=S(x0,yF,.7),B=S(x1,yF,.7);deco+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}" stroke="#cfc6e6" stroke-width="3" vector-effect="non-scaling-stroke"/>`;}
+    /* alleati davanti alla porta */
+    const n=Math.min(3,o.helps||0);for(let i=0;i<n;i++){const pp=S(fw.q[0]+(fw.r[0]-fw.q[0])*(tc+(i-1)*.12),fw.q[1]+(fw.r[1]-fw.q[1])*(tc+(i-1)*.12)-2.2,0);
+      deco+=`<g transform="translate(${pp[0]} ${pp[1]})"><circle cx="0" cy="-2.3" r=".55" fill="#f2c9a0" stroke="${INKC}" stroke-width="1.3" vector-effect="non-scaling-stroke"/><path d="M-.6 -1.7h1.2v1.7h-1.2z" fill="${['#3d6fb3','#2f7a52','#c8323f'][i]}" stroke="${INKC}" stroke-width="1.3" vector-effect="non-scaling-stroke"/></g>`;}}
+  /* terreno e strada */
+  const xsA=[M,...NB].flatMap(b=>b.q.map(q=>q[0])),ysA=[M,...NB].flatMap(b=>b.q.map(q=>q[1]));const gx0=Math.min(...xsA,-25)-6,gx1=Math.max(...xsA,25)+6,gy0=Math.min(...ysA)-9,gy1=Math.max(...ysA)+6;
+  const ground=poly([S(gx0,gy0,0),S(gx1,gy0,0),S(gx1,gy1,0),S(gx0,gy1,0)],'#4f9b5d');const road=poly([S(gx0,gy0-6,0),S(gx1,gy0-6,0),S(gx1,gy0,0),S(gx0,gy0,0)],'#55506b');
+  /* adatto alla cornice */
+  const pts=[S(gx0,gy0-6,0),S(gx1,gy1,0),S(gx0,gy1,0),S(gx1,gy0-6,0)];const maxH=Math.max(...[M,...NB].map(b=>H(b)))+5;pts.push(S(gx0,gy1,maxH),S(gx1,gy1,maxH));
+  const mx0=Math.min(...pts.map(p=>p[0])),mx1=Math.max(...pts.map(p=>p[0])),my0=Math.min(...pts.map(p=>p[1])),my1=Math.max(...pts.map(p=>p[1]));
+  /* inquadro la casa principale, non tutto il quartiere */
+  const mq=M.q;const fx0=Math.min(...mq.map(q=>S(q[0],q[1],0)[0]))-7,fx1=Math.max(...mq.map(q=>S(q[0],q[1],0)[0]))+8,fy0=Math.min(...mq.map(q=>S(q[0],q[1],H(M)+5)[1]))-2,fy1=Math.max(...mq.map(q=>S(q[0],q[1],0)[1]))+6;
+  const VW=320,VH=220;const sc=Math.min(VW/(fx1-fx0),VH/(fy1-fy0));const tx=-fx0*sc+(VW-(fx1-fx0)*sc)/2,ty=-fy0*sc+(VH-(fy1-fy0)*sc)/2;
+  const shield=lvl>=5?`<ellipse cx="${VW/2}" cy="${VH*.55}" rx="${VW*.46}" ry="${VH*.5}" fill="#7cf0ff" fill-opacity=".14" stroke="#fff" stroke-width="2.5" opacity=".9"/>`:'';
+  const stars=[[20,18],[60,10],[250,16],[290,34],[200,8],[140,22]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.4" fill="#fff"/>`).join('');
+  return`<svg viewBox="0 0 ${VW} ${VH}" class="hart real"><rect width="${VW}" height="${VH}" fill="#2b2160"/>${stars}<circle cx="282" cy="26" r="13" fill="#f7d64a" stroke="${INKC}" stroke-width="2.5"/>
+    <g transform="translate(${tx.toFixed(1)} ${ty.toFixed(1)}) scale(${sc.toFixed(3)})">${road}${ground}${body}${deco}</g>${shield}</svg>`;}
+function realDesc(geo){const m=geo.main;const lv=m.lv;const r=(m.roof||'').toLowerCase();const rt=/flat/.test(r)?'tetto piano':/gabl/.test(r)?'tetto a due falde':/hip|pyram/.test(r)?'tetto a padiglione':'';
+  return[lv?`${lv} ${lv===1?'piano':'piani'}`:'',rt,`${Math.round(Math.abs(area(m.p)))} m² di pianta`].filter(Boolean).join(' · ');}
+/* disegno di una casa: vera se c'è la pianta, altrimenti il modello per tipo */
+async function drawHouse(el,h,o={}){if(!el)return;try{const g=await bGeom(h.lat,h.lon);if(g){el.innerHTML=realHouseSVG(g,{...o,seed:h.bid||'home'});el.dataset.real='1';el.dataset.desc=realDesc(g);return g;}}catch(e){console.warn('casa vera',e);}return null;}
+/* ---------- LA MIA CASA: casa vera + rinforzi ---------- */
+function rinforzi(a,lvl,prep,helps){const R=[['🚪','Porta blindata',a.porta==='blindata'||a.porta==='b4'],['▦','Grate alle finestre',a.grate==='tutte'||a.grate==='alcune'],['🪟','Vetri antisfondamento',a.vetri==='anti'],
+  ['💡','Luci a sensore',a.luci==='sensore'],['🚨','Allarme o telecamere',a.allarme==='allarme'||a.allarme==='cam'],['🧱','Recinzione',a.recinzione&&a.recinzione!=='no'],
+  ['🛡️','Case preparate per la prossima orda',prep],['⬆️',`Livello casa ${lvl}`+(lvl>=5?' (massimo)':''),lvl>=2],['🤝',`Alleati in difesa: ${helps}`,helps>0]];return R;}
+const _casaTopRe=casaTop;casaTop=async function(){await _casaTopRe();try{const box=app.querySelector('.mycasa');if(!box||box.dataset.re)return;box.dataset.re='1';const art=box.querySelector('.mcart');
+  const home=myHouses().find(h=>h.home);const s=OR.s||{};let lvl=1;try{if(S.user&&home&&home.bid){const q=await wRpc('world_quote',{p_bid:home.bid,p_lat:home.lat,p_lon:home.lon});lvl=(q&&q.level)||1;}}catch(e){}
+  const helps=Math.min(4,+(s.helps_in||s.helps||0)||0);const a=S.answers||{};
+  const R=rinforzi(a,lvl,!!s.prepared,helps);box.insertAdjacentHTML('beforeend',`<h4 class="hh">🛡️ Rinforzi della tua casa</h4><div class="rinf">${R.map(([i,t,ok])=>`<span class="${ok?'ok':'no'}">${ok?'✓':'✗'} ${i} ${esc(t)}</span>`).join('')}</div>
+    <p class="muted" style="font-size:12px;margin:6px 0 0">Quelli con ✓ si vedono sul disegno. Per aggiungere gli altri: piano d’azione qui sotto (casa vera) e scheda della casa sulla mappa (Potenzia, Prepara, Chiedi aiuto).</p>`);
+  if(home){const g=await drawHouse(art,home,{lvl,a,prep:!!s.prepared,helps,col:null});const sm=box.querySelector('small');if(g&&sm)sm.textContent=(S.zone&&S.zone.address||'')+' · '+realDesc(g);}}catch(e){console.warn(e);}
+  /* le case del mondo: vere */
+  try{const L=myHouses().filter(h=>!h.home);L.forEach((h,i)=>{const el=app.querySelector(`[data-mga="${i}"]`);if(el)drawHouse(el,h,{lvl:h.level,prep:!!(OR.s&&OR.s.prepared),k:'g'+i});});}catch(e){}};
+/* scheda di ogni casa: l'edificio vero */
+const _houseSheetRe=houseSheet;houseSheet=async function(h){await _houseSheetRe(h);try{const c=document.querySelector('#sheet.open');const box=c&&c.querySelector('.hsart');if(!box)return;const lvl=+((c.querySelector('.hshead b')||{}).textContent||'').replace(/\D/g,'')||h.level||1;
+  const tmp=document.createElement('div');const g=await drawHouse(tmp,h,{lvl,a:h.home?(S.answers||{}):{},prep:!!(OR.s&&OR.s.prepared),helps:h.home?Math.min(4,+((OR.s||{}).helps_in||0)):0});
+  if(g){const sp=box.querySelector('span');box.innerHTML=tmp.innerHTML+`<span>${esc(realDesc(g))}</span>`;}}catch(e){}};
+</script>
+<script>
+/* =========================================================
+   ALLEANZE 2: coinquilini, scudo per un alleato (20 💎), difesa di squadra,
+   doni anche di gemme, giri di ruota e biglietti
+   ========================================================= */
+GK.gemme=['💎','Gemme'];GK.giri=['🎡','Giri di ruota'];GK.biglietti=['🎟️','Biglietti gratta'];
+const GLIM={mattoni:300,monete:300,gemme:20,giri:1,biglietti:1};
+function gHave(k){return k==='mattoni'?(W.m?W.m.mattoni:0):k==='monete'?(G.coins||0):k==='gemme'?(G.gems||0):k==='giri'?(G.spins||0):k==='biglietti'?(G.scratch||0):((G.mat||{})[k]||0);}
+function gAdd(k,n){if(k==='monete')G.coins=(G.coins||0)+n;else if(k==='gemme')G.gems=(G.gems||0)+n;else if(k==='giri')G.spins=(G.spins||0)+n;else if(k==='biglietti')G.scratch=(G.scratch||0)+n;else if(k!=='mattoni'){G.mat=G.mat||{};G.mat[k]=(G.mat[k]||0)+n;}}
+/* ritiro dei regali ricevuti */
+ayInbox=async function(){if(!S.user||typeof SB==='undefined'||!SB||typeof G==='undefined'||!G.type)return;try{const{data,error}=await SB.rpc('world_gifts_in');if(error||!data||!data.length)return;
+  const got=[];for(const g of data){const r=await SB.rpc('world_gift_claim',{p_id:g.id});if(r.data&&r.data.ok){gAdd(g.kind,g.amount);got.push(`${(GK[g.kind]||['🎁'])[0]} ${g.amount} da @${g.nick}`);}}
+  if(got.length){try{saveLocal();sfx('coin');}catch(e){}toast('🎁 Regali ricevuti: '+got.join(' · '));}}catch(e){}};
+/* finestra dei doni */
+aySheet=function(uid,nick){let kind='mattoni',loan=true;const order=['mattoni','gemme','monete','giri','biglietti'];
+  const draw=card=>{card.querySelector('.ayk').innerHTML=order.map(k=>`<button class="chip ${k===kind?'on':''}" data-k="${k}">${GK[k][0]} ${GK[k][1]}<small> (${wNum(gHave(k))})</small></button>`).join('');
+    card.querySelector('.aym').innerHTML=kind==='mattoni'?`<button class="chip ${loan?'on':''}" data-m="1">🤝 Presta (torna fra 3 giorni)</button><button class="chip ${!loan?'on':''}" data-m="0">🎁 Regala</button>`:`<span class="muted" style="font-size:12.5px">Si può solo regalare. Massimo oggi: ${GLIM[kind]||10}.</span>`;
+    const n=card.querySelector('#ayN');if(n&&(kind==='giri'||kind==='biglietti'))n.value=1;
+    card.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{kind=b.dataset.k;if(kind!=='mattoni')loan=false;draw(card);});card.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{loan=b.dataset.m==='1';draw(card);});};
+  openSheet('🎁 A @'+esc(nick),`<p style="font-weight:400">Cosa vuoi dare?</p><div class="ayk chips" style="margin:6px 0"></div><div class="aym" style="margin:6px 0"></div>
+   <label class="disp" style="font-size:16px">Quantità</label><input id="ayN" type="number" inputmode="numeric" min="1" value="50" class="field">
+   <p class="muted" style="font-size:12px;margin:6px 0">Limiti al giorno: 300 Mattoni, 20 gemme, 300 monete, 1 giro di ruota, 1 biglietto.</p>
+   <button class="btn wide" data-ayok>Conferma</button>`,card=>{draw(card);card.querySelector('[data-ayok]').onclick=async()=>{const n=Math.floor(+card.querySelector('#ayN').value||0);if(n<1){toast('Scrivi una quantità');return;}
+     if(gHave(kind)<n){toast('Non ne hai abbastanza');return;}const btn=card.querySelector('[data-ayok]');btn.disabled=true;
+     try{const{data,error}=await SB.rpc('world_give',{p_to:uid,p_kind:kind,p_amount:n,p_loan:kind==='mattoni'&&loan});if(error)throw error;
+       if(data.ok){if(kind!=='mattoni')gAdd(kind,-n);try{saveLocal();}catch(e){}toast('✅ '+data.msg);closeSheet();wMine(true);ayLoad(true);}else{toast(data.msg);btn.disabled=false;}}catch(e){toast(e.message||'Non riuscito');btn.disabled=false;}};});};
+/* scudo per un alleato */
+async function allyShield(uid,nick){if((G.gems||0)<20){toast('Servono 💎 20');shopSheet(0);return;}if(!confirm(`🛡️ Dare uno scudo a @${nick} per la prossima orda? +5 alla sua difesa, costa 💎 20.`))return;
+  try{const{data,error}=await SB.rpc('world_ally_shield',{p_target:uid});if(error)throw error;if(data.ok){G.gems-=20;try{saveLocal();sfx('coin');}catch(e){}TB.t=0;await tbLoad();try{document.querySelectorAll(`[data-ashield="${uid}"]`).forEach(b=>{b.disabled=true;b.textContent='🛡️ ✓';});}catch(e){}}toast((data.ok?'🛡️ ':'')+data.msg);}catch(e){toast(e.message||'Non riuscito');}}
+/* riepilogo della squadra per la prossima orda */
+window.TB={d:null,t:0};
+async function tbLoad(){if(!S.user||typeof SB==='undefined'||!SB)return;if(TB.d&&Date.now()-TB.t<60000)return tbPaint();try{const{data,error}=await SB.rpc('world_team_bonus');if(error)throw error;TB.d=data;TB.t=Date.now();}catch(e){TB.d={err:e.message};}tbPaint();}
+function tbHTML(){const d=TB.d;if(!d)return'<p class="muted"><span class="spin"></span> Calcolo i bonus…</p>';if(d.err)return`<p class="muted" style="font-size:12.5px">Bonus di squadra non disponibili (${esc(d.err)}).</p>`;
+  const cq=d.coinq||[];const sq=d.allies_prep>=3;const tot=(sq?5:0)+Math.min(9,3*(d.coinq_prep||0))+Math.min(10,5*(d.shields_in||0));
+  return`<div class="tbrow"><span>👥 Difesa di squadra</span><b class="${sq?'ok':''}">${d.allies_prep||0}/3 alleati pronti ${sq?'→ +5':''}</b></div>
+   <div class="tbrow"><span>🏢 Coinquilini</span><b>${cq.length?cq.map(n=>'@'+esc(n)).join(', ')+` · ${d.coinq_prep||0} pronti → +${Math.min(9,3*(d.coinq_prep||0))}`:'nessuno nel tuo edificio'}</b></div>
+   <div class="tbrow"><span>🛡️ Scudi ricevuti</span><b>${d.shields_in||0}/2 → +${Math.min(10,5*(d.shields_in||0))}</b></div>
+   <div class="tbtot">Bonus di squadra alla prossima orda: <b>+${tot}</b></div>`;}
+function tbPaint(){const b=app.querySelector('.tbbox');if(b)b.innerHTML=tbHTML();}
+const _socPaintTB=socPaint;socPaint=function(){_socPaintTB();try{if(SOC.tab!=='squadra'||!S.user)return;const B=app.querySelector('#socBody');if(!B)return;
+  if(!B.querySelector('.tbpan'))B.insertAdjacentHTML('afterbegin',`<div class="panel tbpan"><b class="disp" style="font-size:22px">🛡️ Bonus di squadra</b><p style="font-weight:400;font-size:12.5px;margin:2px 0 8px">Per la prossima orda. Gli alleati e i coinquilini non possono mandarsi orde né dispetti.</p><div class="tbbox">${tbHTML()}</div>
+    <details class="man"><summary>Come funzionano le alleanze</summary><div class="man-b"><p>• <b>Rinforzi</b>: +5 per ogni alleato che ti aiuta (max +20), gratis.<br>• <b>Scudo</b>: 20 💎, +5 a un alleato (max 2 scudi).<br>• <b>Difesa di squadra</b>: se almeno 3 tuoi alleati preparano le case, +5 a te.<br>• <b>Coinquilini</b>: chi abita nel tuo stesso edificio è alleato automatico; +3 per ognuno che prepara le case (max +9).<br>• <b>Doni</b>: Mattoni (anche in prestito), gemme, monete, giri di ruota, biglietti.</p></div></details></div>`);
+  try{ayRefresh();}catch(e){}try{ayLoad();}catch(e){}tbDecorate();
+  tbLoad();}catch(e){}};
+function tbDecorate(){try{const B=app.querySelector('#socBody')||app;
+  B.querySelectorAll('[data-agive]').forEach(g=>{if(g.parentNode.querySelector('[data-ashield]'))return;const uid=g.dataset.agive,nick=g.dataset.anick;const a=(AY.list||[]).find(x=>x.user_id===uid);
+    if(a&&a.coinq){const sm=g.parentNode.querySelector('small');if(sm&&!/coinquilino/.test(sm.textContent))sm.insertAdjacentHTML('afterbegin','🏢 coinquilino · ');}
+    const given=TB.d&&Array.isArray(TB.d.shields_out)&&TB.d.shields_out.includes(uid);
+    g.insertAdjacentHTML('beforebegin',`<button class="btn small ghost" data-ashield="${uid}" data-anick="${esc(nick)}" ${given?'disabled':''}>${given?'🛡️ ✓':'🛡️ Scudo'}</button>`);
+    g.parentNode.querySelector('[data-ashield]').onclick=()=>allyShield(uid,nick);});}catch(e){}}
+const _ayRefreshTB=ayRefresh;ayRefresh=function(){_ayRefreshTB();tbDecorate();};
+/* scheda del giocatore: scudo se alleato */
+const _playerSheetTB=playerSheet;playerSheet=async function(uid){await _playerSheetTB(uid);try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('[data-pshield]'))return;if(!/Siete alleati|alleat/i.test(c.textContent)||/Questo sei tu/.test(c.textContent))return;
+  const ac=c.querySelector('.placts');const nick=((c.querySelector('.plhead .disp')||{}).textContent||'').replace('@','');if(!ac)return;
+  ac.insertAdjacentHTML('afterbegin',`<button class="btn small" data-pshield>🛡️ Scudo +5 (💎 20)</button>`);ac.querySelector('[data-pshield]').onclick=()=>allyShield(uid,nick);}catch(e){}};
+/* bacheca e "per te" */
+const _socLineTB=socLine;socLine=function(f){if(f.kind!=='shield')return _socLineTB(f);const a=socNick(f.actor,f.actor_nick),t=f.target?socNick(f.target,f.target_nick):'';
+  return`<div class="sitem"><span class="sic">🛡️</span><div class="stx">${a} ha dato uno scudo a ${t}: +5 alla prossima orda<small>${socAgo(f.created_at)}</small></div></div>`;};
+</script>
+<script>
+/* =========================================================
+   1) La casa vera conta nell'orda: Scudo 0–5 → +2 difesa a tutte le case per livello
+   2) Conto esatto della prossima orda dal server (world_my_defense) + "🧮 Perché X%"
+   3) 🧭 Il tuo prossimo passo: guida per tutti, sempre presente
+   ========================================================= */
+/* ---- 1) Scudo della casa vera al server ---- */
+async function rsSync(){if(!S.user||typeof SB==='undefined'||!SB)return;let lv=0;try{lv=scudoLv();}catch(e){return;}const k='zsh_rs_'+S.user.id;try{if(localStorage.getItem(k)===String(lv))return;}catch(e){}
+  try{const{data,error}=await SB.rpc('world_set_realshield',{p_lvl:lv});if(!error&&data&&data.ok){try{localStorage.setItem(k,String(lv));}catch(e){}DEF.t=0;}}catch(e){}}
+scudoBar=function(){const lv=scudoLv();return`<button class="scudo" data-scudo><span class="sc-i">🛡️</span><span class="sc-t"><b>Scudo della casa vera · ${lv}/5</b><span class="sc-b">${[1,2,3,4,5].map(i=>`<i class="${i<=lv?'on':''}"></i>`).join('')}</span><small>${lv?`Nell’orda: +${lv*2} di difesa a tutte le tue case`:'Migliora la casa vera: ogni livello vale +2 di difesa'}</small></span><span class="sc-a">›</span></button>`;};
+openScudo=function(){const st=scudoSteps(),lv=scudoLv();
+  openSheet('🛡️ Scudo della casa vera',`<p style="font-weight:400;margin-bottom:8px">Una regola sola: <b>quello che fai per la casa vera ti rende più forte nel gioco.</b></p>
+   <div class="scl">${st.map(s=>`<div class="${s[2]?'ok':''}"><span>${s[2]?'✅':s[0]}</span><b>${s[1]}</b>${s[2]?'<small>fatto</small>':`<button class="btn small" data-sgo="${s[3]}">Fai</button>`}</div>`).join('')}</div>
+   <div class="panel moon" style="margin-top:10px"><b>Il tuo Scudo ora: ${lv}/5</b><p style="font-weight:400;margin-top:4px">Ogni livello dà <b>+2 di difesa a tutte le tue case</b> a ogni orda del mondo (fino a +10). Ora: <b>+${lv*2}</b>.</p></div>`,
+   card=>card.querySelectorAll('[data-sgo]').forEach(x=>x.onclick=()=>{closeSheet();if(x.dataset.sgo==='mondo'){go('casa');}else go('valuta');}));};
+/* ---- 2) conto esatto ---- */
+window.DEF={d:null,t:0};
+async function defLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return null;if(!force&&DEF.d&&Date.now()-DEF.t<60000)return DEF.d;
+  try{const{data,error}=await SB.rpc('world_my_defense');if(error)throw error;DEF.d=data;DEF.t=Date.now();}catch(e){}return DEF.d;}
+function defChance(total){const d=DEF.d;if(!d||total==null)return null;return Math.max(0,Math.min(100,Math.round((total-d.attack_min+1)/60*100)));}
+function defHouse(bid,home){const d=DEF.d;if(!d||!d.houses)return null;return d.houses.find(h=>(home&&h.home)||(bid&&h.bid===bid))||null;}
+function whySheet(bid,home){const d=DEF.d;if(!d){toast('Conto non disponibile ora');return;}const h=defHouse(bid,home)||d.houses&&d.houses[0];const tot=h?h.total:null;const ch=defChance(tot);
+  const row=(ic,t,v,on=true)=>`<div class="whyr ${v<0?'neg':v>0?'pos':''}"><span>${ic} ${t}</span><b>${v>0?'+':''}${v}</b></div>`;
+  openSheet('🧮 Perché '+(ch!=null?ch+'%':''),`<p style="font-weight:400;margin:0 0 8px">Il conto della <b>prossima orda</b>, calcolato dal server con le stesse regole per tutti.</p>
+   ${h?row('🏠','Base della casa',45)+row('⬆️',`Livello casa ${h.level} (12 per livello)`,12*Math.max(h.level,1))+(h.home?row('❤️','Casa vera',5):''):''}
+   ${row('🛡️','Case preparate',d.prep)}${row('🏡',`Scudo della casa vera ${d.realshield}/5`,d.realshield_pts)}${row('🤝',`Rinforzi degli alleati (${d.helps})`,d.helps_pts)}
+   ${row('🛡️',`Scudi degli alleati (${d.shields})`,d.shields_pts)}${row('👥',`Difesa di squadra (${d.squad}/3 alleati pronti)`,d.squad_pts)}${row('🏢',`Coinquilini pronti (${d.coinq})`,d.coinq_pts)}
+   ${d.malus?row('😈',`Malus dei rivali (orde ${d.attacks}, nebbia ${d.fog}, sabotaggio ${d.sab})`,-d.malus):''}
+   <div class="whytot"><span>Difesa totale</span><b>${tot!=null?tot:'—'}</b></div>
+   <p style="font-weight:400;font-size:13px;margin:8px 0 0">L’orda per il tuo livello (${d.wlevel}) avrà una forza tra <b>${d.attack_min}</b> e <b>${d.attack_max}</b>. ${ch!=null?`Con ${tot} di difesa tieni nel <b>${ch}%</b> dei casi.`:''}</p>
+   <p class="muted" style="font-size:12px;margin-top:6px">Per salire: prepara le case, chiedi rinforzi, potenzia la casa, migliora la casa vera (Scudo).</p>`);}
+/* nella scheda di ogni casa: probabilità vera + "Perché" */
+const _houseSheetDef=houseSheet;houseSheet=async function(h){await _houseSheetDef(h);try{await defLoad();const c=document.querySelector('#sheet.open');if(!c)return;const dh=defHouse(h.bid,h.home);const ch=dh?defChance(dh.total):null;
+  const box=c.querySelector('.hsdef');if(box&&ch!=null){box.innerHTML=`<b>${ch}%</b><small>probabilità di tenere</small><button class="whyb" data-why>🧮 Perché</button>`;box.querySelector('[data-why]').onclick=()=>whySheet(h.bid,h.home);}}catch(e){}};
+/* sul fronte: probabilità vera della casa vera */
+const _frHeaderDef=frHeader;frHeader=function(){_frHeaderDef();try{const d=DEF.d;if(!d)return;const hh=defHouse(null,true);if(!hh)return;const ch=defChance(hh.total);const n=FR.node;if(!n)return;
+  const chip=[...n.querySelectorAll('[data-frchips] span')].find(s=>/di tenere/.test(s.textContent));if(chip){chip.innerHTML=`🛡️ ${ch}% di tenere · <u>perché</u>`;chip.style.cursor='pointer';chip.onclick=()=>whySheet(null,true);}
+  const pc=n.querySelector('[data-frpct]');if(pc)pc.textContent=ch+'%';const ring=n.querySelector('.frring');if(ring)ring.style.setProperty('--ok',ch>=50?'#5bd16a':'#d7263d');}catch(e){}};
+/* la simulazione usa il conto vero di ogni casa */
+const _regSimRowsDef=regSimRows;regSimRows=function(){const rows=_regSimRowsDef();try{if(!DEF.d)return rows;rows.forEach((r,i)=>{const h=REG.H[i];const dh=h&&defHouse(h.bid,h.home);if(!dh)return;r.sim.pw=dh.total;r.held=dh.total>=r.sim.atk;});}catch(e){}return rows;};
+/* ---- 3) 🧭 IL TUO PROSSIMO PASSO ---- */
+function coSteps(){const s=OR.s||{},m=window.W&&W.m,L=[];const add=(id,ic,t,why,done,go)=>L.push({id,ic,t,why,done:!!done,go});
+  const nx=(()=>{try{const d=oggiNext();return String(d.getHours()).padStart(2,'0')+':00';}catch(e){return'';}})();
+  add('valuta','📷','Valuta la tua casa vera','È la base: indice, piano d’azione e Scudo della casa vera.',!!S.result,()=>go('valuta'));
+  if(!S.user){add('login','🔑','Accedi o crea l’account','Serve per entrare nel mondo, salvare e giocare con gli altri.',false,()=>loginSheet());return L;}
+  if(s.total>0&&!s.claimed)add('claim','🎁','Riscatta i premi dell’ultima orda','Mattoni, giri e biglietti ti aspettano.',false,()=>coGoOrda('.opan'));
+  add('prep','🛡️',`Prepara le case per l’orda delle ${nx}`,'+15 di difesa a tutte le tue case, gratis.',!!s.prepared,()=>coGoOrda('.opan'));
+  add('help','🆘','Chiedi aiuto agli alleati','+5 per ogni alleato che risponde (fino a +20).',!!s.asked,()=>coGoOrda('.opan'));
+  const td=window.TB&&TB.d;if(td&&td.allies>0)add('shield','🛡️','Dai uno scudo a un alleato','20 💎: +5 alla sua difesa, e lui farà lo stesso con te.',Array.isArray(td.shields_out)&&td.shields_out.length>0,()=>{SOC.tab='squadra';go('social');});
+  try{const ds=dailyState();add('daily','🎁','Riscuoti il premio del giorno','Ogni giorno di fila il premio cresce.',ds.claimed,()=>{go('orda');setTimeout(()=>dailySheet(),500);});}catch(e){}
+  try{const st=scudoSteps();const miss=st.find(x=>!x[2]);add('scudo','🏡',miss?`Casa vera: ${miss[1]}`:'Scudo della casa vera al massimo','Ogni livello di Scudo dà +2 di difesa a tutte le tue case.',!miss,()=>openScudo());}catch(e){}
+  if(m){const hs=myHouses();const up=hs.find(h=>!h.home&&h.level<5&&m.mattoni>=150*h.level);add('up','⬆️',up?`Potenzia ${up.label} (🧱 ${150*up.level})`:'Potenzia una casa','+12 di difesa e più affitti per livello.',!up,()=>{if(up){S.mfHouses=true;go('mappa');setTimeout(()=>mhFly(up,true),900);}else go('mappa');});
+    if(m.mattoni>=500)add('buy','🏠','Compra una casa nel mondo','Più case = più affitti e più premi a ogni orda.',false,()=>{S.mfHouses=true;go('mappa');});}
+  try{const T=tmInit();if(T){const mm=T.list.find(x=>!x.cl);add('mis','🎯',mm?`Missione: ${String(mm.t).replace(/<[^>]+>/g,'')}`:'Missioni di oggi completate','Monete e gemme in premio.',!mm,()=>coGoOrda('.tmp'));}}catch(e){}
+  if(td&&td.allies===0)add('ally','🤝','Fatti un alleato','Invita un amico: 150 🧱 a te e alleanza automatica.',false,()=>inviteSheet());
+  return L;}
+function coGoOrda(sel){go('orda');setTimeout(()=>{const t=app.querySelector(sel);if(t){t.scrollIntoView({behavior:'smooth',block:'start'});t.classList.remove('flashme');void t.offsetWidth;t.classList.add('flashme');}},600);}
+function coHTML(compact){const L=coSteps();const todo=L.filter(x=>!x.done);const done=L.length-todo.length;const s=todo[0];
+  if(!s)return`<div class="coach ${compact?'cmp':''}"><div class="cohd">🧭 Il tuo prossimo passo<small>${done}/${L.length}</small></div><b>✅ Tutto fatto per ora!</b><small>Guarda il fronte o torna dopo l’orda per riscattare i premi.</small><div class="cobt"><button class="btn small" data-cogo="fronte">🗺️ Il fronte</button><button class="btn small ghost" data-coall>Tutti i passi</button></div></div>`;
+  return`<div class="coach ${compact?'cmp':''}"><div class="cohd">🧭 Il tuo prossimo passo<small>${done}/${L.length} fatti</small></div><b>${s.ic} ${esc(s.t)}</b><small>${esc(s.why)}</small><div class="cobt"><button class="btn small" data-cogo="${s.id}">Fammelo fare</button><button class="btn small ghost" data-coall>Tutti i passi</button></div></div>`;}
+function coBind(root){root.querySelectorAll('[data-cogo]').forEach(b=>b.onclick=()=>{const id=b.dataset.cogo;if(id==='fronte')return coGoOrda('.fronte');const s=coSteps().find(x=>x.id===id);if(s)s.go();});
+  root.querySelectorAll('[data-coall]').forEach(b=>b.onclick=coAll);}
+function coAll(){const L=coSteps();openSheet('🧭 I tuoi passi',`<p style="font-weight:400;margin:0 0 8px">In ordine di importanza. Tocca un passo per farlo.</p>${L.map(s=>`<button class="costep ${s.done?'ok':''}" data-cs="${s.id}"><span>${s.done?'✅':s.ic}</span><div><b>${esc(s.t)}</b><small>${esc(s.why)}</small></div>${s.done?'':'<i>›</i>'}</button>`).join('')}
+   <button class="btn ghost small" data-cotour style="margin-top:8px">🧭 Rifai il giro guidato completo</button>`,card=>{card.querySelectorAll('[data-cs]').forEach(b=>b.onclick=()=>{const s=L.find(x=>x.id===b.dataset.cs);if(s&&!s.done){closeSheet();s.go();}});
+   const t=card.querySelector('[data-cotour]');if(t)t.onclick=()=>{closeSheet();try{zmDo('tour');}catch(e){go('home');}};});}
+function coPut(){try{if(S.tab==='home'){const h=app.querySelector('.hsbtns');if(h){const o=h.querySelector('.coach');const n=document.createElement('div');n.innerHTML=coHTML(true);const el=n.firstElementChild;if(o)o.replaceWith(el);else h.prepend(el);coBind(el);}}
+  if(S.tab==='orda'){const pg=app.querySelector('.page');if(pg){const o=pg.querySelector(':scope > .coach');const n=document.createElement('div');n.innerHTML=coHTML(false);const el=n.firstElementChild;if(o)o.replaceWith(el);else pg.prepend(el);coBind(el);}}}catch(e){}}
+const _renderHomeCo=renderHome;renderHome=function(){_renderHomeCo();coPut();};
+const _splitHubCo=splitHub;splitHub=function(){_splitHubCo();coPut();};
+/* aggiornamenti */
+const _wMineCo=wMine;wMine=async function(){const r=await _wMineCo.apply(this,arguments);try{rsSync();await defLoad(true);coPut();if(S.tab==='orda'&&FR.node)frHeader();}catch(e){}return r;};
+const _orLoadCo=orLoad;orLoad=async function(){const r=await _orLoadCo.apply(this,arguments);try{await defLoad(true);coPut();}catch(e){}return r;};
+setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='home'||S.tab==='orda'))coPut();},30000);
+</script>
+<script>
+try{const _ssOfCo=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.coach'))return'oggi';return _ssOfCo(el);};}catch(e){}
+</script>
+<script>
+/* =========================================================
+   1) la nota "Padrino" va dentro la finestra (non resta più a schermo)
+      + pulizia di qualunque avanzo nel contenitore delle finestre
+   2) scheda giocatore: proposta di alleanza chiara (proponi / in attesa + ricordaglielo / accetta)
+   3) Squadra: "➕ Aggiungi alla squadra" (cerca per nome + superstiti vicini)
+   4) Rivali: anche "🤝 Alleanza"
+   ========================================================= */
+/* ---- 1) ---- */
+eqPad=function(){const c=document.querySelector('#sheet.open .sheet-b');if(c&&/[Ii]nvit/.test(c.textContent)&&!c.querySelector('.eqpad'))c.insertAdjacentHTML('beforeend','<p class="eqpad">🤝 <b>Padrino</b>: per i primi 14 giorni ricevi anche il 10% in più di quello che guadagna chi hai invitato (a lui non togliamo niente).</p>');};
+function sheetClean(){try{const sh=document.getElementById('sheet');if(!sh)return;[...sh.children].forEach(ch=>{if(!ch.classList.contains('sheet-bg')&&!ch.classList.contains('sheet-card'))ch.remove();});}catch(e){}}
+const _closeSheetAl=closeSheet;closeSheet=function(){const r=_closeSheetAl.apply(this,arguments);sheetClean();return r;};
+setInterval(sheetClean,1500);
+/* ---- 2) ---- */
+async function allyAsk(uid,nick,btn){try{if(btn)btn.disabled=true;const r=await socRpc('world_ally_request',{p_target:uid});toast((r&&r.msg)||'🤝 Proposta inviata');}catch(e){toast(e.message||'Non riuscito');if(btn)btn.disabled=false;}}
+async function allyNudge(uid,btn){try{if(btn)btn.disabled=true;const r=await socRpc('world_shout',{p_to:uid,p_code:5});toast(r&&r.ok===false?r.msg:'📣 Ricordato: “🤝 Facciamo squadra?”');}catch(e){toast(e.message||'Non riuscito');if(btn)btn.disabled=false;}}
+const _playerSheetAl=playerSheet;playerSheet=async function(uid){await _playerSheetAl(uid);try{const c=document.querySelector('#sheet.open .sheet-b');if(!c)return;
+  const sp=[...c.querySelectorAll('span.muted')].find(s=>/Proposta inviata/.test(s.textContent));if(!sp)return;
+  sp.outerHTML=`<div class="alwait"><b>⏳ Proposta di alleanza inviata</b><small>Diventerete alleati quando accetta. Intanto puoi ricordarglielo o aiutarlo in un’orda: chi si aiuta diventa alleato da solo.</small><button class="btn small" data-alnudge>📣 Ricordaglielo</button></div>`;
+  c.querySelector('[data-alnudge]').onclick=e=>allyNudge(uid,e.currentTarget);}catch(e){}};
+/* ---- 3) ---- */
+window.AF={q:'',L:null,busy:false};
+async function afSearch(q){AF.q=q;if(q.trim().length<2){AF.L=null;afPaint();return;}AF.busy=true;afPaint();try{AF.L=await socRpc('world_find',{p_q:q.trim()})||[];}catch(e){AF.L={err:e.message};}AF.busy=false;afPaint();}
+function afRow(p,src){const st=p.ally||'none';const b=st==='ok'?'<span class="rok2">🤝 Alleati</span>':st==='out'?`<button class="btn small ghost" data-afn="${p.user_id}">📣 Ricorda</button>`:st==='in'?`<button class="btn small" data-afy="${p.user_id}">✅ Accetta</button>`:`<button class="btn small" data-afa="${p.user_id}" data-n="${esc(p.nick)}">🤝 Proponi</button>`;
+  return`<div class="afr"><span class="sav">${esc((p.nick||'?')[0].toUpperCase())}</span><div>${socNick(p.user_id,p.nick)}<small>livello ${p.wlevel||1}${p.comune?' · '+esc(p.comune):''}${p.dist_km!=null?' · '+wNum(p.dist_km)+' km':''}${st==='out'?' · proposta inviata':''}</small></div>${b}</div>`;}
+function afPaint(){const box=app.querySelector('.afbox');if(!box)return;const L=AF.L;
+  let html='';if(AF.busy)html='<p class="muted"><span class="spin"></span> Cerco…</p>';else if(L&&L.err)html=`<p class="muted">Ricerca non disponibile (${esc(L.err)}).</p>`;else if(Array.isArray(L))html=L.length?L.map(p=>afRow(p)).join(''):'<p class="muted">Nessun superstite con questo nome.</p>';
+  else{const R=(SOC.riv||[]).slice(0,6);html=R.length?'<p class="muted" style="font-size:12px;margin:0 0 4px">Superstiti vicini alla tua portata:</p>'+R.map(r=>afRow({...r,ally:'none'})).join(''):'<p class="muted" style="font-size:12.5px">Scrivi un nome qui sopra, oppure invita un amico: chi entra con il tuo invito è alleato da subito.</p>';}
+  box.innerHTML=html;
+  box.querySelectorAll('[data-afa]').forEach(b=>b.onclick=()=>allyAsk(b.dataset.afa,b.dataset.n,b).then(()=>{b.outerHTML='<span class="muted" style="font-size:12px">⏳ inviata</span>';}));
+  box.querySelectorAll('[data-afn]').forEach(b=>b.onclick=()=>allyNudge(b.dataset.afn,b));
+  box.querySelectorAll('[data-afy]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const r=await socRpc('world_ally_answer',{p_requester:b.dataset.afy,p_yes:true});toast((r&&r.msg)||'🤝 Alleanza fatta');if(AF.q)afSearch(AF.q);}catch(e){toast(e.message);}});}
+const _socPaintAl=socPaint;socPaint=function(){_socPaintAl();try{if(SOC.tab!=='squadra'||!S.user)return;const B=app.querySelector('#socBody');if(!B||B.querySelector('.afpan'))return;
+  const anchor=B.querySelector('.tbpan');const html=`<div class="panel afpan"><b class="disp" style="font-size:22px">➕ Aggiungi alla squadra</b><p style="font-weight:400;font-size:12.5px;margin:2px 0 8px">Cerca un superstite e proponigli l’alleanza. Diventate alleati anche se vi aiutate in un’orda, se vi invitate o se abitate nello stesso palazzo.</p>
+    <div class="afsearch"><input class="field" id="afQ" placeholder="Nome del superstite (almeno 2 lettere)" value="${esc(AF.q)}" autocomplete="off"><button class="btn small" data-afinv>📨 Invita</button></div><div class="afbox"></div></div>`;
+  if(anchor)anchor.insertAdjacentHTML('afterend',html);else B.insertAdjacentHTML('afterbegin',html);
+  const q=B.querySelector('#afQ');let t=0;q.oninput=()=>{clearTimeout(t);t=setTimeout(()=>afSearch(q.value),350);};B.querySelector('[data-afinv]').onclick=()=>inviteSheet();
+  if(!SOC.riv)rivLoad().then(afPaint).catch(()=>{});afPaint();}catch(e){}};
+/* ---- 4) nei Rivali: anche proporre l'alleanza ---- */
+const _socPaintAl2=socPaint;socPaint=function(){_socPaintAl2();try{if(SOC.tab!=='rivali')return;app.querySelectorAll('.rivc').forEach((c,i)=>{const r=(SOC.riv||[])[i];if(!r||c.querySelector('[data-rally]'))return;const n=c.querySelector('.rivn');if(!n)return;
+  n.insertAdjacentHTML('beforeend',`<button class="btn small ghost rally" data-rally="${r.user_id}">🤝 Alleanza</button>`);n.querySelector('[data-rally]').onclick=e=>allyAsk(r.user_id,r.nick,e.currentTarget);});}catch(e){}};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
