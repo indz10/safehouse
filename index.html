@@ -1171,6 +1171,31 @@ body[data-tab=casa] .rmini,body[data-tab=casa] .qact,body[data-tab=casa] .hsoc{d
 :root{color-scheme:light;--red:#d7263d}
 :where(button,input,select,textarea){color:var(--ink)}
 #accHello button{color:var(--ink)}#accHello button:first-child{color:#fff}
+
+/* attività della zona */
+.lm-att{position:relative;cursor:pointer;filter:drop-shadow(2px 2px 0 #140f1f)}
+.lm-att .att{display:flex;align-items:center;gap:4px;background:#fff;border:2.5px solid #3b2f6e;border-radius:18px;padding:2px 8px 2px 2px;white-space:nowrap}
+.lm-att .att b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#e2d6f5;font-size:13px;font-weight:400}
+.lm-att .att span{font-weight:800;font-size:11.5px;color:#140f1f}
+.lm-att .attp{display:block;width:0;height:0;margin:0 auto;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #3b2f6e}
+.f-spons-off .lm-att{display:none!important}
+.placts a.btn{text-align:center;text-decoration:none}
+/* rivali */
+.sseg.five{grid-template-columns:repeat(5,1fr)}.sseg.five button{font-size:11px;padding:8px 1px;line-height:1.2}
+.rivhead{background:linear-gradient(180deg,#ffe3e6,#fff)}
+.rivc{padding:10px 0;border-top:1px dashed rgba(20,15,31,.2)}.rivc:first-child{border-top:0}
+.rivn{display:flex;gap:8px;align-items:center;margin-bottom:6px}.rivn small{display:block;font-size:11.5px;color:#5a5470}
+.rivb{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.rivb button{display:flex;flex-direction:column;align-items:center;gap:1px;background:#fff;border:2.5px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:6px 3px;font-size:11.5px;font-weight:700;color:var(--ink)}
+.rivb button b{font-size:20px;font-weight:400}.rivb button small{font-size:11px;color:#5a5470}.rivb button:disabled{opacity:.45}
+
+/* equità */
+.eqc{border-radius:14px;padding:3px 9px;font-weight:800;font-size:12px;border:2px solid var(--moon);background:rgba(20,15,31,.82);color:#fff}
+.eqc.sh{border-color:#7cf0ff}.eqc.bo{border-color:#8be28b}.eqc.lg{border-color:#f7d64a}
+.kitbox{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 10px}.kitbox div{background:#241a4a;color:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:8px;text-align:center}
+.kitbox b{display:block;font-family:var(--display);font-size:24px;color:var(--moon)}.kitbox small{font-size:12px}
+.eqriv,.eqhs,.eqpr,.eqpad{font-size:12.5px;font-weight:400;background:#e3f5e8;border-left:5px solid #2f7a52;padding:6px 9px;margin:8px 0 0}
+.eqpr{background:#fff3b0;border-left-color:#c79a00}
 </style>
 </head>
 <body>
@@ -5952,7 +5977,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202610311420';
+const ZSH_BUILD='202611010943';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -8121,6 +8146,176 @@ setInterval(oggiTile,1000);
 /* nel menu */
 try{const _zmItemsOg=zmItems;zmItems=function(){const L=_zmItemsOg();const g=L.find(x=>x[0]==='Gioco');if(g)g[1].unshift(['📅','Oggi: ora, meteo e calendario','oggi']);return L;};
   const _zmDoOg=zmDo;zmDo=function(k,b){if(k==='oggi'){zmClose();oggiSheet();return;}return _zmDoOg(k,b);};}catch(e){}
+</script>
+<script>
+/* =========================================================
+   SPONSOR DI ESEMPIO SULLA MAPPA (come prima)
+   Finché nel database non ci sono sponsor veri con posizione,
+   gli sponsor di esempio vengono appoggiati sui negozi veri più vicini
+   alla casa (prima ferramenta, fabbri, elettricisti, serramentisti…).
+   Il primo sponsor vero inserito dal pannello admin li sostituisce tutti.
+   ========================================================= */
+window.SP_DEMO_ON=false;
+/* gli sponsor di esempio sono quelli presenti all'avvio, prima che arrivino quelli veri dal database */
+const SP_DEMO_KEYS=Object.keys(SPONSORS||{});
+function spRealCount(){return Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&!g.demo&&SPONSORS[k]).length;}
+function spDemoPlace(){try{if(spRealCount()>0){/* ci sono sponsor veri: via gli esempi */Object.keys(SP_GEO).forEach(k=>{if(SP_GEO[k]&&SP_GEO[k].demo)delete SP_GEO[k];});SP_DEMO_ON=false;return;}
+  if(Object.keys(SPONSORS||{}).some(k=>!SP_DEMO_KEYS.includes(k)))return;/* sponsor veri caricati: niente esempi */
+  const keys=SP_DEMO_KEYS.filter(k=>SPONSORS[k]);if(!keys.length)return;if(keys.every(k=>SP_GEO[k]&&SP_GEO[k].lat!=null))return;
+  const R=S.zone&&S.zone.real;const m=S.zone&&RM&&RM.cache&&RM.cache[S.zone.address];if(!R)return;
+  const els=(m&&m.els)||[];const prio=t=>{if(!t||!t.name)return 9;const s=t.shop||'',c=t.craft||'';
+    if(['hardware','doityourself','locksmith'].includes(s)||['locksmith'].includes(c))return 0;
+    if(['electrician','window_construction','glaziery','builder','carpenter','metal_construction'].includes(c)||['electrical','windows','doors','security','paint','trade'].includes(s))return 1;
+    if(s)return 2;if(t.amenity&&['bank','pharmacy','fuel'].includes(t.amenity))return 3;return 9;};
+  const C=els.filter(e=>e.tags&&prio(e.tags)<9).map(e=>{const g=e.geometry&&e.geometry.length?e.geometry.reduce((q,p)=>[q[0]+p.lat/e.geometry.length,q[1]+p.lon/e.geometry.length],[0,0]):[e.lat,e.lon];
+      return{lat:g[0],lon:g[1],name:e.tags.name,p:prio(e.tags),d:trM(R.lat,R.lon,g[0],g[1])};}).filter(x=>x.lat!=null&&x.d<2500).sort((a,b)=>a.p-b.p||a.d-b.d);
+  const used=new Set();keys.forEach((k,i)=>{if(SP_GEO[k]&&SP_GEO[k].lat!=null)return;let x=C.find(c=>!used.has(c.name));
+    if(x){used.add(x.name);SP_GEO[k]={lat:x.lat,lon:x.lon,demo:true,place:x.name};}
+    else{const a=(i+1)*2.1,r=260+i*140;const o=trOff(R.lat,R.lon,Math.cos(a)*r,Math.sin(a)*r);SP_GEO[k]={lat:o[0],lon:o[1],demo:true};}});
+  SP_DEMO_ON=true;(window.__zlms||[]).forEach(lm=>{try{spDraw(lm);}catch(e){}});}catch(e){console.warn('sponsor esempio',e);}}
+setInterval(spDemoPlace,2000);setTimeout(spDemoPlace,800);
+/* alla prima apertura della mappa li piazzo subito */
+const _liveMapSd=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapSd(el,addr,o);try{spDemoPlace();setTimeout(()=>{spDemoPlace();spDraw(lm);},1500);}catch(e){}return lm;};
+/* il segnaposto "vecchio" piccolo non serve: c'è quello grande con l'offerta */
+</script>
+<script>
+/* =========================================================
+   1) ATTIVITÀ VERE DELLA ZONA (20 km) al posto degli sponsor di esempio
+      mostrate come "attività della zona" (non come sponsor, niente offerte inventate);
+      l'admin le toglie con un tocco o le fa diventare sponsor dal pannello
+   2) 😈 RIVALI: dispetti con gemme e Mattoni, con regole anti-bullismo
+   ========================================================= */
+/* ---- 1) attività della zona ---- */
+spDemoPlace=function(){try{Object.keys(window.SP_GEO||{}).forEach(k=>{if(SP_GEO[k]&&SP_GEO[k].demo)delete SP_GEO[k];});}catch(e){}};
+/* il vecchio piazzamento automatico non deve più rimetterli: svuoto l'elenco degli sponsor di esempio */
+try{SP_DEMO_KEYS.length=0;}catch(e){}setTimeout(()=>{spDemoPlace();(window.__zlms||[]).forEach(lm=>{try{spDraw(lm);}catch(e){}});},100);
+const ATT_CAT={locksmith:['🔑','Fabbro e chiavi'],hardware:['🔧','Ferramenta'],doityourself:['🔧','Fai da te'],security:['🛡️','Sicurezza'],windows:['🪟','Serramenti'],doors:['🚪','Porte'],
+  electrician:['💡','Elettricista'],window_construction:['🪟','Serramentista'],glaziery:['🪟','Vetraio'],metal_construction:['🔩','Carpenteria metallica'],carpenter:['🪚','Falegname']};
+window.ATT={L:[],k:'',busy:false};
+async function attLoad(){const R=S.zone&&S.zone.real;if(!R||ATT.busy)return ATT.L;const k=R.lat.toFixed(2)+','+R.lon.toFixed(2);if(ATT.k===k&&ATT.L.length)return ATT.L;
+  try{const c=JSON.parse(localStorage.getItem('zsh_att_'+k)||'null');if(c&&Date.now()-c.t<7*864e5){ATT.L=c.L;ATT.k=k;attDraw();return ATT.L;}}catch(e){}
+  ATT.busy=true;try{const q=`[out:json][timeout:25];(nwr["shop"~"^(hardware|doityourself|locksmith|security|windows|doors)$"]["name"](around:20000,${R.lat},${R.lon});nwr["craft"~"^(locksmith|electrician|window_construction|glaziery|metal_construction|carpenter)$"]["name"](around:20000,${R.lat},${R.lon}););out center tags 120;`;
+    const els=await trOverpass(q,25000,4);const seen=new Set();
+    ATT.L=(els||[]).map(e=>{const t=e.tags||{};const typ=t.shop&&ATT_CAT[t.shop]?t.shop:t.craft;const la=e.lat!=null?e.lat:(e.center&&e.center.lat),lo=e.lon!=null?e.lon:(e.center&&e.center.lon);if(la==null||!ATT_CAT[typ])return null;
+        return{id:e.type[0]+e.id,name:t.name,typ,lat:la,lon:lo,d:trM(R.lat,R.lon,la,lo),phone:t.phone||t['contact:phone']||'',web:t.website||t['contact:website']||'',hours:t.opening_hours||'',
+          addr:[[t['addr:street'],t['addr:housenumber']].filter(Boolean).join(' '),t['addr:city']].filter(Boolean).join(', ')};})
+      .filter(x=>x&&!seen.has(x.name+x.typ)&&seen.add(x.name+x.typ)).sort((a,b)=>a.d-b.d).slice(0,80);
+    ATT.k=k;try{localStorage.setItem('zsh_att_'+k,JSON.stringify({t:Date.now(),L:ATT.L}));}catch(e){}}catch(e){}finally{ATT.busy=false;}attDraw();return ATT.L;}
+const attVis=()=>ATT.L.filter(a=>!(window.ZHID||[]).includes(a.name)&&!Object.keys(SPONSORS||{}).some(k=>(SPONSORS[k].name||'').toLowerCase()===a.name.toLowerCase()));
+function attDraw(){(window.__zlms||[]).forEach(lm=>{try{if(!lm||!lm.map)return;(lm._att||[]).forEach(x=>x.remove());lm._att=[];
+  attVis().forEach(a=>{const c=ATT_CAT[a.typ];const el=elDiv('lm-att',`<div class="att"><b>${c[0]}</b><span>${esc(a.name.slice(0,20))}</span></div><i class="attp"></i>`);
+    el.addEventListener('click',e=>{e.stopPropagation();attSheet(a);});lm._att.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([a.lon,a.lat]).addTo(lm.map));});}catch(e){}});}
+async function attSheet(a){const c=ATT_CAT[a.typ];let adm=false;try{adm=typeof zIsAdmin==='function'&&await zIsAdmin();}catch(e){}
+  openSheet(`${c[0]} ${a.name}`,`<div class="hshead"><div><b>${esc(a.name)}</b><small>${c[1]} · attività della zona · ${kmTxt(a.d/1000)}</small></div></div>
+   ${a.addr?`<p style="font-weight:400;margin:8px 0 2px">📍 ${esc(a.addr)}</p>`:''}${a.hours?`<p style="font-weight:400;margin:2px 0">🕒 ${esc(a.hours)}</p>`:''}
+   <p class="muted" style="font-size:12px">Dati da OpenStreetMap. Non è uno sponsor di ZombieSafeHouse.</p>
+   <div class="placts">${a.phone?`<a class="btn" href="tel:${esc(a.phone.replace(/\s/g,''))}">📞 Chiama</a>`:''}${a.web?`<a class="btn ghost" href="${esc(a.web)}" target="_blank" rel="noopener">🌐 Sito</a>`:''}
+    <a class="btn ghost" href="https://www.google.com/maps/dir/?api=1&destination=${a.lat},${a.lon}" target="_blank" rel="noopener">🧭 Portami lì</a>
+    ${adm?`<button class="btn alt" data-at="spon">⭐ Fallo diventare sponsor (pannello admin)</button><button class="btn ghost" data-at="hide" style="color:#d7263d">🚫 Togli dalla mappa</button>`:'<button class="btn ghost small" data-at="mine">È il tuo negozio? Diventa sponsor</button>'}</div>`,card=>{
+   card.querySelectorAll('[data-at]').forEach(b=>b.onclick=async()=>{const k=b.dataset.at;
+     if(k==='spon'){window.open('admin.html','_blank');return;}if(k==='mine'){closeSheet();go('sponsor');return;}
+     if(k==='hide'){if(!confirm('Togliere “'+a.name+'” dalla mappa per tutti? Puoi rimetterla dal pannello admin.'))return;await zHide(a.name,[a.lat,a.lon]);closeSheet();attDraw();toast('🚫 Tolta dalla mappa');}});});}
+const _liveMapAt=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapAt(el,addr,o);try{attLoad().then(()=>attDraw());setTimeout(attDraw,1500);}catch(e){}return lm;};
+/* elenco "⭐": sponsor veri + attività della zona */
+spList=function(lm){let c=null;try{c=lm&&lm.map&&lm.map.getCenter?lm.map.getCenter():null;}catch(e){}const o=c?{lat:c.lat,lon:c.lng}:(S.zone&&S.zone.real)||{lat:0,lon:0};
+  const SPn=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&!g.demo&&SPONSORS[k]).map(([k,g])=>({k,g,d:trM(o.lat,o.lon,g.lat,g.lon)})).sort((a,b)=>a.d-b.d);
+  const A=attVis().map(a=>({...a,d2:trM(o.lat,o.lon,a.lat,a.lon)})).sort((a,b)=>a.d2-b.d2);
+  openSheet('⭐ Sponsor e attività',`<h4 class="hh" style="margin-top:0">⭐ Sponsor (${SPn.length})</h4>${SPn.length?SPn.map(x=>`<button class="strow" data-spk="${x.k}"><span class="splogo">${esc(SPONSORS[x.k].logo)}</span><div><b>${esc(SPONSORS[x.k].name)}</b><small>${dist(Math.round(x.d))}</small></div></button>`).join(''):'<p class="muted" style="font-size:13px">Ancora nessuno sponsor.</p>'}
+    <h4 class="hh">🔧 Attività della zona (${A.length})</h4>${A.length?A.map((a,i)=>`<button class="strow" data-ati="${i}"><span class="splogo">${ATT_CAT[a.typ][0]}</span><div><b>${esc(a.name)}</b><small>${ATT_CAT[a.typ][1]} · ${dist(Math.round(a.d2))}</small></div></button>`).join(''):'<p class="muted" style="font-size:13px"><span class="spin"></span> Cerco le attività entro 20 km…</p>'}`,card=>{
+    card.querySelectorAll('[data-spk]').forEach(b=>b.onclick=()=>{const k=b.dataset.spk,g=SP_GEO[k];closeSheet();try{lm.map.flyTo({center:[g.lon,g.lat],zoom:17});}catch(e){}setTimeout(()=>sponsorSheet(k,S.zone||{seed:7}),900);});
+    card.querySelectorAll('[data-ati]').forEach(b=>b.onclick=()=>{const a=A[+b.dataset.ati];closeSheet();try{lm.map.flyTo({center:[a.lon,a.lat],zoom:17});}catch(e){}setTimeout(()=>attSheet(a),900);});});};
+setInterval(()=>{try{const b=document.querySelector('.mfsp');if(!b)return;const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null&&!g.demo).length;const t=n?`⭐ ${n} sponsor`:`🔧 ${attVis().length} attività`;if(b.textContent!==t)b.textContent=t;}catch(e){}},1500);
+/* nella scheda casa: se non ci sono sponsor entro 50 km, le attività della zona */
+const _houseSheetAt=houseSheet;houseSheet=async function(h){await _houseSheetAt(h);try{const card=document.querySelector('#sheet.open');if(!card||card.querySelector('[data-hsp]'))return;
+  const A=attVis().map(a=>({...a,dd:trM(h.lat,h.lon,a.lat,a.lon)})).filter(a=>a.dd<=50000).sort((a,b)=>a.dd-b.dd).slice(0,6);if(!A.length)return;
+  const hs=[...card.querySelectorAll('h4.hh')].find(x=>/Lavori veri/.test(x.textContent));if(!hs)return;let n=hs.nextElementSibling;while(n&&n.tagName!=='H4'){const nx=n.nextElementSibling;n.remove();n=nx;}
+  hs.insertAdjacentHTML('afterend',`<p class="muted" style="font-size:12px;margin:0 0 6px">Ancora nessuno sponsor qui: ecco le attività della zona.</p>${A.map((a,i)=>`<button class="strow" data-hat="${i}"><span class="splogo">${ATT_CAT[a.typ][0]}</span><div><b>${esc(a.name)}</b><small>${ATT_CAT[a.typ][1]} · ${kmTxt(a.dd/1000)}</small></div></button>`).join('')}`);
+  card.querySelectorAll('[data-hat]').forEach(b=>b.onclick=()=>attSheet(A[+b.dataset.hat]));}catch(e){}};
+
+/* ---- 2) 😈 RIVALI ---- */
+const DISP=[['orda','🧟','Manda un’orda','−8 alla sua difesa · taglia di 25 🧱 se la sua casa cade',30,'mat'],['nebbia','🌫️','Nebbia','−5 alla sua difesa',15,'gem'],['sabotaggio','🔨','Sabotaggio','annulla il suo “Prepara le case” (−15)',25,'gem']];
+async function doDisp(uid,nick,k){const d=DISP.find(x=>x[0]===k);if(!d)return;
+  if(d[5]==='gem'&&((typeof G!=='undefined'&&G.gems)||0)<d[4]){shopSheet(0);toast(`Servono 💎 ${d[4]} gemme`);return;}
+  if(!confirm(`${d[1]} ${d[2]} a @${nick}? Costa ${d[5]==='gem'?'💎':'🧱'} ${d[4]}.`))return;
+  try{const r=k==='orda'?await socRpc('world_send_attack',{p_target:uid}):await socRpc('world_send_curse',{p_target:uid,p_kind:k});
+    if(r.ok&&d[5]==='gem'){G.gems-=d[4];try{saveLocal();}catch(e){}}toast((r.ok?d[1]+' ':'')+(r.msg||'Fatto'));if(typeof wMine==='function')wMine(true);}catch(e){toast(e.message||'Non riuscito');}}
+SOC.riv=null;
+async function rivLoad(){try{SOC.riv=await socRpc('world_rivals')||[];}catch(e){SOC.riv=[];SOC.err=e.message;}if(S.tab==='social'&&SOC.tab==='rivali')socPaint();}
+const _renderSocialRv=renderSocial;renderSocial=function(){_renderSocialRv();try{const seg=app.querySelector('.sseg');if(seg&&!seg.querySelector('[data-st=rivali]')){
+    const sq=seg.querySelector('[data-st=squadra]');(sq||seg.lastElementChild).insertAdjacentHTML('afterend','<button data-st="rivali">😈 Rivali</button>');seg.classList.remove('four');seg.classList.add('five');
+    const cl=seg.querySelector('[data-st=classifiche]');if(cl)cl.innerHTML='🏆 Classifica';
+    seg.querySelectorAll('[data-st]').forEach(b=>{b.classList.toggle('on',b.dataset.st===SOC.tab);b.onclick=()=>{SOC.tab=b.dataset.st;seg.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));socPaint();socFetchTab();};});}}catch(e){}};
+const _socPaintRv=socPaint;socPaint=function(){if(SOC.tab!=='rivali'){_socPaintRv();try{if(SOC.tab==='squadra'){const B=app.querySelector('#socBody');const h=[...B.querySelectorAll('.apan h4.ah')].find(x=>/Rivali/.test(x.textContent));
+      if(h&&!B.querySelector('.rivlink')){let n=h.nextElementSibling;while(n&&!(n.tagName==='H4'||n.matches('button[data-ainv]'))){const nx=n.nextElementSibling;n.remove();n=nx;}h.outerHTML='<button class="btn ghost small rivlink" data-gorv>😈 I rivali hanno una sezione tutta loro →</button>';const g=B.querySelector('[data-gorv]');if(g)g.onclick=()=>{SOC.tab='rivali';renderSocial();};}}}catch(e){}return;}
+  pzStop();const B=app.querySelector('#socBody');if(!B)return;if(!S.user){B.innerHTML='<div class="panel"><p>Accedi per vedere i rivali.</p><button class="btn" onclick="loginSheet()">Accedi</button></div>';return;}
+  const m=window.W&&W.m;const L=SOC.riv;
+  B.innerHTML=`<div class="panel rivhead"><b class="disp" style="font-size:22px">😈 Rivali</b><p style="font-weight:400;font-size:13.5px;margin:4px 0 6px">Qualche vicino ti sta antipatico? Fagli un dispetto prima della prossima orda. Ma attento: possono farlo anche a te.</p>
+    <div class="hwal"><span>💎 ${(typeof G!=='undefined'&&G.gems)||0} gemme</span><span>🧱 ${m?wNum(m.mattoni):'…'} Mattoni</span></div>
+    <details class="man" style="margin-top:6px"><summary>Regole</summary><div class="man-b"><p>• Niente dispetti agli alleati. • I giocatori 3 o più livelli sotto di te sono protetti. • Massimo 3 dispetti al giorno, uno per tipo per orda. • La vittima riceve una notifica e può difendersi chiedendo aiuto agli alleati (+5 per alleato). • Al massimo −25 di difesa per orda, qualunque cosa succeda.</p></div></details></div>
+   <div class="panel">${L==null?'<p class="muted"><span class="spin"></span> Cerco i rivali alla tua portata…</p>':L.length?L.map(r=>`<div class="rivc"><div class="rivn"><span class="sav">${esc((r.nick||'?')[0].toUpperCase())}</span><div>${socNick(r.user_id,r.nick)}<small>livello ${r.wlevel}${r.dist_km!=null?' · '+wNum(r.dist_km)+' km':''}</small></div></div>
+       <div class="rivb">${DISP.map(d=>`<button data-dv="${d[0]}" data-u="${r.user_id}" data-n="${esc(r.nick)}" ${d[0]==='orda'&&r.attacked?'disabled':''}><b>${d[1]}</b>${d[2]}<small>${d[5]==='gem'?'💎':'🧱'} ${d[4]}</small></button>`).join('')}</div></div>`).join(''):'<p class="muted">Nessun rivale alla tua portata: i giocatori molto più deboli sono protetti e gli alleati non si toccano.</p>'}</div>`;
+  B.querySelectorAll('[data-dv]').forEach(b=>b.onclick=async()=>{b.disabled=true;await doDisp(b.dataset.u,b.dataset.n,b.dataset.dv);rivLoad();});};
+const _socFetchRv=socFetchTab;socFetchTab=function(){if(SOC.tab==='rivali'){if(S.user){socLoad('per');rivLoad();}return;}return _socFetchRv();};
+/* scheda del giocatore: anche i dispetti */
+const _playerSheetRv=playerSheet;playerSheet=async function(uid){await _playerSheetRv(uid);try{const c=document.querySelector('#sheet.open .placts');if(!c||c.querySelector('[data-pdv]'))return;
+  const nick=(document.querySelector('#sheet.open .plhead .disp')||{}).textContent||'';if(/Siete alleati|Questo sei tu/.test(document.querySelector('#sheet.open').textContent))return;if(/protetto/.test(c.textContent))return;
+  c.insertAdjacentHTML('beforeend',`<div class="rivb">${DISP.slice(1).map(d=>`<button data-pdv="${d[0]}"><b>${d[1]}</b>${d[2]}<small>💎 ${d[4]}</small></button>`).join('')}</div>`);
+  c.querySelectorAll('[data-pdv]').forEach(b=>b.onclick=()=>doDisp(uid,nick.replace('@',''),b.dataset.pdv));}catch(e){}};
+/* bacheca: il dispetto ricevuto */
+const _socLineRv=socLine;socLine=function(f){if(f.kind!=='curse')return _socLineRv(f);const a=socNick(f.actor,f.actor_nick),t=f.target?socNick(f.target,f.target_nick):'';const d=DISP.find(x=>x[0]===f.info)||DISP[1];
+  const toMe=S.user&&f.target===S.user.id;return`<div class="sitem"><span class="sic">${d[1]}</span><div class="stx">${a} ha fatto un dispetto a ${t}: ${d[2].toLowerCase()} (${d[3]})<small>${socAgo(f.created_at)}</small></div>${toMe?'<button class="btn small" data-askh>🆘 Chiedi aiuto</button>':''}</div>`;};
+document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('[data-askh]');if(!b)return;b.disabled=true;try{const{data,error}=await SB.rpc('world_ask_help');if(error)throw error;toast('🆘 '+data.msg);}catch(x){toast(x.message||'Non riuscito');}});
+</script>
+<script>
+/* =========================================================
+   EQUITÀ DEL MONDO UNICO (le regole stanno sul server, qui si mostrano)
+   1 Kit di benvenuto  2 Scudo 14 giorni  3 Spinta di recupero +50%
+   4 Leghe  5 Case più care per chi ne ha tante  6 Padrino
+   ========================================================= */
+window.EQ={s:null,t:0};
+async function eqLoad(force){if(!S.user||(typeof SB==='undefined'||!SB))return null;if(!force&&EQ.s&&Date.now()-EQ.t<10*60*1000)return EQ.s;
+  try{const{data,error}=await SB.rpc('world_status_extra');if(error)throw error;EQ.s=data;EQ.t=Date.now();eqPaint();}catch(e){}return EQ.s;}
+/* 1) kit di benvenuto: una volta per account (il server lo garantisce) */
+async function eqWelcome(){if(!S.user||(typeof SB==='undefined'||!SB))return;const k='zsh_kit_'+S.user.id;try{if(localStorage.getItem(k))return;}catch(e){}
+  try{const{data,error}=await SB.rpc('world_welcome');if(error)throw error;try{localStorage.setItem(k,'1');}catch(e){}
+    if(data&&data.got>0){try{G.gems=(G.gems||0)+50;saveLocal();}catch(e){}if(typeof wMine==='function')wMine(true);await eqLoad(true);
+      openSheet('🎁 Benvenuto nel mondo!',`<div class="kitbox"><div><b>🧱 300</b><small>Mattoni</small></div><div><b>💎 50</b><small>gemme</small></div><div><b>🛡️ 14</b><small>giorni di scudo</small></div></div>
+        <p style="font-weight:400">Con i Mattoni puoi comprare subito una seconda casa. Per 14 giorni <b>nessun giocatore può mandarti orde o dispetti</b> (se ne fai tu, lo scudo finisce).</p>
+        <p style="font-weight:400">E finché sei sotto il livello medio della tua zona, ogni Mattone che guadagni vale <b>+50%</b>.</p><button class="btn" data-kgo>🌍 Vai al mondo</button>`,c=>{c.querySelector('[data-kgo]').onclick=()=>{closeSheet();go('mappa');};});}}catch(e){}}
+/* indicatori: scudo, spinta, lega */
+function eqChips(){const s=EQ.s;if(!s)return'';return[s.shield?`<span class="eqc sh">🛡️ Scudo ${s.shield_days} g</span>`:'',s.boost?`<span class="eqc bo">🚀 +50% 🧱</span>`:'',s.league?`<span class="eqc lg">🏅 ${esc(s.league)}</span>`:''].join('');}
+function eqPaint(){try{const h=app.querySelector('.hschips');if(h){h.querySelectorAll('.eqc').forEach(x=>x.remove());h.insertAdjacentHTML('beforeend',eqChips());}}catch(e){}
+  try{const r=app.querySelector('.rivhead');if(r&&EQ.s){let x=r.querySelector('.eqriv');const t=EQ.s.shield?`🛡️ Hai lo <b>scudo del nuovo arrivato</b> ancora per ${EQ.s.shield_days} giorni: nessuno può mandarti orde o dispetti. Se ne fai tu, lo perdi.`:'';
+    if(t){if(!x){r.insertAdjacentHTML('beforeend','<p class="eqriv"></p>');x=r.querySelector('.eqriv');}x.innerHTML=t;}else if(x)x.remove();}}catch(e){}}
+const _renderHomeEq=renderHome;renderHome=function(){_renderHomeEq();eqPaint();if(S.user){eqLoad();}};
+/* al collegamento: kit e stato */
+const _wMineEq=wMine;wMine=async function(){const r=await _wMineEq.apply(this,arguments);try{if(S.user){eqWelcome();eqLoad();}}catch(e){}return r;};
+/* 2) rivali con lo scudo: pulsanti spenti */
+const _socPaintEq=socPaint;socPaint=function(){_socPaintEq();try{if(SOC.tab==='rivali'&&Array.isArray(SOC.riv)){
+  app.querySelectorAll('.rivc').forEach((c,i)=>{const r=SOC.riv[i];if(!r||!r.shield)return;c.querySelectorAll('[data-dv]').forEach(b=>b.disabled=true);const n=c.querySelector('.rivn small');if(n&&!/scudo/.test(n.textContent))n.insertAdjacentHTML('beforeend',' · 🛡️ nuovo arrivato, protetto');});
+  eqPaint();if(!EQ.s)eqLoad();}}catch(e){}
+  /* 4) leghe nelle classifiche */
+  try{if(SOC.tab!=='classifiche')return;const seg=app.querySelector('#socBody .schips');if(!seg||seg.querySelector('[data-rs=lega]'))return;
+    seg.insertAdjacentHTML('afterbegin',`<button data-rs="lega" class="${SOC.rs==='lega'?'on':''}">🏅 La mia lega</button>`);
+    seg.querySelector('[data-rs=lega]').onclick=()=>{SOC.rs='lega';socPaint();eqRank();};
+    if(SOC.rs==='lega'){seg.querySelectorAll('[data-rs]').forEach(b=>b.classList.toggle('on',b.dataset.rs==='lega'));eqRankPaint();}}catch(e){}};
+EQ.rank={};
+async function eqRank(){const p=SOC.rp||'settimana';try{const{data,error}=await SB.rpc('world_rank_lega',{p_period:p});if(error)throw error;EQ.rank[p]=data||[];}catch(e){EQ.rank[p]={err:e.message};}if(S.tab==='social'&&SOC.tab==='classifiche'&&SOC.rs==='lega')eqRankPaint();}
+function eqRankPaint(){const B=app.querySelector('#socBody');if(!B)return;const p=SOC.rp||'settimana';const L=EQ.rank[p];const seg=B.querySelector('.schips');const box=seg&&seg.nextElementSibling;if(!box)return;
+  const lg=EQ.s&&EQ.s.league||'';const head=`<p class="muted" style="font-size:12.5px;margin:0 0 6px">🏅 Lega <b>${esc(lg)}</b>: Bronzo 1–5 · Argento 6–12 · Oro 13–20 · Diamante 21+. Giochi solo contro chi ha il tuo livello.</p>`;
+  if(L==null){box.innerHTML=head+'<p class="muted"><span class="spin"></span> Carico la tua lega…</p>';if(!EQ._rq){EQ._rq=1;eqRank().finally(()=>EQ._rq=0);}return;}
+  if(L.err){box.innerHTML=head+`<p class="muted">Classifica della lega non disponibile (${esc(L.err)}).</p>`;return;}
+  box.innerHTML=head+(L.length?L.map(r=>`<div class="srank ${r.me?'me':''}"><span class="rpos">${r.pos<=3?['🥇','🥈','🥉'][r.pos-1]:r.pos}</span><div class="stx">${socNick(r.user_id,r.nick)}<small>livello ${r.wlevel}${r.comune?' · '+esc(r.comune):''}</small></div><b>🧱 ${wNum(r.punti)}</b></div>`).join(''):'<p class="muted">Ancora nessuno nella tua lega questa settimana: puoi essere il primo!</p>');}
+/* 3) spinta e 5) prezzo progressivo spiegati nella scheda casa e nel preventivo */
+const _houseSheetEq=houseSheet;houseSheet=async function(h){await _houseSheetEq(h);try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('.eqhs')||!EQ.s)return;const w=c.querySelector('.hwal');if(!w)return;
+  const t=[EQ.s.boost?`🚀 <b>Spinta di recupero</b>: sei sotto il livello medio della tua zona${EQ.s.median!=null?' ('+Math.round(EQ.s.median)+')':''}, ogni Mattone guadagnato vale +50%.`:'',EQ.s.shield?`🛡️ <b>Scudo</b> ancora ${EQ.s.shield_days} giorni.`:''].filter(Boolean);
+  if(t.length)w.insertAdjacentHTML('afterend',`<p class="eqhs">${t.join('<br>')}</p>`);}catch(e){}};
+try{const _wSheetEq=wSheet;wSheet=async function(){const r=await _wSheetEq.apply(this,arguments);try{const c=document.querySelector('#sheet.open');if(c&&EQ.s&&EQ.s.houses>0&&/Compra|compra/.test(c.textContent)&&!c.querySelector('.eqpr'))
+  (c.querySelector('.btn')||c.lastElementChild).insertAdjacentHTML('beforebegin',`<p class="eqpr">Hai già ${EQ.s.houses} ${EQ.s.houses===1?'casa':'case'} comprate: il prezzo è +${EQ.s.houses*10}% (chi ha più case paga di più, così il mondo resta aperto ai nuovi).</p>`);}catch(e){}return r;};}catch(e){}
+/* 6) padrino: nell'invito si spiega il premio */
+function eqPad(){const c=document.querySelector('#sheet.open');if(c&&/[Ii]nvit/.test(c.textContent)&&!c.querySelector('.eqpad'))c.insertAdjacentHTML('beforeend','<p class="eqpad">🤝 <b>Padrino</b>: per i primi 14 giorni ricevi anche il 10% in più di quello che guadagna chi hai invitato (a lui non togliamo niente).</p>');}
+try{const _inviteSheetEq=inviteSheet;inviteSheet=function(){const r=_inviteSheetEq.apply(this,arguments);[0,300,900].forEach(t=>setTimeout(eqPad,t));return r;};}catch(e){}
+setInterval(()=>{if(S.user&&document.visibilityState==='visible')eqLoad();},5*60*1000);
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
