@@ -1283,6 +1283,33 @@ body[data-tab=orda] #accFab{display:none!important}
 .afsearch{display:flex;gap:6px}.afsearch .field{flex:1;margin:0}
 .afr{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px dashed rgba(20,15,31,.2)}.afr>div{flex:1;display:flex;flex-direction:column}.afr small{font-size:11.5px;color:#5a5470}
 .afbox{margin-top:8px}.rivn .rally{margin-left:auto}
+
+.frsel{display:flex;gap:6px;overflow-x:auto;padding:0 0 8px;-webkit-overflow-scrolling:touch}
+.frsel button{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;background:#3b2f6e;color:#fff;border:2.5px solid #6b5bb5;padding:5px 9px;text-align:left}
+.frsel button b{font-size:13px}.frsel button small{font-size:11.5px;color:#d9ccff}.frsel button.on{background:var(--moon);color:var(--ink);border-color:var(--ink)}.frsel button.on small{color:var(--ink)}
+
+/* minacce e difese mirate */
+.thhead{display:flex;flex-direction:column;gap:3px;background:#241a4a;color:#fff;border:2.5px solid var(--ink);padding:7px 10px;font-size:13px;margin-bottom:6px}.thhead small{color:#d9ccff}
+.thrw{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px dashed rgba(20,15,31,.2);font-size:13.5px}.thrw span{display:flex;flex-direction:column}.thrw small{font-size:11.5px;color:#5a5470}.thrw b{white-space:nowrap}
+.thrw.tot{border-top:2px solid var(--ink);font-weight:800}.thrw.tot b{color:#d7263d}
+.thdef{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff;border:2.5px solid var(--ink);padding:6px 9px;margin-bottom:6px}.thdef span{display:flex;flex-direction:column;font-size:13.5px}.thdef small{font-size:12px;color:#5a5470;letter-spacing:1px}
+.thdef div{display:flex;gap:5px}.thdef button{width:36px;height:34px;border:2.5px solid var(--ink);background:var(--moon);font-weight:900;font-size:18px;color:var(--ink)}.thdef button:disabled{opacity:.35}
+.thres{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.thres div{background:#fff;border:2.5px solid var(--ink);text-align:center;padding:5px}.thres small{display:block;font-size:11.5px;color:#5a5470}.thres b{font-family:var(--display);font-size:24px}
+.thres .up{background:#bfe8c9}
+
+/* alleati: elenco e simulazione */
+.alrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 0;border-top:1px dashed rgba(20,15,31,.2);cursor:pointer}
+.alrt{flex:1;display:flex;flex-direction:column;min-width:0}.alrt b{font-size:14.5px}.alrt small{font-size:12px;color:#5a5470}.okt{color:#2f7a52;font-weight:800}.kot{color:#d7263d;font-weight:800}
+.alpc{text-align:center;border:2.5px solid var(--ink);padding:2px 8px;background:#fff}.alpc b{display:block;font-family:var(--display);font-size:20px}.alpc small{font-size:10.5px}
+.alpc.ok,.alw.ok,.thres .ok{background:#bfe8c9}.alpc.mid,.alw.mid,.thres .mid{background:#fff3b0}.alpc.ko,.alw.ko,.thres .ko{background:#f6b8bf}
+.alacts{display:flex;flex-wrap:wrap;gap:5px;width:100%}.alacts .btn{flex:1 1 auto;font-size:12.5px;padding:6px 6px}.alacts.big{margin:8px 0}
+.alhead{display:flex;justify-content:space-between;gap:8px;border:3px solid var(--ink);padding:8px 10px;background:#fff}.alhead.ko{background:#ffe3e6}.alhead.ok{background:#e3f5e8}
+.alhead>div:first-child{display:flex;flex-direction:column;gap:2px}.alhead small{font-size:12px;color:#5a5470}
+.alw{text-align:center;border:2.5px solid var(--ink);padding:3px 8px;align-self:center}.alw b{display:block;font-family:var(--display);font-size:24px}.alw small{font-size:10.5px}
+.altip{background:#fff3b0;border-left:5px solid #c79a00;padding:6px 9px;font-size:12.5px;font-weight:400;margin:8px 0 0}
+.alhouse{border:2.5px solid var(--ink);margin-bottom:6px;background:#fff}.alhb{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;padding:8px 10px;text-align:left;color:var(--ink)}
+.alhb span{font-weight:800;font-size:14px}.alhb small{flex:1;font-size:12px;color:#5a5470}.alhb b{font-family:var(--display);font-size:20px;padding:0 6px;border:2px solid var(--ink)}.alhb i{font-style:normal}
+.alhd{padding:0 10px 8px}
 </style>
 </head>
 <body>
@@ -6064,7 +6091,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611012303';
+const ZSH_BUILD='202611012358';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -8981,6 +9008,209 @@ const _socPaintAl=socPaint;socPaint=function(){_socPaintAl();try{if(SOC.tab!=='s
 /* ---- 4) nei Rivali: anche proporre l'alleanza ---- */
 const _socPaintAl2=socPaint;socPaint=function(){_socPaintAl2();try{if(SOC.tab!=='rivali')return;app.querySelectorAll('.rivc').forEach((c,i)=>{const r=(SOC.riv||[])[i];if(!r||c.querySelector('[data-rally]'))return;const n=c.querySelector('.rivn');if(!n)return;
   n.insertAdjacentHTML('beforeend',`<button class="btn small ghost rally" data-rally="${r.user_id}">🤝 Alleanza</button>`);n.querySelector('[data-rally]').onclick=e=>allyAsk(r.user_id,r.nick,e.currentTarget);});}catch(e){}};
+</script>
+<script>
+/* =========================================================
+   IL FRONTE SU TUTTE LE TUE CASE
+   - fila delle tue case sopra la mappa, ognuna con la sua % (conto del server)
+   - toccandone una il fronte va lì (anche lontanissima): strade vere della zona,
+     salite vere (quote dei punti del percorso), orda che arriva
+   - gli zombie attaccano tutte le tue case entro 1,5 km dalla casa inquadrata
+   ========================================================= */
+FR.focus=null;FR.roads={};FR.dests=[];FR.homes=[];
+async function frRoads(lat,lon){const k=lat.toFixed(3)+','+lon.toFixed(3);if(FR.roads[k])return FR.roads[k];
+  let els=[];try{els=await trOverpass(`[out:json][timeout:20];way(around:1000,${lat},${lon})["highway"];out geom 600;`,20000,600)||[];}catch(e){}FR.roads[k]={els};return FR.roads[k];}
+async function frElevate(paths){try{const P=[];const key=p=>p[0].toFixed(5)+','+p[1].toFixed(5);const seen=new Map();
+    paths.forEach(pa=>pa.seg.forEach(s=>[s.a,s.b].forEach(p=>{const k=key(p);if(!seen.has(k)){seen.set(k,null);P.push(p);}})));if(!P.length)return;
+    const step=Math.max(1,Math.ceil(P.length/100));const S2=P.filter((_,i)=>i%step===0).slice(0,100);
+    const d=await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${S2.map(p=>p[0].toFixed(5)).join(',')}&longitude=${S2.map(p=>p[1].toFixed(5)).join(',')}`,{signal:trSig(9000)}).then(r=>r.json());
+    if(!d||!d.elevation)return;S2.forEach((p,i)=>seen.set(key(p),d.elevation[i]));
+    const el=p=>{const v=seen.get(key(p));if(v!=null)return v;let best=null,bd=1e9;S2.forEach(q=>{const dd=Math.abs(q[0]-p[0])+Math.abs(q[1]-p[1]);if(dd<bd){bd=dd;best=seen.get(key(q));}});return best;};
+    paths.forEach(pa=>{pa.seg.forEach(s=>{const a=el(s.a),b=el(s.b);if(a!=null&&b!=null)s.g=(b-a)/s.d;});pa.climb=pa.seg.reduce((t,x)=>t+Math.max(0,x.g*x.d),0);pa.drop=pa.seg.reduce((t,x)=>t+Math.max(0,-x.g*x.d),0);});}catch(e){}}
+function frDrawLines(){try{const map=FR.lm.map;const fs=[];FR.paths.forEach(P=>P.seg.forEach(s=>fs.push({type:'Feature',properties:{c:frCol(s.g)},geometry:{type:'LineString',coordinates:[[s.a[1],s.a[0]],[s.b[1],s.b[0]]]}})));
+  const data={type:'FeatureCollection',features:fs};const go=()=>{try{if(map.getSource('fr-p'))map.getSource('fr-p').setData(data);else{map.addSource('fr-p',{type:'geojson',data});
+    map.addLayer({id:'fr-pc',type:'line',source:'fr-p',paint:{'line-color':'#140f1f','line-width':9,'line-opacity':.55}});map.addLayer({id:'fr-pl',type:'line',source:'fr-p',paint:{'line-color':['get','c'],'line-width':5,'line-opacity':.95}});}}catch(e){}};
+  if(map.isStyleLoaded&&map.isStyleLoaded())go();else map.once('load',go);}catch(e){}}
+function frChanceOf(h){try{const dh=defHouse(h.bid,h.home);return dh?defChance(dh.total):null;}catch(e){return null;}}
+function frSel(H,F){const n=FR.node;if(!n)return;let s=n.querySelector('.frsel');if(!s){n.querySelector('.frmapw').insertAdjacentHTML('beforebegin','<div class="frsel"></div>');s=n.querySelector('.frsel');}
+  s.innerHTML=H.map((h,i)=>{const c=frChanceOf(h);const on=(h.home&&F.home)||(!h.home&&!F.home&&h.bid===F.bid);return`<button data-frh="${i}" class="${on?'on':''}"><b>${h.ic} ${esc(h.label)}</b><small>${c!=null?c+'%':'…'}${h.km>1.5?' · '+kmTxt(h.km):''}</small></button>`;}).join('');
+  s.querySelectorAll('[data-frh]').forEach(b=>b.onclick=()=>{const h=H[+b.dataset.frh];FR.focus={bid:h.bid,home:h.home};FR.key='';frMount();});}
+frMount=async function(){const R=S.zone&&S.zone.real;if(!R||!FR.node)return;const H=myHouses();if(!H.length)return;
+  const home=H.find(h=>h.home)||H[0];const F=(FR.focus&&H.find(h=>h.home===FR.focus.home&&(h.home||h.bid===FR.focus.bid)))||home;
+  const key=F.lat.toFixed(4)+','+F.lon.toFixed(4)+'|'+H.length;frSel(H,F);frHeader();
+  if(FR.lm&&FR.key===key){try{FR.lm.map.resize();}catch(e){}frLoop();frRings();return;}
+  FR.key=key;frStop();
+  if(!FR.lm){try{const nx=oggiNext();FR.lm=await liveMap(FR.node.querySelector('.frmap'),S.zone.address,{zoom:15.4,night:nx.getHours()>=18||nx.getHours()<7});}catch(e){FR.node.querySelector('.frmap').innerHTML='<p class="muted" style="padding:20px">Mappa non disponibile ora.</p>';return;}}
+  try{FR.lm.map.jumpTo({center:[F.lon,F.lat],zoom:F.home?15.4:15.6});}catch(e){}
+  (FR.homes||[]).forEach(m=>{try{m.remove();}catch(e){}});FR.homes=[];FR.homeEls=[];(FR.zs||[]).forEach(z=>{try{z.mk.remove();}catch(e){}});FR.zs=[];
+  const dests=H.filter(h=>trM(F.lat,F.lon,h.lat,h.lon)<1500);if(!dests.includes(F))dests.unshift(F);dests.sort((a,b)=>(a===F?-1:b===F?1:0));FR.dests=dests;
+  const m=F.home?(RM.cache&&RM.cache[S.zone.address]):await frRoads(F.lat,F.lon);
+  let paths=[];dests.forEach((d,i)=>{let P=frPaths(d.home?R:{lat:d.lat,lon:d.lon},m);P=P.slice(0,d===F?6:3);P.forEach(p=>{p.dest=i;});paths=paths.concat(P);});
+  if(!F.home||!R.grid||paths.every(p=>p.seg.every(s=>!s.g)))await frElevate(paths);
+  FR.paths=paths;frDrawLines();
+  dests.forEach((d,i)=>{try{const el=document.createElement('div');el.className='frhome';el.innerHTML=`<div class="frring"></div><b>${d.home?'🏠':'🔑'}</b><span data-frpct2="${i}"></span>`;
+    el.addEventListener('click',e=>{e.stopPropagation();houseSheet(d);});FR.homeEls=FR.homeEls||[];FR.homeEls[i]=el;FR.homes.push(new maplibregl.Marker({element:el}).setLngLat([d.lon,d.lat]).addTo(FR.lm.map));FR.paths.filter(p=>p.dest===i).forEach(p=>p.homeEl=el);}catch(e){}});
+  frSpawn();frLoop();frHeader();frRings();};
+function frRings(){try{(FR.dests||[]).forEach((d,i)=>{const c=frChanceOf(d);const he=(FR.homeEls||[])[i];const el=he&&he.querySelector('[data-frpct2]');if(el)el.textContent=c!=null?c+'%':'';const ring=el&&el.parentNode.querySelector('.frring');if(ring&&c!=null)ring.style.setProperty('--ok',c>=50?'#5bd16a':'#d7263d');});
+  const F=FR.dests&&FR.dests[0];if(F&&!F.home){const c=frChanceOf(F);const chip=[...FR.node.querySelectorAll('[data-frchips] span')].find(s=>/di tenere/.test(s.textContent));if(chip&&c!=null){chip.innerHTML=`🛡️ ${c}% di tenere (${esc(F.label)}) · <u>perché</u>`;chip.onclick=()=>whySheet(F.bid,false);}}
+  const s=FR.node&&FR.node.querySelector('.frsel');if(s){const H=myHouses();s.querySelectorAll('[data-frh]').forEach(b=>{const h=H[+b.dataset.frh];const c=h&&frChanceOf(h);const sm=b.querySelector('small');if(sm&&c!=null)sm.textContent=c+'%'+(h.km>1.5?' · '+kmTxt(h.km):'');});}
+  const pc=FR.node&&FR.node.querySelector('[data-frpct]');if(pc)pc.textContent='';}catch(e){}}
+/* il percorso finisce alla casa di destinazione: nebbia e colpi riferiti a quella casa */
+frLoop=function(){frStop();FR.last=performance.now();const step=t=>{FR.raf=requestAnimationFrame(step);if(S.tab!=='orda'||document.hidden||!FR.node||!FR.node.isConnected)return;
+  const dt=Math.min(.1,(t-FR.last)/1000);FR.last=t;const w=FR.wx;const wf=frWf(w);
+  const st=FR.zs.filter(z=>z.k==='strillone'&&z.x>0).map(z=>z.pos).filter(Boolean);
+  FR.zs.forEach(z=>{const P=z.P;let g=0;if(z.x>=0){const sg=P.seg.find(s=>z.x>=s.s&&z.x<s.s+s.d)||P.seg[P.seg.length-1];g=sg?sg.g:0;}
+    let f=z.k==='scavatore'?1:Math.max(.45,Math.min(1.45,1-g*(z.k==='runner'?6:3)));if(z.pos&&st.some(p=>trM(p[0],p[1],z.pos[0],z.pos[1])<45)&&z.k!=='strillone')f*=1.15;
+    z.x+=z.v*f*wf*dt;
+    if(z.x>=P.L){z.x=-40-Math.random()*120;try{const h=P.homeEl;if(h){h.classList.remove('hit');void h.offsetWidth;h.classList.add('hit');}}catch(e){}}
+    const d=Math.max(0,z.x);const sg=P.seg.find(s=>d>=s.s&&d<=s.s+s.d)||P.seg[P.seg.length-1];const u=sg?Math.min(1,(d-sg.s)/sg.d):0;
+    const la=sg.a[0]+(sg.b[0]-sg.a[0])*u,lo=sg.a[1]+(sg.b[1]-sg.a[1])*u;z.pos=[la,lo];try{z.mk.setLngLat([lo,la]);}catch(e){}
+    const toH=Math.max(0,P.L-z.x);let op=z.x<0?0:1;if(w&&w.ev==='nebbia')op=toH<150?1:.18;z.el.style.opacity=op;z.el.classList.toggle('glow',!!(w&&w.ev==='blackout'&&toH>120));});};
+  FR.raf=requestAnimationFrame(step);};
+/* quando arriva il conto del server, aggiorno le % */
+const _defLoadFr=defLoad;defLoad=async function(){const r=await _defLoadFr.apply(this,arguments);try{if(S.tab==='orda'&&FR.node){frRings();}}catch(e){}return r;};
+</script>
+<script>
+/* =========================================================
+   ZOMBIE SPECIALI, METEO E TERRENO VERI, DIFESE MIRATE, SIMULATORE
+   Stessa formula del server (zombie.sql):
+   attacco = (30 + 2×liv + caso 0–49) × mod(vagante) + Σ speciali base×(1+0,03×liv)×mod×(1−0,3×difesa)
+   ========================================================= */
+const ZSP={runner:{ic:'🏃',n:'Corridore',dk:'fossato',why:'soffre le salite, scivola con pioggia e neve'},casco:{ic:'🪖',n:'Col casco',dk:'barricate',why:'resistente, la pioggia non lo ferma'},
+  strillone:{ic:'📢',n:'Strillone',dk:'sirena',why:'urla e spinge tutta l’orda'},scavatore:{ic:'⛏️',n:'Scavatore',dk:'fondamenta',why:'ignora le salite, più forte con la pioggia'},
+  brute:{ic:'💪',n:'Bruto',dk:'barricate',why:'fortissimo, ma lento in salita'},ombra:{ic:'👤',n:'Ombra',dk:'fari',why:'fortissima con nebbia, blackout e di notte'},boss:{ic:'👑',n:'Bruto della Sagra',dk:'barricate',why:'il boss: arriva con le orde grandi'}};
+const ZDEF={fossato:['🕳️','Fossato'],barricate:['🚪','Barricate rinforzate'],sirena:['🚨','Sirena'],fondamenta:['🧱','Fondamenta rinforzate'],fari:['🔦','Fari e luci']};
+const EVN={calma:['🌙','Tempo calmo','nessun effetto'],pioggia:['🌧️','Pioggia','corridori e vaganti più lenti, scavatori più forti'],neve:['❄️','Neve','corridori quasi fermi, scavatori deboli'],
+  nebbia:['🌫️','Nebbia','le Ombre diventano fortissime'],blackout:['⚡','Blackout','Ombre fortissime, orda un po’ più forte'],luna:['🌕','Luna piena','tutta l’orda più forte (+15%)']};
+/* replica della formula del server */
+function zm(k,s,ev,hh){let t={runner:1-4*s,brute:1-3*s,boss:1-2*s,walker:1-s,casco:1-s,ombra:1-s}[k];if(t==null)t=1;
+  const W={pioggia:{runner:.7,walker:.9,scavatore:1.3,ombra:1.1},neve:{runner:.5,walker:.8,scavatore:.6,brute:.8},nebbia:{ombra:1.6,runner:.9},blackout:{ombra:1.6,_:1.05},luna:{_:1.15}}[ev]||{};
+  const w=W[k]!=null?W[k]:(W._||1);const tm=k==='ombra'?(hh>=18?1.2:.6):1;return Math.max(.3,Math.min(1.8,t*w*tm));}
+function thrCalc(T,o={}){const lvl=o.level!=null?o.level:T.level;const defs=Object.assign({},T.defs||{},o.defs||{});
+  const def=T.def+12*(Math.max(lvl,1)-Math.max(T.level,1));const sp=(T.specials||[]).map(x=>{const dl=Math.min(3,defs[x.dk]||0);return{...x,dl,p:x.base*x.mod*(1-.3*dl)};});
+  const ss=sp.reduce((a,x)=>a+x.p,0);const amin=Math.round(T.std_min*T.mw+ss),amax=Math.round(T.std_max*T.mw+ss);
+  const ch=Math.max(0,Math.min(100,Math.round((def-amin+1)/(amax-amin+1)*100)));return{def,amin,amax,ch,sp,ss};}
+window.THR={L:null,t:0};
+async function thrLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return null;if(!force&&THR.L&&Date.now()-THR.t<60000)return THR.L;
+  try{const{data,error}=await SB.rpc('world_threats');if(error)throw error;THR.L=data||[];THR.t=Date.now();}catch(e){THR.err=e.message;}return THR.L;}
+function thrOf(h){const L=THR.L||[];return L.find(x=>(h.home&&x.home)||(!h.home&&x.bid===h.bid))||null;}
+/* le % ovunque vengono dalla minaccia vera della casa */
+const _frChanceOfZ=frChanceOf;frChanceOf=function(h){const T=thrOf(h);if(T)return thrCalc(T).ch;return _frChanceOfZ(h);};
+/* ---------- scheda della casa: chi arriva + difese mirate + simulatore ---------- */
+function thrHTML(T,sim){const r=thrCalc(T,sim);const base=thrCalc(T);const ev=EVN[T.ev]||EVN.calma;const sl=T.slope||0;const slT=Math.abs(sl)<.01?'terreno piano':sl>0?`casa in alto: salita del ${Math.round(sl*100)}% per gli zombie`:`casa in basso: discesa del ${Math.round(-sl*100)}% per gli zombie`;
+  const lvl=sim.level!=null?sim.level:T.level;let cost=0;Object.keys(sim.defs||{}).forEach(k=>{const a=(T.defs||{})[k]||0,b=sim.defs[k];for(let l=a;l<b;l++)cost+=80*(l+1);});for(let l=T.level;l<lvl;l++)cost+=150*l;
+  const kinds=[...new Set(r.sp.map(x=>x.dk))];
+  return`<div class="thhead"><span>${ev[0]} <b>${ev[1]}</b> all’orda delle ${String(T.hh).padStart(2,'0')}:00 · <small>${esc(ev[2])}</small></span><span>⛰️ ${slT}</span></div>
+   <div class="thrw"><span>🧟 Vaganti (standard)</span><b>${Math.round(T.std_min*T.mw)}–${Math.round(T.std_max*T.mw)}</b></div>
+   ${r.sp.length?r.sp.map(x=>{const z=ZSP[x.k]||{ic:'🧟',n:x.k,why:''};const d=ZDEF[x.dk];return`<div class="thrw"><span>${z.ic} ${z.n}<small>${z.why}${x.mod!==1?` · qui ×${String(x.mod).replace('.',',')}`:''} · ferma: ${d[0]} ${d[1]}</small></span><b>${x.p.toFixed(1).replace('.',',')}</b></div>`;}).join(''):'<p class="muted" style="font-size:12.5px">Al tuo livello arrivano solo vaganti. Gli speciali arrivano dal livello 2.</p>'}
+   <div class="thrw tot"><span>Forza dell’orda su questa casa</span><b>${r.amin}–${r.amax}</b></div>
+   ${kinds.length?`<h4 class="hh">🎯 Difese mirate (prova e guarda la %)</h4>${kinds.map(k=>{const d=ZDEF[k];const cur=(T.defs||{})[k]||0;const v=(sim.defs&&sim.defs[k]!=null)?sim.defs[k]:cur;
+      return`<div class="thdef"><span>${d[0]} <b>${d[1]}</b><small>${'●'.repeat(v)}${'○'.repeat(3-v)}${v>cur?' (prova)':''}</small></span><div><button data-sd="${k}" data-v="-1" ${v<=cur?'disabled':''}>−</button><button data-sd="${k}" data-v="1" ${v>=3?'disabled':''}>+</button></div></div>`;}).join('')}`:''}
+   <div class="thdef"><span>⬆️ <b>Livello casa</b><small>${lvl}${lvl>T.level?' (prova)':''} · +12 di difesa per livello</small></span><div><button data-sl="-1" ${lvl<=T.level?'disabled':''}>−</button><button data-sl="1" ${lvl>=5?'disabled':''}>+</button></div></div>
+   <div class="thres"><div><small>Difesa</small><b>${r.def}</b></div><div><small>Oggi</small><b>${base.ch}%</b></div><div class="${r.ch>base.ch?'up':''}"><small>Con le prove</small><b>${r.ch}%</b></div></div>
+   ${cost?`<button class="btn wide" data-sbuy>Compra queste migliorie · 🧱 ${wNum(cost)}</button>`:''}`;}
+async function thrSection(card,h){await thrLoad();const T=thrOf(h);const box=card.querySelector('.thbox');if(!box)return;
+  if(!T){box.innerHTML=`<p class="muted" style="font-size:12.5px">${THR.err?'Simulatore non disponibile ('+esc(THR.err)+'). Esegui il file zombie.sql su Supabase.':'Questa casa non è ancora nel mondo.'}</p>`;return;}
+  const sim={defs:{},level:T.level};const draw=()=>{box.innerHTML=thrHTML(T,sim);
+    box.querySelectorAll('[data-sd]').forEach(b=>b.onclick=()=>{const k=b.dataset.sd;const cur=(T.defs||{})[k]||0;const v=(sim.defs[k]!=null?sim.defs[k]:cur)+(+b.dataset.v);sim.defs[k]=Math.max(cur,Math.min(3,v));draw();});
+    box.querySelectorAll('[data-sl]').forEach(b=>b.onclick=()=>{sim.level=Math.max(T.level,Math.min(5,sim.level+(+b.dataset.sl)));draw();});
+    const buy=box.querySelector('[data-sbuy]');if(buy)buy.onclick=async()=>{buy.disabled=true;try{
+      for(const k of Object.keys(sim.defs)){const cur=(T.defs||{})[k]||0;for(let l=cur;l<sim.defs[k];l++){const{data,error}=await SB.rpc('world_def_upgrade',{p_bid:T.bid,p_kind:k});if(error)throw error;if(!data.ok)throw new Error(data.msg);}}
+      for(let l=T.level;l<sim.level;l++){const r=await wRpc('world_upgrade',{p_bid:T.bid});if(!r.ok)throw new Error(r.msg);}
+      toast('🛡️ Migliorie fatte!');try{sfx('win');}catch(e){}}catch(e){toast(e.message||'Non riuscito');}
+      await wMine(true);await thrLoad(true);await defLoad(true);houseSheet(h);};};draw();}
+const _houseSheetZ=houseSheet;houseSheet=async function(h){await _houseSheetZ(h);try{const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('.thpan'))return;
+  const at=[...c.querySelectorAll('h4.hh')].find(x=>/Cosa puoi fare/.test(x.textContent));const html=`<div class="thpan"><h4 class="hh" style="margin-top:4px">🧟 Chi arriva su questa casa</h4><div class="thbox"><p class="muted"><span class="spin"></span> Calcolo l’orda con meteo e terreno veri…</p></div></div>`;
+  if(at)at.insertAdjacentHTML('beforebegin',html);else c.insertAdjacentHTML('beforeend',html);await thrSection(c,h);
+  const T=thrOf(h);if(T){const box=c.querySelector('.hsdef b');if(box)box.textContent=thrCalc(T).ch+'%';}}catch(e){console.warn(e);}};
+/* ---------- fronte: composizione e meteo veri della casa inquadrata ---------- */
+FZ.ombra={ic:'👤',v:3,sc:1.05,sp:'Si muove nell’ombra: fortissima con nebbia, blackout e di notte. La fermano fari e luci.'};
+if(typeof ZT!=='undefined'&&!ZT.ombra)ZT.ombra={name:'Ombra',sp:22,hp:14,dps:9};
+const _frCompZ=frComp;frComp=function(wl){const F=FR.dests&&FR.dests[0];const T=F&&thrOf(F);if(!T)return _frCompZ(wl);const L=[];const n=Math.min(14,6+Math.floor(T.wl/2));for(let i=0;i<n;i++)L.push('walker');
+  (T.specials||[]).forEach(x=>{const c=x.k==='boss'?1:Math.max(1,Math.round(2*x.mod*(1-.3*Math.min(3,x.dl||0))));for(let i=0;i<c;i++)L.push(x.k);});L.push('oro');return L;};
+const _frWxZ=frWx;frWx=function(){const F=FR.dests&&FR.dests[0];const T=F&&thrOf(F);if(!T||T.ev==null)return _frWxZ();const e=EVN[T.ev]||EVN.calma;
+  const base=F.home?_frWxZ():null;const t=T.temp!=null?Math.round(T.temp):(base?base.t:null);return{ev:T.ev==='neve'?'pioggia':T.ev,ic:e[0],name:e[1],t,eff:`${e[0]} ${e[1]}: ${e[2]}`};};
+const _frHeaderZ=frHeader;frHeader=function(){_frHeaderZ();try{const w=FR.wx;const wb=FR.node&&FR.node.querySelector('.frwx');if(w&&wb&&(w.t==null||w.t===''))wb.textContent=`${w.ic} ${w.name}`;}catch(e){}};
+/* aggiornamenti */
+const _defLoadZ=defLoad;defLoad=async function(){const r=await _defLoadZ.apply(this,arguments);try{await thrLoad(true);if(S.tab==='orda'&&FR.node){frRings();}}catch(e){}return r;};
+</script>
+<script>
+/* "Perché": la forza dell'orda è quella vera di quella casa */
+const _whySheetZ=whySheet;whySheet=function(bid,home){_whySheetZ(bid,home);try{const T=(THR.L||[]).find(x=>(home&&x.home)||(!home&&x.bid===bid));if(!T)return;const r=thrCalc(T);const c=document.querySelector('#sheet.open .sheet-b');if(!c)return;
+  const t=c.querySelector('.whytot b');if(t)t.textContent=r.def;const p=[...c.querySelectorAll('p')].find(x=>/avrà una forza/.test(x.textContent));const e=EVN[T.ev]||EVN.calma;
+  if(p)p.innerHTML=`L’orda su questa casa (livello ${T.wl}, ${e[0]} ${e[1].toLowerCase()}, terreno ${T.slope>0.01?'in salita':T.slope<-0.01?'in discesa':'piano'}) avrà una forza tra <b>${r.amin}</b> e <b>${r.amax}</b>. Con ${r.def} di difesa tieni nel <b>${r.ch}%</b> dei casi. Le difese mirate le provi nella scheda della casa.`;
+  document.querySelector('#sheet.open h3').textContent='🧮 Perché '+r.ch+'%';}catch(e){}};
+</script>
+<script>
+/* =========================================================
+   ALLEATI: simulazione delle loro case, elenco con lo stato per la prossima orda,
+   aiuti rapidi (rinforzi anche se non li hanno chiesti, scudo, regalo, promemoria)
+   ========================================================= */
+window.ALS={L:null,t:0,err:null};
+async function alsLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return null;if(!force&&ALS.L&&Date.now()-ALS.t<45000)return ALS.L;
+  try{const{data,error}=await SB.rpc('world_allies_status');if(error)throw error;ALS.L=data||[];ALS.t=Date.now();ALS.err=null;}catch(e){ALS.err=e.message;}return ALS.L;}
+function agoTxt(t){if(!t)return'mai visto';const m=Math.round((Date.now()-new Date(t))/60000);if(m<6)return'🟢 online ora';if(m<60)return`visto ${m} min fa`;const h=Math.round(m/60);if(h<48)return`visto ${h} h fa`;return`visto ${Math.round(h/24)} g fa`;}
+function chCls(c){return c==null?'':c>=70?'ok':c>=40?'mid':'ko';}
+/* azioni rapide */
+async function alHelp(uid,btn){if(btn)btn.disabled=true;try{const{data,error}=await SB.rpc('world_send_help',{p_target:uid});if(error)throw error;toast((data.ok?'🤝 ':'')+data.msg);if(data.ok){ALS.t=0;TB.t=0;}}catch(e){toast(e.message||'Non riuscito');}if(btn)btn.disabled=false;alsRefresh();}
+async function alRemind(uid,btn){if(btn)btn.disabled=true;try{const r=await socRpc('world_shout',{p_to:uid,p_code:4});toast(r&&r.ok===false?r.msg:'📣 Avvisato: “🧟 Attento, arriva l’orda!”');}catch(e){toast(e.message||'Non riuscito');if(btn)btn.disabled=false;}}
+function alActs(a,big){return`<div class="alacts ${big?'big':''}">
+  <button class="btn small" data-alh="${a.user_id}" ${a.helped_by_me?'disabled':''}>${a.helped_by_me?'🤝 ✓ aiutato':'🤝 Rinforzi +5'}</button>
+  <button class="btn small ghost" data-als="${a.user_id}" data-n="${esc(a.nick)}" ${a.shield_by_me?'disabled':''}>${a.shield_by_me?'🛡️ ✓':'🛡️ Scudo 💎20'}</button>
+  ${a.prepared?'':`<button class="btn small ghost" data-alr="${a.user_id}">📣 Ricordaglielo</button>`}
+  <button class="btn small ghost" data-alg="${a.user_id}" data-n="${esc(a.nick)}">🎁 Regala</button></div>`;}
+function alBindActs(root){root.querySelectorAll('[data-alh]').forEach(b=>b.onclick=e=>{e.stopPropagation();alHelp(b.dataset.alh,b);});
+  root.querySelectorAll('[data-als]').forEach(b=>b.onclick=async e=>{e.stopPropagation();await allyShield(b.dataset.als,b.dataset.n);ALS.t=0;alsRefresh();});
+  root.querySelectorAll('[data-alr]').forEach(b=>b.onclick=e=>{e.stopPropagation();alRemind(b.dataset.alr,b);});
+  root.querySelectorAll('[data-alg]').forEach(b=>b.onclick=e=>{e.stopPropagation();aySheet(b.dataset.alg,b.dataset.n);});}
+/* ---------- la scheda simulazione di un alleato ---------- */
+function thrView(T){const r=thrCalc(T);const ev=EVN[T.ev]||EVN.calma;const sl=T.slope||0;
+  return`<div class="thhead"><span>${ev[0]} <b>${ev[1]}</b>${T.temp!=null?' · '+Math.round(T.temp)+'°C':''} · <small>${esc(ev[2])}</small></span><span>⛰️ ${Math.abs(sl)<.01?'terreno piano':sl>0?'casa in alto (salita per gli zombie)':'casa in basso (discesa per gli zombie)'}</span></div>
+   <div class="thrw"><span>🧟 Vaganti</span><b>${Math.round(T.std_min*T.mw)}–${Math.round(T.std_max*T.mw)}</b></div>
+   ${r.sp.map(x=>{const z=ZSP[x.k]||{ic:'🧟',n:x.k};const d=ZDEF[x.dk];return`<div class="thrw"><span>${z.ic} ${z.n}<small>difesa: ${d[0]} ${d[1]} ${'●'.repeat(x.dl)}${'○'.repeat(3-x.dl)}</small></span><b>${x.p.toFixed(1).replace('.',',')}</b></div>`;}).join('')}
+   <div class="thrw tot"><span>Forza dell’orda</span><b>${r.amin}–${r.amax}</b></div>
+   <div class="thres"><div><small>Difesa</small><b>${r.def}</b></div><div><small>Livello casa</small><b>${T.level}</b></div><div class="${chCls(r.ch)}"><small>Tiene</small><b>${r.ch}%</b></div></div>`;}
+async function allySheet(uid){openSheet('🤝 Alleato','<p><span class="spin"></span> Carico la sua simulazione…</p>',()=>{});let d=null;
+  try{const{data,error}=await SB.rpc('world_ally_view',{p_user:uid});if(error)throw error;d=data;}catch(e){openSheet('🤝 Alleato',`<p class="muted">Simulazione non disponibile (${esc(e.message||'')}). Esegui il file alleati_sim.sql su Supabase.</p>`);return;}
+  if(!d||!d.ok){openSheet('🤝 Alleato',`<p>${esc((d&&d.msg)||'Non disponibile')}</p>`);return;}
+  const H=d.houses||[];const worst=H.length?Math.min(...H.map(T=>thrCalc(T).ch)):null;
+  const draw=(open)=>openSheet(`🤝 @${esc(d.nick)}`,`<div class="alhead ${d.prepared?'ok':'ko'}"><div><b>${d.prepared?'🟢 Case preparate':'🔴 Case NON preparate'}</b><small>${agoTxt(d.seen_at)} · livello ${d.wlevel}${d.coinq?' · 🏢 coinquilino':''}</small><small>${d.asked?'🆘 Ha chiesto aiuto · ':''}rinforzi ricevuti ${d.helps_in} · scudi ${d.shields_in}/2</small></div>${worst!=null?`<div class="alw ${chCls(worst)}"><b>${worst}%</b><small>casa più a rischio</small></div>`:''}</div>
+    ${!d.prepared?'<p class="altip">Non ha preparato le case: senza il suo +15 rischia di più. Mandagli rinforzi o uno scudo, oppure ricordaglielo.</p>':''}
+    ${alActs({...d,user_id:uid},true)}
+    <h4 class="hh">🏠 Le sue case alla prossima orda</h4>
+    ${H.length?H.map((T,i)=>{const c=thrCalc(T).ch;return`<div class="alhouse"><button class="alhb" data-ah="${i}"><span>${T.home?'❤️ Casa vera':'🔑 Casa '+i}</span><small>livello ${T.level} · ${(EVN[T.ev]||EVN.calma)[0]}</small><b class="${chCls(c)}">${c}%</b><i>${open===i?'▲':'▼'}</i></button>${open===i?`<div class="alhd">${thrView(T)}</div>`:''}</div>`;}).join(''):'<p class="muted">Non ha ancora case nel mondo.</p>'}
+    <p class="muted" style="font-size:12px;margin-top:8px">Ogni rinforzo vale +5 alla sua difesa, ogni scudo +5 (max 2). La % si aggiorna dopo l’invio.</p>`,card=>{alBindActs(card);
+      card.querySelectorAll('[data-ah]').forEach(b=>b.onclick=()=>{const i=+b.dataset.ah;draw(open===i?-1:i);});
+      card.querySelectorAll('[data-alh],[data-als]').forEach(b=>{const o=b.onclick;b.onclick=async e=>{await o(e);setTimeout(()=>allySheet(uid),900);};});});
+  draw(H.length===1?0:-1);}
+/* ---------- l'elenco: in Superstiti (scheda "Alleati") ---------- */
+function alsHTML(L,compact){if(L==null)return'<p class="muted"><span class="spin"></span> Controllo i tuoi alleati…</p>';
+  if(ALS.err&&!L.length)return`<p class="muted" style="font-size:12.5px">Elenco non disponibile (${esc(ALS.err)}). Esegui il file alleati_sim.sql su Supabase.</p>`;
+  if(!L.length)return'<p class="muted" style="font-size:13px">Non hai ancora alleati. Cercane uno qui sotto o invita un amico.</p>';
+  const LL=compact?L.slice(0,4):L;
+  return LL.map(a=>`<div class="alrow" data-alv="${a.user_id}"><span class="sav">${esc((a.nick||'?')[0].toUpperCase())}</span><div class="alrt"><b>@${esc(a.nick)}${a.coinq?' 🏢':''}</b>
+     <small><span class="${a.prepared?'okt':'kot'}">${a.prepared?'🟢 pronto':'🔴 non pronto'}</span> · ${agoTxt(a.seen_at)}${a.asked?' · 🆘 chiede aiuto':''}</small></div>
+     <div class="alpc ${chCls(a.worst)}"><b>${a.worst!=null?a.worst+'%':'—'}</b><small>${a.houses} ${a.houses===1?'casa':'case'}</small></div>
+     ${compact?'':alActs(a,false)}</div>`).join('')+(compact&&L.length>4?`<button class="btn small ghost" data-alall>Tutti gli alleati (${L.length}) ›</button>`:'');}
+function alsRefresh(){alsLoad().then(()=>{document.querySelectorAll('.alsbox').forEach(b=>{const c=b.classList.contains('cmp');b.innerHTML=alsHTML(ALS.L,c);alsBind(b);});});}
+function alsBind(b){b.querySelectorAll('[data-alv]').forEach(r=>r.onclick=e=>{if(e.target.closest('button'))return;allySheet(r.dataset.alv);});alBindActs(b);
+  const all=b.querySelector('[data-alall]');if(all)all.onclick=()=>{SOC.tab='squadra';go('social');};}
+const _renderSocialAls=renderSocial;renderSocial=function(){_renderSocialAls();try{const b=app.querySelector('.sseg [data-st=squadra]');if(b)b.innerHTML='🤝 Alleati';}catch(e){}};
+const _socPaintAls=socPaint;socPaint=function(){_socPaintAls();try{if(SOC.tab!=='squadra'||!S.user)return;const B=app.querySelector('#socBody');if(!B||B.querySelector('.alspan'))return;
+  const html=`<div class="panel alspan"><b class="disp" style="font-size:22px">📋 I tuoi alleati alla prossima orda</b><p style="font-weight:400;font-size:12.5px;margin:2px 0 8px">In alto chi rischia di più. Tocca un alleato per vedere la simulazione delle sue case.</p><div class="alsbox">${alsHTML(ALS.L,false)}</div></div>`;
+  const tb=B.querySelector('.tbpan');if(tb)tb.insertAdjacentHTML('beforebegin',html);else B.insertAdjacentHTML('afterbegin',html);
+  const ayb=B.querySelector('.ayb');if(ayb)ayb.hidden=true;alsLoad(true).then(alsRefresh);}catch(e){}};
+/* ---------- in breve nella scheda Orda ---------- */
+function alsPutOrda(){try{if(S.tab!=='orda'||!S.user)return;const pg=app.querySelector('.page');if(!pg)return;let p=pg.querySelector(':scope > .alsorda');
+  if(!p){const o=pg.querySelector('.opan');if(!o)return;o.insertAdjacentHTML('afterend','<div class="panel alsorda"><b class="disp" style="font-size:20px">🤝 I tuoi alleati</b><div class="alsbox cmp"></div></div>');p=pg.querySelector(':scope > .alsorda');}
+  const b=p.querySelector('.alsbox');b.innerHTML=alsHTML(ALS.L,true);alsBind(b);if(!ALS.L)alsLoad().then(alsRefresh);}catch(e){}}
+try{const _ssOfAls=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.alsorda'))return'oggi';return _ssOfAls(el);};}catch(e){}
+const _splitHubAls=splitHub;splitHub=function(){_splitHubAls();alsPutOrda();try{ssApply();}catch(e){}};
+/* ---------- scheda giocatore di un alleato: "Vedi la sua simulazione" ---------- */
+const _playerSheetAls=playerSheet;playerSheet=async function(uid){await _playerSheetAls(uid);try{const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('[data-alsim]'))return;
+  if(!/Siete alleati/.test(c.textContent))return;const ac=c.querySelector('.placts')||c;ac.insertAdjacentHTML('afterbegin','<button class="btn small" data-alsim>🔍 Vedi la sua simulazione</button>');
+  c.querySelector('[data-alsim]').onclick=()=>allySheet(uid);}catch(e){}};
+setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='orda'||(S.tab==='social'&&SOC.tab==='squadra')))alsRefresh();},60000);
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
