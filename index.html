@@ -1363,6 +1363,17 @@ body[data-tab=orda] #accFab{display:none!important}
 .rinf:has(.fch){display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .rinf .fch{margin:0;width:100%;border-radius:12px}.rinf .fch span{border:0!important;padding:0!important;background:none!important;border-radius:0!important;font-size:13px}
 .rinf .fdone{margin:0;grid-column:1/-1}
+.hsart svg,.mcart svg,.mgart svg{display:block;width:100%;height:auto;aspect-ratio:320/220}
+.hsart{min-height:120px;background:#2b2160}
+
+/* disegno della casa nella pagina: non fluttuante */
+.hsart svg{position:static!important}.hsart{min-height:0}
+/* pagina della casa a schermo intero */
+#sheet.hfull .sheet-card{top:calc(env(safe-area-inset-top,0px) + 6px);bottom:0;max-height:none;height:auto;max-width:640px;border-radius:0}
+#sheet.hfull .sheet-b{padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
+.hpsel{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;margin-bottom:6px;border-bottom:2px dashed rgba(20,15,31,.25)}
+.hpsel button{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;background:#fff;border:2.5px solid var(--ink);padding:5px 10px;color:var(--ink)}
+.hpsel button b{font-size:13.5px}.hpsel button small{font-size:11.5px;color:#5a5470}.hpsel button.on{background:var(--moon);box-shadow:2px 2px 0 var(--ink)}
 </style>
 </head>
 <body>
@@ -3757,12 +3768,12 @@ async function renderBattle(){
    dentro il gioco, probabilità sempre visibili.
    ========================================================= */
 const WHEEL=[
- {l:'50',ic:'🪙',k:'coins',v:50,w:26,c:'#f7d64a'},{l:'5',ic:'💎',k:'gems',v:5,w:16,c:'#9fd3e6'},
- {l:'120',ic:'🪙',k:'coins',v:120,w:18,c:'#f3e9d2'},{l:'Casa blindata',ic:'🛡️',k:'house',v:1,w:12,c:'#6fb59a'},
- {l:'300',ic:'🪙',k:'coins',v:300,w:7,c:'#f7d64a'},{l:'Superpugno',ic:'💪',k:'power',v:1,w:12,c:'#f08a4b'},
+ {l:'10',ic:'🧱',k:'mat',v:10,w:26,c:'#f7d64a'},{l:'5',ic:'💎',k:'gems',v:5,w:16,c:'#9fd3e6'},
+ {l:'25',ic:'🧱',k:'mat',v:25,w:18,c:'#f3e9d2'},{l:'1 biglietto',ic:'🎟️',k:'scratch',v:1,w:12,c:'#6fb59a'},
+ {l:'60',ic:'🧱',k:'mat',v:60,w:7,c:'#f7d64a'},{l:'+1 giro',ic:'🎡',k:'spins',v:1,w:12,c:'#f08a4b'},
  {l:'15',ic:'💎',k:'gems',v:15,w:6,c:'#9fd3e6'},{l:'JACKPOT',ic:'👑',k:'gems',v:50,w:3,c:'#d7263d'}
 ];
-const SCR=[['🪙','200 monete',g=>{g.coins+=200;}],['💎','10 gemme',g=>{g.gems+=10;}],['🍀','2 giri di ruota',g=>{g.spins+=2;}],['🧰','un attrezzo migliorato',g=>{const t=TOOLS.find(t=>G.tools[t.id]&&G.tools[t.id]<3);if(t)G.tools[t.id]++;else G.coins+=150;}]];
+const SCR=[['🧱','40 Mattoni',g=>{giveMattoni(40,'Gratta e vinci');}],['💎','10 gemme',g=>{g.gems+=10;}],['🍀','2 giri di ruota',g=>{g.spins+=2;}],['🧱','20 Mattoni',g=>{giveMattoni(20,'Gratta e vinci');}]];
 function luckInit(){G.spins=G.spins??1;G.scratch=G.scratch??1;G.perk=G.perk||{};G.wins=G.wins||0;G.jar=G.jar||{goal:60,mine:0,fr:{},round:1};G.lastDaily=G.lastDaily||null;}
 function dailyBonus(){luckInit();const today=new Date().toDateString();if(G.lastDaily===today)return;G.lastDaily=today;
   const team=G.friends?G.friends.filter(f=>f.on&&houseOfFriend(f.id)).length:0;G.spins+=1+team;
@@ -3790,7 +3801,7 @@ function luckHTML(){
 }
 function bindLuck(){
   app.querySelectorAll('[data-luck]').forEach(b=>b.onclick=()=>b.dataset.luck==='wheel'?wheelSheet():scratchSheet());
-  const d=$('#jarDraw');if(d)d.onclick=()=>{const all=(G.friends||[]).every(f=>G.jar.fr[f.id]);const m=all?2:1;G.coins+=100*m;G.gems+=10*m;sfx('win');
+  const d=$('#jarDraw');if(d)d.onclick=()=>{const all=(G.friends||[]).every(f=>G.jar.fr[f.id]);const m=all?2:1;giveMattoni(20*m,'Barattolo');G.gems+=10*m;sfx('win');
     toast(`Estrazione del quartiere: +${100*m} 🪙 e +${10*m} 💎 a te e a ogni amico${all?' (doppio: avete giocato tutti!)':''}`);G.jar={goal:Math.round(G.jar.goal*1.25),mine:0,fr:{},round:G.jar.round+1};renderHub();};
   const p=$('#jarPoke');if(p)p.onclick=()=>{const ab=(G.friends||[]).filter(f=>!G.jar.fr[f.id]);toast(`Promemoria inviato a ${ab.map(f=>'@'+f.nick).join(', ')}: “Manca solo il tuo biglietto!”`);vibe();};
 }
@@ -3804,15 +3815,15 @@ function wheelSheet(){
     <div class="wheelbox"><div class="pointer">▼</div><svg viewBox="-130 -130 260 260" class="wheel" id="wheel">${sl}<circle r="22" fill="${INK}"/><circle r="12" fill="#f7d64a"/></svg></div>
     <button class="btn wide" id="spin" ${G.spins<1?'disabled':''}>${G.spins<1?'Nessun giro disponibile':`Gira (${G.spins} ${G.spins===1?'giro':'giri'})`}</button>
     <p id="wres" class="wres"></p>
-    <details class="odds"><summary>Probabilità dei premi</summary>${WHEEL.map(s=>`<div class="row spread"><span>${s.ic} ${s.l}${s.k==='coins'?' monete':s.k==='gems'&&s.l!=='JACKPOT'?' gemme':s.l==='JACKPOT'?' (50 gemme)':''}</span><b>${(s.w/tw*100).toFixed(1).replace('.',',')}%</b></div>`).join('')}</details>`,
+    <details class="odds"><summary>Probabilità dei premi</summary>${WHEEL.map(s=>`<div class="row spread"><span>${s.ic} ${s.l}${s.k==='mat'?' Mattoni':s.k==='scratch'?'':s.k==='spins'?'':s.k==='gems'&&s.l!=='JACKPOT'?' gemme':s.l==='JACKPOT'?' (50 gemme)':''}</span><b>${(s.w/tw*100).toFixed(1).replace('.',',')}%</b></div>`).join('')}</details>`,
   card=>{let rot=G.wheelRot||0;const w=card.querySelector('#wheel');w.style.transform=`rotate(${rot}deg)`;
     card.querySelector('#spin').onclick=e=>{if(G.spins<1||card.spinning)return;card.spinning=true;G.spins--;e.target.disabled=true;sfx('tap');
       let r=Math.random()*tw,i=0;for(;i<n;i++){r-=WHEEL[i].w;if(r<=0)break;}i=Math.min(i,n-1);
       const target=360-i*A+(Math.random()-.5)*A*.6;rot=rot+360*5+((target-rot%360)+360)%360;G.wheelRot=rot;
       w.style.transition='transform 3.6s cubic-bezier(.12,.75,.15,1)';w.style.transform=`rotate(${rot}deg)`;
       let tick=0;const tk=setInterval(()=>{if(++tick>14)return clearInterval(tk);sfx('tap');},200);
-      setTimeout(()=>{const s=WHEEL[i];if(s.k==='coins')G.coins+=s.v;if(s.k==='gems')G.gems+=s.v;if(s.k==='house')G.perk.house=1;if(s.k==='power')G.perk.power=1;
-        sfx(s.l==='JACKPOT'?'win':'coin');card.querySelector('#wres').innerHTML=`<span class="sfx" style="font-size:30px">${s.l==='JACKPOT'?'JACKPOT!':'HAI VINTO!'}</span><br>${s.ic} ${s.k==='coins'?s.v+' monete':s.k==='gems'?s.v+' gemme':s.k==='house'?'Casa blindata: −40% danni alla casa nella prossima ondata':'Superpugno: tocchi doppi all’inizio della prossima ondata'}`;
+      setTimeout(()=>{const s=WHEEL[i];if(s.k==='mat')giveMattoni(s.v,'Ruota');if(s.k==='gems')G.gems+=s.v;if(s.k==='scratch')G.scratch=(G.scratch||0)+s.v;if(s.k==='spins')G.spins=(G.spins||0)+s.v;
+        sfx(s.l==='JACKPOT'?'win':'coin');card.querySelector('#wres').innerHTML=`<span class="sfx" style="font-size:30px">${s.l==='JACKPOT'?'JACKPOT!':'HAI VINTO!'}</span><br>${s.ic} ${s.k==='mat'?s.v+' Mattoni':s.k==='gems'?s.v+' gemme':s.k==='scratch'?'1 gratta e vinci':'1 giro di ruota in più'}`;
         card.spinning=false;const b=card.querySelector('#spin');b.disabled=G.spins<1;b.textContent=G.spins<1?'Nessun giro disponibile':`Gira ancora (${G.spins})`;renderHub();},3700);};});
 }
 function scratchSheet(){
@@ -3846,13 +3857,13 @@ function scratchSheet(){
    PREMI GIORNALIERI E MISSIONI (per far tornare ogni giorno)
    ========================================================= */
 const DAILY=[
- {ic:'🪙',t:'100 monete',f:g=>{g.coins+=100;}},
+ {ic:'🧱',t:'20 Mattoni',f:g=>{giveMattoni(20,'Premio del giorno');}},
  {ic:'🎡',t:'1 giro di ruota',f:g=>{g.spins=(g.spins||0)+1;}},
  {ic:'💎',t:'10 gemme',f:g=>{g.gems+=10;}},
  {ic:'🎟️',t:'1 gratta e vinci',f:g=>{g.scratch=(g.scratch||0)+1;}},
- {ic:'🪙',t:'300 monete',f:g=>{g.coins+=300;}},
+ {ic:'🧱',t:'60 Mattoni',f:g=>{giveMattoni(60,'Premio del giorno');}},
  {ic:'🎡',t:'2 giri di ruota',f:g=>{g.spins=(g.spins||0)+2;}},
- {ic:'👑',t:'40 gemme + cassa forte',f:g=>{g.gems+=40;g.perk=g.perk||{};g.perk.house=1;g.perk.power=1;}}
+ {ic:'👑',t:'40 gemme + 50 Mattoni',f:g=>{g.gems+=40;giveMattoni(50,'Premio del giorno');}}
 ];
 const MISSIONS=[{k:'z',n:'Scaccia 40 zombie',goal:40,g:10},{k:'w',n:'Vinci 2 ondate',goal:2,g:10},{k:'s',n:'Saluta o aiuta un amico',goal:1,g:5}];
 const dayKey=d=>d.toDateString();
@@ -6144,7 +6155,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611021058';
+const ZSH_BUILD='202611021521';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -8477,8 +8488,8 @@ function eqRankPaint(){const B=app.querySelector('#socBody');if(!B)return;const 
 const _houseSheetEq=houseSheet;houseSheet=async function(h){await _houseSheetEq(h);try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('.eqhs')||!EQ.s)return;const w=c.querySelector('.hwal');if(!w)return;
   const t=[EQ.s.boost?`🚀 <b>Spinta di recupero</b>: sei sotto il livello medio della tua zona${EQ.s.median!=null?' ('+Math.round(EQ.s.median)+')':''}, ogni Mattone guadagnato vale +50%.`:'',EQ.s.shield?`🛡️ <b>Scudo</b> ancora ${EQ.s.shield_days} giorni.`:''].filter(Boolean);
   if(t.length)w.insertAdjacentHTML('afterend',`<p class="eqhs">${t.join('<br>')}</p>`);}catch(e){}};
-try{const _wSheetEq=wSheet;wSheet=async function(){const r=await _wSheetEq.apply(this,arguments);try{const c=document.querySelector('#sheet.open');if(c&&EQ.s&&EQ.s.houses>0&&/Compra|compra/.test(c.textContent)&&!c.querySelector('.eqpr'))
-  (c.querySelector('.btn')||c.lastElementChild).insertAdjacentHTML('beforebegin',`<p class="eqpr">Hai già ${EQ.s.houses} ${EQ.s.houses===1?'casa':'case'} comprate: il prezzo è +${EQ.s.houses*10}% (chi ha più case paga di più, così il mondo resta aperto ai nuovi).</p>`);}catch(e){}return r;};}catch(e){}
+try{const _wSheetEq=wSheet;wSheet=async function(){const r=await _wSheetEq.apply(this,arguments);try{const c=document.querySelector('#sheet.open .sheet-b');const buy=c&&[...c.querySelectorAll('button')].find(b=>/^\s*(🛒|🔑|🏠)?\s*Compra/.test(b.textContent));if(c&&!c.querySelector('.hshead')&&buy&&EQ.s&&EQ.s.houses>0&&!c.querySelector('.eqpr'))
+  buy.insertAdjacentHTML('beforebegin',`<p class="eqpr">Hai già ${EQ.s.houses} ${EQ.s.houses===1?'casa':'case'} comprate: il prezzo è +${EQ.s.houses*10}% (chi ha più case paga di più, così il mondo resta aperto ai nuovi).</p>`);}catch(e){}return r;};}catch(e){}
 /* 6) padrino: nell'invito si spiega il premio */
 function eqPad(){const c=document.querySelector('#sheet.open');if(c&&/[Ii]nvit/.test(c.textContent)&&!c.querySelector('.eqpad'))c.insertAdjacentHTML('beforeend','<p class="eqpad">🤝 <b>Padrino</b>: per i primi 14 giorni ricevi anche il 10% in più di quello che guadagna chi hai invitato (a lui non togliamo niente).</p>');}
 try{const _inviteSheetEq=inviteSheet;inviteSheet=function(){const r=_inviteSheetEq.apply(this,arguments);[0,300,900].forEach(t=>setTimeout(eqPad,t));return r;};}catch(e){}
@@ -8514,8 +8525,8 @@ function dailySheet(){const tmp=document.createElement('div');tmp.innerHTML=dail
     const fr=(G.friends||[]).filter(f=>f.on).length;if(fr+1>=3)G.gems+=5;try{sfx('win');}catch(e){}try{saveLocal();}catch(e){}toast(`Giorno ${s.next}: ${DAILY[s.next-1].t}${fr+1>=3?' + 5 💎 bonus di gruppo':''}`);closeSheet();if(S.tab==='orda')renderHub();};});}
 /* ---- Barattolo in una finestra ---- */
 function jarSheet(){const tmp=document.createElement('div');tmp.innerHTML=luckHTML();const p=[...tmp.querySelectorAll('.panel')].find(x=>x.querySelector('.jarbar'));if(!p)return;
-  openSheet('🫙 Barattolo del quartiere',p.innerHTML,card=>{const d=card.querySelector('#jarDraw');if(d)d.onclick=()=>{const all=(G.friends||[]).every(f=>G.jar.fr[f.id]);const m=all?2:1;G.coins+=100*m;G.gems+=10*m;try{sfx('win');}catch(e){}
-      toast(`Estrazione del quartiere: +${100*m} 🪙 e +${10*m} 💎 a te e a ogni amico${all?' (doppio: avete giocato tutti!)':''}`);G.jar={goal:Math.round(G.jar.goal*1.25),mine:0,fr:{},round:G.jar.round+1};try{saveLocal();}catch(e){}closeSheet();if(S.tab==='orda')renderHub();};
+  openSheet('🫙 Barattolo del quartiere',p.innerHTML,card=>{const d=card.querySelector('#jarDraw');if(d)d.onclick=()=>{const all=(G.friends||[]).every(f=>G.jar.fr[f.id]);const m=all?2:1;giveMattoni(20*m,'Barattolo');G.gems+=10*m;try{sfx('win');}catch(e){}
+      toast(`Estrazione del quartiere: +${20*m} 🧱 e +${10*m} 💎 a te e a ogni amico${all?' (doppio: avete giocato tutti!)':''}`);G.jar={goal:Math.round(G.jar.goal*1.25),mine:0,fr:{},round:G.jar.round+1};try{saveLocal();}catch(e){}closeSheet();if(S.tab==='orda')renderHub();};
     const k=card.querySelector('#jarPoke');if(k)k.onclick=()=>{const ab=(G.friends||[]).filter(f=>!G.jar.fr[f.id]);toast(`Promemoria inviato a ${ab.map(f=>'@'+f.nick).join(', ')}: “Manca solo il tuo biglietto!”`);try{vibe();}catch(e){}};});}
 /* le 4 caselle: tutte aprono qualcosa */
 luckTopBind=function(){const p=app.querySelector('.lpan');if(!p)return;p.querySelectorAll('[data-lt]').forEach(b=>b.onclick=()=>{const k=b.dataset.lt;
@@ -8545,7 +8556,7 @@ const FZ={ /* tipi: icona, variante disegno, scala, testi */
  strillone:{ic:'📢',v:3,sc:1,sp:'Urla: gli zombie vicini accelerano del 15%.'},
  scavatore:{ic:'⛏️',v:4,sc:1, sp:'Scava sotto terra: salite e discese non lo cambiano.'},
  brute:{ic:'💪',v:1,sc:1.35,sp:'Lento ma fortissimo: sfonda le porte.'},
- oro:{ic:'💰',v:0,sc:.85,  sp:'Scappa veloce. Toccalo sulla mappa: 20 monete (una volta per orda).'},
+ oro:{ic:'💰',v:0,sc:.85,  sp:'Scappa veloce. Toccalo sulla mappa: 5 Mattoni (una volta per orda).'},
  boss:{ic:'👑',v:3,sc:1.7, sp:'Il Bruto della Sagra: arriva con le orde grandi (livello mondo 8+).'}};
 window.FR={node:null,lm:null,paths:[],zs:[],raf:0,t0:0,last:0,key:'',wx:null,gold:false};
 /* composizione dell'orda in base al livello del mondo */
@@ -8579,7 +8590,7 @@ function frZel(k,i){const t=FZ[k];const el=document.createElement('div');el.clas
   el.addEventListener('click',e=>{e.stopPropagation();frZSheet(k);});return el;}
 function frZSheet(k){const z=ZT[k]||{},t=FZ[k];const wx=FR.wx;const bar=(v,m)=>`<span class="frbar"><i style="width:${Math.min(100,v/m*100)}%"></i></span>`;
   if(k==='oro'&&!FR.gold){const sid=(OR.s&&OR.s.next_at)||'x';const kk='zsh_gold_'+sid;let got=false;try{got=!!localStorage.getItem(kk);}catch(e){}
-    if(!got){try{localStorage.setItem(kk,'1');}catch(e){}G.coins=(G.coins||0)+20;try{saveLocal();sfx('coin');}catch(e){}toast('💰 Preso lo zombie d’oro: +20 🪙');FR.gold=true;}}
+    if(!got){try{localStorage.setItem(kk,'1');}catch(e){}giveMattoni(5,'Zombie d’oro');try{sfx('coin');}catch(e){}toast('💰 Preso lo zombie d’oro!');FR.gold=true;}}
   openSheet(`${t.ic} ${z.name||k}`,`<div class="frzs"><div class="frzart">${zArt(t.v,{lean:0})}</div><div><p style="font-weight:400;margin:0 0 8px">${t.sp}</p>
     <div class="frst"><span>Velocità</span>${bar(z.sp||10,48)}</div><div class="frst"><span>Resistenza</span>${bar(z.hp||4,70)}</div><div class="frst"><span>Danno</span>${bar(z.dps||5,22)}</div></div></div>
     <h4 class="hh">Sul terreno vero</h4><p style="font-weight:400;font-size:13px">${k==='scavatore'?'Le pendenze non lo cambiano.':k==='runner'?'In salita rallenta il doppio degli altri, in discesa vola.':'In salita (strade arancioni) rallenta, in discesa (strade rosse) accelera.'}${wx?` Con il meteo dell’orda: ${esc(wx.eff)}`:''}</p>`);}
@@ -9418,7 +9429,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611021058';
+const APPV='202611021521';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -9474,6 +9485,68 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
   e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(!confirm('Uscire dall’account?'))return;try{zmClose();}catch(x){}zLogout();},true);
 /* dopo l'uscita: messaggio chiaro e indirizzo pulito */
 (function(){try{if(/[?&]uscito=/.test(location.search)){history.replaceState(null,'',location.pathname);setTimeout(()=>{try{toast('👋 Sei uscito. Per rientrare: menu ☰ → Accedi');}catch(e){}},900);}}catch(e){}})();
+</script>
+<script>
+/* =========================================================
+   VIA LE MONETE: tutti i premi sono in 🧱 Mattoni (accreditati dal server, tetto 300 al giorno)
+   - giveMattoni(n, motivo): accredito; se non sei collegato resta in attesa e arriva al login
+   - ogni moneta guadagnata altrove (missioni…) diventa Mattoni (5 monete = 1 Mattone)
+   - le monete che avevi vengono convertite una volta sola (massimo 300 Mattoni)
+   ========================================================= */
+const MAT_Q='zsh_mat_pending';
+async function giveMattoni(n,why){n=Math.max(0,Math.round(n||0));if(!n)return;
+  if(n>60&&S.user){let tot=0;while(n>0){const c=Math.min(60,n);n-=c;try{const{data}=await SB.rpc('world_reward',{p_amount:c,p_reason:why||'premio'});if(data&&data.got>0)tot+=data.got;else break;}catch(e){break;}}if(tot){toast(`🧱 +${tot} Mattoni`);if(typeof wMine==='function')wMine(true);}return;}
+  if(!S.user||typeof SB==='undefined'||!SB){try{const q=JSON.parse(localStorage.getItem(MAT_Q)||'[]');q.push([n,why]);localStorage.setItem(MAT_Q,JSON.stringify(q));}catch(e){}toast(`🧱 +${n} Mattoni: arriveranno quando accedi`);return;}
+  try{const{data,error}=await SB.rpc('world_reward',{p_amount:n,p_reason:why||'premio'});if(error)throw error;
+    if(data&&data.got>0){toast(`🧱 +${data.got} Mattoni`);if(typeof wMine==='function')wMine(true);}else if(data&&data.msg)toast(data.msg);}
+  catch(e){try{const q=JSON.parse(localStorage.getItem(MAT_Q)||'[]');q.push([n,why]);localStorage.setItem(MAT_Q,JSON.stringify(q));}catch(x){}}}
+async function matFlush(){if(!S.user)return;let q=[];try{q=JSON.parse(localStorage.getItem(MAT_Q)||'[]');localStorage.removeItem(MAT_Q);}catch(e){}for(const[n,w]of q)await giveMattoni(n,w);}
+/* monete → Mattoni */
+function coinSweep(){try{if(typeof G==='undefined'||!G)return;const k='zsh_coinbase';let base=+(localStorage.getItem(k)||NaN);
+  if(isNaN(base)){/* prima volta: converto le monete che avevi */const old=Math.max(0,G.coins||0);localStorage.setItem(k,'0');G.coins=0;try{saveLocal();}catch(e){}if(old>=5)giveMattoni(Math.min(300,Math.floor(old/5)),'Monete convertite');return;}
+  const c=G.coins||0;if(c>0){G.coins=0;try{saveLocal();}catch(e){}if(c>=5)giveMattoni(Math.floor(c/5),'Premi');}}catch(e){}}
+setInterval(coinSweep,1500);
+const _wMineMt=wMine;wMine=async function(){const r=await _wMineMt.apply(this,arguments);try{if(S.user&&!wMine.__fl){wMine.__fl=1;setTimeout(()=>{matFlush();coinSweep();},500);}}catch(e){}return r;};
+/* testi: dove c'erano monete ora ci sono Mattoni */
+function coinText(root){try{(root||app).querySelectorAll('.tmp, .lpan, .daily, #sheet.open .sheet-b').forEach(el=>{const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;const L=[];while((n=w.nextNode()))if(/🪙/.test(n.nodeValue))L.push(n);
+  L.forEach(n=>{n.nodeValue=n.nodeValue.replace(/🪙\s*(\d+)/g,(m,v)=>'🧱 '+Math.max(1,Math.floor(+v/5))).replace(/(\d+)\s*🪙/g,(m,v)=>Math.max(1,Math.floor(+v/5))+' 🧱').replace(/🪙/g,'🧱').replace(/\bmonete\b/g,'Mattoni');});});}catch(e){}}
+setInterval(()=>{if(document.visibilityState==='visible')coinText();},1200);
+/* il portafoglio nel menu senza monete */
+setInterval(()=>{try{document.querySelectorAll('#zmenu .zmwal span, .hschips span').forEach(s=>{if(/🪙/.test(s.textContent))s.remove();});}catch(e){}},1500);
+</script>
+<script>
+/* =========================================================
+   UNA SOLA PAGINA PER OGNI CASA (a schermo intero)
+   Homepage "La mia casa", Mappa, Orda (fronte), La mia casa → tutte qui.
+   In cima: fila delle case. Poi: disegno vero, TUTTE le fortificazioni (comprabili),
+   casa vera (valutazione), chi arriva + simulatore, azioni, lavori in zona, diario.
+   ========================================================= */
+function hpSwitcher(cur){const H=myHouses();if(H.length<2)return'';return`<div class="hpsel">${H.map((h,i)=>{const on=(h.home&&cur.home)||(!h.home&&!cur.home&&h.bid===cur.bid);const c=(typeof frChanceOf==='function')?frChanceOf(h):null;
+  return`<button data-hps="${i}" class="${on?'on':''}"><b>${h.ic} ${esc(h.label)}</b><small>${c!=null?c+'%':''}</small></button>`;}).join('')}</div>`;}
+const _houseSheetHP=houseSheet;houseSheet=async function(h){await thrLoad(true);await _houseSheetHP(h);try{const sh=document.getElementById('sheet');if(!sh||!sh.classList.contains('open'))return;sh.classList.add('hfull');
+  const c=sh.querySelector('.sheet-b');if(!c||c.dataset.hp)return;c.dataset.hp='1';const T=thrOf(h);
+  /* fila delle case */
+  c.insertAdjacentHTML('afterbegin',hpSwitcher(h));c.querySelectorAll('[data-hps]').forEach(b=>b.onclick=()=>{const x=myHouses()[+b.dataset.hps];if(x)houseSheet(x);});
+  /* tutte le fortificazioni al posto delle 4 consigliate */
+  const fp=c.querySelector('.fortpan');if(fp&&T){const s=OR.s||{};fp.innerHTML=`<h4 class="hh">🧱 Fortificazioni di questa casa <small style="font-weight:400;font-size:12px">· tocca per comprare</small></h4>
+     <p class="muted" style="font-size:12px;margin:0 0 6px">In alto le più utili contro gli zombie e il meteo di questa casa (${(EVN[T.ev]||EVN.calma)[0]} ${(EVN[T.ev]||EVN.calma)[1].toLowerCase()}).</p>
+     <div class="rinf">${!s.prepared?'<button class="fch no up" data-fprep><span>🛡️ Prepara le case</span><small><b>+15</b> difesa · gratis</small></button>':'<span class="ok fdone">✓ 🛡️ Case preparate per la prossima orda</span>'}${fortChips(T,true)}</div>`;
+    const redo=()=>houseSheet(h);fp.querySelectorAll('[data-fk]').forEach(b=>b.onclick=()=>{const o=fortOpts(T).find(x=>x.k===b.dataset.fk);if(o)fortBuy(h,T,o,redo);});
+    const pr=fp.querySelector('[data-fprep]');if(pr)pr.onclick=async()=>{pr.disabled=true;try{const{data,error}=await SB.rpc('world_prepare');if(error)throw error;toast('🛡️ '+data.msg);await orLoad(true);redo();}catch(e){toast(e.message||'Non riuscito');pr.disabled=false;}};
+    /* subito sotto il disegno */const art=c.querySelector('.hsart');const hd=c.querySelector('.hshead');const anchor=(hd&&hd.nextElementSibling)||art;if(anchor&&fp!==anchor.nextElementSibling)anchor.after(fp);}
+  /* casa vera: le voci della valutazione */
+  if(h.home&&S.answers&&!c.querySelector('.hpreal')){const a=S.answers;const R=[['🚪','Porta blindata',a.porta==='blindata'||a.porta==='b4'],['▦','Grate alle finestre',a.grate==='tutte'||a.grate==='alcune'],['🪟','Vetri antisfondamento',a.vetri==='anti'],['💡','Luci a sensore',a.luci==='sensore'],['🚨','Allarme o telecamere',a.allarme==='allarme'||a.allarme==='cam'],['🧱','Recinzione',a.recinzione&&a.recinzione!=='no']];
+    const lv=(typeof scudoLv==='function')?scudoLv():0;(c.querySelector('.fortpan')||c.querySelector('.hshead')).insertAdjacentHTML('afterend',`<div class="hpreal"><h4 class="hh">🏠 La casa vera (dalla valutazione) <small style="font-weight:400;font-size:12px">· Scudo ${lv}/5 = +${lv*2} difesa a tutte le case</small></h4>
+      <div class="rinf">${R.map(([ic,t,ok])=>`<button class="fch ${ok?'ok':'no'}" data-hpr><span>${ic} ${t}</span><small>${ok?'fatto':'aggiorna la valutazione'}</small></button>`).join('')}</div></div>`);
+    c.querySelectorAll('[data-hpr]').forEach(b=>b.onclick=()=>{if(b.classList.contains('ok'))return;closeSheet();S.step=1;go('valuta');});}
+  /* diario */
+  if(!c.querySelector('.hpdia')){c.insertAdjacentHTML('beforeend',`<details class="man mcdia hpdia"><summary>🕑 Diario delle modifiche</summary><div class="man-b" data-hpdl><p class="muted"><span class="spin"></span></p></div></details>`);
+    const d=c.querySelector('.hpdia');d.addEventListener('toggle',async()=>{if(d.open)d.querySelector('[data-hpdl]').innerHTML=diaryHTML(await diaryLoad(h.bid||'home'));});}
+  try{coinText(sh);}catch(e){}}catch(e){console.warn(e);}};
+const _closeSheetHP=closeSheet;closeSheet=function(){const r=_closeSheetHP.apply(this,arguments);try{document.getElementById('sheet').classList.remove('hfull');}catch(e){}return r;};
+/* tutte le strade portano alla pagina della casa */
+const _renderHomeHP=renderHome;renderHome=function(){_renderHomeHP();try{const b=app.querySelector('[data-hs=casa]');if(b)b.onclick=()=>{const home=S.user&&myHouses().find(x=>x.home);if(home)houseSheet(home);else go('casa');};}catch(e){}};
+const _casaAllHP=casaAll;casaAll=async function(){await thrLoad(true);await _casaAllHP();try{app.querySelectorAll('.mycasa2').forEach(c=>{const h=myHouses().filter(x=>!x.home)[+c.dataset.mc];c.querySelectorAll('[data-mcs]').forEach(b=>b.onclick=()=>houseSheet(h));});}catch(e){}};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
