@@ -1310,6 +1310,48 @@ body[data-tab=orda] #accFab{display:none!important}
 .alhouse{border:2.5px solid var(--ink);margin-bottom:6px;background:#fff}.alhb{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;padding:8px 10px;text-align:left;color:var(--ink)}
 .alhb span{font-weight:800;font-size:14px}.alhb small{flex:1;font-size:12px;color:#5a5470}.alhb b{font-family:var(--display);font-size:20px;padding:0 6px;border:2px solid var(--ink)}.alhb i{font-style:normal}
 .alhd{padding:0 10px 8px}
+
+/* tutte le case come la casa vera */
+.mycasa2{margin-top:12px}.mcbtn{display:flex;gap:8px;margin-top:10px}.mcbtn .btn{flex:1}
+.mcchips span.ok{background:#bfe8c9}.mcchips span.mid{background:#fff3b0}.mcchips span.ko{background:#f6b8bf}
+.mcdia{margin-top:10px}.dia{display:flex;gap:10px;padding:5px 0;border-top:1px dashed rgba(20,15,31,.2);font-size:13px}.dia small{min-width:48px;color:#5a5470;font-weight:700}
+.thtools{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.thtools .btn{flex:1}
+/* assedio */
+.fspec{position:absolute;right:6px;top:40px;z-index:6;display:flex;gap:3px}.fspec span{background:#fff;border:2px solid #140f1f;border-radius:50%;width:26px;height:26px;display:grid;place-items:center;font-size:14px}
+.fcron{background:#f3e9d2;border:3px solid #140f1f;margin-top:6px;padding:6px 9px;display:flex;flex-direction:column;gap:2px;max-height:24vh;overflow:auto}
+.fcron b{font-family:var(--display);font-size:16px}.fcron span{font-size:12.5px;font-weight:700;opacity:0;animation:fcin .4s forwards;animation-delay:var(--d)}
+#fumetto.done .fcron span{animation-delay:0s}@keyframes fcin{to{opacity:1}}
+#fumetto.fx-pioggia .fpan::after,#fumetto.fx-neve .fpan::after,#fumetto.fx-nebbia .fpan::after,#fumetto.fx-blackout .fpan::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:5}
+#fumetto.fx-pioggia .fpan::after{background:repeating-linear-gradient(105deg,rgba(200,220,255,0) 0 12px,rgba(200,220,255,.35) 12px 13px,rgba(200,220,255,0) 13px 24px);animation:frrain .45s linear infinite}
+#fumetto.fx-neve .fpan::after{background-image:radial-gradient(#fff 1.4px,transparent 1.6px);background-size:22px 22px;animation:frrain 2.5s linear infinite}
+#fumetto.fx-nebbia .fpan::after{background:linear-gradient(180deg,rgba(235,235,245,.1),rgba(235,235,245,.65))}
+#fumetto.fx-blackout .fpan::after{background:rgba(5,3,12,.45)}
+/* meteo intorno a ogni casa sul fronte */
+.frhfx{position:absolute;left:50%;top:50%;width:170px;height:170px;margin:-85px 0 0 -85px;border-radius:50%;pointer-events:none;z-index:-1}
+.frhfx.hx-pioggia{background:radial-gradient(circle,rgba(120,160,255,.35),rgba(120,160,255,0) 70%),repeating-linear-gradient(105deg,rgba(200,220,255,0) 0 9px,rgba(200,220,255,.55) 9px 10px);-webkit-mask:radial-gradient(circle,#000 55%,transparent 72%);mask:radial-gradient(circle,#000 55%,transparent 72%);animation:frrain .45s linear infinite}
+.frhfx.hx-neve{background-image:radial-gradient(#fff 1.6px,transparent 1.8px);background-size:16px 16px;-webkit-mask:radial-gradient(circle,#000 50%,transparent 72%);mask:radial-gradient(circle,#000 50%,transparent 72%);animation:frrain 2.5s linear infinite}
+.frhfx.hx-nebbia{background:radial-gradient(circle,rgba(235,235,245,.85),rgba(235,235,245,0) 70%);animation:frfog 5s ease-in-out infinite alternate}
+.frhfx.hx-blackout{background:radial-gradient(circle,rgba(0,0,0,.7),rgba(0,0,0,0) 70%)}
+.frhfx.hx-luna{background:radial-gradient(circle,rgba(255,240,170,.55),rgba(255,240,170,0) 70%)}
+.frhwx{position:absolute;right:-12px;top:-10px;font-style:normal;font-size:18px}
+/* bonus e malus sulla mappa */
+.fxm{position:relative;width:90px;height:90px;display:grid;place-items:center;cursor:pointer}
+.fxm .fxa{position:absolute;inset:0;border-radius:50%}
+.fxm.fx-nebbia .fxa{background:radial-gradient(circle,rgba(235,235,245,.95),rgba(235,235,245,0) 70%);animation:frfog 4s ease-in-out infinite alternate}
+.fxm.fx-sabotaggio .fxa{background:radial-gradient(circle,rgba(160,112,63,.6),rgba(160,112,63,0) 70%)}
+.fxm.fx-orda .fxa{background:radial-gradient(circle,rgba(215,38,61,.55),rgba(215,38,61,0) 70%);animation:frpulse 1.2s ease-in-out infinite}
+.fxm.fx-scudo .fxa{border:4px solid #7cf0ff;box-shadow:0 0 18px #7cf0ff inset,0 0 14px #7cf0ff;animation:frpulse 1.8s ease-in-out infinite}
+.fxm.fx-rinforzi .fxa{border:3px dashed #5bd16a}
+.fxm .fxb{position:relative;font-size:22px;filter:drop-shadow(2px 2px 0 #140f1f)}.fxm small{position:absolute;bottom:4px;background:#140f1f;color:#fff;font-weight:800;font-size:10.5px;padding:0 5px;border-radius:8px}
+/* messaggi */
+.dmlist{max-height:46vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:4px 0}
+.dmm{max-width:82%;align-self:flex-start;background:#fff;border:2.5px solid var(--ink);padding:6px 9px;display:flex;flex-direction:column}.dmm.mine{align-self:flex-end;background:#fff3b0}
+.dmm span{font-size:14px;font-weight:400}.dmm small{font-size:10.5px;color:#5a5470;align-self:flex-end}
+.dmin{display:flex;gap:6px;margin-top:8px}.dmin .field{flex:1;margin:0}
+.dmq{display:flex;gap:5px;overflow-x:auto;margin:8px 0}.dmq button{flex:0 0 auto;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:4px 9px;font-size:12px;font-weight:700;color:var(--ink)}
+.dmt{display:flex;align-items:center;gap:8px;width:100%;background:#fff;border:2.5px solid var(--ink);padding:8px 10px;margin-bottom:6px;text-align:left;color:var(--ink)}.dmt div{flex:1;display:flex;flex-direction:column;min-width:0}
+.dmt small{font-size:12px;color:#5a5470;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dmt i{font-style:normal;font-size:11px;color:#5a5470}.dmt.un{background:#fff3b0}
+.mcbtn .btn{font-size:15px!important;padding:10px 6px!important;line-height:1.15}
 </style>
 </head>
 <body>
@@ -6091,7 +6133,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611012358';
+const ZSH_BUILD='202611020921';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -8797,6 +8839,18 @@ function realHouseSVG(geo,o={}){const m=geo.main;const lvl=o.lvl||1,a=o.a||{};co
     /* alleati davanti alla porta */
     const n=Math.min(3,o.helps||0);for(let i=0;i<n;i++){const pp=S(fw.q[0]+(fw.r[0]-fw.q[0])*(tc+(i-1)*.12),fw.q[1]+(fw.r[1]-fw.q[1])*(tc+(i-1)*.12)-2.2,0);
       deco+=`<g transform="translate(${pp[0]} ${pp[1]})"><circle cx="0" cy="-2.3" r=".55" fill="#f2c9a0" stroke="${INKC}" stroke-width="1.3" vector-effect="non-scaling-stroke"/><path d="M-.6 -1.7h1.2v1.7h-1.2z" fill="${['#3d6fb3','#2f7a52','#c8323f'][i]}" stroke="${INKC}" stroke-width="1.3" vector-effect="non-scaling-stroke"/></g>`;}}
+  /* difese mirate disegnate */
+  const DF=o.defs||{};if(fw&&M){const xs=M.q.map(q=>q[0]),ys=M.q.map(q=>q[1]);const x0=Math.min(...xs)-2,x1=Math.max(...xs)+2,yF=Math.min(...ys);const hM=mainInfo?mainInfo.h:6;
+    const fo=Math.min(3,DF.fossato||0),ba=Math.min(3,DF.barricate||0),fa=Math.min(3,DF.fari||0),si=Math.min(3,DF.sirena||0),fd=Math.min(3,DF.fondamenta||0);
+    if(fd){const zh=.35+.3*fd;(mainInfo.front||[]).forEach(w=>{const q=[S(w.q[0],w.q[1],0),S(w.r[0],w.r[1],0),S(w.r[0],w.r[1],zh),S(w.q[0],w.q[1],zh)];deco=poly(q,w.east?'#6f6a7d':'#8d8799')+deco;});}
+    if(fo){const d=1.2+.7*fo,y1=yF-4.6,y0=y1-d;deco=poly([S(x0-1,y0,0),S(x1+1,y0,0),S(x1+1,y1,0),S(x0-1,y1,0)],'#3a86c8')+deco;
+      for(let x=x0;x<x1;x+=2.2){const A=S(x,(y0+y1)/2,0),B=S(x+1.1,(y0+y1)/2,0);deco+=`<path d="M${A[0]} ${A[1]}q${(B[0]-A[0])/2} -.5 ${B[0]-A[0]} 0" stroke="#bfe3f2" stroke-width="1.6" fill="none" vector-effect="non-scaling-stroke"/>`;}
+      if(fo>=3)for(let x=x0;x<=x1;x+=2.5){const A=S(x,y1,0),B=S(x,y1,1.2);deco+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}" stroke="#7a5230" stroke-width="2.5" vector-effect="non-scaling-stroke"/>`;}}
+    if(ba){const n=3+3*ba,yb=yF-1.4;for(let i=0;i<n;i++){const t=(i+.5)/n;const x=x0+1+(x1-x0-2)*t;for(let r=0;r<Math.min(2,ba);r++){const P=S(x,yb,.3+r*.5);deco+=`<ellipse cx="${P[0]}" cy="${P[1]}" rx="${.55}" ry=".3" fill="#c9a66b" stroke="${INKC}" stroke-width="1.3" vector-effect="non-scaling-stroke"/>`;}}}
+    if(fa){const pts=[[x0+2,yF],[x1-2,yF]].slice(0,fa>=2?2:1);pts.forEach(([x,y])=>{const L=S(x,y,hM-.2);const G1=S(x-2.5-fa,y-6-2*fa,0),G2=S(x+2.5+fa,y-6-2*fa,0);
+      deco+=`<path d="M${L[0]} ${L[1]}L${G1[0]} ${G1[1]}L${G2[0]} ${G2[1]}Z" fill="#fff6b0" opacity="${.22+.08*fa}"/><circle cx="${L[0]}" cy="${L[1]}" r=".55" fill="#fff6b0" stroke="${INKC}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;});}
+    if(si){const P=S((x0+x1)/2,(yF+Math.max(...ys))/2,hM+3.2);deco+=`<rect x="${P[0]-.5}" y="${P[1]-1}" width="1" height="1" fill="#d7263d" stroke="${INKC}" stroke-width="1.3" vector-effect="non-scaling-stroke"/>`;
+      for(let k=1;k<=si;k++)deco+=`<path d="M${P[0]+.8} ${P[1]-1.1-k*.6}a${.6+k*.6} ${.6+k*.6} 0 0 1 0 ${1.6+k*1.2}" stroke="#d7263d" stroke-width="1.6" fill="none" vector-effect="non-scaling-stroke" opacity=".8"/>`;}}
   /* terreno e strada */
   const xsA=[M,...NB].flatMap(b=>b.q.map(q=>q[0])),ysA=[M,...NB].flatMap(b=>b.q.map(q=>q[1]));const gx0=Math.min(...xsA,-25)-6,gx1=Math.max(...xsA,25)+6,gy0=Math.min(...ysA)-9,gy1=Math.max(...ysA)+6;
   const ground=poly([S(gx0,gy0,0),S(gx1,gy0,0),S(gx1,gy1,0),S(gx0,gy1,0)],'#4f9b5d');const road=poly([S(gx0,gy0-6,0),S(gx1,gy0-6,0),S(gx1,gy0,0),S(gx0,gy0,0)],'#55506b');
@@ -8809,7 +8863,15 @@ function realHouseSVG(geo,o={}){const m=geo.main;const lvl=o.lvl||1,a=o.a||{};co
   const shield=lvl>=5?`<ellipse cx="${VW/2}" cy="${VH*.55}" rx="${VW*.46}" ry="${VH*.5}" fill="#7cf0ff" fill-opacity=".14" stroke="#fff" stroke-width="2.5" opacity=".9"/>`:'';
   const stars=[[20,18],[60,10],[250,16],[290,34],[200,8],[140,22]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.4" fill="#fff"/>`).join('');
   return`<svg viewBox="0 0 ${VW} ${VH}" class="hart real"><rect width="${VW}" height="${VH}" fill="#2b2160"/>${stars}<circle cx="282" cy="26" r="13" fill="#f7d64a" stroke="${INKC}" stroke-width="2.5"/>
-    <g transform="translate(${tx.toFixed(1)} ${ty.toFixed(1)}) scale(${sc.toFixed(3)})">${road}${ground}${body}${deco}</g>${shield}</svg>`;}
+    <g transform="translate(${tx.toFixed(1)} ${ty.toFixed(1)}) scale(${sc.toFixed(3)})">${road}${ground}${body}${deco}</g>${shield}${rhWx(o.ev,VW,VH)}</svg>`;}
+function rhWx(ev,W,H){if(!ev||ev==='calma')return'';let g='';
+  if(ev==='pioggia'){for(let i=0;i<70;i++){const x=(i*47)%W,y=(i*29)%H;g+=`<path d="M${x} ${y}l-4 10" stroke="#cfe2ff" stroke-width="1.4" opacity=".75"/>`;}g=`<rect width="${W}" height="${H}" fill="#1d2a55" opacity=".25"/>`+g;}
+  else if(ev==='neve'){for(let i=0;i<80;i++){const x=(i*53)%W,y=(i*31)%H;g+=`<circle cx="${x}" cy="${y}" r="${1+(i%3)*.6}" fill="#fff" opacity=".9"/>`;}}
+  else if(ev==='nebbia'){g=`<defs><linearGradient id="nb${W}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e8e8f0" stop-opacity=".15"/><stop offset=".6" stop-color="#e8e8f0" stop-opacity=".7"/><stop offset="1" stop-color="#e8e8f0" stop-opacity=".85"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#nb${W})"/>`;
+    for(let i=0;i<5;i++)g+=`<ellipse cx="${(i*83)%W}" cy="${H*.55+i*12}" rx="90" ry="14" fill="#f2f2f7" opacity=".55"/>`;}
+  else if(ev==='blackout'){g=`<rect width="${W}" height="${H}" fill="#05030c" opacity=".55"/><path d="M${W*.7} 0l-14 46h12l-18 50 34-62h-13l12-34z" fill="#f7d64a" stroke="#140f1f" stroke-width="2"/>`;}
+  else if(ev==='luna'){g=`<circle cx="${W-38}" cy="26" r="40" fill="#fff3b0" opacity=".25"/><circle cx="${W-38}" cy="26" r="22" fill="#fff3b0" opacity=".35"/>`;}
+  return`<g class="rhwx" pointer-events="none">${g}</g>`;}
 function realDesc(geo){const m=geo.main;const lv=m.lv;const r=(m.roof||'').toLowerCase();const rt=/flat/.test(r)?'tetto piano':/gabl/.test(r)?'tetto a due falde':/hip|pyram/.test(r)?'tetto a padiglione':'';
   return[lv?`${lv} ${lv===1?'piano':'piani'}`:'',rt,`${Math.round(Math.abs(area(m.p)))} m² di pianta`].filter(Boolean).join(' · ');}
 /* disegno di una casa: vera se c'è la pianta, altrimenti il modello per tipo */
@@ -9046,12 +9108,12 @@ frMount=async function(){const R=S.zone&&S.zone.real;if(!R||!FR.node)return;cons
   const dests=H.filter(h=>trM(F.lat,F.lon,h.lat,h.lon)<1500);if(!dests.includes(F))dests.unshift(F);dests.sort((a,b)=>(a===F?-1:b===F?1:0));FR.dests=dests;
   const m=F.home?(RM.cache&&RM.cache[S.zone.address]):await frRoads(F.lat,F.lon);
   let paths=[];dests.forEach((d,i)=>{let P=frPaths(d.home?R:{lat:d.lat,lon:d.lon},m);P=P.slice(0,d===F?6:3);P.forEach(p=>{p.dest=i;});paths=paths.concat(P);});
-  if(!F.home||!R.grid||paths.every(p=>p.seg.every(s=>!s.g)))await frElevate(paths);
+  await frElevate(paths); /* stesso metodo per tutte le case: quote vere punto per punto */
   FR.paths=paths;frDrawLines();
-  dests.forEach((d,i)=>{try{const el=document.createElement('div');el.className='frhome';el.innerHTML=`<div class="frring"></div><b>${d.home?'🏠':'🔑'}</b><span data-frpct2="${i}"></span>`;
+  dests.forEach((d,i)=>{try{const el=document.createElement('div');el.className='frhome';el.innerHTML=`<div class="frhfx"></div><div class="frring"></div><b>${d.home?'🏠':'🔑'}</b><span data-frpct2="${i}"></span><i class="frhwx"></i>`;
     el.addEventListener('click',e=>{e.stopPropagation();houseSheet(d);});FR.homeEls=FR.homeEls||[];FR.homeEls[i]=el;FR.homes.push(new maplibregl.Marker({element:el}).setLngLat([d.lon,d.lat]).addTo(FR.lm.map));FR.paths.filter(p=>p.dest===i).forEach(p=>p.homeEl=el);}catch(e){}});
   frSpawn();frLoop();frHeader();frRings();};
-function frRings(){try{(FR.dests||[]).forEach((d,i)=>{const c=frChanceOf(d);const he=(FR.homeEls||[])[i];const el=he&&he.querySelector('[data-frpct2]');if(el)el.textContent=c!=null?c+'%':'';const ring=el&&el.parentNode.querySelector('.frring');if(ring&&c!=null)ring.style.setProperty('--ok',c>=50?'#5bd16a':'#d7263d');});
+function frRings(){try{(FR.dests||[]).forEach((d,i)=>{const c=frChanceOf(d);try{const he=(FR.homeEls||[])[i];const T=typeof thrOf==='function'?thrOf(d):null;if(he&&T){const ev=T.ev||'calma';const fx=he.querySelector('.frhfx');if(fx)fx.className='frhfx hx-'+ev;const wi=he.querySelector('.frhwx');if(wi)wi.textContent=ev==='calma'?'':(EVN[ev]||['',''])[0];}}catch(e){}const he=(FR.homeEls||[])[i];const el=he&&he.querySelector('[data-frpct2]');if(el)el.textContent=c!=null?c+'%':'';const ring=el&&el.parentNode.querySelector('.frring');if(ring&&c!=null)ring.style.setProperty('--ok',c>=50?'#5bd16a':'#d7263d');});
   const F=FR.dests&&FR.dests[0];if(F&&!F.home){const c=frChanceOf(F);const chip=[...FR.node.querySelectorAll('[data-frchips] span')].find(s=>/di tenere/.test(s.textContent));if(chip&&c!=null){chip.innerHTML=`🛡️ ${c}% di tenere (${esc(F.label)}) · <u>perché</u>`;chip.onclick=()=>whySheet(F.bid,false);}}
   const s=FR.node&&FR.node.querySelector('.frsel');if(s){const H=myHouses();s.querySelectorAll('[data-frh]').forEach(b=>{const h=H[+b.dataset.frh];const c=h&&frChanceOf(h);const sm=b.querySelector('small');if(sm&&c!=null)sm.textContent=c+'%'+(h.km>1.5?' · '+kmTxt(h.km):'');});}
   const pc=FR.node&&FR.node.querySelector('[data-frpct]');if(pc)pc.textContent='';}catch(e){}}
@@ -9108,12 +9170,23 @@ function thrHTML(T,sim){const r=thrCalc(T,sim);const base=thrCalc(T);const ev=EV
       return`<div class="thdef"><span>${d[0]} <b>${d[1]}</b><small>${'●'.repeat(v)}${'○'.repeat(3-v)}${v>cur?' (prova)':''}</small></span><div><button data-sd="${k}" data-v="-1" ${v<=cur?'disabled':''}>−</button><button data-sd="${k}" data-v="1" ${v>=3?'disabled':''}>+</button></div></div>`;}).join('')}`:''}
    <div class="thdef"><span>⬆️ <b>Livello casa</b><small>${lvl}${lvl>T.level?' (prova)':''} · +12 di difesa per livello</small></span><div><button data-sl="-1" ${lvl<=T.level?'disabled':''}>−</button><button data-sl="1" ${lvl>=5?'disabled':''}>+</button></div></div>
    <div class="thres"><div><small>Difesa</small><b>${r.def}</b></div><div><small>Oggi</small><b>${base.ch}%</b></div><div class="${r.ch>base.ch?'up':''}"><small>Con le prove</small><b>${r.ch}%</b></div></div>
+   <div class="thtools"><button class="btn small" data-sadv>🧠 Consigliami (🧱 ${wNum((window.W&&W.m&&W.m.mattoni)||0)})</button>${!(OR.s&&OR.s.prepared)?'<button class="btn small alt" data-sprep>🛡️ Prepara tutte le case (+15)</button>':''}</div>
    ${cost?`<button class="btn wide" data-sbuy>Compra queste migliorie · 🧱 ${wNum(cost)}</button>`:''}`;}
+/* 🧠 consiglio: con i Mattoni che hai, le migliorie che alzano di più la % */
+function thrAdvise(T,budget){const sim={defs:{},level:T.level};const kinds=[...new Set((T.specials||[]).map(x=>x.dk))];let left=budget;const ch=()=>thrCalc(T,sim).ch;
+  for(let guard=0;guard<20;guard++){const base=ch();let best=null;
+    kinds.forEach(k=>{const cur=sim.defs[k]!=null?sim.defs[k]:((T.defs||{})[k]||0);if(cur>=3)return;const c=80*(cur+1);if(c>left)return;sim.defs[k]=cur+1;const g=ch()-base;sim.defs[k]=cur===((T.defs||{})[k]||0)?undefined:cur;if(sim.defs[k]===undefined)delete sim.defs[k];if(g>0&&(!best||g/c>best.r))best={t:'d',k,c,r:g/c};});
+    if(sim.level<5){const c=150*sim.level;if(c<=left){sim.level++;const g=ch()-base;sim.level--;if(g>0&&(!best||g/c>best.r))best={t:'l',c,r:g/c};}}
+    if(!best)break;left-=best.c;if(best.t==='d'){const cur=sim.defs[best.k]!=null?sim.defs[best.k]:((T.defs||{})[best.k]||0);sim.defs[best.k]=cur+1;}else sim.level++;}
+  return{sim,spent:budget-left};}
 async function thrSection(card,h){await thrLoad();const T=thrOf(h);const box=card.querySelector('.thbox');if(!box)return;
   if(!T){box.innerHTML=`<p class="muted" style="font-size:12.5px">${THR.err?'Simulatore non disponibile ('+esc(THR.err)+'). Esegui il file zombie.sql su Supabase.':'Questa casa non è ancora nel mondo.'}</p>`;return;}
   const sim={defs:{},level:T.level};const draw=()=>{box.innerHTML=thrHTML(T,sim);
     box.querySelectorAll('[data-sd]').forEach(b=>b.onclick=()=>{const k=b.dataset.sd;const cur=(T.defs||{})[k]||0;const v=(sim.defs[k]!=null?sim.defs[k]:cur)+(+b.dataset.v);sim.defs[k]=Math.max(cur,Math.min(3,v));draw();});
     box.querySelectorAll('[data-sl]').forEach(b=>b.onclick=()=>{sim.level=Math.max(T.level,Math.min(5,sim.level+(+b.dataset.sl)));draw();});
+    const adv=box.querySelector('[data-sadv]');if(adv)adv.onclick=()=>{const m=(window.W&&W.m&&W.m.mattoni)||0;const before=thrCalc(T).ch;const r=thrAdvise(T,m);
+      if(!r.spent){toast(m<80?'Servono almeno 🧱 80 per una difesa':'Con i Mattoni che hai non ci sono migliorie utili qui');return;}sim.defs=r.sim.defs;sim.level=r.sim.level;draw();toast(`🧠 Con 🧱 ${wNum(r.spent)}: da ${before}% a ${thrCalc(T,sim).ch}%. Controlla e tocca “Compra”.`);};
+    const pr=box.querySelector('[data-sprep]');if(pr)pr.onclick=async()=>{pr.disabled=true;try{const{data,error}=await SB.rpc('world_prepare');if(error)throw error;toast('🛡️ '+data.msg);await orLoad(true);await thrLoad(true);await defLoad(true);houseSheet(h);}catch(e){toast(e.message||'Non riuscito');pr.disabled=false;}};
     const buy=box.querySelector('[data-sbuy]');if(buy)buy.onclick=async()=>{buy.disabled=true;try{
       for(const k of Object.keys(sim.defs)){const cur=(T.defs||{})[k]||0;for(let l=cur;l<sim.defs[k];l++){const{data,error}=await SB.rpc('world_def_upgrade',{p_bid:T.bid,p_kind:k});if(error)throw error;if(!data.ok)throw new Error(data.msg);}}
       for(let l=T.level;l<sim.level;l++){const r=await wRpc('world_upgrade',{p_bid:T.bid});if(!r.ok)throw new Error(r.msg);}
@@ -9211,6 +9284,112 @@ const _playerSheetAls=playerSheet;playerSheet=async function(uid){await _playerS
   if(!/Siete alleati/.test(c.textContent))return;const ac=c.querySelector('.placts')||c;ac.insertAdjacentHTML('afterbegin','<button class="btn small" data-alsim>🔍 Vedi la sua simulazione</button>');
   c.querySelector('[data-alsim]').onclick=()=>allySheet(uid);}catch(e){}};
 setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='orda'||(S.tab==='social'&&SOC.tab==='squadra')))alsRefresh();},60000);
+</script>
+<script>
+/* =========================================================
+   1) La mia casa: TUTTE le case come la casa vera (edificio vero a fumetto, difese e meteo disegnati,
+      % di tenuta, rinforzi, 🕑 diario delle modifiche)
+   2) Assedio a fumetto: la casa vera con le sue difese, il meteo, gli speciali veri, 📜 cronaca
+   3) Bonus e malus dati da me visibili sulla mappa (nebbia sulle case del rivale…)
+   4) 💬 Messaggi diretti: giocatori (privati) e sponsor (scrivi al negozio)
+   ========================================================= */
+const DKS=['fossato','barricate','fari','sirena','fondamenta'];
+function hOpts(h,T,extra){const s=OR.s||{};return Object.assign({lvl:T?T.level:(h.level||1),defs:T?T.defs||{}:{},ev:T?T.ev:'calma',prep:!!s.prepared,helps:h.home?Math.min(4,+(s.helps_in||0)):0,a:h.home?(S.answers||{}):{}},extra||{});}
+/* ---- diario ---- */
+const DIA_K='zsh_diary_';
+function diaryAdd(bid,txt){try{const k=DIA_K+bid;const L=JSON.parse(localStorage.getItem(k)||'[]');L.unshift({t:Date.now(),x:txt});localStorage.setItem(k,JSON.stringify(L.slice(0,40)));}catch(e){}}
+async function diaryLoad(bid){let srv=[];try{const{data,error}=await SB.rpc('world_house_log',{p_bid:bid});if(!error&&data)srv=data.map(r=>({t:new Date(r.created_at).getTime(),x:r.reason+(r.delta?` (🧱 ${r.delta})`:'')}));}catch(e){}
+  let loc=[];try{loc=JSON.parse(localStorage.getItem(DIA_K+bid)||'[]');}catch(e){}
+  const seen=new Set();return[...srv,...loc].sort((a,b)=>b.t-a.t).filter(x=>{const k=x.x+Math.round(x.t/60000);if(seen.has(k))return false;seen.add(k);return true;}).slice(0,25);}
+function diaryHTML(L){return L.length?L.map(r=>`<div class="dia"><small>${new Date(r.t).toLocaleDateString('it-IT',{day:'numeric',month:'short'})}</small><span>${esc(r.x)}</span></div>`).join(''):'<p class="muted" style="font-size:12.5px">Ancora nessuna modifica: le difese che compri e i potenziamenti compariranno qui.</p>';}
+/* ---- le schede grandi di ogni casa ---- */
+function rinfList(T,h){const s=OR.s||{};const d=(T&&T.defs)||{};const R=[['🛡️','Case preparate',!!s.prepared],['⬆️',`Livello ${T?T.level:h.level||1}`,(T?T.level:h.level||1)>=2]];
+  DKS.forEach(k=>{const v=d[k]||0;R.push([ZDEF[k][0],`${ZDEF[k][1]} ${'●'.repeat(v)}${'○'.repeat(3-v)}`,v>0]);});return R;}
+function casaCardHTML(h,i,T){const c=T?thrCalc(T).ch:null;const e=T?(EVN[T.ev]||EVN.calma):null;
+  return`<div class="panel mycasa mycasa2" data-mc="${i}"><b class="disp" style="font-size:24px">🔑 ${esc(h.label)}</b><small>${h.km>0.05?kmTxt(h.km)+' da casa tua':'vicino a casa tua'}<span data-mcd></span></small>
+   <div class="mcart" data-mca>${houseArt('villa',h.level,h.bid,{k:'mc'+i})}</div>
+   <div class="mcchips">${c!=null?`<span class="${chCls(c)}">🛡️ Tiene <b>${c}%</b></span>`:''}<span>⬆️ Livello <b>${T?T.level:h.level}</b></span>${e?`<span>${e[0]} ${e[1]}</span>`:''}</div>
+   <h4 class="hh">🛡️ Rinforzi di questa casa</h4><div class="rinf">${rinfList(T,h).map(([ic,t,ok])=>`<span class="${ok?'ok':'no'}">${ok?'✓':'✗'} ${ic} ${esc(t)}</span>`).join('')}</div>
+   <div class="mcbtn"><button class="btn" data-mcs>🎯 Simula e migliora</button><button class="btn ghost" data-mcm>🗺️ Sulla mappa</button></div>
+   <details class="man mcdia"><summary>🕑 Diario delle modifiche</summary><div class="man-b" data-mcdl><p class="muted"><span class="spin"></span></p></div></details></div>`;}
+async function casaAll(){const pg=app.querySelector('.page');if(!pg||pg.dataset.all)return;pg.dataset.all='1';await thrLoad();
+  const L=myHouses().filter(h=>!h.home);const gal=pg.querySelector('.mygal');if(gal)gal.hidden=true;
+  let anchor=pg.querySelector('.mycasa');
+  /* la casa vera: difese e meteo disegnati + diario */
+  try{const home=myHouses().find(h=>h.home);const T=home&&thrOf(home);const art=anchor&&anchor.querySelector('.mcart');
+    if(home&&art){await drawHouse(art,home,hOpts(home,T));const ch=anchor.querySelector('.mcchips');if(T&&ch&&!ch.querySelector('.mcwx')){const e=EVN[T.ev]||EVN.calma;ch.insertAdjacentHTML('afterbegin',`<span class="${chCls(thrCalc(T).ch)}">🛡️ Tiene <b>${thrCalc(T).ch}%</b></span><span class="mcwx">${e[0]} ${e[1]}</span>`);}
+      const rf=anchor.querySelector('.rinf');if(rf&&T)DKS.forEach(k=>{const v=(T.defs||{})[k]||0;rf.insertAdjacentHTML('beforeend',`<span class="${v?'ok':'no'}">${v?'✓':'✗'} ${ZDEF[k][0]} ${ZDEF[k][1]} ${'●'.repeat(v)}${'○'.repeat(3-v)}</span>`);});
+      if(!anchor.querySelector('.mcdia')){anchor.insertAdjacentHTML('beforeend',`<div class="mcbtn"><button class="btn" data-mhs>🎯 Simula e migliora</button></div><details class="man mcdia"><summary>🕑 Diario delle modifiche</summary><div class="man-b" data-mcdl><p class="muted"><span class="spin"></span></p></div></details>`);
+        anchor.querySelector('[data-mhs]').onclick=()=>houseSheet(home);const d=anchor.querySelector('.mcdia');d.addEventListener('toggle',async()=>{if(d.open)d.querySelector('[data-mcdl]').innerHTML=diaryHTML(await diaryLoad(home.bid||'home'));});}}}catch(e){console.warn(e);}
+  /* le altre case */
+  L.forEach((h,i)=>{const T=thrOf(h);anchor.insertAdjacentHTML('afterend',casaCardHTML(h,i,T));anchor=anchor.nextElementSibling;const card=anchor;
+    drawHouse(card.querySelector('[data-mca]'),h,hOpts(h,T)).then(g=>{if(g){const d=card.querySelector('[data-mcd]');if(d)d.textContent=' · '+realDesc(g);}});
+    card.querySelector('[data-mcs]').onclick=()=>houseSheet(h);card.querySelector('[data-mcm]').onclick=()=>{S.mfHouses=true;go('mappa');setTimeout(()=>mhFly(h,true),900);};
+    const d=card.querySelector('.mcdia');d.addEventListener('toggle',async()=>{if(d.open)d.querySelector('[data-mcdl]').innerHTML=diaryHTML(await diaryLoad(h.bid));});});}
+const _goAs=go;go=function(tab){const r=_goAs(tab);if(tab==='casa')setTimeout(()=>{casaTop().then(()=>setTimeout(casaAll,200)).catch(()=>casaAll());},60);return r;};
+/* nella scheda casa: anche lì difese e meteo disegnati */
+const _drawHouseAs=drawHouse;drawHouse=async function(el,h,o={}){if(o.defs==null||o.ev==null){const T=typeof thrOf==='function'?thrOf(h):null;if(T)o=Object.assign({defs:T.defs||{},ev:T.ev},o);}return _drawHouseAs(el,h,o);};
+/* il diario si scrive anche dall'app (potenziamenti, preparazione) */
+const _wRpcAs=wRpc;wRpc=async function(fn,args){const r=await _wRpcAs.apply(this,arguments);try{if(fn==='world_upgrade'&&r&&r.ok)diaryAdd(args.p_bid,`Potenziata al livello ${r.level}`);}catch(e){}return r;};
+/* ---- 2) ASSEDIO A FUMETTO ---- */
+function cronaca(T,res){if(!T)return[];const r=thrCalc(T);const e=EVN[T.ev]||EVN.calma;const L=[];
+  L.push(`${e[0]} ${T.ev==='calma'?'Notte senza sorprese dal cielo.':e[1]+': '+e[2]+'.'}`);
+  if(Math.abs(T.slope||0)>=.01)L.push(T.slope>0?`⛰️ La casa sta in alto: i corridori e i bruti arrivano col fiato corto.`:`⬇️ La casa sta in basso: gli zombie arrivano di corsa in discesa.`);
+  r.sp.forEach(x=>{const z=ZSP[x.k];const d=ZDEF[x.dk];if(!z)return;if(x.dl>0)L.push(`${d[0]} ${d[1]} (liv. ${x.dl}): ${z.ic} ${z.n} indeboliti del ${Math.round(x.dl*30)}%.`);else if(x.p>=x.base*1.1)L.push(`${z.ic} ${z.n}: più forte del solito, mancavano ${d[0]} ${d[1].toLowerCase()}.`);});
+  const sim=res&&res.sim;L.push(sim&&sim.atk?`🧮 Difesa ${sim.pw} contro un’orda di ${sim.atk}: ${res.held?'TENUTA':'SFONDATA'}.`:`🧮 Difesa ${r.def} contro un’orda tra ${r.amin} e ${r.amax}: ${res&&res.held?'TENUTA':'SFONDATA'}.`);
+  return L.slice(0,6);}
+const _fumettoAs=fumetto;fumetto=function(h,res,ctx,onEnd){_fumettoAs(h,res,ctx,onEnd);try{const F=document.getElementById('fumetto');if(!F)return;const T=typeof thrOf==='function'?thrOf(h):null;
+  if(T){F.classList.add('fx-'+(T.ev||'calma'));
+    /* la casa vera nelle vignette 1 e 4 */
+    ['.p1 .fbg','.p4 .fbg'].forEach((sel,j)=>{const el=F.querySelector(sel);if(el)drawHouse(el,h,hOpts(h,T,{prep:j===1?(!!(OR.s&&OR.s.prepared)):false})).then(g=>{const sv=el.querySelector('svg');if(sv)sv.setAttribute('preserveAspectRatio','xMidYMid slice');});});
+    /* gli zombie veri nella vignetta 2 */
+    const hz=F.querySelector('.fhorde:not(.in)');if(hz){const K=[...(T.specials||[]).map(x=>x.k).sort((a,b)=>((T.specials.find(s=>s.k===b)||{}).p||0)-((T.specials.find(s=>s.k===a)||{}).p||0))];const pick=[...K.slice(0,3)];while(pick.length<5)pick.push('walker');
+      hz.innerHTML=pick.map((k,i)=>zArt((FZ[k]||FZ.walker).v+i,{cls:'w'+i,style:`--d:${i*.12}s`})).join('');
+      const sp=(T.specials||[]);if(sp.length)hz.insertAdjacentHTML('afterend',`<div class="fspec">${sp.map(x=>`<span title="${esc((ZSP[x.k]||{}).n||x.k)}">${(ZSP[x.k]||{}).ic||''}</span>`).join('')}</div>`);}
+    const cap=F.querySelector('.p1 .fcap');if(cap){const e=EVN[T.ev]||EVN.calma;cap.innerHTML+=` · ${e[0]}`;}}
+  /* la cronaca */
+  const L=cronaca(T,res);if(L.length){const bot=F.querySelector('.fbot');if(bot)bot.insertAdjacentHTML('beforebegin',`<div class="fcron"><b>📜 Cronaca dell’assedio</b>${L.map((x,i)=>`<span style="--d:${3.2+i*.5}s">${esc(x)}</span>`).join('')}</div>`);}}catch(e){console.warn(e);}};
+/* ---- 3) BONUS E MALUS VISIBILI SULLA MAPPA ---- */
+window.FXM={L:[],t:0};
+const FXI={nebbia:['🌫️','nebbia'],sabotaggio:['🔨','sabotaggio'],orda:['🧟','orda mandata'],scudo:['🛡️','scudo dato'],rinforzi:['🤝','rinforzi dati']};
+async function fxLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return;if(!force&&Date.now()-FXM.t<60000)return fxDraw();try{const{data,error}=await SB.rpc('world_my_effects');if(!error){FXM.L=data||[];FXM.t=Date.now();}}catch(e){}fxDraw();}
+function fxDraw(){(window.__zlms||[]).forEach(lm=>{try{if(!lm||!lm.map)return;(lm._fx||[]).forEach(m=>m.remove());lm._fx=[];
+  const by={};(FXM.L||[]).forEach(e=>{const k=e.lat.toFixed(5)+','+e.lon.toFixed(5);(by[k]=by[k]||{lat:e.lat,lon:e.lon,nick:e.nick,uid:e.user_id,k:[]}).k.push(e.kind);});
+  Object.values(by).forEach(g=>{const el=document.createElement('div');el.className='fxm '+g.k.map(k=>'fx-'+k).join(' ');
+    el.innerHTML=`<div class="fxa"></div><div class="fxb">${[...new Set(g.k)].map(k=>(FXI[k]||['✨'])[0]).join('')}</div><small>@${esc(g.nick||'')}</small>`;
+    el.title=[...new Set(g.k)].map(k=>(FXI[k]||['',''])[1]).join(', ');el.addEventListener('click',e=>{e.stopPropagation();playerSheet(g.uid);});
+    lm._fx.push(new maplibregl.Marker({element:el}).setLngLat([g.lon,g.lat]).addTo(lm.map));});}catch(e){}});}
+const _liveMapAs=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapAs(el,addr,o);try{setTimeout(()=>fxLoad(),1200);}catch(e){}return lm;};
+['doDisp','allyShield','alHelp'].forEach(n=>{try{const f=window[n];if(typeof f!=='function')return;window[n]=async function(){const r=await f.apply(this,arguments);setTimeout(()=>fxLoad(true),700);return r;};}catch(e){}});
+setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='mappa'||S.tab==='orda'))fxLoad();},60000);
+/* ---- 4) MESSAGGI DIRETTI ---- */
+window.DM={with:null,nick:'',t:0,timer:0};
+async function dmSheet(uid,nick){DM.with=uid;DM.nick=nick||'';const draw=async()=>{let L=[];try{const{data,error}=await SB.rpc('world_dm_list',{p_with:uid});if(error)throw error;L=(data||[]).slice().reverse();}catch(e){return openSheet('💬 Messaggi',`<p class="muted">Messaggi non disponibili (${esc(e.message||'')}). Esegui il file assedio.sql su Supabase.</p>`);}
+    const box=document.querySelector('#sheet.open .dmlist');const html=L.length?L.map(m=>`<div class="dmm ${m.mine?'mine':''}"><span>${esc(m.body)}</span><small>${socAgo(m.created_at)}</small></div>`).join(''):'<p class="muted" style="font-size:13px">Nessun messaggio. Scrivi tu per primo!</p>';
+    if(box&&box.dataset.with===uid){if(box.dataset.n!==String(L.length)){box.innerHTML=html;box.dataset.n=L.length;box.scrollTop=box.scrollHeight;}return;}
+    openSheet(`💬 @${esc(DM.nick)}`,`<div class="dmlist" data-with="${uid}" data-n="${L.length}">${html}</div>
+      <div class="dmin"><input class="field" id="dmT" maxlength="500" placeholder="Scrivi un messaggio…" autocomplete="off"><button class="btn" data-dms>Invia</button></div>
+      <div class="dmq">${['Ciao! 👋','Ti mando rinforzi 🤝','Prepara le case, stasera arriva l’orda! 🧟','Facciamo squadra? 🤝','Grazie! 🙏'].map(q=>`<button data-dmq="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+      <button class="btn small ghost" data-dmp>👤 Profilo di @${esc(DM.nick)}</button>`,card=>{const l=card.querySelector('.dmlist');l.scrollTop=l.scrollHeight;const inp=card.querySelector('#dmT');
+      const send=async t=>{const b=(t||inp.value).trim();if(!b)return;try{const{data,error}=await SB.rpc('world_dm_send',{p_to:uid,p_body:b});if(error)throw error;if(!data.ok){toast(data.msg);return;}inp.value='';draw();}catch(e){toast(e.message||'Non inviato');}};
+      card.querySelector('[data-dms]').onclick=()=>send();inp.onkeydown=e=>{if(e.key==='Enter')send();};card.querySelectorAll('[data-dmq]').forEach(b=>b.onclick=()=>send(b.dataset.dmq));
+      card.querySelector('[data-dmp]').onclick=()=>playerSheet(uid);});};
+  await draw();clearInterval(DM.timer);DM.timer=setInterval(()=>{const s=document.querySelector('#sheet.open .dmlist');if(!s||s.dataset.with!==uid){clearInterval(DM.timer);return;}draw();},4000);}
+async function dmThreads(){let L=[];try{const{data,error}=await SB.rpc('world_dm_threads');if(error)throw error;L=data||[];}catch(e){return openSheet('✉️ Messaggi privati',`<p class="muted">Messaggi non disponibili (${esc(e.message||'')}). Esegui il file assedio.sql su Supabase.</p>`);}
+  openSheet('✉️ Messaggi privati',L.length?L.map(t=>`<button class="dmt ${t.unread>0?'un':''}" data-dmt="${t.user_id}" data-n="${esc(t.nick)}"><span class="sav">${esc((t.nick||'?')[0].toUpperCase())}</span><div><b>@${esc(t.nick)}${t.unread>0?` · ${t.unread} nuovi`:''}</b><small>${esc(t.last_body||'')}</small></div><i>${socAgo(t.last_at)}</i></button>`).join(''):'<p class="muted">Nessuna conversazione. Apri il profilo di un giocatore e tocca “💬 Scrivi”.</p>',
+    card=>card.querySelectorAll('[data-dmt]').forEach(b=>b.onclick=()=>dmSheet(b.dataset.dmt,b.dataset.n)));}
+/* dove si scrive: profilo giocatore, Piazza, bacheca, sponsor */
+const _playerSheetDm=playerSheet;playerSheet=async function(uid){await _playerSheetDm(uid);try{const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('[data-pdm]')||/Questo sei tu/.test(c.textContent))return;if(S.user&&uid===S.user.id)return;
+  const nick=((c.querySelector('.plhead .disp')||{}).textContent||'').replace('@','');const ac=c.querySelector('.placts')||c;ac.insertAdjacentHTML('afterbegin',`<button class="btn small" data-pdm>💬 Scrivi</button>`);
+  c.querySelector('[data-pdm]').onclick=()=>dmSheet(uid,nick);}catch(e){}};
+const _socPaintDm=socPaint;socPaint=function(){_socPaintDm();try{if(SOC.tab!=='piazza'||!S.user)return;const w=app.querySelector('#socBody .pzwrap .schips');if(!w||w.querySelector('[data-pzdm]'))return;
+  w.insertAdjacentHTML('beforeend','<button data-pzdm>✉️ Privati</button>');w.querySelector('[data-pzdm]').onclick=dmThreads;dmBadge();}catch(e){}};
+async function dmBadge(){try{const{data}=await SB.rpc('world_dm_threads');const n=(data||[]).reduce((a,t)=>a+(+t.unread||0),0);const b=app.querySelector('[data-pzdm]');if(b)b.textContent=n?`✉️ Privati (${n})`:'✉️ Privati';}catch(e){}}
+const _socLineDm=socLine;socLine=function(f){if(f.kind!=='dm')return _socLineDm(f);const a=socNick(f.actor,f.actor_nick);const toMe=S.user&&f.target===S.user.id;
+  return`<div class="sitem"><span class="sic">✉️</span><div class="stx">${a} ${toMe?'ti ha scritto':'ha scritto'}${f.info?`: «${esc(f.info)}»`:''}<small>${socAgo(f.created_at)}</small></div>${toMe?`<button class="btn small" data-dmr="${esc(f.actor)}" data-n="${esc(f.actor_nick||'')}">Rispondi</button>`:''}</div>`;};
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-dmr]');if(b)dmSheet(b.dataset.dmr,b.dataset.n);});
+const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheetDm.apply(this,arguments);setTimeout(()=>{try{const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('[data-spdm]'))return;const q=c.querySelector('[data-sa=quote]');if(!q)return;
+  q.insertAdjacentHTML('beforebegin','<button class="btn" data-spdm>💬 Scrivi al negozio</button>');c.querySelector('[data-spdm]').onclick=()=>{q.click();setTimeout(()=>{const t=c.querySelector('.quote textarea, .quote [id^=q]');if(t)t.focus();},200);};}catch(e){}},80);return r;};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
