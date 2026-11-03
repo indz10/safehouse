@@ -1374,6 +1374,28 @@ body[data-tab=orda] #accFab{display:none!important}
 .hpsel{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;margin-bottom:6px;border-bottom:2px dashed rgba(20,15,31,.25)}
 .hpsel button{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;background:#fff;border:2.5px solid var(--ink);padding:5px 10px;color:var(--ink)}
 .hpsel button b{font-size:13.5px}.hpsel button small{font-size:11.5px;color:#5a5470}.hpsel button.on{background:var(--moon);box-shadow:2px 2px 0 var(--ink)}
+.lm-w.pend{opacity:.75}.lm-w.pend b{filter:grayscale(.6)}
+.crpan{margin-top:6px}
+
+/* abitazione */
+.hktype{display:flex;align-items:center;gap:10px;background:#fff;border:3px solid var(--ink);padding:8px 10px;margin-bottom:8px}.hktype>span{font-size:28px}.hktype div{flex:1;display:flex;flex-direction:column}
+.hktype small{font-size:12px;color:#5a5470}.hktype.todo{background:#fff3b0;box-shadow:3px 3px 0 var(--ink)}
+.hkopt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#fff;border:3px solid var(--ink);padding:9px 10px;margin-bottom:8px;color:var(--ink)}.hkopt>span{font-size:28px}.hkopt div{display:flex;flex-direction:column}.hkopt small{font-size:12px;color:#5a5470}
+.hkopt.on{background:var(--moon);box-shadow:3px 3px 0 var(--ink)}
+.hkreq{background:#fff3b0;border:2.5px solid var(--ink);padding:8px 10px;margin-bottom:8px;font-size:13.5px}.hkreq div{display:flex;gap:6px;margin-top:6px}
+.hkmem{background:#e3f5e8;border:2.5px solid var(--ink);padding:8px 10px;margin-bottom:8px;font-size:13.5px;display:flex;flex-direction:column;gap:3px}.hkmem small{color:#5a5470}
+.lnk{background:none;border:0;padding:0;color:#5a5470;text-decoration:underline;font-size:12px;align-self:flex-start}
+.cdpan{margin-top:8px}.cdrow{background:#fff;border:2.5px solid var(--ink);padding:8px 10px;margin-bottom:8px;display:flex;flex-direction:column;gap:5px}
+.cdt{display:flex;justify-content:space-between}.cdt span{letter-spacing:2px}
+.cdbar{position:relative;height:22px;border:2px solid var(--ink);background:#f3e9d2}.cdbar i{position:absolute;inset:0 auto 0 0;background:#5bd16a}.cdbar small{position:relative;display:block;text-align:center;font-size:11.5px;font-weight:800;line-height:18px}
+.cdbtn{display:flex;gap:6px}.cdbtn .btn{flex:1}
+
+/* stato del gioco e avvisi */
+.zbanner{position:fixed;left:8px;right:8px;top:calc(env(safe-area-inset-top,0px) + 70px);z-index:9000;background:#fff3b0;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:9px 34px 9px 11px;font-size:13.5px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:var(--ink)}
+.zbanner .zbx{position:absolute;right:6px;top:6px;background:none;border:0;font-size:16px;color:var(--ink)}
+.zst{display:flex;align-items:center;gap:9px;background:#fff;border:2.5px solid var(--ink);padding:7px 9px;margin-bottom:6px}.zst>span{font-size:18px}.zst div{flex:1;display:flex;flex-direction:column}
+.zst small{font-size:12px;color:#5a5470}.zst.ko{background:#ffe9ec}
+.zstbtn{width:100%}
 </style>
 </head>
 <body>
@@ -6155,7 +6177,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611021521';
+const ZSH_BUILD='202611022216';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -6752,17 +6774,24 @@ const _fillOnlineG=fillOnline;fillOnline=async function(card,b){await _fillOnlin
 (function(){try{const p=new URLSearchParams(location.search).get('invito');if(p&&/^[0-9a-f]{8}$/i.test(p)){localStorage.setItem('zsh_inv',p.toLowerCase());history.replaceState(null,'',location.pathname);}}catch(e){}})();
 const myCode=()=>S.user&&S.user.id?S.user.id.slice(0,8):null;
 const invLink=()=>location.origin+'/?invito='+myCode();
+/* messaggio d'invito con le istruzioni: aprire in Safari/Chrome, creare l'account, mettere l'app sulla Home */
+const invTxt=()=>`🧟 Ti invito su ZombieSafeHouse: scopri quanto resisterebbe casa tua a un’apocalisse zombie (e come renderla più sicura davvero).
+
+1) Apri il link con Safari (iPhone) o Chrome (Android), non dentro WhatsApp: ${invLink()}
+2) Crea l’account: così siamo collegati e giochiamo nello stesso mondo
+3) Fai la valutazione della tua casa
+4) iPhone: Condividi → Aggiungi alla schermata Home (Android: menu ⋮ → Installa app)`;
 const _zSyncInv=zSyncProfile;zSyncProfile=async function(force){await _zSyncInv(force);try{const inv=localStorage.getItem('zsh_inv');if(!inv||!S.user||inv===myCode()||localStorage.getItem('zsh_inv_ok'))return;
   const{error}=await SB.from('profili_pubblici').update({invitato_da:inv}).eq('user_id',S.user.id);if(!error)localStorage.setItem('zsh_inv_ok','1');}catch(e){}};
 async function inviteSheet(){if(!S.user){toast('Accedi per avere il tuo link di invito');return;}let L=[];try{const{data}=await SB.rpc('miei_invitati');L=data||[];}catch(e){}
   G.invCl=G.invCl||[];const ready=L.filter(x=>x.valutato&&!G.invCl.includes(x.nick));
   openSheet('📨 Invita amici e vicini',`<p style="font-weight:400;margin-bottom:10px">Chi entra col tuo link e valuta la sua casa ti fa guadagnare <b>💎 5</b>. Se abita entro 1,5 km diventa uno dei tuoi <b>👥 Vicini veri</b>: nella battaglia la tua abilità diventa più forte.</p>
    <div class="invl"><input readonly value="${esc(invLink())}"><button class="btn small" data-invcp>Copia</button></div>
-   <div class="row" style="gap:8px;margin:10px 0;flex-wrap:wrap"><button class="btn" data-invsh>📤 Condividi il link</button><a class="btn ghost small" href="https://wa.me/?text=${encodeURIComponent('Ho trovato un gioco che ti dice quanto resisterebbe casa tua a un’apocalisse zombie (e come renderla più sicura davvero). Entra col mio link: '+invLink())}" target="_blank" rel="noopener">WhatsApp</a></div>
+   <div class="row" style="gap:8px;margin:10px 0;flex-wrap:wrap"><button class="btn" data-invsh>📤 Condividi il link</button><a class="btn ghost small" href="https://wa.me/?text=${encodeURIComponent(invTxt())}" target="_blank" rel="noopener">WhatsApp</a></div>
    <h3 style="margin-top:6px">I tuoi invitati (${L.length})</h3>${L.length?L.map(x=>`<div class="tm ${x.valutato?'ok':''}"><span class="tmi">${x.valutato?'✅':'⏳'}</span><div class="tmt"><span><b>@${esc(x.nick)}</b></span><small>${x.valutato?(G.invCl.includes(x.nick)?'Premio già ritirato':'Ha valutato la casa: premio pronto'):'Registrato, deve ancora valutare la casa'}</small></div></div>`).join(''):'<p class="muted">Ancora nessuno: condividi il link!</p>'}
    ${ready.length?`<button class="btn wide alt" data-invcl>🎁 Ritira 💎 ${ready.length*5}</button>`:''}`,card=>{
     card.querySelector('[data-invcp]').onclick=()=>{try{navigator.clipboard.writeText(invLink());toast('Link copiato');}catch(e){}};
-    card.querySelector('[data-invsh]').onclick=()=>{if(navigator.share)navigator.share({title:'ZombieSafeHouse',text:'Quanto resisterebbe casa tua a un’apocalisse zombie? Entra col mio link:',url:invLink()}).catch(()=>{});else{try{navigator.clipboard.writeText(invLink());toast('Link copiato');}catch(e){}}};
+    card.querySelector('[data-invsh]').onclick=()=>{if(navigator.share)navigator.share({title:'ZombieSafeHouse',text:invTxt()}).catch(()=>{});else{try{navigator.clipboard.writeText(invLink());toast('Link copiato');}catch(e){}}};
     const c=card.querySelector('[data-invcl]');if(c)c.onclick=()=>{ready.forEach(x=>G.invCl.push(x.nick));if(G.type)G.gems+=ready.length*5;try{saveLocal();}catch(e){}toast(`+💎 ${ready.length*5} dagli inviti`);closeSheet();};});}
 /* ELIMINA ACCOUNT (richiesto da Apple e Google) */
 function deleteSheet(){openSheet('🗑 Elimina il mio account',`<p style="font-weight:400">Vengono cancellati <b>per sempre</b>: account, salvataggi nel cloud, profilo sulla mappa, inviti. I codici sconto usati restano ai negozi in forma anonima.</p>
@@ -7154,7 +7183,11 @@ async function wDrawMap(lm,force){if(!lm||!lm.map||!W.on)return;const map=lm.map
   const b=map.getBounds();const key=[b.getSouth(),b.getWest(),b.getNorth(),b.getEast()].map(v=>v.toFixed(3)).join(',');if(!force&&lm._wk===key)return;lm._wk=key;
   let rows=[];try{rows=await wRpc('world_view',{p_minlat:b.getSouth(),p_minlon:b.getWest(),p_maxlat:b.getNorth(),p_maxlon:b.getEast()})||[];}catch(e){return;}
   (lm._w||[]).forEach(x=>x.remove());lm._w=[];lm._wrows=rows;
-  rows.forEach(r=>{const st=W_ST[r.status]||W_ST.owned;const el=elDiv('lm-w '+r.status,`<b>${st[0]}</b>${r.status==='owned'&&r.nick?`<em>@${esc(r.nick)}</em>`:r.status==='mine'?'<em>tua</em>':''}`);
+  /* un solo segnaposto per edificio (entro 20 m), con chi ci abita */
+  const pri={myhome:0,mine:1,home:2,owned:3,free:4};rows=rows.slice().sort((x,y)=>(pri[x.status]??9)-(pri[y.status]??9));const kept=[];rows.forEach(r=>{if(!kept.some(k=>trM(k.lat,k.lon,r.lat,r.lon)<20))kept.push(r);});rows=kept;lm._wrows=rows;
+  rows.forEach(r=>{const st=W_ST[r.status]||W_ST.owned;const res=r.residents?String(r.residents).split(', ').filter(Boolean):[];
+    const lbl=r.status==='myhome'?(res.length?`<em>👥 @${esc(res[0])}${res.length>1?' +'+(res.length-1):''}</em>`:''):r.status==='home'?`<em>${r.pending?'⏳ ':''}@${esc(res[0]||r.nick||'')}${res.length>1?' +'+(res.length-1):''}</em>`:r.status==='owned'&&r.nick?`<em>@${esc(r.nick)}</em>`:r.status==='mine'?'<em>tua</em>':'';
+    const el=elDiv('lm-w '+r.status+(r.pending?' pend':''),`<b>${st[0]}</b>${lbl}`);
     el.addEventListener('click',e=>{e.stopPropagation();wSheet(r.building_id,r.lat,r.lon);});lm._w.push(new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([r.lon,r.lat]).addTo(map));});}
 /* codice dell'edificio dal disegno della mappa: stesso per tutti (stesse mappe), istantaneo, senza server */
 function wFromTile(feats,lat,lon){for(const f of feats||[]){const g=f.geometry;const polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];
@@ -9429,7 +9462,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611021521';
+const APPV='202611022216';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -9547,6 +9580,132 @@ const _closeSheetHP=closeSheet;closeSheet=function(){const r=_closeSheetHP.apply
 /* tutte le strade portano alla pagina della casa */
 const _renderHomeHP=renderHome;renderHome=function(){_renderHomeHP();try{const b=app.querySelector('[data-hs=casa]');if(b)b.onclick=()=>{const home=S.user&&myHouses().find(x=>x.home);if(home)houseSheet(home);else go('casa');};}catch(e){}};
 const _casaAllHP=casaAll;casaAll=async function(){await thrLoad(true);await _casaAllHP();try{app.querySelectorAll('.mycasa2').forEach(c=>{const h=myHouses().filter(x=>!x.home)[+c.dataset.mc];c.querySelectorAll('[data-mcs]').forEach(b=>b.onclick=()=>houseSheet(h));});}catch(e){}};
+</script>
+<script>
+/* =========================================================
+   ACCOUNT SEPARATI SULLO STESSO TELEFONO + CHI VIVE NELLA MIA CASA
+   - entrando con un account diverso dal precedente, i dati del vecchio si cancellano dal telefono
+     PRIMA che possano finire nel nuovo (prima venivano copiati nel nuovo account)
+   - "Esci" cancella anche i dati di gioco salvati sul telefono (restano nel cloud del proprio account)
+   - pagina della casa vera: "🏢 Chi vive qui" (coinquilini, anche in conferma)
+   ========================================================= */
+const OWN_K='zsh_owner';
+/* durante il cambio di account e l'uscita non si salva più niente sul telefono */
+const _saveLocalAc=saveLocal;saveLocal=function(){if(window.__noSave)return;return _saveLocalAc.apply(this,arguments);};
+try{const _pushAc=pushCloud;pushCloud=async function(){if(window.__noSave)return;return _pushAc.apply(this,arguments);};}catch(e){}
+function zWipeLocal(){window.__noSave=true;try{const keep=/^(zsh_snd|zsh_music|zsh_mute|zsh_rm2_|zsh_att_|zsh_spg_)/;Object.keys(localStorage).forEach(k=>{if(/^zsh/.test(k)&&!keep.test(k))localStorage.removeItem(k);});}catch(e){}}
+const _onLoginAc=onLogin;onLogin=async function(u,fresh){try{const prev=localStorage.getItem(OWN_K);
+  if(prev&&u&&prev!==u.id){zWipeLocal();localStorage.setItem(OWN_K,u.id);sessionStorage.setItem('zsh_switched','1');location.reload();return;}
+  if(u)localStorage.setItem(OWN_K,u.id);}catch(e){}return _onLoginAc.apply(this,arguments);};
+(function(){try{if(sessionStorage.getItem('zsh_switched')){sessionStorage.removeItem('zsh_switched');setTimeout(()=>{try{toast('🔄 Account cambiato: dati del telefono separati');}catch(e){}},1500);}}catch(e){}})();
+const _zLogoutAc=zLogout;zLogout=async function(){try{if(typeof pushCloud==='function')await Promise.race([pushCloud(),new Promise(r=>setTimeout(r,1500))]);}catch(e){}zWipeLocal();return _zLogoutAc.apply(this,arguments);};
+/* ---- chi vive nella mia casa ---- */
+async function coresHTML(){let L=[];try{const{data,error}=await SB.rpc('world_coresidents');if(error)throw error;L=data||[];}catch(e){return`<p class="muted" style="font-size:12.5px">Non disponibile (${esc(e.message||'')}). Esegui il file residenti.sql su Supabase.</p>`;}
+  if(!L.length)return'<p class="muted" style="font-size:12.5px">Per ora abiti qui solo tu. Se vivi con qualcuno (famiglia, coinquilini, vicini di condominio), invitalo: diventate coinquilini e vi date +3 di difesa a testa.</p>';
+  return L.map(r=>`<div class="alrow"><span class="sav">${esc((r.nick||'?')[0].toUpperCase())}</span><div class="alrt"><b>@${esc(r.nick)}</b><small>${r.status==='pending'?'⏳ casa in conferma':'🏠 abita qui'} · ${agoTxt(r.seen_at)}${r.ally?' · 🤝 alleato':''}</small></div>
+    <div class="alacts" style="width:auto"><button class="btn small ghost" data-crm="${r.user_id}" data-n="${esc(r.nick)}">💬 Scrivi</button>${r.ally?'':`<button class="btn small" data-cra="${r.user_id}">🤝 Alleanza</button>`}</div></div>`).join('');}
+const _houseSheetAc=houseSheet;houseSheet=async function(h){await _houseSheetAc(h);try{if(!h.home)return;const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('.crpan'))return;
+  const at=c.querySelector('.hpreal')||c.querySelector('.fortpan');const box=document.createElement('div');box.className='crpan';box.innerHTML='<h4 class="hh">🏢 Chi vive qui</h4><div class="crbox"><p class="muted"><span class="spin"></span></p></div>';
+  if(at)at.after(box);else c.appendChild(box);const b=box.querySelector('.crbox');b.innerHTML=await coresHTML();
+  b.querySelectorAll('[data-crm]').forEach(x=>x.onclick=()=>dmSheet(x.dataset.crm,x.dataset.n));
+  b.querySelectorAll('[data-cra]').forEach(x=>x.onclick=async()=>{x.disabled=true;try{const r=await socRpc('world_ally_request',{p_target:x.dataset.cra});toast(r&&r.msg?r.msg:'🤝 Richiesta inviata');}catch(e){toast(e.message||'Non riuscito');x.disabled=false;}});}catch(e){console.warn(e);}};
+</script>
+<script>
+/* =========================================================
+   TIPI DI ABITAZIONE (pagina della casa vera → "🏘️ La tua abitazione")
+   🏠 casa (anche condivisa: chi vive insieme ha UNA casa con fortificazioni e livello in comune)
+   🏢 condominio (scala/interno: casa tua separata + difese comuni pagate insieme, +3 per livello a tutti)
+   🏨 residence (temporanea: cambi indirizzo quando vuoi, senza attese)
+   ========================================================= */
+const HK={casa:['🏠','Casa','singola o condivisa con chi vive con te'],condominio:['🏢','Condominio','palazzina, condominio, villetta a schiera: ogni famiglia la sua casa'],residence:['🏨','Residence','casa temporanea: residence, B&B, studenti, affitto breve']};
+const CD={portone:['🚪','Portone blindato'],cancello:['🔒','Cancello automatico'],telecamere:['📹','Telecamere condominiali']};
+async function hiLoad(){try{const{data,error}=await SB.rpc('world_house_info');if(error)throw error;return data;}catch(e){return{err:e.message};}}
+function kindSheet(I,after){let k=(I&&I.kind_set&&I.kind)||'casa';const draw=()=>openSheet('🏘️ Che tipo di casa è?',`
+  ${Object.entries(HK).map(([id,[ic,n,d]])=>`<button class="hkopt ${k===id?'on':''}" data-hk="${id}"><span>${ic}</span><div><b>${n}</b><small>${d}</small></div></button>`).join('')}
+  ${k==='condominio'?`<label class="fl">Scala e interno<input class="field" id="hkU" maxlength="30" placeholder="per esempio: A 5" value="${esc((I&&I.unit)||'')}"></label><p class="muted" style="font-size:12px">Serve a distinguere la tua casa da quella dei vicini nello stesso palazzo. Le difese comuni del condominio le pagate insieme.</p>`:''}
+  ${k==='casa'?'<p class="muted" style="font-size:12px">Se vivi con altri iscritti (famiglia, coinquilini), dopo invitali con “🏠 Viviamo insieme”: avrete una casa sola con fortificazioni e livello in comune.</p>':''}
+  ${k==='residence'?'<p class="muted" style="font-size:12px">Per chi sta in un posto per poco: quando cambi indirizzo la nuova casa è attiva subito, senza aspettare il giorno dopo.</p>':''}
+  <button class="btn wide" data-hks>Salva</button>`,card=>{card.querySelectorAll('[data-hk]').forEach(b=>b.onclick=()=>{k=b.dataset.hk;draw();});
+    card.querySelector('[data-hks]').onclick=async e=>{const u=(card.querySelector('#hkU')||{}).value||'';e.target.disabled=true;try{const{data,error}=await SB.rpc('world_set_home',{p_kind:k,p_unit:u});if(error)throw error;
+      if(!data.ok){toast(data.msg);e.target.disabled=false;return;}toast('🏘️ '+data.msg);await wMine(true);await thrLoad(true);if(after)after();}catch(x){toast(x.message||'Non riuscito');e.target.disabled=false;}};});draw();}
+function condoHTML(C){if(!C)return'';return`<div class="cdpan"><h4 class="hh">🏢 Difese del condominio <small style="font-weight:400;font-size:12px">· +3 di difesa per livello a tutte le case del palazzo · ora <b>+${C.bonus}</b></small></h4>
+  ${(C.defs||[]).map(d=>{const[ic,n]=CD[d.kind];const pct=d.next?Math.round(d.pot/d.next*100):100;return`<div class="cdrow"><div class="cdt"><b>${ic} ${n}</b><span>${'●'.repeat(d.level)}${'○'.repeat(3-d.level)}</span></div>
+    ${d.next?`<div class="cdbar"><i style="width:${pct}%"></i><small>🧱 ${wNum(d.pot)} / ${wNum(d.next)} per il livello ${d.level+1}</small></div>
+    <div class="cdbtn">${[20,50,100].map(v=>`<button class="btn small ghost" data-cdg="${d.kind}" data-v="${v}">+🧱 ${v}</button>`).join('')}</div>`:'<small class="muted">Al massimo</small>'}
+    ${(d.top||[]).length?`<small class="muted">Hanno versato: ${d.top.map(t=>`@${esc(t.nick)} ${wNum(t.tot)}`).join(' · ')}</small>`:''}</div>`;}).join('')}</div>`;}
+function abitHTML(I){if(!I||I.err)return`<p class="muted" style="font-size:12.5px">Non disponibile${I&&I.err?' ('+esc(I.err)+')':''}. Esegui il file abitazione.sql su Supabase.</p>`;
+  const[ic,n,d]=HK[I.kind]||HK.casa;const M=I.members||[],N=I.neighbors||[],R=I.requests||[];
+  return`<div class="hktype ${I.kind_set?'':'todo'}"><span>${ic}</span><div><b>${I.kind_set?n:'Che tipo di casa è?'}${I.kind==='condominio'&&I.unit?' · '+esc(I.unit):''}</b><small>${I.kind_set?d:'Dillo al gioco: casa, condominio o residence'}</small></div><button class="btn small" data-hkc>${I.kind_set?'Cambia':'Scegli'}</button></div>
+   ${R.map(r=>`<div class="hkreq">🏠 <b>@${esc(r.nick)}</b> dice che vivete nella stessa casa<div><button class="btn small" data-hra="${r.user_id}" data-y="1">Sì, viviamo insieme</button><button class="btn small ghost" data-hra="${r.user_id}" data-y="0">No</button></div></div>`).join('')}
+   ${M.length?`<div class="hkmem"><span>🏠 <b>Vivete insieme</b>: ${M.map(m=>'@'+esc(m.nick)).join(', ')}</span><small>Casa condivisa: fortificazioni e livello in comune.</small><button class="lnk" data-hkl>Ho una casa mia in questo edificio</button></div>`:''}
+   ${N.length?`<h4 class="hh" style="margin-top:8px">🏢 Nello stesso edificio</h4>${N.map(r=>`<div class="alrow"><span class="sav">${esc((r.nick||'?')[0].toUpperCase())}</span><div class="alrt"><b>@${esc(r.nick)}${r.kind==='condominio'&&r.unit?' · '+esc(r.unit):''}</b><small>${r.status==='pending'?'⏳ casa in conferma':'🏠 abita qui'} · ${agoTxt(r.seen_at)}${r.ally?' · 🤝 alleato':''}</small></div>
+     <div class="alacts"><button class="btn small ghost" data-crm="${r.user_id}" data-n="${esc(r.nick)}">💬 Scrivi</button>${r.ally?'':`<button class="btn small ghost" data-cra="${r.user_id}">🤝 Alleanza</button>`}${r.asked?'<button class="btn small" disabled>🏠 richiesta inviata</button>':`<button class="btn small" data-hki="${r.user_id}">🏠 Viviamo insieme</button>`}</div></div>`).join('')}`
+   :(!M.length?'<p class="muted" style="font-size:12.5px">Per ora in questo edificio ci sei solo tu. Se vivi con qualcuno, invitalo: diventate coinquilini e vi date +3 di difesa a testa.</p>':'')}
+   ${condoHTML(I.condo)}`;}
+async function abitMount(c,h){let p=c.querySelector('.abpan');if(!p){p=document.createElement('div');p.className='abpan';const old=c.querySelector('.crpan');if(old){old.replaceWith(p);}else{const at=c.querySelector('.hpreal')||c.querySelector('.fortpan');if(at)at.after(p);else c.appendChild(p);}}
+  p.innerHTML='<h4 class="hh">🏘️ La tua abitazione</h4><div class="abbox"><p class="muted"><span class="spin"></span></p></div>';const I=await hiLoad();const b=p.querySelector('.abbox');b.innerHTML=abitHTML(I);
+  const redo=()=>houseSheet(h);
+  const kc=b.querySelector('[data-hkc]');if(kc)kc.onclick=()=>kindSheet(I,redo);
+  b.querySelectorAll('[data-crm]').forEach(x=>x.onclick=()=>dmSheet(x.dataset.crm,x.dataset.n));
+  b.querySelectorAll('[data-cra]').forEach(x=>x.onclick=async()=>{x.disabled=true;try{const r=await socRpc('world_ally_request',{p_target:x.dataset.cra});toast(r&&r.msg?r.msg:'🤝 Richiesta inviata');}catch(e){toast(e.message||'Non riuscito');x.disabled=false;}});
+  b.querySelectorAll('[data-hki]').forEach(x=>x.onclick=async()=>{x.disabled=true;try{const{data,error}=await SB.rpc('world_house_invite',{p_to:x.dataset.hki});if(error)throw error;toast((data.ok?'🏠 ':'')+data.msg);if(data.ok)x.textContent='🏠 richiesta inviata';else x.disabled=false;}catch(e){toast(e.message||'Non riuscito');x.disabled=false;}});
+  b.querySelectorAll('[data-hra]').forEach(x=>x.onclick=async()=>{x.disabled=true;try{const{data,error}=await SB.rpc('world_house_answer',{p_from:x.dataset.hra,p_yes:x.dataset.y==='1'});if(error)throw error;toast('🏠 '+data.msg);await wMine(true);await thrLoad(true);redo();}catch(e){toast(e.message||'Non riuscito');x.disabled=false;}});
+  const lv=b.querySelector('[data-hkl]');if(lv)lv.onclick=async()=>{if(!confirm('Avere una casa tua separata in questo edificio? Le fortificazioni condivise restano a chi vive lì.'))return;try{const{data,error}=await SB.rpc('world_house_leave');if(error)throw error;toast('🏠 '+data.msg);await wMine(true);await thrLoad(true);redo();}catch(e){toast(e.message||'Non riuscito');}};
+  b.querySelectorAll('[data-cdg]').forEach(x=>x.onclick=async()=>{const v=+x.dataset.v;if(((W.m&&W.m.mattoni)||0)<v){toast(`Servono 🧱 ${v}`);return;}x.disabled=true;try{const{data,error}=await SB.rpc('world_condo_give',{p_kind:x.dataset.cdg,p_amount:v});if(error)throw error;toast((data.ok?'🏢 ':'')+data.msg);await wMine(true);await thrLoad(true);redo();}catch(e){toast(e.message||'Non riuscito');x.disabled=false;}});}
+const _houseSheetAb=houseSheet;houseSheet=async function(h){await _houseSheetAb(h);try{if(!h.home||!S.user)return;const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('.abpan'))return;await abitMount(c,h);}catch(e){console.warn(e);}};
+/* bacheca: richieste di vivere insieme */
+const _socLineAb=socLine;socLine=function(f){if(f.kind!=='house_req'&&f.kind!=='house_ok')return _socLineAb(f);const a=socNick(f.actor,f.actor_nick);const toMe=S.user&&f.target===S.user.id;
+  return`<div class="sitem"><span class="sic">🏠</span><div class="stx">${a} ${f.kind==='house_req'?(toMe?'dice che vivete nella stessa casa':'ha chiesto di vivere insieme'):(toMe?'ora vive con te: casa condivisa':'ora vive insieme a un superstite')}<small>${socAgo(f.created_at)}</small></div>${toMe&&f.kind==='house_req'?'<button class="btn small" data-hkopen>Rispondi</button>':''}</div>`;};
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-hkopen]');if(!b)return;const home=myHouses().find(x=>x.home);if(home)houseSheet(home);});
+</script>
+<script>
+/* =========================================================
+   PERCHÉ UN AMICO VEDE MENO COSE: controllo, versione nuova, browser di WhatsApp
+   - "🩺 Controlla il mio gioco" (menu): versione, dove è aperta l'app, account, casa, tipo, livello,
+     meteo, notifiche, alleati → per ogni ✗ cosa fare; "📤 Manda lo stato" per mandarlo su WhatsApp
+   - avviso "versione nuova" se il telefono tiene in memoria una versione vecchia
+   - avviso "sei nel browser di WhatsApp/Instagram/Facebook"
+   ========================================================= */
+function zWhere(){const ua=navigator.userAgent||'';const sa=window.navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
+  if(sa)return'app';if(/FBAN|FBAV|Instagram|WhatsApp|Line\/|Telegram/i.test(ua))return'inapp';
+  if(/iPhone|iPad/.test(ua)&&!/Safari\//.test(ua))return'inapp';return'browser';}
+async function zLatest(){try{const r=await fetch('/sw.js?ts='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/zsh-(\d{12})/);return m?m[1]:null;}catch(e){return null;}}
+async function zUpdateNow(){try{toast('Aggiorno l’app…');}catch(e){}try{const k=await caches.keys();await Promise.all(k.map(x=>caches.delete(x)));}catch(e){}
+  try{const r=await navigator.serviceWorker.getRegistration();if(r)await r.update();}catch(e){}location.replace(location.pathname+'?v='+Date.now());}
+function zBanner(id,html,onBind){if(document.getElementById(id))return;document.body.insertAdjacentHTML('beforeend',`<div id="${id}" class="zbanner">${html}<button class="zbx" aria-label="Chiudi">✕</button></div>`);
+  const b=document.getElementById(id);b.querySelector('.zbx').onclick=()=>b.remove();if(onBind)onBind(b);}
+async function zCheckVersion(){const L=await zLatest();if(!L||!/^\d{12}$/.test(String(APPV)))return;if(+L>+APPV)zBanner('zbver',`🆕 <b>C’è una versione nuova</b> dell’app<button class="btn small" data-zup>Aggiorna</button>`,b=>b.querySelector('[data-zup]').onclick=zUpdateNow);}
+setTimeout(zCheckVersion,4000);setInterval(()=>{if(document.visibilityState==='visible')zCheckVersion();},10*60000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(zCheckVersion,800);});
+setTimeout(()=>{try{if(zWhere()==='inapp'&&!sessionStorage.getItem('zsh_inapp'))
+  zBanner('zbinapp',`⚠️ <b>Sei nel browser di un’altra app</b> (es. WhatsApp): qui l’app funziona a metà. Tocca <b>•••</b> o <b>⋮</b> → <b>Apri in Safari/Chrome</b>, poi aggiungila alla Home.`,b=>{sessionStorage.setItem('zsh_inapp','1');});}catch(e){}},2500);
+/* ---- il controllo ---- */
+async function zStatus(){const out=[];const add=(ok,t,how,act)=>out.push({ok,t,how,act});
+  const L=await zLatest();add(!L||+L<=+APPV,`Versione app: ${typeof appVerTxt==='function'?appVerTxt():APPV}`,L&&+L>+APPV?'C’è una versione più nuova: tocca Aggiorna':'',L&&+L>+APPV?'upd':null);
+  const w=zWhere();add(w==='app',w==='app'?'Aperta dall’icona sulla schermata Home':w==='inapp'?'Aperta dentro WhatsApp o un’altra app':'Aperta nel browser',w==='app'?'':w==='inapp'?'Apri il link con Safari (iPhone) o Chrome (Android)':'iPhone: Condividi → Aggiungi alla schermata Home; Android: ⋮ → Installa app');
+  add(!!S.user,S.user?`Account: @${S.user.nick||''}`:'Non hai fatto l’accesso',S.user?'':'Menu ☰ → Accedi o crea l’account: senza account non c’è il mondo condiviso','login');
+  add(!!S.result,S.result?'Valutazione della casa vera fatta':'Valutazione della casa vera da fare',S.result?'':'Fai la valutazione: serve per la casa disegnata e lo Scudo','val');
+  let I=null;if(S.user){try{const{data}=await SB.rpc('world_house_info');I=data;}catch(e){}}
+  const st=I&&I.status||(W&&W.m&&W.m.home&&W.m.home.status)||null;
+  add(st==='home',st==='home'?'Casa nel mondo confermata':st==='pending'?'Casa in conferma':'Casa non ancora nel mondo',st==='home'?'':st==='pending'?'Riapri l’app domani per confermarla (serve contro i furbi)':'Dopo la valutazione, apri la Mappa: la casa si registra da sola');
+  if(I)add(!!I.kind_set,I.kind_set?`Tipo di abitazione: ${(HK[I.kind]||['',''])[1]}${I.unit?' · '+I.unit:''}`:'Tipo di abitazione da scegliere',I.kind_set?'':'🏠 La mia casa → “Che tipo di casa è?”');
+  const wl=(typeof w_lvl==='function')?null:null;let T=null;try{await thrLoad(true);T=(THR.L||[]).find(x=>x.home);}catch(e){}
+  if(T){const sp=(T.specials||[]).map(x=>(ZSP[x.k]||{}).ic).join('');const nx=[[2,'🏃'],[3,'🪖📢'],[4,'⛏️'],[5,'💪'],[6,'👤'],[8,'👑']].find(([l])=>l>T.wl);
+    add(true,`Livello del mondo ${T.wl}: zombie ${sp?'speciali '+sp:'solo vaganti'}`,nx?`Al livello ${nx[0]} arrivano anche ${nx[1]}`:'');
+    add(T.temp!=null,T.temp!=null?`Meteo e terreno letti (${(EVN[T.ev]||EVN.calma)[1].toLowerCase()})`:'Meteo e terreno in arrivo',T.temp!=null?'':'Il server li legge entro 10–20 minuti dalla registrazione della casa');}
+  const notif=('Notification' in window)&&Notification.permission==='granted';add(notif,notif?'Notifiche attive':'Notifiche spente',notif?'':(w==='app'?'Menu ☰ → Notifiche':'Prima metti l’app sulla schermata Home, poi attivale dal menu'));
+  try{const n=(ALS&&ALS.L)?ALS.L.length:(await alsLoad(true)||[]).length;add(n>0,`Alleati: ${n}`,n?'':'Superstiti → 🤝 Alleati: cerca o invita qualcuno');}catch(e){}
+  return out;}
+async function zStatusSheet(){openSheet('🩺 Controlla il mio gioco','<p><span class="spin"></span> Controllo…</p>');const L=await zStatus();
+  const txt='🩺 ZombieSafeHouse – stato\n'+L.map(x=>`${x.ok?'✅':'❌'} ${x.t}${x.how?' → '+x.how:''}`).join('\n');
+  openSheet('🩺 Controlla il mio gioco',`<p class="muted" style="font-size:12.5px;margin-top:0">Se un amico vede meno cose di te, il motivo è quasi sempre qui sotto.</p>
+    ${L.map(x=>`<div class="zst ${x.ok?'ok':'ko'}"><span>${x.ok?'✅':'❌'}</span><div><b>${esc(x.t)}</b>${x.how?`<small>${esc(x.how)}</small>`:''}</div>${x.ok?'':x.act==='upd'?'<button class="btn small" data-zsa="upd">Aggiorna</button>':x.act==='login'?'<button class="btn small" data-zsa="login">Accedi</button>':x.act==='val'?'<button class="btn small" data-zsa="val">Valuta</button>':''}</div>`).join('')}
+    <button class="btn wide" data-zshare>📤 Manda lo stato (WhatsApp, messaggi…)</button>`,card=>{
+    card.querySelectorAll('[data-zsa]').forEach(b=>b.onclick=()=>{const a=b.dataset.zsa;if(a==='upd')zUpdateNow();else if(a==='login'){closeSheet();try{loginSheet();}catch(e){zmOpen();}}else{closeSheet();S.step=1;go('valuta');}});
+    card.querySelector('[data-zshare]').onclick=()=>{if(navigator.share)navigator.share({text:txt}).catch(()=>{});else{try{navigator.clipboard.writeText(txt);toast('Copiato: incollalo nel messaggio');}catch(e){}}};});}
+/* nel menu, sopra la versione */
+const _zmOpenSt=zmOpen;zmOpen=function(){const r=_zmOpenSt.apply(this,arguments);setTimeout(()=>{try{const v=document.querySelector('#zmenu .zmver');if(v&&!document.querySelector('#zmenu [data-zstat]')){v.insertAdjacentHTML('beforebegin','<button class="zmrow zstbtn" data-zstat><span>🩺</span><b>Controlla il mio gioco</b><i>›</i></button>');
+  document.querySelector('#zmenu [data-zstat]').onclick=()=>{try{zmClose();}catch(e){}zStatusSheet();};}}catch(e){}},40);return r;};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
