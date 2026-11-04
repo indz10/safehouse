@@ -1396,6 +1396,25 @@ body[data-tab=orda] #accFab{display:none!important}
 .zst{display:flex;align-items:center;gap:9px;background:#fff;border:2.5px solid var(--ink);padding:7px 9px;margin-bottom:6px}.zst>span{font-size:18px}.zst div{flex:1;display:flex;flex-direction:column}
 .zst small{font-size:12px;color:#5a5470}.zst.ko{background:#ffe9ec}
 .zstbtn{width:100%}
+
+/* pagina di benvenuto (invito) */
+#bvpage{position:fixed;inset:0;z-index:9000;background:rgba(20,15,31,.88);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 12px calc(env(safe-area-inset-bottom,0px) + 14px)}
+.bvcard{width:100%;max-width:460px;background:#f3e9d2;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px}
+.bvhead{display:flex;gap:10px;align-items:center;margin-bottom:10px}.bvhead img{width:58px;height:58px;border:2.5px solid var(--ink);border-radius:12px}
+.bvhead div{display:flex;flex-direction:column}.bvhead b{font-size:24px;line-height:1.05}.bvhead small{font-size:12.5px;color:#5a5470;margin-top:3px}
+.bvst{display:flex;gap:10px;background:#fff;border:2.5px solid var(--ink);padding:10px;margin-bottom:8px}.bvst>span{flex:0 0 32px;height:32px;border-radius:50%;background:var(--moon);border:2.5px solid var(--ink);display:grid;place-items:center;font-weight:900}
+.bvst div{display:flex;flex-direction:column;gap:5px}.bvst b{font-size:15.5px}.bvst small{font-size:13px;color:#3d3650;line-height:1.35}.bvst .btn{align-self:flex-start;margin-top:3px}
+.bvst.done{background:#e3f5e8}.bvst.done>span{background:#bfe8c9}
+.bvwarn{background:#fff3b0;border:2.5px solid var(--ink);padding:9px 10px;margin-bottom:8px;font-size:13.5px}
+.bvic{display:inline-block;border:1.5px solid #3d3650;border-radius:4px;padding:0 4px;font-style:normal}
+.bvskip{display:block;margin:8px auto 0;background:none;border:0;color:#5a5470;text-decoration:underline;font-size:13px}
+.abhero{display:flex;gap:10px;align-items:center;background:#e3f5e8;border:3px solid var(--ink);padding:10px;margin-bottom:10px}.abhero>span{font-size:30px}.abhero div{display:flex;flex-direction:column}.abhero small{font-size:12.5px;color:#5a5470}.abhero.pend{background:#fff3b0}
+.hkvis{background:#fff;border:2.5px solid var(--ink);padding:8px 10px;margin-bottom:8px;display:flex;flex-direction:column;gap:4px}.hkvis small{font-size:12px;color:#5a5470}
+.hkvb{display:flex;gap:6px;margin-top:4px}.hkvb button{flex:1;border:2.5px solid var(--ink);background:#fff;padding:7px 6px;font-weight:800;font-size:13px;color:var(--ink)}.hkvb button.on{background:var(--moon);box-shadow:2px 2px 0 var(--ink)}
+.zsh{background:#fff;border:3px solid var(--ink);padding:9px 10px;margin-bottom:10px;display:flex;flex-direction:column;gap:6px}
+.zshh{display:flex;justify-content:space-between;gap:8px;align-items:center}.zshh>div:first-child{display:flex;flex-direction:column}.zshh small{font-size:12px;color:#5a5470}
+.zshf{text-align:center;border:2.5px solid var(--ink);background:#f6b8bf;padding:2px 9px}.zshf b{display:block;font-family:var(--display);font-size:22px}.zshf small{font-size:10.5px}
+.zshw{font-size:12.5px;color:#3d3650}
 </style>
 </head>
 <body>
@@ -3036,7 +3055,9 @@ function renderPick(){
   app.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{vibe();startGame(b.dataset.type);});
   bindGo();const vo=$('#viaOn');if(vo)vo.onchange=()=>{S.useVia=vo.checked;renderPick();};
 }
-function renderHub(){
+function renderHub(){try{return renderHubBase();}catch(e){console.warn('pagina Orda di base:',e);app.innerHTML='<div class="page"><div class="ohold" data-grp="q" hidden></div></div>';try{splitHub();}catch(x){console.warn(x);}}}
+function renderHubBase(){
+  if(!HTYPES[G.type])G.type=HTYPES.vera?'vera':Object.keys(HTYPES)[0]; /* telefono nuovo o dati cancellati: niente blocco */
   dailyBonus();
   if(G.sub==='arena')return renderArena();
   const t=HTYPES[G.type];const sel=SLOTS.find(s=>s.id===G.sel);const selLot=LOTS.find(l=>l.id===G.sel);const rent=totalRent();
@@ -6177,7 +6198,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611022216';
+const ZSH_BUILD='202611041423';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -7186,7 +7207,7 @@ async function wDrawMap(lm,force){if(!lm||!lm.map||!W.on)return;const map=lm.map
   /* un solo segnaposto per edificio (entro 20 m), con chi ci abita */
   const pri={myhome:0,mine:1,home:2,owned:3,free:4};rows=rows.slice().sort((x,y)=>(pri[x.status]??9)-(pri[y.status]??9));const kept=[];rows.forEach(r=>{if(!kept.some(k=>trM(k.lat,k.lon,r.lat,r.lon)<20))kept.push(r);});rows=kept;lm._wrows=rows;
   rows.forEach(r=>{const st=W_ST[r.status]||W_ST.owned;const res=r.residents?String(r.residents).split(', ').filter(Boolean):[];
-    const lbl=r.status==='myhome'?(res.length?`<em>👥 @${esc(res[0])}${res.length>1?' +'+(res.length-1):''}</em>`:''):r.status==='home'?`<em>${r.pending?'⏳ ':''}@${esc(res[0]||r.nick||'')}${res.length>1?' +'+(res.length-1):''}</em>`:r.status==='owned'&&r.nick?`<em>@${esc(r.nick)}</em>`:r.status==='mine'?'<em>tua</em>':'';
+    const lbl=r.status==='myhome'?(res.length?`<em>👥 @${esc(res[0])}${res.length>1?' +'+(res.length-1):''}</em>`:''):r.status==='home'?((res[0]||r.nick)?`<em>${r.pending?'⏳ ':''}@${esc(res[0]||r.nick)}${res.length>1?' +'+(res.length-1):''}</em>`:(r.pending?'<em>⏳</em>':'')):r.status==='owned'&&r.nick?`<em>@${esc(r.nick)}</em>`:r.status==='mine'?'<em>tua</em>':'';
     const el=elDiv('lm-w '+r.status+(r.pending?' pend':''),`<b>${st[0]}</b>${lbl}`);
     el.addEventListener('click',e=>{e.stopPropagation();wSheet(r.building_id,r.lat,r.lon);});lm._w.push(new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([r.lon,r.lat]).addTo(map));});}
 /* codice dell'edificio dal disegno della mappa: stesso per tutti (stesse mappe), istantaneo, senza server */
@@ -8661,8 +8682,10 @@ function frSpawn(){(FR.zs||[]).forEach(z=>{try{z.mk.remove();}catch(e){}});FR.zs
   frComp(wl).forEach((k,i)=>{const el=frZel(k,i);const P=FR.paths[i%FR.paths.length];const mk=new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([P.p[0][1],P.p[0][0]]).addTo(FR.lm.map);
     FR.zs.push({k,el,mk,P,x:-(i/FR.paths.length|0)*70-Math.random()*60,v:((ZT[k]||{}).sp||16)*1.5*(k==='oro'?.9:1)});});}
 function frStop(){cancelAnimationFrame(FR.raf);FR.raf=0;}
+/* posizione della casa: dalla valutazione sul telefono, altrimenti dal server (telefono nuovo, cambio account…) */
+function frR(){try{if(S.zone&&S.zone.real&&S.zone.real.lat!=null)return S.zone.real;const H=typeof myHouses==='function'?myHouses():[];const h=H.find(x=>x.home)||H[0];return h&&h.lat!=null?{lat:h.lat,lon:h.lon}:null;}catch(e){return null;}}
 function frLoop(){frStop();FR.last=performance.now();const step=t=>{FR.raf=requestAnimationFrame(step);if(S.tab!=='orda'||document.hidden||!FR.node||!FR.node.isConnected)return;
-  const dt=Math.min(.1,(t-FR.last)/1000);FR.last=t;const w=FR.wx;const wf=frWf(w);const R=S.zone&&S.zone.real;if(!R)return;
+  const dt=Math.min(.1,(t-FR.last)/1000);FR.last=t;const w=FR.wx;const wf=frWf(w);const R=frR();if(!R)return;
   const st=FR.zs.filter(z=>z.k==='strillone'&&z.x>0).map(z=>z.pos).filter(Boolean);
   FR.zs.forEach(z=>{const P=z.P;let g=0;if(z.x>=0){const sg=P.seg.find(s=>z.x>=s.s&&z.x<s.s+s.d)||P.seg[P.seg.length-1];g=sg?sg.g:0;}
     let f=z.k==='scavatore'?1:Math.max(.45,Math.min(1.45,1-g*(z.k==='runner'?6:3)));
@@ -9160,16 +9183,16 @@ function frChanceOf(h){try{const dh=defHouse(h.bid,h.home);return dh?defChance(d
 function frSel(H,F){const n=FR.node;if(!n)return;let s=n.querySelector('.frsel');if(!s){n.querySelector('.frmapw').insertAdjacentHTML('beforebegin','<div class="frsel"></div>');s=n.querySelector('.frsel');}
   s.innerHTML=H.map((h,i)=>{const c=frChanceOf(h);const on=(h.home&&F.home)||(!h.home&&!F.home&&h.bid===F.bid);return`<button data-frh="${i}" class="${on?'on':''}"><b>${h.ic} ${esc(h.label)}</b><small>${c!=null?c+'%':'…'}${h.km>1.5?' · '+kmTxt(h.km):''}</small></button>`;}).join('');
   s.querySelectorAll('[data-frh]').forEach(b=>b.onclick=()=>{const h=H[+b.dataset.frh];FR.focus={bid:h.bid,home:h.home};FR.key='';frMount();});}
-frMount=async function(){const R=S.zone&&S.zone.real;if(!R||!FR.node)return;const H=myHouses();if(!H.length)return;
+frMount=async function(){const R=frR();if(!R||!FR.node)return;const H=myHouses();if(!H.length)return;
   const home=H.find(h=>h.home)||H[0];const F=(FR.focus&&H.find(h=>h.home===FR.focus.home&&(h.home||h.bid===FR.focus.bid)))||home;
   const key=F.lat.toFixed(4)+','+F.lon.toFixed(4)+'|'+H.length;frSel(H,F);frHeader();
   if(FR.lm&&FR.key===key){try{FR.lm.map.resize();}catch(e){}frLoop();frRings();return;}
   FR.key=key;frStop();
-  if(!FR.lm){try{const nx=oggiNext();FR.lm=await liveMap(FR.node.querySelector('.frmap'),S.zone.address,{zoom:15.4,night:nx.getHours()>=18||nx.getHours()<7});}catch(e){FR.node.querySelector('.frmap').innerHTML='<p class="muted" style="padding:20px">Mappa non disponibile ora.</p>';return;}}
+  if(!FR.lm){try{const nx=oggiNext();let addr=S.zone&&S.zone.address;if(!addr){addr='__casa';RM.cache=RM.cache||{};if(!RM.cache[addr])RM.cache[addr]={lat:R.lat,lon:R.lon,els:[1]};}FR.lm=await liveMap(FR.node.querySelector('.frmap'),addr,{zoom:15.4,night:nx.getHours()>=18||nx.getHours()<7});}catch(e){FR.node.querySelector('.frmap').innerHTML='<p class="muted" style="padding:20px">Mappa non disponibile ora.</p>';return;}}
   try{FR.lm.map.jumpTo({center:[F.lon,F.lat],zoom:F.home?15.4:15.6});}catch(e){}
   (FR.homes||[]).forEach(m=>{try{m.remove();}catch(e){}});FR.homes=[];FR.homeEls=[];(FR.zs||[]).forEach(z=>{try{z.mk.remove();}catch(e){}});FR.zs=[];
   const dests=H.filter(h=>trM(F.lat,F.lon,h.lat,h.lon)<1500);if(!dests.includes(F))dests.unshift(F);dests.sort((a,b)=>(a===F?-1:b===F?1:0));FR.dests=dests;
-  const m=F.home?(RM.cache&&RM.cache[S.zone.address]):await frRoads(F.lat,F.lon);
+  let m=F.home&&S.zone&&S.zone.address?(RM.cache&&RM.cache[S.zone.address]):null;if(!m)m=await frRoads(F.lat,F.lon);
   let paths=[];dests.forEach((d,i)=>{let P=frPaths(d.home?R:{lat:d.lat,lon:d.lon},m);P=P.slice(0,d===F?6:3);P.forEach(p=>{p.dest=i;});paths=paths.concat(P);});
   await frElevate(paths); /* stesso metodo per tutte le case: quote vere punto per punto */
   FR.paths=paths;frDrawLines();
@@ -9462,7 +9485,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611022216';
+const APPV='202611041423';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -9593,7 +9616,7 @@ const OWN_K='zsh_owner';
 /* durante il cambio di account e l'uscita non si salva più niente sul telefono */
 const _saveLocalAc=saveLocal;saveLocal=function(){if(window.__noSave)return;return _saveLocalAc.apply(this,arguments);};
 try{const _pushAc=pushCloud;pushCloud=async function(){if(window.__noSave)return;return _pushAc.apply(this,arguments);};}catch(e){}
-function zWipeLocal(){window.__noSave=true;try{const keep=/^(zsh_snd|zsh_music|zsh_mute|zsh_rm2_|zsh_att_|zsh_spg_)/;Object.keys(localStorage).forEach(k=>{if(/^zsh/.test(k)&&!keep.test(k))localStorage.removeItem(k);});}catch(e){}}
+function zWipeLocal(){window.__noSave=true;try{const keep=/^(zsh_snd|zsh_music|zsh_mute|zsh_rm2_|zsh_att_|zsh_spg_|zsh_inv$|zsh_bv_done)/;Object.keys(localStorage).forEach(k=>{if(/^zsh/.test(k)&&!keep.test(k))localStorage.removeItem(k);});}catch(e){}}
 const _onLoginAc=onLogin;onLogin=async function(u,fresh){try{const prev=localStorage.getItem(OWN_K);
   if(prev&&u&&prev!==u.id){zWipeLocal();localStorage.setItem(OWN_K,u.id);sessionStorage.setItem('zsh_switched','1');location.reload();return;}
   if(u)localStorage.setItem(OWN_K,u.id);}catch(e){}return _onLoginAc.apply(this,arguments);};
@@ -9646,6 +9669,11 @@ async function abitMount(c,h){let p=c.querySelector('.abpan');if(!p){p=document.
   p.innerHTML='<h4 class="hh">🏘️ La tua abitazione</h4><div class="abbox"><p class="muted"><span class="spin"></span></p></div>';const I=await hiLoad();const b=p.querySelector('.abbox');b.innerHTML=abitHTML(I);
   const redo=()=>houseSheet(h);
   const kc=b.querySelector('[data-hkc]');if(kc)kc.onclick=()=>kindSheet(I,redo);
+  /* 👁️ chi vede il mio nome sulla mia casa */
+  try{const{data:V}=await SB.rpc('world_home_vis',{p_vis:null});if(V&&V.ok){const tp=b.querySelector('.hktype');tp.insertAdjacentHTML('afterend',`<div class="hkvis"><b>👁️ Chi vede il tuo nome sulla tua casa</b><small>La casa è sempre nel punto esatto sulla mappa; qui scegli chi vede anche il tuo nome sopra.</small>
+      <div class="hkvb"><button data-hkv="tutti" class="${V.vis==='tutti'?'on':''}">🌍 Tutti</button><button data-hkv="alleati" class="${V.vis!=='tutti'?'on':''}">🤝 Solo alleati e coinquilini</button></div></div>`);
+    b.querySelectorAll('[data-hkv]').forEach(x=>x.onclick=async()=>{if(x.classList.contains('on'))return;if(x.dataset.hkv==='tutti'&&!confirm('Tutti i giocatori vedranno il tuo nome sulla tua casa, nel punto esatto. Confermi?'))return;
+      try{const{data}=await SB.rpc('world_home_vis',{p_vis:x.dataset.hkv});if(data&&data.ok){b.querySelectorAll('[data-hkv]').forEach(y=>y.classList.toggle('on',y===x));toast(data.vis==='tutti'?'🌍 Il tuo nome ora è visibile a tutti':'🤝 Il tuo nome lo vedono solo alleati e coinquilini');}}catch(e){toast(e.message||'Non riuscito');}});}}catch(e){}
   b.querySelectorAll('[data-crm]').forEach(x=>x.onclick=()=>dmSheet(x.dataset.crm,x.dataset.n));
   b.querySelectorAll('[data-cra]').forEach(x=>x.onclick=async()=>{x.disabled=true;try{const r=await socRpc('world_ally_request',{p_target:x.dataset.cra});toast(r&&r.msg?r.msg:'🤝 Richiesta inviata');}catch(e){toast(e.message||'Non riuscito');x.disabled=false;}});
   b.querySelectorAll('[data-hki]').forEach(x=>x.onclick=async()=>{x.disabled=true;try{const{data,error}=await SB.rpc('world_house_invite',{p_to:x.dataset.hki});if(error)throw error;toast((data.ok?'🏠 ':'')+data.msg);if(data.ok)x.textContent='🏠 richiesta inviata';else x.disabled=false;}catch(e){toast(e.message||'Non riuscito');x.disabled=false;}});
@@ -9674,7 +9702,10 @@ async function zUpdateNow(){try{toast('Aggiorno l’app…');}catch(e){}try{cons
   try{const r=await navigator.serviceWorker.getRegistration();if(r)await r.update();}catch(e){}location.replace(location.pathname+'?v='+Date.now());}
 function zBanner(id,html,onBind){if(document.getElementById(id))return;document.body.insertAdjacentHTML('beforeend',`<div id="${id}" class="zbanner">${html}<button class="zbx" aria-label="Chiudi">✕</button></div>`);
   const b=document.getElementById(id);b.querySelector('.zbx').onclick=()=>b.remove();if(onBind)onBind(b);}
-async function zCheckVersion(){const L=await zLatest();if(!L||!/^\d{12}$/.test(String(APPV)))return;if(+L>+APPV)zBanner('zbver',`🆕 <b>C’è una versione nuova</b> dell’app<button class="btn small" data-zup>Aggiorna</button>`,b=>b.querySelector('[data-zup]').onclick=zUpdateNow);}
+async function zCheckVersion(){const L=await zLatest();if(!L||!/^\d{12}$/.test(String(APPV)))return;
+  /* appena aperta: si aggiorna da sola (una volta per versione, niente cicli) */
+  if(+L>+APPV&&performance.now()<20000){try{const k='zsh_upd_'+L;if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');zUpdateNow();return;}}catch(e){}}
+  if(+L>+APPV)zBanner('zbver',`🆕 <b>C’è una versione nuova</b> dell’app<button class="btn small" data-zup>Aggiorna</button>`,b=>b.querySelector('[data-zup]').onclick=zUpdateNow);}
 setTimeout(zCheckVersion,4000);setInterval(()=>{if(document.visibilityState==='visible')zCheckVersion();},10*60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(zCheckVersion,800);});
 setTimeout(()=>{try{if(zWhere()==='inapp'&&!sessionStorage.getItem('zsh_inapp'))
@@ -9706,6 +9737,76 @@ async function zStatusSheet(){openSheet('🩺 Controlla il mio gioco','<p><span 
 /* nel menu, sopra la versione */
 const _zmOpenSt=zmOpen;zmOpen=function(){const r=_zmOpenSt.apply(this,arguments);setTimeout(()=>{try{const v=document.querySelector('#zmenu .zmver');if(v&&!document.querySelector('#zmenu [data-zstat]')){v.insertAdjacentHTML('beforebegin','<button class="zmrow zstbtn" data-zstat><span>🩺</span><b>Controlla il mio gioco</b><i>›</i></button>');
   document.querySelector('#zmenu [data-zstat]').onclick=()=>{try{zmClose();}catch(e){}zStatusSheet();};}}catch(e){}},40);return r;};
+</script>
+<script>
+/* =========================================================
+   PAGINA DI BENVENUTO PER CHI ARRIVA DA UN INVITO
+   Riconosce il telefono e mostra i passi giusti:
+   - dentro WhatsApp/Instagram/Facebook → come aprire in Safari (iPhone) o Chrome (Android), con "Copia il link"
+   - iPhone Safari → 1) crea l'account QUI (così il codice d'invito non si perde) 2) Aggiungi alla schermata Home 3) apri dall'icona
+   - Android → 1) crea l'account 2) "📲 Installa l'app" (pulsante vero di Chrome, se disponibile)
+   - computer → meglio dal telefono
+   ========================================================= */
+let BV_PROMPT=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();BV_PROMPT=e;const b=document.querySelector('#bvpage [data-bvinst]');if(b)b.hidden=false;});
+function bvOS(){const ua=navigator.userAgent||'';if(/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&'ontouchend' in document))return'ios';if(/Android/i.test(ua))return'android';return'pc';}
+function bvInvLink(){const c=localStorage.getItem('zsh_inv');return location.origin+'/'+(c?'?invito='+c:'');}
+async function bvWho(){const c=localStorage.getItem('zsh_inv');if(!c||typeof SB==='undefined'||!SB)return null;try{const{data}=await SB.rpc('world_inviter',{p_code:c});return data||null;}catch(e){return null;}}
+function bvSteps(os,where,logged){const acc=`<div class="bvst ${logged?'done':''}"><span>${logged?'✅':'1'}</span><div><b>Crea l’account</b><small>${logged?'Fatto: siete collegati.':'Serve per giocare con chi ti ha invitato. Fallo <b>qui</b>, prima di installare.'}</small>${logged?'':'<button class="btn" data-bvacc>Crea l’account</button>'}</div></div>`;
+  if(where==='inapp')return`<div class="bvwarn">⚠️ Sei dentro <b>${/Instagram/i.test(navigator.userAgent)?'Instagram':/FBAN|FBAV/i.test(navigator.userAgent)?'Facebook':'WhatsApp'}</b>: qui l’app funziona a metà.</div>
+    <div class="bvst"><span>1</span><div><b>Apri in ${os==='ios'?'Safari':'Chrome'}</b><small>${os==='ios'?'Tocca <b>•••</b> o l’icona <b>⤴</b> (in alto o in basso) → <b>Apri in Safari</b>.':'Tocca <b>⋮</b> in alto a destra → <b>Apri in Chrome</b> (o “Apri nel browser”).'}</small>
+    <small>Non lo trovi? Copia il link e incollalo in ${os==='ios'?'Safari':'Chrome'}:</small><button class="btn ghost" data-bvcopy>📋 Copia il link</button></div></div>`;
+  if(os==='ios')return acc+`<div class="bvst"><span>2</span><div><b>Mettila sulla schermata Home</b><small>Tocca <b>Condividi</b> <i class="bvic">⬆︎</i> (in basso; su iPad in alto) → scorri → <b>Aggiungi alla schermata Home</b> → <b>Aggiungi</b>.</small></div></div>
+    <div class="bvst"><span>3</span><div><b>Apri dall’icona</b><small>Chiudi Safari e apri ZombieSafeHouse dalla nuova icona. Accedi con la stessa email: da lì arrivano notifiche e aggiornamenti.</small></div></div>`;
+  if(os==='android')return acc+`<div class="bvst"><span>2</span><div><b>Installa l’app</b><small>Tocca il pulsante qui sotto. Se non c’è: <b>⋮</b> in alto a destra → <b>Installa app</b> (o “Aggiungi a schermata Home”).</small><button class="btn" data-bvinst ${BV_PROMPT?'':'hidden'}>📲 Installa l’app</button></div></div>
+    <div class="bvst"><span>3</span><div><b>Apri dall’icona</b><small>Da lì arrivano notifiche e aggiornamenti.</small></div></div>`;
+  return acc+`<div class="bvst"><span>2</span><div><b>Meglio dal telefono</b><small>ZombieSafeHouse è pensata per il telefono: apri questo link sul cellulare, oppure continua qui.</small><button class="btn ghost" data-bvcopy>📋 Copia il link</button></div></div>`;}
+async function bvShow(force){try{if(document.getElementById('bvpage'))return;const where=typeof zWhere==='function'?zWhere():'browser';if(where==='app'&&!force)return;
+  const os=bvOS();const who=await bvWho();const logged=!!(typeof S!=='undefined'&&S&&S.user);
+  document.body.insertAdjacentHTML('beforeend',`<div id="bvpage" role="dialog" aria-label="Benvenuto"><div class="bvcard">
+    <div class="bvhead"><img src="icon-192.png" alt="" onerror="this.remove()"><div><b class="disp">${who?`@${esc(who)} ti ha invitato`:'Benvenuto!'}</b><small>ZombieSafeHouse: quanto resisterebbe casa tua a un’apocalisse zombie? E come renderla più sicura davvero.</small></div></div>
+    <div class="bvbody">${bvSteps(os,where,logged)}</div>
+    <button class="bvskip" data-bvskip>Continua nel browser</button></div></div>`);
+  const P=document.getElementById('bvpage');
+  P.querySelector('[data-bvskip]').onclick=()=>{sessionStorage.setItem('zsh_bv','1');P.remove();};
+  const c=P.querySelector('[data-bvcopy]');if(c)c.onclick=async()=>{try{await navigator.clipboard.writeText(bvInvLink());c.textContent='✅ Link copiato';}catch(e){prompt('Copia questo link:',bvInvLink());}};
+  const a=P.querySelector('[data-bvacc]');if(a)a.onclick=()=>{P.style.display='none';try{loginSheet();}catch(e){}const t=setInterval(()=>{if(!document.querySelector('#sheet.open')){clearInterval(t);P.remove();bvShow(true);}},700);};
+  const i=P.querySelector('[data-bvinst]');if(i)i.onclick=async()=>{if(!BV_PROMPT){toast('Usa ⋮ → Installa app');return;}BV_PROMPT.prompt();try{const r=await BV_PROMPT.userChoice;if(r&&r.outcome==='accepted'){i.textContent='✅ Installata: aprila dall’icona';i.disabled=true;}}catch(e){}BV_PROMPT=null;};}catch(e){console.warn(e);}}
+/* quando: arrivi da un invito, non sei nell'app installata e non l'hai già chiusa */
+setTimeout(()=>{try{if(!localStorage.getItem('zsh_inv'))return;if(sessionStorage.getItem('zsh_bv'))return;if(localStorage.getItem('zsh_bv_done'))return;
+  const where=typeof zWhere==='function'?zWhere():'browser';if(where==='app'){localStorage.setItem('zsh_bv_done','1');return;}
+  const ib=document.getElementById('zbinapp');if(ib)ib.remove();bvShow();}catch(e){}},1200);
+</script>
+<script>
+/* =========================================================
+   CASA ABITATA DA ALTRI: niente "Casa libera · Prezzo", ma chi ci abita (se è alleato o coinquilino)
+   o "🏠 Casa abitata" (se è uno sconosciuto: privacy, mai nome + indirizzo esatto)
+   ========================================================= */
+const _wSheetAb=wSheet;wSheet=async function(bid,lat,lon){let q=null;try{q=await wRpc('world_quote',{p_bid:bid,p_lat:lat,p_lon:lon});}catch(e){}
+  if(!q||q.status!=='home')return _wSheetAb.apply(this,arguments);
+  const R=q.residents||[];const pend=!!q.pending;
+  openSheet(R.length?`🏠 Casa di @${esc(R[0].nick)}${R.length>1?' e altri':''}`:'🏠 Casa abitata',`
+    <div class="abhero ${pend?'pend':''}"><span>${pend?'⏳':'🏠'}</span><div><b>${R.length?R.map(r=>'@'+esc(r.nick)).join(', '):'Qui abita un superstite'}</b>
+      <small>${pend?'Casa in conferma: diventa definitiva da domani.':'Casa confermata nel mondo.'} Le case abitate non si possono comprare.</small></div></div>
+    ${R.length?R.map(r=>`<div class="alrow"><span class="sav">${esc((r.nick||'?')[0].toUpperCase())}</span><div class="alrt"><b>@${esc(r.nick)}</b><small>${r.status==='pending'?'⏳ in conferma':'🏠 abita qui'}${r.ally?' · 🤝 alleato':''}</small></div>
+      <div class="alacts" style="width:auto"><button class="btn small ghost" data-abp="${r.user_id}">👤 Profilo</button><button class="btn small" data-abm="${r.user_id}" data-n="${esc(r.nick)}">💬 Scrivi</button></div></div>`).join('')
+     :'<p class="muted" style="font-size:12.5px">Per la privacy, il nome di chi abita qui lo vedono solo i suoi alleati e i suoi coinquilini. Sulla mappa i superstiti compaiono in una posizione approssimata.</p>'}`,
+    card=>{card.querySelectorAll('[data-abp]').forEach(b=>b.onclick=()=>playerSheet(b.dataset.abp));card.querySelectorAll('[data-abm]').forEach(b=>b.onclick=()=>dmSheet(b.dataset.abm,b.dataset.n));});};
+</script>
+<script>
+/* =========================================================
+   SCHEDA DELLO ZOMBIE (pulsanti sotto il fronte e zombie in marcia):
+   in più "Su questa casa": forza, salita/meteo, fortificazioni che lo fermano (comprabili, con +% e costo)
+   ========================================================= */
+const _frZSheetZS=frZSheet;frZSheet=function(k){_frZSheetZS(k);try{const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('.zsh'))return;
+  const F=FR.dests&&FR.dests[0];const T=F&&typeof thrOf==='function'?thrOf(F):null;if(!T)return;const r=thrCalc(T);
+  const x=k==='walker'?null:r.sp.find(s=>s.k===k);if(k!=='walker'&&!x){c.insertAdjacentHTML('afterbegin',`<div class="zsh"><b>🏠 ${esc(F.label)}</b><small>Al tuo livello del mondo (${T.wl}) questo zombie non arriva ancora.</small></div>`);return;}
+  const kinds=k==='walker'?['trappole']:[x.dk,x.dk2].filter(Boolean);const O=fortOpts(T).filter(o=>kinds.includes(o.k));
+  const ev=EVN[T.ev]||EVN.calma;const force=k==='walker'?`${Math.round(T.std_min*T.mw)}–${Math.round(T.std_max*T.mw)}`:x.p.toFixed(1).replace('.',',');
+  const why=k==='walker'?`Sono la massa dell’orda: le 🪤 trappole ne frenano il 6% per livello.`:`Qui pesa ×${String(x.mod).replace('.',',')} (salita e ${ev[1].toLowerCase()}). Difesa principale −30% per livello, supporto −15%.`;
+  c.insertAdjacentHTML('afterbegin',`<div class="zsh"><div class="zshh"><div><b>🏠 Su ${esc(F.label)}</b><small>${ev[0]} ${ev[1]} · orda delle ${String(T.hh).padStart(2,'0')}:00</small></div><div class="zshf"><small>forza</small><b>${force}</b></div></div>
+    <small class="zshw">${why}</small><div class="rinf">${O.map(o=>`<button class="fch ${o.max?'max':o.cur>0?'ok':'no'} ${o.gain>0?'up':''}" data-zfk="${o.k}"><span>${fortLabel(o)}</span>${o.max?'<small>massimo</small>':`<small>${o.gain>0?`<b>+${o.gain}%</b> · `:''}🧱 ${wNum(o.cost)}</small>`}</button>`).join('')}</div>
+    <small class="zshw">Questa casa oggi tiene il <b>${r.ch}%</b>.</small></div>`);
+  c.querySelectorAll('[data-zfk]').forEach(b=>b.onclick=()=>{const o=fortOpts(T).find(y=>y.k===b.dataset.zfk);if(o)fortBuy(F,T,o,()=>{try{frRings();}catch(e){}frZSheet(k);});});}catch(e){console.warn(e);}};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
