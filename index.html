@@ -1422,6 +1422,20 @@ body[data-tab=orda] #accFab{display:none!important}
 .scmini{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}.scmini>b{font-family:var(--display);font-size:34px}.scmini span{font-size:13px;font-weight:800;background:#fff;border:2px solid var(--ink);border-radius:10px;padding:1px 7px}
 .thrw.azk{cursor:pointer}.thrw.azk:after{content:'›';font-weight:900;margin-left:6px}.fch.ro{cursor:default;opacity:.85}
 .frerr{position:absolute;left:8px;right:8px;bottom:52px;z-index:8;background:#fff3b0;border:2.5px solid var(--ink);font-weight:800;font-size:12.5px;padding:6px 9px;text-align:left;color:var(--ink)}
+.hlegend{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:6px 0 2px;font-size:12.5px}.hlegend b{font-size:13px;margin-right:2px}
+.hlegend span{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:2px 8px;font-weight:700}.hlegend span.muted{border:0;background:none;font-weight:400;padding:0}
+
+/* ===== VELOCITÀ: animazioni leggere (stesso aspetto, calcolate dalla scheda grafica) ===== */
+.frzb{filter:none!important;will-change:transform}
+.frring{animation:frpulseT 1.6s ease-in-out infinite!important;will-change:transform,opacity}
+.fxm.fx-orda .fxa,.fxm.fx-scudo .fxa{animation:frpulseT 1.6s ease-in-out infinite!important;will-change:transform,opacity}
+@keyframes frpulseT{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.07);opacity:.7}}
+.fx-pioggia{animation:none!important;background:none!important;overflow:hidden}
+.fx-pioggia::before{content:"";position:absolute;left:0;right:0;top:-56px;bottom:0;background:repeating-linear-gradient(105deg,rgba(200,220,255,0) 0 14px,rgba(200,220,255,.35) 14px 15px,rgba(200,220,255,0) 15px 28px);animation:rainT .5s steps(6) infinite;will-change:transform;pointer-events:none;opacity:.9}
+@keyframes rainT{to{transform:translateY(56px)}}
+.frhfx.hx-pioggia,.frhfx.hx-neve{animation:none!important}
+#fumetto.fx-pioggia .fpan::after,#fumetto.fx-neve .fpan::after{animation:none!important}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01s!important;animation-iteration-count:1!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -1463,6 +1477,8 @@ body[data-tab=orda] #accFab{display:none!important}
 </script>
 <nav class="nav" id="nav" aria-label="Navigazione principale"></nav>
 <script>
+/* VELOCITÀ: i timer di sottofondo (≥1 s) non lavorano quando l'app non è in primo piano */
+(function(){const _si=window.setInterval;window.__zsiv=1;window.setInterval=function(fn,ms,...a){if(typeof fn==='function'&&ms>=1000){const f=fn;fn=function(){if(document.hidden)return;return f.apply(this,arguments);};}return _si.call(window,fn,ms,...a);};})();
 /* =========================================================
    ZOMBIESAFEHOUSE v2 — ANTEPRIMA
    ---------------------------------------------------------
@@ -5670,7 +5686,7 @@ async function onLogin(u,fresh){S.user={id:u.id,email:u.email,nick:(u.user_metad
   if(useCloud){restore(cloud);snapshot();SNAP.at=cloud.at||SNAP.at;SNAP.pushed=SNAP.at;saveLocal();try{if(typeof trSetupVera==='function')trSetupVera();}catch(e){}if(fresh||wl<1)toast('Dati recuperati dal tuo account');try{go(S.tab||'home');}catch(e){}}
   else if(wl>=1)pushCloud();
   if(fresh)toast(`Ciao @${S.user.nick}! I tuoi progressi ora sono salvati.`);}
-setInterval(()=>{saveLocal();const d=snapshot();if(S.user&&S.user.id&&d.at>(SNAP.pushed||0)){clearTimeout(SNAP.t);SNAP.t=setTimeout(pushCloud,3000);}},5000);
+setInterval(()=>{saveLocal();const d=snapshot();if(S.user&&S.user.id&&d.at>(SNAP.pushed||0)){clearTimeout(SNAP.t);SNAP.t=setTimeout(pushCloud,3000);}},10000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden){saveLocal();pushCloud();}else syncCloud();});
 window.addEventListener('focus',()=>syncCloud());window.addEventListener('pagehide',()=>{saveLocal();pushCloud();});
 setInterval(()=>{if(S.user&&S.user.id)syncCloud();},20000);
@@ -6209,7 +6225,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611042217';
+const ZSH_BUILD='202611042314';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -7911,7 +7927,7 @@ const _renderHomePz=renderHome;renderHome=function(){_renderHomePz();try{if(S.us
 document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('.lm-usr');if(!m||!m.dataset.uid)return;e.stopPropagation();e.preventDefault();
   if(S.user&&m.dataset.uid===S.user.id){go('io');return;}playerSheet(m.dataset.uid);},true);
 /* il tuo segnaposto non compare come "altro giocatore" */
-setInterval(()=>{try{if(!S.user)return;document.querySelectorAll('.lm-usr').forEach(m=>{if(m.dataset.uid===S.user.id)m.style.display='none';});}catch(e){}},2500);
+setInterval(()=>{try{if(!S.user)return;document.querySelectorAll('.lm-usr').forEach(m=>{if(m.dataset.uid===S.user.id)m.style.display='none';});}catch(e){}},6000);
 /* ---------------- contatore sponsor vivo ---------------- */
 setInterval(()=>{try{const b=document.querySelector('.mfsp');if(!b)return;const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null).length;const t=n?`⭐ ${n} sponsor`:'⭐ Sponsor';if(b.textContent!==t)b.textContent=t;}catch(e){}},1500);
 /* ---------------- riscontro a ogni tocco ---------------- */
@@ -8385,7 +8401,7 @@ async function oggiSheet(){openSheet('📅 Oggi','<p><span class="spin"></span> 
 function oggiTile(){try{document.querySelectorAll('.lpan button, .lpan .ltile, .lpan [data-luck]').forEach(t=>{if(!/Premio del giorno/.test(t.textContent)||t.querySelector('.ocd'))return;
   const n=new Date();const em=[...t.querySelectorAll('span,b,i,div')].find(x=>x.textContent.trim()==='📅');const tile=`<span class="ocd mini"><small>${MMs[n.getMonth()]}</small><b>${n.getDate()}</b></span>`;
   if(em)em.outerHTML=tile;else{const w=document.createTreeWalker(t,NodeFilter.SHOW_TEXT);let x;while((x=w.nextNode())){if(x.nodeValue.includes('📅')){x.nodeValue=x.nodeValue.replace('📅','');x.parentNode.insertAdjacentHTML('afterbegin',tile);break;}}}});}catch(e){}}
-setInterval(oggiTile,1000);
+setInterval(()=>{if(S.tab==='home'||S.tab==='orda')oggiTile();},5000);
 /* nel menu */
 try{const _zmItemsOg=zmItems;zmItems=function(){const L=_zmItemsOg();const g=L.find(x=>x[0]==='Gioco');if(g)g[1].unshift(['📅','Oggi: ora, meteo e calendario','oggi']);return L;};
   const _zmDoOg=zmDo;zmDo=function(k,b){if(k==='oggi'){zmClose();oggiSheet();return;}return _zmDoOg(k,b);};}catch(e){}
@@ -8416,7 +8432,7 @@ function spDemoPlace(){try{if(spRealCount()>0){/* ci sono sponsor veri: via gli 
     if(x){used.add(x.name);SP_GEO[k]={lat:x.lat,lon:x.lon,demo:true,place:x.name};}
     else{const a=(i+1)*2.1,r=260+i*140;const o=trOff(R.lat,R.lon,Math.cos(a)*r,Math.sin(a)*r);SP_GEO[k]={lat:o[0],lon:o[1],demo:true};}});
   SP_DEMO_ON=true;(window.__zlms||[]).forEach(lm=>{try{spDraw(lm);}catch(e){}});}catch(e){console.warn('sponsor esempio',e);}}
-setInterval(spDemoPlace,2000);setTimeout(spDemoPlace,800);
+setInterval(spDemoPlace,8000);setTimeout(spDemoPlace,800);
 /* alla prima apertura della mappa li piazzo subito */
 const _liveMapSd=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapSd(el,addr,o);try{spDemoPlace();setTimeout(()=>{spDemoPlace();spDraw(lm);},1500);}catch(e){}return lm;};
 /* il segnaposto "vecchio" piccolo non serve: c'è quello grande con l'offerta */
@@ -8695,7 +8711,7 @@ function frSpawn(){(FR.zs||[]).forEach(z=>{try{z.mk.remove();}catch(e){}});FR.zs
 function frStop(){cancelAnimationFrame(FR.raf);FR.raf=0;}
 /* posizione della casa: dalla valutazione sul telefono, altrimenti dal server (telefono nuovo, cambio account…) */
 function frR(){try{if(S.zone&&S.zone.real&&S.zone.real.lat!=null)return S.zone.real;const H=typeof myHouses==='function'?myHouses():[];const h=H.find(x=>x.home)||H[0];return h&&h.lat!=null?{lat:h.lat,lon:h.lon}:null;}catch(e){return null;}}
-function frLoop(){frStop();FR.last=performance.now();const step=t=>{FR.raf=requestAnimationFrame(step);if(S.tab!=='orda'||document.hidden||!FR.node||!FR.node.isConnected)return;
+function frLoop(){frStop();FR.last=performance.now();const step=t=>{FR.raf=requestAnimationFrame(step);if(S.tab!=='orda'||document.hidden||!FR.node||!FR.node.isConnected)return;if(t-FR.last<48)return;
   const dt=Math.min(.1,(t-FR.last)/1000);FR.last=t;const w=FR.wx;const wf=frWf(w);const R=frR();if(!R)return;
   const st=FR.zs.filter(z=>z.k==='strillone'&&z.x>0).map(z=>z.pos).filter(Boolean);
   FR.zs.forEach(z=>{const P=z.P;let g=0;if(z.x>=0){const sg=P.seg.find(s=>z.x>=s.s&&z.x<s.s+s.d)||P.seg[P.seg.length-1];g=sg?sg.g:0;}
@@ -8857,16 +8873,17 @@ const _mhBarCase=mhBar;mhBar=function(){_mhBarCase();try{const L=myHouses();docu
    ========================================================= */
 const RH={};const INKC='#140f1f';
 /* ---- dati dell'edificio vero ---- */
-async function bGeom(lat,lon){const k='zsh_bg_'+lat.toFixed(5)+'_'+lon.toFixed(5);if(RH[k])return RH[k];try{const c=localStorage.getItem(k);if(c){RH[k]=JSON.parse(c);return RH[k];}}catch(e){}
-  let els=null;try{els=await trOverpass(`[out:json][timeout:20];way(around:70,${lat},${lon})["building"];out tags geom 40;`,15000,40);}catch(e){}
+async function bGeom(lat,lon){const k='zsh_bg2_'+lat.toFixed(5)+'_'+lon.toFixed(5);if(RH[k])return RH[k];try{const c=localStorage.getItem(k);if(c){RH[k]=JSON.parse(c);return RH[k];}}catch(e){}
+  let els=null;try{els=await trOverpass(`[out:json][timeout:20];(way(around:70,${lat},${lon})["building"];way(around:70,${lat},${lon})["leisure"="swimming_pool"];);out tags geom 60;`,15000,60);}catch(e){}
   if(!els||!els.length)return null;const kx=111320*Math.cos(lat*Math.PI/180),ky=110540;
-  const B=els.filter(e=>e.geometry&&e.geometry.length>=4).map(e=>{let p=e.geometry.map(g=>[(g.lon-lon)*kx,(g.lat-lat)*ky]);if(p.length>1&&p[0][0]===p[p.length-1][0]&&p[0][1]===p[p.length-1][1])p.pop();
+  const POOLS=els.filter(e=>e.tags&&e.tags.leisure==='swimming_pool'&&e.geometry&&e.geometry.length>=4).map(e=>({p:e.geometry.map(g=>[Math.round((g.lon-lon)*kx*10)/10,Math.round((g.lat-lat)*ky*10)/10])}));
+  const B=els.filter(e=>e.geometry&&e.geometry.length>=4&&!(e.tags&&e.tags.leisure)).map(e=>{let p=e.geometry.map(g=>[(g.lon-lon)*kx,(g.lat-lat)*ky]);if(p.length>1&&p[0][0]===p[p.length-1][0]&&p[0][1]===p[p.length-1][1])p.pop();
       if(p.length>40){const st=Math.ceil(p.length/40);p=p.filter((_,i)=>i%st===0);}const t=e.tags||{};return{p:p.map(q=>[Math.round(q[0]*10)/10,Math.round(q[1]*10)/10]),lv:+t['building:levels']||0,roof:t['roof:shape']||'',col:t['building:colour']||'',rcol:t['roof:colour']||'',b:t.building||'',mat:t['building:material']||''};});
   if(!B.length)return null;
   const inside=(p)=>{let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const[xi,yi]=p[i],[xj,yj]=p[j];if((yi>0)!==(yj>0)&&0<(xj-xi)*(0-yi)/(yj-yi)+xi)c=!c;}return c;};
   const cen=p=>[p.reduce((s,q)=>s+q[0],0)/p.length,p.reduce((s,q)=>s+q[1],0)/p.length];
   let mi=B.findIndex(b=>inside(b.p));if(mi<0){let bd=1e9;B.forEach((b,i)=>{const c=cen(b.p);const d=Math.hypot(c[0],c[1]);if(d<bd){bd=d;mi=i;}});if(bd>30)return null;}
-  const out={main:B[mi],near:B.filter((b,i)=>i!==mi&&Math.hypot(...cen(b.p))<55).slice(0,10)};RH[k]=out;try{localStorage.setItem(k,JSON.stringify(out));}catch(e){}return out;}
+  const out={main:B[mi],near:B.filter((b,i)=>i!==mi&&Math.hypot(...cen(b.p))<55).slice(0,10),pools:POOLS.filter(q=>Math.hypot(...cen(q.p))<45).slice(0,3)};RH[k]=out;try{localStorage.setItem(k,JSON.stringify(out));}catch(e){}return out;}
 /* ---- disegno ---- */
 const PLASTER=['#efe0c4','#f2e6d0','#e9c9a0','#dcb48c','#f3ece2','#d6dcc8','#e8c4b4','#f0d9a8'];
 function shade(hex,f){try{const n=parseInt(hex.slice(1),16);const r=Math.round(((n>>16)&255)*f),g=Math.round(((n>>8)&255)*f),b=Math.round((n&255)*f);return'#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}catch(e){return hex;}}
@@ -8877,9 +8894,9 @@ function realHouseSVG(geo,o={}){const m=geo.main;const lvl=o.lvl||1,a=o.a||{};co
   /* orientamento: lato più lungo davanti */
   let best=0,ang=0;m.p.forEach((q,i)=>{const r=m.p[(i+1)%m.p.length];const L=Math.hypot(r[0]-q[0],r[1]-q[1]);if(L>best){best=L;ang=Math.atan2(r[1]-q[1],r[0]-q[0]);}});
   const ca=Math.cos(-ang),sa=Math.sin(-ang);const rot=p=>p.map(([x,y])=>[x*ca-y*sa,x*sa+y*ca]);
-  const prep2=b=>{let p=rot(b.p);if(area(p)<0)p.reverse();return{...b,q:p};};const M=prep2(m);const NB=geo.near.map(prep2);
+  const prep2=b=>{let p=rot(b.p);if(area(p)<0)p.reverse();return{...b,q:p};};const M=prep2(m);const NB=geo.near.map(prep2);const PL=(geo.pools||[]).map(b=>({q:rot(b.p)}));
   /* se dopo la rotazione la facciata lunga è dietro, giro di 180° */
-  {const ys=M.q.map(q=>q[1]);const mid=(Math.min(...ys)+Math.max(...ys))/2;const fr=M.q.filter(q=>q[1]<mid).length;if(fr<M.q.length/2-1){[M,...NB].forEach(b=>{b.q=b.q.map(([x,y])=>[-x,-y]);});}}
+  {const ys=M.q.map(q=>q[1]);const mid=(Math.min(...ys)+Math.max(...ys))/2;const fr=M.q.filter(q=>q[1]<mid).length;if(fr<M.q.length/2-1){[M,...NB,...PL].forEach(b=>{b.q=b.q.map(([x,y])=>[-x,-y]);});}}
   const lvH=b=>{const lv=b.lv||(b===m?(/apartments|residential/.test(b.b)?4:2):2);return Math.max(1,Math.min(12,lv));};
   const K=.55,S=(x,y,z)=>[x+K*y,-(K*y)-z];
   const els=[];const H=b=>lvH(b)*3;
@@ -8892,17 +8909,24 @@ function realHouseSVG(geo,o={}){const m=geo.main;const lvl=o.lvl||1,a=o.a||{};co
     const W=[];b.q.forEach((q,i)=>{const r=b.q[(i+1)%b.q.length];const quad=[S(q[0],q[1],0),S(r[0],r[1],0),S(r[0],r[1],h),S(q[0],q[1],h)];if(sgn(quad)<0)W.push({q,r,quad,d:(q[1]+r[1])/2,east:(r[1]-q[1])>Math.abs(r[0]-q[0])*.3});});
     W.sort((x,y)=>y.d-x.d);let out='';const front=[];
     W.forEach(w=>{out+=poly(w.quad,w.east?wd:wc);if(!isMain)return;front.push(w);
+      {const Z=(z)=>[S(w.q[0],w.q[1],z),S(w.r[0],w.r[1],z)];const zb=[S(w.q[0],w.q[1],0),S(w.r[0],w.r[1],0),S(w.r[0],w.r[1],.55),S(w.q[0],w.q[1],.55)];out+=poly(zb,shade(w.east?wd:wc,.72),'stroke-width="1.2"');
+       for(let f=1;f<lvH(b);f++){const[A,B2]=Z(f*3-.05);out+=`<path d="M${A[0].toFixed(1)} ${A[1].toFixed(1)}L${B2[0].toFixed(1)} ${B2[1].toFixed(1)}" stroke="${shade(w.east?wd:wc,.7)}" stroke-width="2.4" vector-effect="non-scaling-stroke"/>`;}}
       /* finestre su ogni piano */
       const L=Math.hypot(w.r[0]-w.q[0],w.r[1]-w.q[1]);const n=Math.max(1,Math.floor(L/3.4));const fl=lvH(b);
       for(let f=0;f<fl;f++)for(let j=0;j<n;j++){const t0=(j+.5)/n-.6/L,t1=(j+.5)/n+.6/L;const P=(t,z)=>S(w.q[0]+(w.r[0]-w.q[0])*t,w.q[1]+(w.r[1]-w.q[1])*t,z);const z0=f*3+.9,z1=f*3+2.2;
-        const quad=[P(t0,z0),P(t1,z0),P(t1,z1),P(t0,z1)];const lit=lvl>=2||a.luci==='sensore'?'#f7d64a':'#efd27a';out+=poly(quad,a.vetri==='anti'?'#bfe3f2':lit,'stroke-width="1.6"');
+        const quad=[P(t0,z0),P(t1,z0),P(t1,z1),P(t0,z1)];const night=!!o.night;const glass=a.vetri==='anti'?'#a9d8ee':night?'#f7d64a':'#7fa7c4';
+        const sw=(t1-t0)*.55;const sh=w.east?'#4f6b4a':'#5f8a57';[[t0-sw-.004,t0-.004],[t1+.004,t1+sw+.004]].forEach(([u0,u1])=>{out+=poly([P(u0,z0),P(u1,z0),P(u1,z1),P(u0,z1)],sh,'stroke-width="1.2"');});
+        out+=poly(quad,'#f6f1e7','stroke-width="1.4"');const ins=(t1-t0)*.14;out+=poly([P(t0+ins,z0+.12),P(t1-ins,z0+.12),P(t1-ins,z1-.12),P(t0+ins,z1-.12)],glass,'stroke-width="1"');
+        {const A=P(t0-.01,z0-.05),B2=P(t1+.01,z0-.05);out+=`<path d="M${A[0].toFixed(1)} ${A[1].toFixed(1)}L${B2[0].toFixed(1)} ${B2[1].toFixed(1)}" stroke="#d9d2c3" stroke-width="3" vector-effect="non-scaling-stroke"/>`;}
         if(f===0&&(a.grate==='tutte'||(a.grate==='alcune'&&j%2===0)))for(let g=1;g<4;g++){const tt=t0+(t1-t0)*g/4;const A=P(tt,z0-.1),B=P(tt,z1+.1);out+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}" stroke="${INKC}" stroke-width="2" vector-effect="non-scaling-stroke"/>`;}
-        if(f===0&&(prep||lvl>=4)){const A=P(t0-.02,z0),B=P(t1+.02,z1),C=P(t0-.02,z1),D=P(t1+.02,z0);out+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}M${C[0]} ${C[1]}L${D[0]} ${D[1]}" stroke="#a0703f" stroke-width="4.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;}}});
+        if(f===0&&prep){[z0+(z1-z0)*.33,z0+(z1-z0)*.7].forEach(zz=>{const A=P(t0-.03,zz),B=P(t1+.03,zz+.08);out+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}" stroke="#7a5230" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}" stroke="#c08a52" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;});}}});
     /* tetto */
     const rt=roofType(b);const top=b.q.map(q=>S(q[0],q[1],h));
     if(rt==='flat'){out+=poly(top,rc);if(isMain)out+=poly(b.q.map(q=>S(q[0],q[1],h+.6)),'none','stroke-width="1.4" opacity=".6"');}
     else if(rt==='gabled'){const xs=b.q.map(q=>q[0]),ys=b.q.map(q=>q[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),ym=(y0+y1)/2,rh=Math.min(4.5,(y1-y0)*.45);
       out+=poly([S(x0,ym,h+rh),S(x1,ym,h+rh),S(x1,y1,h),S(x0,y1,h)],shade(rc,.8));out+=poly([S(x1,y0,h),S(x1,y1,h),S(x1,ym,h+rh)],wd);out+=poly([S(x0,y0,h),S(x1,y0,h),S(x1,ym,h+rh),S(x0,ym,h+rh)],rc);
+      if(isMain){for(let t=.2;t<.95;t+=.2){const yy=y0+(ym-y0)*t,zz=h+rh*t;const A=S(x0,yy,zz),B2=S(x1,yy,zz);out+=`<path d="M${A[0].toFixed(1)} ${A[1].toFixed(1)}L${B2[0].toFixed(1)} ${B2[1].toFixed(1)}" stroke="${shade(rc,.72)}" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;}
+        const n=Math.max(4,Math.round((x1-x0)/1.4));for(let i=1;i<n;i++){const xx=x0+(x1-x0)*i/n;const A=S(xx,y0,h),B2=S(xx,ym,h+rh);out+=`<path d="M${A[0].toFixed(1)} ${A[1].toFixed(1)}L${B2[0].toFixed(1)} ${B2[1].toFixed(1)}" stroke="${shade(rc,.8)}" stroke-width="1" opacity=".55" vector-effect="non-scaling-stroke"/>`;}}
       if(isMain&&b.lv<=3){const cx=x0+(x1-x0)*.72,cy=y0+(ym-y0)*.5;const ch=[S(cx,cy,h+rh*.5),S(cx+.9,cy,h+rh*.5),S(cx+.9,cy,h+rh+1.2),S(cx,cy,h+rh+1.2)];out+=poly(ch,shade(rc,.7));}}
     else{const c=[b.q.reduce((s,q)=>s+q[0],0)/b.q.length,b.q.reduce((s,q)=>s+q[1],0)/b.q.length];const ap=S(c[0],c[1],h+3);const F=[];
       b.q.forEach((q,i)=>{const r=b.q[(i+1)%b.q.length];F.push({pts:[S(q[0],q[1],h),S(r[0],r[1],h),ap],d:(q[1]+r[1])/2,f:(r[1]-q[1])>0?.85:1});});F.sort((x,y)=>y.d-x.d);F.forEach(f=>{out+=poly(f.pts,shade(rc,f.f));});}
@@ -8916,7 +8940,7 @@ function realHouseSVG(geo,o={}){const m=geo.main;const lvl=o.lvl||1,a=o.a||{};co
   if(fw){const L=Math.hypot(fw.r[0]-fw.q[0],fw.r[1]-fw.q[1]);const P=(t,z)=>S(fw.q[0]+(fw.r[0]-fw.q[0])*t,fw.q[1]+(fw.r[1]-fw.q[1])*t,z);const tc=.5+((bhash(o.seed||'d')%3)-1)*.18,dw=.65/L;
     const steel=a.porta==='blindata'||a.porta==='b4';const dq=[P(tc-dw,0),P(tc+dw,0),P(tc+dw,2.3),P(tc-dw,2.3)];deco+=poly(dq,steel?'#7c8794':'#8a5a34');doorPt=P(tc,0);
     if(steel){[.6,1.2,1.8].forEach(z=>{const A=P(tc-dw*.7,z),B=P(tc+dw*.7,z);deco+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}" stroke="${INKC}" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`;});}
-    if(prep||lvl>=4){[.7,1.6].forEach(z=>{const A=P(tc-dw*1.5,z),B=P(tc+dw*1.5,z+.25);deco+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}" stroke="#a0703f" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;});}
+    if(prep){[.7,1.6].forEach(z=>{const A=P(tc-dw*1.5,z),B=P(tc+dw*1.5,z+.25);deco+=`<path d="M${A[0]} ${A[1]}L${B[0]} ${B[1]}" stroke="#a0703f" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;});}
     const kn=P(tc+dw*.6,1.15);deco+=`<circle cx="${kn[0]}" cy="${kn[1]}" r=".25" fill="#f7d64a"/>`;
     if(a.luci==='sensore'||lvl>=2){const lp=P(tc+dw*2.2,2.6);deco+=`<path d="M${lp[0]} ${lp[1]}L${lp[0]-3} ${lp[1]+5}L${lp[0]+3} ${lp[1]+5}Z" fill="#f7d64a" opacity=".35"/><circle cx="${lp[0]}" cy="${lp[1]}" r=".45" fill="#f7d64a" stroke="${INKC}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;}
     if(a.allarme==='allarme'||a.allarme==='cam'){const sp=P(.1,mainInfo.h-.9);deco+=`<rect x="${sp[0]}" y="${sp[1]-.8}" width="1" height=".8" fill="#d7263d" stroke="${INKC}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
@@ -8951,6 +8975,10 @@ function realHouseSVG(geo,o={}){const m=geo.main;const lvl=o.lvl||1,a=o.a||{};co
   /* terreno e strada */
   const xsA=[M,...NB].flatMap(b=>b.q.map(q=>q[0])),ysA=[M,...NB].flatMap(b=>b.q.map(q=>q[1]));const gx0=Math.min(...xsA,-25)-6,gx1=Math.max(...xsA,25)+6,gy0=Math.min(...ysA)-9,gy1=Math.max(...ysA)+6;
   const ground=poly([S(gx0,gy0,0),S(gx1,gy0,0),S(gx1,gy1,0),S(gx0,gy1,0)],'#4f9b5d');const road=poly([S(gx0,gy0-6,0),S(gx1,gy0-6,0),S(gx1,gy0,0),S(gx0,gy0,0)],'#55506b');
+  let yard='';PL.forEach(pl=>{yard+=poly(pl.q.map(q=>S(q[0],q[1],0)),'#e9eef0','stroke-width="1.6"');const c=[pl.q.reduce((t,q)=>t+q[0],0)/pl.q.length,pl.q.reduce((t,q)=>t+q[1],0)/pl.q.length];yard+=poly(pl.q.map(q=>S(c[0]+(q[0]-c[0])*.86,c[1]+(q[1]-c[1])*.86,0)),'#3fb6e0','stroke-width="1.2"');});
+  {const xs=M.q.map(q=>q[0]),ys=M.q.map(q=>q[1]);const yF=Math.min(...ys),xm=(Math.min(...xs)+Math.max(...xs))/2+((bhash(o.seed||'d')%3)-1)*.18*(Math.max(...xs)-Math.min(...xs));
+   yard+=poly([S(xm-.8,gy0,0),S(xm+.8,gy0,0),S(xm+.8,yF,0),S(xm-.8,yF,0)],'#cfc4ab','stroke-width="1.2"');
+   [[Math.min(...xs)-1.2,yF-1.2],[Math.max(...xs)+1.2,yF-1.2]].forEach(([x,y])=>{const P0=S(x,y,.7);yard+=`<ellipse cx="${P0[0].toFixed(1)}" cy="${P0[1].toFixed(1)}" rx="1.3" ry="1" fill="#2f7a42" stroke="${INKC}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;});}
   /* adatto alla cornice */
   const pts=[S(gx0,gy0-6,0),S(gx1,gy1,0),S(gx0,gy1,0),S(gx1,gy0-6,0)];const maxH=Math.max(...[M,...NB].map(b=>H(b)))+5;pts.push(S(gx0,gy1,maxH),S(gx1,gy1,maxH));
   const mx0=Math.min(...pts.map(p=>p[0])),mx1=Math.max(...pts.map(p=>p[0])),my0=Math.min(...pts.map(p=>p[1])),my1=Math.max(...pts.map(p=>p[1]));
@@ -8960,7 +8988,7 @@ function realHouseSVG(geo,o={}){const m=geo.main;const lvl=o.lvl||1,a=o.a||{};co
   const shield=lvl>=5?`<ellipse cx="${VW/2}" cy="${VH*.55}" rx="${VW*.46}" ry="${VH*.5}" fill="#7cf0ff" fill-opacity=".14" stroke="#fff" stroke-width="2.5" opacity=".9"/>`:'';
   const stars=[[20,18],[60,10],[250,16],[290,34],[200,8],[140,22]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.4" fill="#fff"/>`).join('');
   return`<svg viewBox="0 0 ${VW} ${VH}" class="hart real"><rect width="${VW}" height="${VH}" fill="#2b2160"/>${stars}<circle cx="282" cy="26" r="13" fill="#f7d64a" stroke="${INKC}" stroke-width="2.5"/>
-    <g transform="translate(${tx.toFixed(1)} ${ty.toFixed(1)}) scale(${sc.toFixed(3)})">${road}${ground}${body}${deco}</g>${shield}${rhWx(o.ev,VW,VH)}</svg>`;}
+    <g transform="translate(${tx.toFixed(1)} ${ty.toFixed(1)}) scale(${sc.toFixed(3)})">${road}${ground}${yard}${body}${deco}</g>${shield}${rhWx(o.ev,VW,VH)}</svg>`;}
 function rhWx(ev,W,H){if(!ev||ev==='calma')return'';let g='';
   if(ev==='pioggia'){for(let i=0;i<70;i++){const x=(i*47)%W,y=(i*29)%H;g+=`<path d="M${x} ${y}l-4 10" stroke="#cfe2ff" stroke-width="1.4" opacity=".75"/>`;}g=`<rect width="${W}" height="${H}" fill="#1d2a55" opacity=".25"/>`+g;}
   else if(ev==='neve'){for(let i=0;i<80;i++){const x=(i*53)%W,y=(i*31)%H;g+=`<circle cx="${x}" cy="${y}" r="${1+(i%3)*.6}" fill="#fff" opacity=".9"/>`;}}
@@ -9138,7 +9166,7 @@ try{const _ssOfCo=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.coach')
 eqPad=function(){const c=document.querySelector('#sheet.open .sheet-b');if(c&&/[Ii]nvit/.test(c.textContent)&&!c.querySelector('.eqpad'))c.insertAdjacentHTML('beforeend','<p class="eqpad">🤝 <b>Padrino</b>: per i primi 14 giorni ricevi anche il 10% in più di quello che guadagna chi hai invitato (a lui non togliamo niente).</p>');};
 function sheetClean(){try{const sh=document.getElementById('sheet');if(!sh)return;[...sh.children].forEach(ch=>{if(!ch.classList.contains('sheet-bg')&&!ch.classList.contains('sheet-card'))ch.remove();});}catch(e){}}
 const _closeSheetAl=closeSheet;closeSheet=function(){const r=_closeSheetAl.apply(this,arguments);sheetClean();return r;};
-setInterval(sheetClean,1500);
+setInterval(sheetClean,6000);try{const _osSc=openSheet;openSheet=function(){const r=_osSc.apply(this,arguments);setTimeout(sheetClean,80);return r;};}catch(e){}
 /* ---- 2) ---- */
 async function allyAsk(uid,nick,btn){try{if(btn)btn.disabled=true;const r=await socRpc('world_ally_request',{p_target:uid});toast((r&&r.msg)||'🤝 Proposta inviata');}catch(e){toast(e.message||'Non riuscito');if(btn)btn.disabled=false;}}
 async function allyNudge(uid,btn){try{if(btn)btn.disabled=true;const r=await socRpc('world_shout',{p_to:uid,p_code:5});toast(r&&r.ok===false?r.msg:'📣 Ricordato: “🤝 Facciamo squadra?”');}catch(e){toast(e.message||'Non riuscito');if(btn)btn.disabled=false;}}
@@ -9506,7 +9534,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611042217';
+const APPV='202611042314';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -9582,14 +9610,16 @@ async function matFlush(){if(!S.user)return;let q=[];try{q=JSON.parse(localStora
 function coinSweep(){try{if(typeof G==='undefined'||!G)return;const k='zsh_coinbase';let base=+(localStorage.getItem(k)||NaN);
   if(isNaN(base)){/* prima volta: converto le monete che avevi */const old=Math.max(0,G.coins||0);localStorage.setItem(k,'0');G.coins=0;try{saveLocal();}catch(e){}if(old>=5)giveMattoni(Math.min(300,Math.floor(old/5)),'Monete convertite');return;}
   const c=G.coins||0;if(c>0){G.coins=0;try{saveLocal();}catch(e){}if(c>=5)giveMattoni(Math.floor(c/5),'Premi');}}catch(e){}}
-setInterval(coinSweep,1500);
+setInterval(coinSweep,10000);
 const _wMineMt=wMine;wMine=async function(){const r=await _wMineMt.apply(this,arguments);try{if(S.user&&!wMine.__fl){wMine.__fl=1;setTimeout(()=>{matFlush();coinSweep();},500);}}catch(e){}return r;};
 /* testi: dove c'erano monete ora ci sono Mattoni */
 function coinText(root){try{(root||app).querySelectorAll('.tmp, .lpan, .daily, #sheet.open .sheet-b').forEach(el=>{const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;const L=[];while((n=w.nextNode()))if(/🪙/.test(n.nodeValue))L.push(n);
   L.forEach(n=>{n.nodeValue=n.nodeValue.replace(/🪙\s*(\d+)/g,(m,v)=>'🧱 '+Math.max(1,Math.floor(+v/5))).replace(/(\d+)\s*🪙/g,(m,v)=>Math.max(1,Math.floor(+v/5))+' 🧱').replace(/🪙/g,'🧱').replace(/\bmonete\b/g,'Mattoni');});});}catch(e){}}
-setInterval(()=>{if(document.visibilityState==='visible')coinText();},1200);
+/* i testi si sistemano quando si apre una scheda o si cambia pagina (non più ogni secondo) */
+try{const _osCt=openSheet;openSheet=function(){const r=_osCt.apply(this,arguments);setTimeout(()=>coinText(),60);return r;};}catch(e){}
+try{const _goCt=go;go=function(){const r=_goCt.apply(this,arguments);setTimeout(()=>coinText(),400);return r;};}catch(e){}
 /* il portafoglio nel menu senza monete */
-setInterval(()=>{try{document.querySelectorAll('#zmenu .zmwal span, .hschips span').forEach(s=>{if(/🪙/.test(s.textContent))s.remove();});}catch(e){}},1500);
+try{const _zmCt=zmOpen;zmOpen=function(){const r=_zmCt.apply(this,arguments);setTimeout(()=>{try{document.querySelectorAll('#zmenu .zmwal span').forEach(s=>{if(/🪙/.test(s.textContent))s.remove();});}catch(e){}},40);return r;};}catch(e){}
 </script>
 <script>
 /* =========================================================
@@ -9892,6 +9922,32 @@ const _liveMapNt=liveMap;liveMap=async function(el,addr,o){o=Object.assign({},o|
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.lm-mode');if(b&&e.isTrusted){const box=b.closest('.lmap');if(box)box.dataset.manual='1';}},true);
 /* con l'app aperta: al tramonto e all'alba le mappe cambiano da sole */
 setInterval(()=>{try{if(document.hidden)return;const want=zIsNight();document.querySelectorAll('.lmap').forEach(box=>{if(box.dataset.manual)return;const now=box.classList.contains('night');if(now!==want){const b=box.querySelector('.lm-mode');if(b)b.click();}});}catch(e){}},60000);
+</script>
+<script>
+/* =========================================================
+   "🔎 Sul disegno": sotto ogni casa l'elenco delle modifiche DAVVERO disegnate
+   + finestre illuminate dopo il tramonto vero
+   ========================================================= */
+function hLegend(h,o,g){const L=[];const a=o.a||{};const d=o.defs||{};
+  if(o.prep)L.push('🛡️ Assi alle finestre (case preparate)');
+  if(h.home){if(a.porta==='blindata'||a.porta==='b4')L.push('🚪 Porta blindata');if(a.grate==='tutte'||a.grate==='alcune')L.push('▦ Grate alle finestre');if(a.vetri==='anti')L.push('🪟 Vetri antisfondamento');
+    if(a.luci==='sensore')L.push('💡 Luce a sensore');if(a.allarme==='allarme')L.push('🚨 Allarme');if(a.allarme==='cam')L.push('📹 Telecamera');if(a.recinzione&&a.recinzione!=='no')L.push('🧱 Recinzione');}
+  Object.keys(ZDEF||{}).forEach(k=>{const v=Math.min(3,d[k]||0);if(v)L.push(`${ZDEF[k][0]} ${ZDEF[k][1]} ${'●'.repeat(v)}${'○'.repeat(3-v)}`);});
+  if((o.lvl||1)>=5)L.push('✨ Scudo di livello 5');if(o.helps)L.push(`🤝 ${o.helps} alleati alla porta`);if(g&&g.pools&&g.pools.length)L.push('🏊 Piscina');
+  return L;}
+const _drawHouseLg=drawHouse;drawHouse=async function(el,h,o={}){o=Object.assign({},o);if(o.night===undefined){try{o.night=zIsNight(h.lat,h.lon);}catch(e){}}
+  if(o.prep===undefined)o.prep=!!(OR.s&&OR.s.prepared);if(o.lvl===undefined){const T=typeof thrOf==='function'?thrOf(h):null;o.lvl=T?T.level:(h.level||1);}
+  if(o.defs==null){const T=typeof thrOf==='function'?thrOf(h):null;if(T)o.defs=T.defs||{};}if(h.home&&!o.a)o.a=S.answers||{};
+  const g=await _drawHouseLg.call(this,el,h,o);
+  try{if(el&&!el.closest('#fumetto')&&el.isConnected){let lg=el.nextElementSibling;if(!lg||!lg.classList.contains('hlegend')){lg=document.createElement('div');lg.className='hlegend';el.after(lg);}
+    const L=hLegend(h,o,g&&g.geo?g.geo:g);lg.innerHTML=L.length?`<b>🔎 Sul disegno</b>${L.map(x=>`<span>${esc(x)}</span>`).join('')}`:'<b>🔎 Sul disegno</b><span class="muted">ancora nessuna modifica: le fortificazioni che compri compaiono qui e sulla casa</span>';}}catch(e){}
+  return g;};
+/* pagina della casa: il disegno viene copiato dentro, quindi la legenda la aggiungo dopo */
+async function hLegendPut(box,h){try{if(!box||!box.isConnected)return;const T=typeof thrOf==='function'?thrOf(h):null;
+  const o={prep:!!(OR.s&&OR.s.prepared),lvl:T?T.level:(h.level||1),defs:T?T.defs||{}:{},a:h.home?(S.answers||{}):{},helps:h.home?Math.min(4,+((OR.s&&OR.s.helps_in)||0)):0};
+  let g=null;try{g=await bGeom(h.lat,h.lon);}catch(e){}let lg=box.nextElementSibling;if(!lg||!lg.classList.contains('hlegend')){lg=document.createElement('div');lg.className='hlegend';box.after(lg);}
+  const L=hLegend(h,o,g);lg.innerHTML=L.length?`<b>🔎 Sul disegno</b>${L.map(x=>`<span>${esc(x)}</span>`).join('')}`:'<b>🔎 Sul disegno</b><span class="muted">ancora nessuna modifica: le fortificazioni che compri compaiono qui e sulla casa</span>';}catch(e){}}
+const _houseSheetLg=houseSheet;houseSheet=async function(h){await _houseSheetLg(h);try{const box=document.querySelector('#sheet.open .hsart');if(box)await hLegendPut(box,h);}catch(e){}};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
