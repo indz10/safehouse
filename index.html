@@ -1237,7 +1237,7 @@ body[data-tab=casa] .rmini,body[data-tab=casa] .qact,body[data-tab=casa] .hsoc{d
 .odplay{background:linear-gradient(180deg,#fff,#ffe9d6)}.odplay>*{margin-top:6px}
 .ofold>summary{font-family:var(--display);font-size:20px}.ofb>*{margin-top:8px}
 
-.fronte .lm-mode,.fronte .lm-3d,.fronte .lm-10,.fronte .lm-orda{display:none!important}
+.fronte .lm-mode,.fronte .lm-10,.fronte .lm-orda{display:none!important}.fronte .lmap .lm-3d{top:10px}
 body[data-tab=orda] #accFab{display:none!important}
 .frcal{width:auto!important;height:auto!important;padding:2px!important;background:transparent!important;border:0!important}.frcal .ocd.mini{margin:0;box-shadow:2px 2px 0 var(--ink);border-width:2.5px}
 .frcal .ocd b{color:var(--ink)!important}
@@ -1421,6 +1421,7 @@ body[data-tab=orda] #accFab{display:none!important}
 .sctip{background:#fff3b0;border-left:5px solid #c79a00;padding:6px 9px;font-size:12.5px;font-weight:400;margin:6px 0 0}
 .scmini{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}.scmini>b{font-family:var(--display);font-size:34px}.scmini span{font-size:13px;font-weight:800;background:#fff;border:2px solid var(--ink);border-radius:10px;padding:1px 7px}
 .thrw.azk{cursor:pointer}.thrw.azk:after{content:'›';font-weight:900;margin-left:6px}.fch.ro{cursor:default;opacity:.85}
+.frerr{position:absolute;left:8px;right:8px;bottom:52px;z-index:8;background:#fff3b0;border:2.5px solid var(--ink);font-weight:800;font-size:12.5px;padding:6px 9px;text-align:left;color:var(--ink)}
 </style>
 </head>
 <body>
@@ -3064,6 +3065,10 @@ function renderPick(){
 function renderHub(){try{return renderHubBase();}catch(e){console.warn('pagina Orda di base:',e);app.innerHTML='<div class="page"><div class="ohold" data-grp="q" hidden></div></div>';try{splitHub();}catch(x){console.warn(x);}}}
 function renderHubBase(){
   if(!HTYPES[G.type])G.type=HTYPES.vera?'vera':Object.keys(HTYPES)[0]; /* telefono nuovo o dati cancellati: niente blocco */
+  /* partita mai creata su questo account: creo solo i pezzi mancanti (senza toccare gemme, giri e premi) */
+  if(G.level==null)G.level=1;if(G.coins==null)G.coins=0;if(G.gems==null)G.gems=0;
+  if(!G.h)G.h={porta:0,grate:0,muro:0,luci:0,energia:0,vedetta:0,...((HTYPES[G.type]||{}).start||{})};G.q=G.q||{};G.lots=G.lots||{};G.tools=G.tools||{petardo:1,sirena:1};
+  if(!G.friends||!G.me||!G.event)socialInit();G.perk=G.perk||{};G.med=G.med||{};G.wins=G.wins||0;try{luckInit();}catch(e){}
   dailyBonus();
   if(G.sub==='arena')return renderArena();
   const t=HTYPES[G.type];const sel=SLOTS.find(s=>s.id===G.sel);const selLot=LOTS.find(l=>l.id===G.sel);const rent=totalRent();
@@ -6204,7 +6209,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611041536';
+const ZSH_BUILD='202611042146';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -9173,7 +9178,7 @@ const _socPaintAl2=socPaint;socPaint=function(){_socPaintAl2();try{if(SOC.tab!==
    ========================================================= */
 FR.focus=null;FR.roads={};FR.dests=[];FR.homes=[];
 async function frRoads(lat,lon){const k=lat.toFixed(3)+','+lon.toFixed(3);if(FR.roads[k])return FR.roads[k];
-  let els=[];try{els=await trOverpass(`[out:json][timeout:20];way(around:1000,${lat},${lon})["highway"];out geom 600;`,20000,600)||[];}catch(e){}FR.roads[k]={els};return FR.roads[k];}
+  let els=[];try{els=await trOverpass(`[out:json][timeout:20];way(around:1000,${lat},${lon})["highway"];out geom 600;`,9000,2)||[];}catch(e){}const r={els};if(els.length)FR.roads[k]=r;return r;}
 async function frElevate(paths){try{const P=[];const key=p=>p[0].toFixed(5)+','+p[1].toFixed(5);const seen=new Map();
     paths.forEach(pa=>pa.seg.forEach(s=>[s.a,s.b].forEach(p=>{const k=key(p);if(!seen.has(k)){seen.set(k,null);P.push(p);}})));if(!P.length)return;
     const step=Math.max(1,Math.ceil(P.length/100));const S2=P.filter((_,i)=>i%step===0).slice(0,100);
@@ -9193,18 +9198,26 @@ frMount=async function(){const R=frR();if(!R||!FR.node)return;const H=myHouses()
   const home=H.find(h=>h.home)||H[0];const F=(FR.focus&&H.find(h=>h.home===FR.focus.home&&(h.home||h.bid===FR.focus.bid)))||home;
   const key=F.lat.toFixed(4)+','+F.lon.toFixed(4)+'|'+H.length;frSel(H,F);frHeader();
   if(FR.lm&&FR.key===key){try{FR.lm.map.resize();}catch(e){}frLoop();frRings();return;}
-  FR.key=key;frStop();
+  if(FR.busy)return;FR.busy=true;frStop();try{
   if(!FR.lm){try{const nx=oggiNext();let addr=S.zone&&S.zone.address;if(!addr){addr='__casa';RM.cache=RM.cache||{};if(!RM.cache[addr])RM.cache[addr]={lat:R.lat,lon:R.lon,els:[1]};}FR.lm=await liveMap(FR.node.querySelector('.frmap'),addr,{zoom:15.4,night:nx.getHours()>=18||nx.getHours()<7});}catch(e){FR.node.querySelector('.frmap').innerHTML='<p class="muted" style="padding:20px">Mappa non disponibile ora.</p>';return;}}
   try{FR.lm.map.jumpTo({center:[F.lon,F.lat],zoom:F.home?15.4:15.6});}catch(e){}
   (FR.homes||[]).forEach(m=>{try{m.remove();}catch(e){}});FR.homes=[];FR.homeEls=[];(FR.zs||[]).forEach(z=>{try{z.mk.remove();}catch(e){}});FR.zs=[];
   const dests=H.filter(h=>trM(F.lat,F.lon,h.lat,h.lon)<1500);if(!dests.includes(F))dests.unshift(F);dests.sort((a,b)=>(a===F?-1:b===F?1:0));FR.dests=dests;
-  let m=F.home&&S.zone&&S.zone.address?(RM.cache&&RM.cache[S.zone.address]):null;if(!m)m=await frRoads(F.lat,F.lon);
+  let m=F.home&&S.zone&&S.zone.address?(RM.cache&&RM.cache[S.zone.address]):null;
+  if(!m||!m.els||!m.els.length){const got=await Promise.race([frRoads(F.lat,F.lon),new Promise(r=>setTimeout(()=>r(null),6000))]);
+    if(got&&got.els&&got.els.length)m=got;else{const kk=key;frRoads(F.lat,F.lon).then(x=>{if(x&&x.els&&x.els.length&&FR.key===kk){FR.key=null;frMount();}}).catch(()=>{});}}
   let paths=[];dests.forEach((d,i)=>{let P=frPaths(d.home?R:{lat:d.lat,lon:d.lon},m);P=P.slice(0,d===F?6:3);P.forEach(p=>{p.dest=i;});paths=paths.concat(P);});
-  await frElevate(paths); /* stesso metodo per tutte le case: quote vere punto per punto */
-  FR.paths=paths;frDrawLines();
+  const evp=frElevate(paths); /* stesso metodo per tutte le case: quote vere punto per punto */
+  await Promise.race([evp,new Promise(r=>setTimeout(r,2000))]);
+  FR.paths=paths;frDrawLines();evp.then(()=>{try{if(FR.paths===paths)frDrawLines();}catch(e){}});
   dests.forEach((d,i)=>{try{const el=document.createElement('div');el.className='frhome';el.innerHTML=`<div class="frhfx"></div><div class="frring"></div><b>${d.home?'🏠':'🔑'}</b><span data-frpct2="${i}"></span><i class="frhwx"></i>`;
     el.addEventListener('click',e=>{e.stopPropagation();houseSheet(d);});FR.homeEls=FR.homeEls||[];FR.homeEls[i]=el;FR.homes.push(new maplibregl.Marker({element:el}).setLngLat([d.lon,d.lat]).addTo(FR.lm.map));FR.paths.filter(p=>p.dest===i).forEach(p=>p.homeEl=el);}catch(e){}});
-  frSpawn();frLoop();frHeader();frRings();};
+  frSpawn();frLoop();frHeader();frRings();FR.key=key;FR.err=null;frErrShow();
+  }catch(e){FR.err=(e&&e.message)||String(e);FR.key=null;frErrShow();console.warn('fronte',e);}finally{FR.busy=false;}};
+/* avviso sul fronte se qualcosa si blocca (con "Riprova") */
+function frErrShow(){try{const w=FR.node&&FR.node.querySelector('.frmapw');if(!w)return;let c=w.querySelector('.frerr');
+  if(!FR.err){if(c)c.remove();return;}if(!c){c=document.createElement('button');c.className='frerr';w.appendChild(c);c.onclick=()=>{FR.err=null;FR.key=null;c.remove();frMount();};}
+  c.textContent='⚠️ Fronte: '+String(FR.err).slice(0,80)+' · Riprova';}catch(e){}}
 function frRings(){try{(FR.dests||[]).forEach((d,i)=>{const c=frChanceOf(d);try{const he=(FR.homeEls||[])[i];const T=typeof thrOf==='function'?thrOf(d):null;if(he&&T){const ev=T.ev||'calma';const fx=he.querySelector('.frhfx');if(fx)fx.className='frhfx hx-'+ev;const wi=he.querySelector('.frhwx');if(wi)wi.textContent=ev==='calma'?'':(EVN[ev]||['',''])[0];}}catch(e){}const he=(FR.homeEls||[])[i];const el=he&&he.querySelector('[data-frpct2]');if(el)el.textContent=c!=null?c+'%':'';const ring=el&&el.parentNode.querySelector('.frring');if(ring&&c!=null)ring.style.setProperty('--ok',c>=50?'#5bd16a':'#d7263d');});
   const F=FR.dests&&FR.dests[0];if(F&&!F.home){const c=frChanceOf(F);const chip=[...FR.node.querySelectorAll('[data-frchips] span')].find(s=>/di tenere/.test(s.textContent));if(chip&&c!=null){chip.innerHTML=`🛡️ ${c}% di tenere (${esc(F.label)}) · <u>perché</u>`;chip.onclick=()=>whySheet(F.bid,false);}}
   const s=FR.node&&FR.node.querySelector('.frsel');if(s){const H=myHouses();s.querySelectorAll('[data-frh]').forEach(b=>{const h=H[+b.dataset.frh];const c=h&&frChanceOf(h);const sm=b.querySelector('small');if(sm&&c!=null)sm.textContent=c+'%'+(h.km>1.5?' · '+kmTxt(h.km):'');});}
@@ -9491,7 +9504,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611041536';
+const APPV='202611042146';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
