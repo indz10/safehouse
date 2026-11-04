@@ -1415,6 +1415,12 @@ body[data-tab=orda] #accFab{display:none!important}
 .zshh{display:flex;justify-content:space-between;gap:8px;align-items:center}.zshh>div:first-child{display:flex;flex-direction:column}.zshh small{font-size:12px;color:#5a5470}
 .zshf{text-align:center;border:2.5px solid var(--ink);background:#f6b8bf;padding:2px 9px}.zshf b{display:block;font-family:var(--display);font-size:22px}.zshf small{font-size:10.5px}
 .zshw{font-size:12.5px;color:#3d3650}
+.scrow{background:#fff;border:2.5px solid var(--ink);padding:7px 10px;margin-bottom:6px;display:flex;flex-direction:column;gap:4px}.sct{display:flex;justify-content:space-between}.sct span{font-family:var(--display);font-size:20px}.sct small{font-size:12px}
+.scbar{height:12px;border:2px solid var(--ink);background:#f3e9d2;position:relative}.scbar i{position:absolute;inset:0 auto 0 0;background:#5bd16a}.scrow>small{font-size:12px;color:#5a5470}
+.sctot{text-align:center;background:var(--moon);border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:8px;margin-bottom:10px}.sctot b{display:block;font-family:var(--display);font-size:44px;line-height:1}.sctot small{font-size:12px}
+.sctip{background:#fff3b0;border-left:5px solid #c79a00;padding:6px 9px;font-size:12.5px;font-weight:400;margin:6px 0 0}
+.scmini{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}.scmini>b{font-family:var(--display);font-size:34px}.scmini span{font-size:13px;font-weight:800;background:#fff;border:2px solid var(--ink);border-radius:10px;padding:1px 7px}
+.thrw.azk{cursor:pointer}.thrw.azk:after{content:'›';font-weight:900;margin-left:6px}.fch.ro{cursor:default;opacity:.85}
 </style>
 </head>
 <body>
@@ -6198,7 +6204,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611041423';
+const ZSH_BUILD='202611041536';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -9251,7 +9257,7 @@ function thrHTML(T,sim){const r=thrCalc(T,sim);const base=thrCalc(T);const ev=EV
   const kinds=[...new Set(['trappole',...r.sp.map(x=>x.dk),...r.sp.map(x=>x.dk2).filter(Boolean)])];
   return`<div class="thhead"><span>${ev[0]} <b>${ev[1]}</b> all’orda delle ${String(T.hh).padStart(2,'0')}:00 · <small>${esc(ev[2])}</small></span><span>⛰️ ${slT}</span></div>
    <div class="thrw"><span>🧟 Vaganti (standard)<small>frenati da 🪤 Trappole</small></span><b>${Math.round(T.std_min*T.mw*(1-.06*Math.min(3,(Object.assign({},T.defs||{},sim.defs||{})).trappole||0)))}–${Math.round(T.std_max*T.mw*(1-.06*Math.min(3,(Object.assign({},T.defs||{},sim.defs||{})).trappole||0)))}</b></div>
-   ${r.sp.length?r.sp.map(x=>{const z=ZSP[x.k]||{ic:'🧟',n:x.k,why:''};const d=ZDEF[x.dk];const d2=x.dk2?ZDEF[x.dk2]:null;return`<div class="thrw"><span>${z.ic} ${z.n}<small>${z.why}${x.mod!==1?` · qui ×${String(x.mod).replace('.',',')}`:''} · ferma: ${d[0]} ${d[1]}${d2?` (+ ${d2[0]} ${d2[1]})`:''}</small></span><b>${x.p.toFixed(1).replace('.',',')}</b></div>`;}).join(''):'<p class="muted" style="font-size:12.5px">Al tuo livello arrivano solo vaganti. Gli speciali arrivano dal livello 2.</p>'}
+   ${r.sp.length?r.sp.map(x=>{const z=ZSP[x.k]||{ic:'🧟',n:x.k,why:''};const d=ZDEF[x.dk];const d2=x.dk2?ZDEF[x.dk2]:null;return`<div class="thrw"><span>${z.ic} ${z.n}<small>${z.why}${x.mod!==1?` · qui ×${(Math.round(x.mod*100)/100).toString().replace('.',',')}`:''} · ferma: ${d[0]} ${d[1]}${d2?` (+ ${d2[0]} ${d2[1]})`:''}</small></span><b>${x.p.toFixed(1).replace('.',',')}</b></div>`;}).join(''):'<p class="muted" style="font-size:12.5px">Al tuo livello arrivano solo vaganti. Gli speciali arrivano dal livello 2.</p>'}
    <div class="thrw tot"><span>Forza dell’orda su questa casa</span><b>${r.amin}–${r.amax}</b></div>
    ${kinds.length?`<h4 class="hh">🎯 Difese mirate (prova e guarda la %)</h4>${kinds.map(k=>{const d=ZDEF[k];const cur=(T.defs||{})[k]||0;const v=(sim.defs&&sim.defs[k]!=null)?sim.defs[k]:cur;
       return`<div class="thdef"><span>${d[0]} <b>${d[1]}</b><small>${'●'.repeat(v)}${'○'.repeat(3-v)}${v>cur?' (prova)':''}</small></span><div><button data-sd="${k}" data-v="-1" ${v<=cur?'disabled':''}>−</button><button data-sd="${k}" data-v="1" ${v>=3?'disabled':''}>+</button></div></div>`;}).join('')}`:''}
@@ -9485,7 +9491,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611041423';
+const APPV='202611041536';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -9802,11 +9808,55 @@ const _frZSheetZS=frZSheet;frZSheet=function(k){_frZSheetZS(k);try{const c=docum
   const x=k==='walker'?null:r.sp.find(s=>s.k===k);if(k!=='walker'&&!x){c.insertAdjacentHTML('afterbegin',`<div class="zsh"><b>🏠 ${esc(F.label)}</b><small>Al tuo livello del mondo (${T.wl}) questo zombie non arriva ancora.</small></div>`);return;}
   const kinds=k==='walker'?['trappole']:[x.dk,x.dk2].filter(Boolean);const O=fortOpts(T).filter(o=>kinds.includes(o.k));
   const ev=EVN[T.ev]||EVN.calma;const force=k==='walker'?`${Math.round(T.std_min*T.mw)}–${Math.round(T.std_max*T.mw)}`:x.p.toFixed(1).replace('.',',');
-  const why=k==='walker'?`Sono la massa dell’orda: le 🪤 trappole ne frenano il 6% per livello.`:`Qui pesa ×${String(x.mod).replace('.',',')} (salita e ${ev[1].toLowerCase()}). Difesa principale −30% per livello, supporto −15%.`;
+  const why=k==='walker'?`Sono la massa dell’orda: le 🪤 trappole ne frenano il 6% per livello.`:`Qui pesa ×${(Math.round(x.mod*100)/100).toString().replace('.',',')} (salita e ${ev[1].toLowerCase()}). Difesa principale −30% per livello, supporto −15%.`;
   c.insertAdjacentHTML('afterbegin',`<div class="zsh"><div class="zshh"><div><b>🏠 Su ${esc(F.label)}</b><small>${ev[0]} ${ev[1]} · orda delle ${String(T.hh).padStart(2,'0')}:00</small></div><div class="zshf"><small>forza</small><b>${force}</b></div></div>
     <small class="zshw">${why}</small><div class="rinf">${O.map(o=>`<button class="fch ${o.max?'max':o.cur>0?'ok':'no'} ${o.gain>0?'up':''}" data-zfk="${o.k}"><span>${fortLabel(o)}</span>${o.max?'<small>massimo</small>':`<small>${o.gain>0?`<b>+${o.gain}%</b> · `:''}🧱 ${wNum(o.cost)}</small>`}</button>`).join('')}</div>
     <small class="zshw">Questa casa oggi tiene il <b>${r.ch}%</b>.</small></div>`);
   c.querySelectorAll('[data-zfk]').forEach(b=>b.onclick=()=>{const o=fortOpts(T).find(y=>y.k===b.dataset.zfk);if(o)fortBuy(F,T,o,()=>{try{frRings();}catch(e){}frZSheet(k);});});}catch(e){console.warn(e);}};
+</script>
+<script>
+/* =========================================================
+   CLASSIFICA CON PUNTEGGIO SUPERSTITE (su 1000) + SCHEDA ZOMBIE ANCHE PER GLI ALLEATI
+   ========================================================= */
+const SC_V=[['dif','🛡️','Difesa',300,s=>`${s.held}/${s.orde} orde tenute dalla casa vera`,'Prepara le case prima di ogni orda e fortifica contro gli zombie in arrivo.'],
+  ['forte','🧱','Fortezza',200,s=>`${s.fort} livelli di fortificazioni · ${s.lvup} potenziamenti`,'Compra fortificazioni e potenzia le case (pagina della casa).'],
+  ['casa','🏠','Casa vera',150,s=>s.indice==null?'valutazione non fatta':`indice ${String(s.indice).replace('.',',')}/10 (più basso = più sicura)`,'Fai i lavori veri del piano d’azione e aggiorna la valutazione.'],
+  ['squadra','🤝','Squadra',150,s=>`${s.helps} aiuti dati · ${s.alleati} alleati`,'Manda rinforzi e scudi agli alleati, fai nuove alleanze.'],
+  ['costanza','📅','Costanza',100,s=>`${s.giorni}/${s.giorni_max} giorni giocati`,'Entra ogni giorno: premio del giorno, orde, missioni.'],
+  ['crescita','📈','Crescita',100,s=>`🧱 ${wNum(s.mattoni)} guadagnati giocando`,'Riscatta le orde, completa le missioni, riscuoti gli affitti.']];
+async function scLoad(uid){try{const{data,error}=await SB.rpc('world_score',{p_user:uid||null,p_period:SOC.rp||'settimana'});if(error)throw error;return data;}catch(e){return{err:e.message};}}
+function scBars(s,mine){if(!s||s.err)return`<p class="muted" style="font-size:12.5px">Punteggio non disponibile${s&&s.err?' ('+esc(s.err)+')':''}. Esegui il file classifica.sql su Supabase.</p>`;
+  const weakest=SC_V.map(v=>[v,s[v[0]]/v[3]]).sort((a,b)=>a[1]-b[1])[0][0];
+  return SC_V.map(v=>{const val=s[v[0]]||0;const pc=Math.round(val/v[3]*100);return`<div class="scrow"><div class="sct"><b>${v[1]} ${v[2]}</b><span>${val}<small>/${v[3]}</small></span></div><div class="scbar"><i style="width:${pc}%"></i></div><small>${esc(v[4](s))}</small></div>`;}).join('')
+   +(mine?`<p class="sctip">💡 Per salire di più: <b>${weakest[1]} ${weakest[2]}</b> — ${weakest[5]}</p>`:'');}
+async function scSheet(uid,nick){openSheet(`🏅 ${nick?'@'+esc(nick):'Il tuo punteggio'}`,'<p><span class="spin"></span></p>');const s=await scLoad(uid);const me=!uid||(S.user&&uid===S.user.id);
+  openSheet(`🏅 ${me?'Il tuo Punteggio Superstite':'@'+esc(nick)}`,`<div class="sctot"><b>${s&&!s.err?s.tot:'—'}</b><small>punti su 1000 · ${SOC.rp==='settimana'?'ultima settimana':'ultimi 30 giorni'}</small></div>${scBars(s,me)}
+    <p class="muted" style="font-size:11.5px;margin-top:8px">Il punteggio incrocia difesa nelle orde, fortificazioni, sicurezza della casa vera, aiuti alla squadra, costanza e crescita. I Mattoni da soli non bastano.</p>`);}
+function scDecorate(){try{if(S.tab!=='social'||SOC.tab!=='classifiche')return;const B=app.querySelector('#socBody');if(!B)return;
+  B.querySelectorAll('[data-rp="sempre"]').forEach(b=>{if(b.textContent!=='30 giorni')b.textContent='30 giorni';});
+  B.querySelectorAll('.srank').forEach(r=>{const b=r.querySelector(':scope > b');if(b&&/🧱/.test(b.textContent))b.textContent=b.textContent.replace('🧱','🏅');
+    if(!r.dataset.sc){r.dataset.sc='1';r.style.cursor='pointer';r.addEventListener('click',e=>{if(e.target.closest('[data-pl],.snick'))return;const n=r.querySelector('.snick');const uid=n&&n.dataset.pl;scSheet(uid,(n&&n.textContent||'').replace('@',''));});}});
+  B.querySelectorAll('p.muted').forEach(p=>{if(/Punti = Mattoni/.test(p.textContent))p.innerHTML='🏅 <b>Punteggio Superstite</b> su 1000: difesa nelle orde, fortificazioni, casa vera, squadra, costanza e crescita. Tocca un giocatore per vedere il dettaglio.';});
+  if(!B.querySelector('.scme')){const seg=B.querySelector('.schips');if(seg){seg.insertAdjacentHTML('beforebegin','<div class="panel scme"><div class="row spread"><b class="disp" style="font-size:20px">🏅 Il tuo Punteggio Superstite</b><button class="btn small ghost" data-scme>Dettaglio</button></div><div class="scmeb"><p class="muted"><span class="spin"></span></p></div></div>');
+    const me=B.querySelector('.scme');me.querySelector('[data-scme]').onclick=()=>scSheet(null);scLoad(null).then(s=>{const b=me.querySelector('.scmeb');if(!b)return;
+      b.innerHTML=s&&!s.err?`<div class="scmini"><b>${s.tot}</b><small>/1000</small>${SC_V.map(v=>`<span title="${v[2]}">${v[1]} ${s[v[0]]}</span>`).join('')}</div>`:scBars(s,true);});}}}catch(e){console.warn(e);}}
+const _socPaintSc=socPaint;socPaint=function(){_socPaintSc();scDecorate();};
+try{const _eqRankPaintSc=eqRankPaint;eqRankPaint=function(){_eqRankPaintSc();scDecorate();};}catch(e){}
+/* ---- SCHEDA ZOMBIE PER LE CASE DEGLI ALLEATI ---- */
+window.__zsCtx=null;
+const _thrViewAz=thrView;thrView=function(T){const h=_thrViewAz(T);if(!window.__azT)return h;const i=window.__azT.push(T)-1;
+  return h.replace(/<div class="thrw"><span>🧟 Vaganti/,`<div class="thrw azk" data-azk="walker" data-azt="${i}"><span>🧟 Vaganti`).replace(/<div class="thrw"><span>(\S+) ([^<]+)<small>difesa:/g,(m,ic,n)=>{const k=Object.keys(ZSP).find(x=>ZSP[x].n===n.trim());return k?`<div class="thrw azk" data-azk="${k}" data-azt="${i}"><span>${ic} ${n}<small>difesa:`:m;});};
+const _allySheetAz=allySheet;allySheet=async function(uid){window.__azT=[];window.__azU=uid;const r=await _allySheetAz(uid);return r;};
+document.addEventListener('click',e=>{const row=e.target.closest&&e.target.closest('[data-azk]');if(!row||!window.__azT)return;const T=window.__azT[+row.dataset.azt];if(!T)return;
+  const nick=((document.querySelector('#sheet.open h3')||{}).textContent||'').replace(/^🤝\s*@?/,'');window.__zsCtx={T,ally:true,uid:window.__azU,nick,label:(T.home?'casa vera':'una sua casa')+' di @'+nick};frZSheet(row.dataset.azk);},true);
+const _frZSheetAz=frZSheet;frZSheet=function(k){const ctx=window.__zsCtx;if(!ctx)return _frZSheetAz(k);window.__zsCtx=null;
+  const sv=FR.dests;FR.dests=[{label:ctx.label,home:ctx.T.home,bid:ctx.T.bid}];const svT=window.thrOf;window.thrOf=()=>ctx.T;try{_frZSheetAz(k);}finally{FR.dests=sv;window.thrOf=svT;}
+  try{const c=document.querySelector('#sheet.open .sheet-b');const z=c&&c.querySelector('.zsh');if(!z)return;
+    z.querySelectorAll('[data-zfk]').forEach(b=>{b.disabled=true;b.classList.add('ro');const sm=b.querySelector('small');if(sm)sm.innerHTML=sm.innerHTML.replace(/ · 🧱 \d+/,'').replace(/🧱 \d+/,'da comprare');});
+    const zs=ZSP[k]||{n:'Vaganti'};const best=[...z.querySelectorAll('[data-zfk]')].map(b=>b.dataset.zfk)[0];const PL={walker:'tanti Vaganti',runner:'i Corridori',casco:'gli zombie col casco',strillone:'gli Strilloni',scavatore:'gli Scavatori',brute:'i Bruti',ombra:'le Ombre',boss:'il Bruto della Sagra'};const tip=best&&ZDEF[best]?`Ti arrivano ${PL[k]||'gli zombie'}: metti ${ZDEF[best][0]} ${ZDEF[best][1]}!`:`Attento all’orda di stasera!`;
+    z.insertAdjacentHTML('beforeend',`<small class="zshw">È la casa del tuo alleato: le fortificazioni le compra lui. Tu puoi aiutarlo così:</small><div class="alacts big"><button class="btn small" data-azh>🤝 Rinforzi +5</button><button class="btn small ghost" data-azs>🛡️ Scudo 💎20</button><button class="btn small ghost" data-azm>💬 Consigliagli</button></div>`);
+    z.querySelector('[data-azh]').onclick=e=>alHelp(ctx.uid,e.target);z.querySelector('[data-azs]').onclick=()=>allyShield(ctx.uid,ctx.nick);
+    z.querySelector('[data-azm]').onclick=async e=>{e.target.disabled=true;try{const{data,error}=await SB.rpc('world_dm_send',{p_to:ctx.uid,p_body:tip});if(error)throw error;toast(data.ok?'💬 Inviato: “'+tip+'”':data.msg);}catch(x){toast(x.message||'Non inviato');e.target.disabled=false;}};}catch(e){console.warn(e);}};
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
