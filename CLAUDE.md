@@ -33,6 +33,7 @@ PWA in un solo file `index.html`: valuta la sicurezza della casa vera e la trasf
 ## Pubblicare
 - Sito: https://safehousezombie.netlify.app — Netlify pubblica da solo a ogni commit sul repo **indz10/safehouse** (ramo main).
 - Dalla Fase 1: sorgenti alla radice del repo, `dist/` costruita con `./build.sh` e **salvata nel repo**; Netlify pubblica `dist/` tramite `netlify.toml` (`publish = "dist"`, nessun comando di build). Dopo ogni modifica ai sorgenti: rilanciare `./build.sh` e mettere nel commit anche `dist/`.
+- `netlify.toml` imposta `publish = "dist"` per produzione, anteprime e rami, e un comando che **fa fallire** la pubblicazione se `dist/` è incompleta (meglio un deploy fallito che il sito in 404). 9/11/2026: dopo il Merge della Fase 1 il sito vero ha dato 404 mentre l'anteprima funzionava → controllare sempre il registro del deploy di produzione ("Publish directory" e numero di file).
 - Dopo il push: controllare https://safehousezombie.netlify.app/sw.js (seconda riga = nuova versione). Sul telefono l'app si aggiorna da sola all'apertura; versione visibile in menu ☰ in fondo.
 
 ## Supabase

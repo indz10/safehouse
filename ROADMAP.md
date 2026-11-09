@@ -100,7 +100,7 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 ## Stato
 | Fase | Stato | PR | Note |
 |---|---|---|---|
-| 1 | fatta (in attesa di Merge) | Fase 1 — Fondamenta | sorgenti alla radice, netlify.toml → dist/, build.sh e prove senza percorsi fissi, prove.sh |
+| 1 | unita (#1), sito vero in 404 → ripristinato; correzione in #2 | Fase 1 — Fondamenta | sorgenti alla radice, netlify.toml → dist/, build.sh e prove senza percorsi fissi, prove.sh |
 | 2 | da fare | | |
 | 3 | da fare | | |
 | 4 | da fare | | |
