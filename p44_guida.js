@@ -30,8 +30,6 @@ function whySheet(bid,home){const d=DEF.d;if(!d){toast('Conto non disponibile or
    <p style="font-weight:400;font-size:13px;margin:8px 0 0">L’orda per il tuo livello (${d.wlevel}) avrà una forza tra <b>${d.attack_min}</b> e <b>${d.attack_max}</b>. ${ch!=null?`Con ${tot} di difesa tieni nel <b>${ch}%</b> dei casi.`:''}</p>
    <p class="muted" style="font-size:12px;margin-top:6px">Per salire: prepara le case, chiedi rinforzi, potenzia la casa, migliora la casa vera (Scudo).</p>`);}
 /* nella scheda di ogni casa: probabilità vera + "Perché" */
-const _houseSheetDef=houseSheet;houseSheet=async function(h){await _houseSheetDef(h);try{await defLoad();const c=document.querySelector('#sheet.open');if(!c)return;const dh=defHouse(h.bid,h.home);const ch=dh?defChance(dh.total):null;
-  const box=c.querySelector('.hsdef');if(box&&ch!=null){box.innerHTML=`<b>${ch}%</b><small>probabilità di tenere</small><button class="whyb" data-why>🧮 Perché</button>`;box.querySelector('[data-why]').onclick=()=>whySheet(h.bid,h.home);}}catch(e){}};
 /* sul fronte: probabilità vera della casa vera */
 const _frHeaderDef=frHeader;frHeader=function(){_frHeaderDef();try{const d=DEF.d;if(!d)return;const hh=defHouse(null,true);if(!hh)return;const ch=defChance(hh.total);const n=FR.node;if(!n)return;
   const chip=[...n.querySelectorAll('[data-frchips] span')].find(s=>/di tenere/.test(s.textContent));if(chip){chip.innerHTML=`🛡️ ${ch}% di tenere · <u>perché</u>`;chip.style.cursor='pointer';chip.onclick=()=>whySheet(null,true);}

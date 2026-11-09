@@ -46,11 +46,6 @@ spList=function(lm){let c=null;try{c=lm&&lm.map&&lm.map.getCenter?lm.map.getCent
     card.querySelectorAll('[data-ati]').forEach(b=>b.onclick=()=>{const a=A[+b.dataset.ati];closeSheet();try{lm.map.flyTo({center:[a.lon,a.lat],zoom:17});}catch(e){}setTimeout(()=>attSheet(a),900);});});};
 setInterval(()=>{try{const b=document.querySelector('.mfsp');if(!b)return;const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null&&!g.demo).length;const t=n?`⭐ ${n} sponsor`:`🔧 ${attVis().length} attività`;if(b.textContent!==t)b.textContent=t;}catch(e){}},1500);
 /* nella scheda casa: se non ci sono sponsor entro 50 km, le attività della zona */
-const _houseSheetAt=houseSheet;houseSheet=async function(h){await _houseSheetAt(h);try{const card=document.querySelector('#sheet.open');if(!card||card.querySelector('[data-hsp]'))return;
-  const A=attVis().map(a=>({...a,dd:trM(h.lat,h.lon,a.lat,a.lon)})).filter(a=>a.dd<=50000).sort((a,b)=>a.dd-b.dd).slice(0,6);if(!A.length)return;
-  const hs=[...card.querySelectorAll('h4.hh')].find(x=>/Lavori veri/.test(x.textContent));if(!hs)return;let n=hs.nextElementSibling;while(n&&n.tagName!=='H4'){const nx=n.nextElementSibling;n.remove();n=nx;}
-  hs.insertAdjacentHTML('afterend',`<p class="muted" style="font-size:12px;margin:0 0 6px">Ancora nessuno sponsor qui: ecco le attività della zona.</p>${A.map((a,i)=>`<button class="strow" data-hat="${i}"><span class="splogo">${ATT_CAT[a.typ][0]}</span><div><b>${esc(a.name)}</b><small>${ATT_CAT[a.typ][1]} · ${kmTxt(a.dd/1000)}</small></div></button>`).join('')}`);
-  card.querySelectorAll('[data-hat]').forEach(b=>b.onclick=()=>attSheet(A[+b.dataset.hat]));}catch(e){}};
 
 /* ---- 2) 😈 RIVALI ---- */
 const DISP=[['orda','🧟','Manda un’orda','−8 alla sua difesa · taglia di 25 🧱 se la sua casa cade',30,'mat'],['nebbia','🌫️','Nebbia','−5 alla sua difesa',15,'gem'],['sabotaggio','🔨','Sabotaggio','annulla il suo “Prepara le case” (−15)',25,'gem']];

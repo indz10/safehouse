@@ -21,9 +21,4 @@ async function coresHTML(){let L=[];try{const{data,error}=await SB.rpc('world_co
   if(!L.length)return'<p class="muted" style="font-size:12.5px">Per ora abiti qui solo tu. Se vivi con qualcuno (famiglia, coinquilini, vicini di condominio), invitalo: diventate coinquilini e vi date +3 di difesa a testa.</p>';
   return L.map(r=>`<div class="alrow"><span class="sav">${esc((r.nick||'?')[0].toUpperCase())}</span><div class="alrt"><b>@${esc(r.nick)}</b><small>${r.status==='pending'?'⏳ casa in conferma':'🏠 abita qui'} · ${agoTxt(r.seen_at)}${r.ally?' · 🤝 alleato':''}</small></div>
     <div class="alacts" style="width:auto"><button class="btn small ghost" data-crm="${r.user_id}" data-n="${esc(r.nick)}">💬 Scrivi</button>${r.ally?'':`<button class="btn small" data-cra="${r.user_id}">🤝 Alleanza</button>`}</div></div>`).join('');}
-const _houseSheetAc=houseSheet;houseSheet=async function(h){await _houseSheetAc(h);try{if(!h.home)return;const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('.crpan'))return;
-  const at=c.querySelector('.hpreal')||c.querySelector('.fortpan');const box=document.createElement('div');box.className='crpan';box.innerHTML='<h4 class="hh">🏢 Chi vive qui</h4><div class="crbox"><p class="muted"><span class="spin"></span></p></div>';
-  if(at)at.after(box);else c.appendChild(box);const b=box.querySelector('.crbox');b.innerHTML=await coresHTML();
-  b.querySelectorAll('[data-crm]').forEach(x=>x.onclick=()=>dmSheet(x.dataset.crm,x.dataset.n));
-  b.querySelectorAll('[data-cra]').forEach(x=>x.onclick=async()=>{x.disabled=true;try{const r=await socRpc('world_ally_request',{p_target:x.dataset.cra});toast(r&&r.msg?r.msg:'🤝 Richiesta inviata');}catch(e){toast(e.message||'Non riuscito');x.disabled=false;}});}catch(e){console.warn(e);}};
 </script>

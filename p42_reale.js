@@ -149,7 +149,4 @@ const _casaTopRe=casaTop;casaTop=async function(){await _casaTopRe();try{const b
   /* le case del mondo: vere */
   try{const L=myHouses().filter(h=>!h.home);L.forEach((h,i)=>{const el=app.querySelector(`[data-mga="${i}"]`);if(el)drawHouse(el,h,{lvl:h.level,prep:!!(OR.s&&OR.s.prepared),k:'g'+i});});}catch(e){}};
 /* scheda di ogni casa: l'edificio vero */
-const _houseSheetRe=houseSheet;houseSheet=async function(h){await _houseSheetRe(h);try{const c=document.querySelector('#sheet.open');const box=c&&c.querySelector('.hsart');if(!box)return;const lvl=+((c.querySelector('.hshead b')||{}).textContent||'').replace(/\D/g,'')||h.level||1;
-  const tmp=document.createElement('div');const g=await drawHouse(tmp,h,{lvl,a:h.home?(S.answers||{}):{},prep:!!(OR.s&&OR.s.prepared),helps:h.home?Math.min(4,+((OR.s||{}).helps_in||0)):0});
-  if(g){const sp=box.querySelector('span');box.innerHTML=tmp.innerHTML+`<span>${esc(realDesc(g))}</span>`;}}catch(e){}};
 </script>

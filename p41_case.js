@@ -57,9 +57,6 @@ async function casaTop(){const pg=app.querySelector('.page');if(!pg||pg.querySel
   L.forEach(async(h,i)=>{const t=await bType(h.lat,h.lon,h.bid);const a=gal.querySelector(`[data-mga="${i}"]`),tt=gal.querySelector(`[data-mgt="${i}"]`);if(a)a.innerHTML=houseArt(t,h.level,h.bid,{k:'g'+i});if(tt)tt.textContent=BT[t][1];});}
 const _goCase=go;go=function(tab){const r=_goCase(tab);if(tab==='casa')setTimeout(casaTop,30);return r;};
 /* ---------- nella scheda di ogni casa: il suo disegno ---------- */
-const _houseSheetCase=houseSheet;houseSheet=async function(h){await _houseSheetCase(h);try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('.hsart'))return;const hd=c.querySelector('.hshead');if(!hd)return;
-  const t=h.home?(homeBT()||await bType(h.lat,h.lon,h.bid||'home')):await bType(h.lat,h.lon,h.bid);const lvl=+((c.querySelector('.hshead b')||{}).textContent||'').replace(/\D/g,'')||h.level||1;
-  hd.insertAdjacentHTML('beforebegin',`<div class="hsart">${h.home&&S.answers?houseScene(S.answers,{sid:'hs'}):houseArt(t,lvl,h.bid||'home',{k:'s'})}<span>${BT[t][0]} ${BT[t][1]}</span></div>`);}catch(e){}};
 /* ---------- nella barra "Le tue case" del mondo: miniature ---------- */
 const _mhBarCase=mhBar;mhBar=function(){_mhBarCase();try{const L=myHouses();document.querySelectorAll('.mhouses [data-mh]').forEach(b=>{const h=L[+b.dataset.mh];if(!h||b.querySelector('.mhart'))return;const sp=b.querySelector('span');if(!sp)return;
   const put=t=>{if(!sp.isConnected)return;sp.outerHTML=`<span class="mhart">${h.home&&S.answers?houseArt(homeBT()||t,1,'home',{k:'m'}):houseArt(t,h.level,h.bid,{k:'m'+h.bid})}</span>`;};

@@ -22,7 +22,6 @@ async function hLegendPut(box,h){try{if(!box||!box.isConnected)return;const T=ty
   const o={prep:!!(OR.s&&OR.s.prepared),lvl:T?T.level:(h.level||1),defs:T?T.defs||{}:{},a:h.home?(S.answers||{}):{},helps:h.home?Math.min(4,+((OR.s&&OR.s.helps_in)||0)):0};
   let g=null;try{g=await bGeom(h.lat,h.lon);}catch(e){}let lg=box.nextElementSibling;if(!lg||!lg.classList.contains('hlegend')){lg=document.createElement('div');lg.className='hlegend';box.after(lg);}
   const L=hLegend(h,o,g);lg.innerHTML=L.length?`<b>🔎 Sul disegno</b>${L.map(x=>`<span>${esc(x)}</span>`).join('')}`:'<b>🔎 Sul disegno</b><span class="muted">ancora nessuna modifica: le fortificazioni che compri compaiono qui e sulla casa</span>';}catch(e){}}
-const _houseSheetLg=houseSheet;houseSheet=async function(h){await _houseSheetLg(h);try{const box=document.querySelector('#sheet.open .hsart');if(box)await hLegendPut(box,h);}catch(e){}};
 /* miniature della barra "Le tue case" (Mappa): disegno vero al posto delle icone generiche */
 const _mhBarLg=mhBar;mhBar=function(){_mhBarLg.apply(this,arguments);try{const L=myHouses();document.querySelectorAll('.mhouses .mhc[data-mh]').forEach(b=>{const h=L[+b.dataset.mh];if(!h||b.querySelector('.mhart[data-vera]'))return;
   const old=b.querySelector('.mhart')||b.querySelector('svg,span');const d=document.createElement('div');d.className='mhart';d.dataset.vera='1';if(old)old.replaceWith(d);else b.prepend(d);drawHouse(d,h,{noLegend:true}).then(g=>{if(!g&&!d.innerHTML)d.innerHTML=`<span style="font-size:28px">${h.ic}</span>`;});});}catch(e){}};
