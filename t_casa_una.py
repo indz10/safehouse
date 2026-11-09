@@ -35,5 +35,11 @@ async def main():
         await pg.evaluate("()=>{closeSheet();W.m=null;go('home')}");await pg.wait_for_timeout(500)
         await pg.evaluate("()=>{const b=document.querySelector('[data-hs=casa]');if(b)b.click();}");await pg.wait_for_timeout(5000)
         print('homepage → La mia casa:',await pg.evaluate("()=>[S.tab,!!document.querySelector('#sheet.open.hfull .hsart')]"))
+        # app appena aperta: l'accesso all'account arriva dopo 3 s; tocco subito "La mia casa"
+        await pg.evaluate("()=>{closeSheet();window.__U=S.user;S.user=null;W.m=null;localStorage.setItem('sb-prova-auth-token','1');go('home')}");await pg.wait_for_timeout(500)
+        await pg.evaluate("()=>{const b=document.querySelector('[data-hs=casa]');if(b)b.click();setTimeout(()=>{S.user=window.__U;},3000);}");await pg.wait_for_timeout(1000)
+        print('accesso in corso → attesa:',await pg.evaluate("()=>/Carico la casa/.test((document.querySelector('#sheet.open')||{}).textContent||'')"))
+        await pg.wait_for_timeout(7000)
+        print('accesso arrivato dopo 3 s → pagina nuova:',await pg.evaluate("()=>[!!document.querySelector('#sheet.open.hfull .hsart'),!document.querySelector('#app .mycasa2')]"))
         print('ERR',errs);await b.close()
 asyncio.run(main())
