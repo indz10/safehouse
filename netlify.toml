@@ -1,25 +1,8 @@
 # Netlify pubblica la cartella dist/ già costruita (con ./build.sh) e salvata nel repository.
-#
-# Il "comando" non costruisce niente: controlla solo che dist/ ci sia e sia completa.
-# Se manca qualcosa la pubblicazione FALLISCE e il sito resta com'era,
-# invece di pubblicare una cartella vuota (pagina "Page not found").
+# Nessun comando di build: Netlify copia e basta.
 [build]
   publish = "dist"
-  command = "test -f dist/index.html && test -f dist/sw.js && test -f dist/manifest.json && echo 'dist/ completa'"
-
-# Stesse impostazioni, scritte esplicitamente, per il sito vero e per le anteprime:
-# così produzione e anteprima non possono più comportarsi in modo diverso.
-[context.production]
-  publish = "dist"
-  command = "test -f dist/index.html && test -f dist/sw.js && test -f dist/manifest.json && echo 'dist/ completa'"
-
-[context.deploy-preview]
-  publish = "dist"
-  command = "test -f dist/index.html && test -f dist/sw.js && test -f dist/manifest.json && echo 'dist/ completa'"
-
-[context.branch-deploy]
-  publish = "dist"
-  command = "test -f dist/index.html && test -f dist/sw.js && test -f dist/manifest.json && echo 'dist/ completa'"
+  command = ""
 
 # il service worker deve arrivare sempre fresco, così l'app si aggiorna da sola
 [[headers]]
