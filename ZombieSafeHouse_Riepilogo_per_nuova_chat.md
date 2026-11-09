@@ -328,7 +328,7 @@ Tabelle: sponsors, offers, coupons, leads, reviews, sponsor_events, subscription
 - Prossimo passo: Tappa A (zip su GitHub), Tappa B (claude.ai/code + GitHub app su indz10/safehouse), Tappa C (Fase 1).
 
 ## 6. Da fare
-0. Road map di pulizia: vedi ROADMAP.md (Fase 1 — Fondamenta fatta; prossima: Fase 2 — Mappa del codice).
+0. Road map di pulizia: vedi ROADMAP.md. Fase 1 fatta (#1, #2: dopo il Merge il sito vero dava 404, corretto con netlify.toml esplicito per produzione/anteprime). Fase 2 fatta: docs/MAPPA_CODICE.md. Prossima: Fase 3a.
 1. Caricare i file, eseguire aggiornamento_ottobre.sql, creare zsh-api con le chiavi.
 2. Primi sponsor veri + collegare i loro account negozio; provare codice e preventivo.
 3. Legale: far verificare privacy/termini; email dedicata (privacy@…); dati INDZ.

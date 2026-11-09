@@ -35,6 +35,7 @@ Regola d'oro: **una fase = una proposta (pull request)**, piccola, provata, cont
 - Elenco del codice morto e dei doppioni.
 - Proposta della nuova struttura (Fase 4) e ordine dei lavori.
 **Consegna:** `docs/MAPPA_CODICE.md` e un riassunto di 10 righe nella PR.
+**Esito (9/11):** fatta. Proposta: dividere la Fase 3 in 3a (file fuori build, funzioni mai chiamate, strati scavalcati) e 3b (spostare ciò che serve del vecchio gioco, poi toglierlo). Vedi §7 della mappa.
 
 ## Fase 3 — Via il vecchio gioco a carte/notti
 - Togli battaglia a carte, campagna, arena, sfide, vecchi presidi locali, "Difendi tu", monete, attrezzi, perk, quartieri finti.
@@ -52,6 +53,7 @@ Riscrivi per aree, ognuna con le sue funzioni definite UNA volta:
 - `comune/` stato, cloud, account, Mattoni/premi, notifiche, formule condivise (thrCalc), testi.
 Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un unico orologio centrale per i timer.
 - **Nota di Alessandro (9/11):** nella pagina della casa compare prima la versione vecchia e poi quella nuova (strati sovrapposti): la pagina deve disegnarsi una volta sola, già nella forma finale.
+- **Nota di Alessandro (9/11, sull'anteprima della Fase 2):** aprendo una casa compaiono subito i potenziamenti vecchi e dopo qualche secondo le fortificazioni nuove; dalla homepage il pulsante "🏠 La mia casa" a volte apre la vecchia pagina "La mia casa" con tutte le case; da Mappa/Orda la casa mia e la 2 si aprono bene, la 1 no. Cause in `docs/MAPPA_CODICE.md` §3.
 **Controllo:** tutte le schermate uguali o più chiare; nessuna funzione persa (lista nella PR).
 
 ## Fase 5 — Chiarezza per chi usa l'app
@@ -76,6 +78,7 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 - Animazioni leggere (transform/opacity), niente lavoro con l'app in background.
 - Prova di prestazioni (`t_perf.py`) confrontata prima/dopo nella PR.
 - **Nota di Alessandro (9/11):** l'app è lenta all'apertura.
+- **Controllo sul telefono dopo la Fase 1 (9/11):** la casa 2 resta stilizzata (disegno generico), la casa 3 impiega molto ad apparire: stessa causa (forma da Overpass).
 - **Nota di Alessandro (9/11):** a volte la casa è il disegno generico (mattoni, garage, auto) invece dell'edificio vero: la forma arriva da Overpass (lento) ed è salvata solo nella memoria del browser. Salvare la forma dell'edificio **una volta sul server (Supabase) per tutti**, e usare Overpass solo se manca (servirà un blocco SQL in `supabase/migrazioni/`).
 
 ## Fase 8 — Prove automatiche su GitHub
@@ -100,8 +103,8 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 ## Stato
 | Fase | Stato | PR | Note |
 |---|---|---|---|
-| 1 | unita (#1), sito vero in 404 → ripristinato; correzione in #2 | Fase 1 — Fondamenta | sorgenti alla radice, netlify.toml → dist/, build.sh e prove senza percorsi fissi, prove.sh |
-| 2 | da fare | | |
+| 1 | fatta | #1, #2 | sorgenti alla radice, netlify.toml → dist/ (con controllo che dist/ sia completa), build.sh e prove senza percorsi fissi, prove.sh |
+| 2 | fatta (in attesa di Merge) | Fase 2 — Mappa del codice | docs/MAPPA_CODICE.md, strumenti in docs/strumenti/ |
 | 3 | da fare | | |
 | 4 | da fare | | |
 | 5 | da fare | | |

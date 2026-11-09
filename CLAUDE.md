@@ -14,6 +14,7 @@ PWA in un solo file `index.html`: valuta la sicurezza della casa vera e la trasf
 - `check_syntax.js` e `check_css.py` bloccano la build in caso di errori.
 - Molti moduli **avvolgono** funzioni dei moduli precedenti (`const _x=f; f=function(){…}`): l'ordine in `build.sh` conta.
 - Sotto la scheda Orda c'è ancora il **vecchio gioco a carte/notti** (p5_game, p5b…p5h, renderHubBase), nascosto: è codice morto da eliminare con cura.
+- **Mappa del codice**: `docs/MAPPA_CODICE.md` (moduli, catene di avvolgimenti, codice morto, cosa serve del vecchio gioco, struttura della Fase 4). Strumenti per rifare le misure: `docs/strumenti/`.
 - SQL: file `*.sql` (blocchi già eseguiti su Supabase; i più recenti: zombie, alleati_sim, assedio, fortezze, premi, residenti, abitazione, nome_casa, classifica).
 - Funzione Edge: `supabase/functions/zsh-push/index.ts` (notifiche + meteo/pendenza per casa).
 
