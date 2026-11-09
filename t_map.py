@@ -25,7 +25,7 @@ async def main():
             await pg.evaluate("()=>document.querySelector('.lm-cand').click()");await pg.wait_for_timeout(300);print('cand sheet:',await pg.evaluate("()=>document.querySelector('#sheet.open .claim b').textContent"))
             await pg.screenshot(path='y6_cand.png')
         await pg.evaluate("()=>{SP_GEO.fv={lat:45.3262,lon:10.6600,id:1};SPONSORS.fv={name:'Ferramenta Vera',logo:'FV'};SP_CAT.fv='Ferramenta';closeSheet();go('mappa');}");await pg.wait_for_timeout(3000)
-        print('con sponsor vero',await pg.evaluate("()=>({sp:[...document.querySelectorAll('.lm-sp em')].map(e=>e.textContent),cand:document.querySelectorAll('.lm-cand').length,exps:(dayInit(),EXPS.map(x=>x.n)),bonus:terrBonus().lines.map(l=>l.t)})"))
+        print('con sponsor vero',await pg.evaluate("()=>({sp:[...document.querySelectorAll('.lm-sp em')].map(e=>e.textContent),cand:document.querySelectorAll('.lm-cand').length})"))  # Fase 3b-2: tolti terreno e spedizioni del vecchio gioco
         print('users',await pg.evaluate("()=>[...document.querySelectorAll('.lm-usr em')].map(e=>e.textContent)"))
         await pg.evaluate("()=>{S.user={id:'me',nick:'ale'};S.pubOk=undefined;zSyncProfile.asked=0;closeSheet();zAskPublic();}");await pg.wait_for_timeout(300)
         print('ask',await pg.evaluate("()=>document.querySelector('#sheet.open h3').textContent"))

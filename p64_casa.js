@@ -69,6 +69,7 @@ function hs_tipo(h){try{const c=document.querySelector('#sheet.open');if(!c||c.q
   hd.insertAdjacentHTML('beforebegin','<div class="hsart hswait"><p class="hswaitp"><span class="spin"></span> Disegno la casa…</p></div>');
   const box=c.querySelector('.hsart');const tok=HS.tok;
   HS.art=(async()=>{try{
+    try{bGeom(h.lat,h.lon).catch(()=>{});}catch(e){}/* Fase 4a-4: la forma parte subito, insieme al tipo */
     const t=h.home?(homeBT()||await bType(h.lat,h.lon,h.bid||'home')):await bType(h.lat,h.lon,h.bid);if(tok!==HS.tok||!box.isConnected)return;
     const lvl=+((c.querySelector('.hshead b')||{}).textContent||'').replace(/\D/g,'')||h.level||1;
     box.classList.remove('hswait');box.innerHTML=`${h.home&&S.answers?houseScene(S.answers,{sid:'hs'}):houseArt(t,lvl,h.bid||'home',{k:'s'})}<span>${BT[t][0]} ${BT[t][1]}</span>`;
