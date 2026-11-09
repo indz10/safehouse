@@ -45,7 +45,6 @@ const _houseSheetEq=houseSheet;houseSheet=async function(h){await _houseSheetEq(
 try{const _wSheetEq=wSheet;wSheet=async function(){const r=await _wSheetEq.apply(this,arguments);try{const c=document.querySelector('#sheet.open .sheet-b');const buy=c&&[...c.querySelectorAll('button')].find(b=>/^\s*(🛒|🔑|🏠)?\s*Compra/.test(b.textContent));if(c&&!c.querySelector('.hshead')&&buy&&EQ.s&&EQ.s.houses>0&&!c.querySelector('.eqpr'))
   buy.insertAdjacentHTML('beforebegin',`<p class="eqpr">Hai già ${EQ.s.houses} ${EQ.s.houses===1?'casa':'case'} comprate: il prezzo è +${EQ.s.houses*10}% (chi ha più case paga di più, così il mondo resta aperto ai nuovi).</p>`);}catch(e){}return r;};}catch(e){}
 /* 6) padrino: nell'invito si spiega il premio */
-function eqPad(){const c=document.querySelector('#sheet.open');if(c&&/[Ii]nvit/.test(c.textContent)&&!c.querySelector('.eqpad'))c.insertAdjacentHTML('beforeend','<p class="eqpad">🤝 <b>Padrino</b>: per i primi 14 giorni ricevi anche il 10% in più di quello che guadagna chi hai invitato (a lui non togliamo niente).</p>');}
 try{const _inviteSheetEq=inviteSheet;inviteSheet=function(){const r=_inviteSheetEq.apply(this,arguments);[0,300,900].forEach(t=>setTimeout(eqPad,t));return r;};}catch(e){}
 setInterval(()=>{if(S.user&&document.visibilityState==='visible')eqLoad();},5*60*1000);
 </script>

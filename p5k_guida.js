@@ -17,7 +17,6 @@ function rulesHTML(){return`<div class="rules">
   <div class="rb"><b>✨ Premi</b><p>Fino a 3 <b>stelle</b> per notte (casa poco danneggiata, nessun edificio perso). In alto c’è l’<b>obiettivo bonus</b> dell’ondata. Raccogli il <b>bottino</b> (monete, gemme, cuori) toccandolo prima che sparisca.</p></div>
   <div class="rb"><b>👆 Stile Classico</b><p>Se lo scegli nella campagna: tocchi gli zombie per colpirli (testa = critico), trascini il dito per colpirne tanti; il tocco consuma energia.</p></div>
   <button class="btn small ghost" data-tutagain style="margin-top:8px">Rifai il tutorial alla prossima battaglia</button></div>`;}
-function openRules(){openSheet('📖 Come si gioca',rulesHTML(),card=>{const b=card.querySelector('[data-tutagain]');if(b)b.onclick=()=>{G.tutDone=false;toast('Il tutorial ripartirà alla prossima battaglia');closeSheet();};});}
 const COACH=[[null,'Benvenuta nell’assedio!','Gli zombie arrivano da destra su 3 corsie. Prima abbattono la barricata, poi attaccano la casa. Il gioco è in pausa: leggi con calma.'],
  ['#cv','Le provviste','La barra gialla in basso a sinistra del campo. Si ricaricano da sole e servono per giocare le carte. Per la prova te le abbiamo riempite.'],
  ['#hand','Le carte','Il numero giallo è il costo. Le carte “su corsia”: trascinale sulla corsia (o toccale e poi tocca la corsia). Le altre agiscono subito. Prova a mettere le trappole!'],

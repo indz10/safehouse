@@ -168,6 +168,8 @@ Quindi oggi "La mia casa" (`renderCasaDash`) e la homepage (`renderHome`) sono d
 - **onLogin** (5), **wMine** (5), **wSheet** (5), **renderMappa** (5, base sostituita da `p25`), **renderNav** (4, sostituita due volte: `p25` e `p26`).
 
 ### Strati scavalcati (codice che non viene più eseguito)
+> **Correzione dopo la Fase 3a:** `thrOf` (p60 la cambia solo per un attimo e la rimette) e `spDemoPlace` (p35 la aggancia a un timer ogni 8 s *prima* che p36 la sostituisca, quindi la versione vecchia gira ancora) **non** sono morte. Le altre righe sono state tolte nella Fase 3a.
+
 Funzioni la cui versione di base (e gli strati prima) è stata **sostituita per intero** da un modulo successivo:
 
 | Funzione | Versione morta in | Sostituita in |
@@ -182,11 +184,10 @@ Funzioni la cui versione di base (e gli strati prima) è stata **sostituita per 
 | ayInbox, aySheet | p24_alleati | p43_squadra |
 | luckTopBind | p24_alleati | p38_oggifix |
 | ioBtn | p26_social | p28_menu |
-| spList, spDemoPlace | p26_social, p35_spdemo | p36_rivali |
+| spList | p26_social | p36_rivali |
 | oggiPut | p34_oggi | p40_simulato |
 | eqPad | p37_equita | p45_alleanza |
 | frMount, frLoop | p39_fronte | p46_fronte2 |
-| thrOf | p47_zombie | p60_classifica |
 
 ## 3. Le cause delle note di Alessandro
 

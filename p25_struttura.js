@@ -7,9 +7,6 @@
    ========================================================= */
 ICON.io='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
 const NAV_ACT={home:'home',valuta:'home',gioco:'home',mappa:'mappa',orda:'orda',io:'io',radio:'io',contatti:'io',sponsor:'io',guida:'io'};
-renderNav=function(){try{document.body.dataset.tab=S.tab;}catch(e){}const items=[['home','Casa'],['mappa','Mappa'],['orda','Orda'],['io','Io']];const act=NAV_ACT[S.tab]||S.tab;
-  $('#nav').innerHTML=items.map(([k,l])=>`<button class="${act===k?'on':''}" data-tab="${k}" aria-label="${l}">${ICON[k]}<span>${l}</span></button>`).join('');
-  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{try{vibe();}catch(e){}go(b.dataset.tab);});};
 const _goS=go;go=function(tab){if(tab!=='io')return _goS(tab);window.__last='apre io';document.body.classList.remove('inbattle');
   if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab='io';renderNav();window.scrollTo(0,0);try{setMusic('app');}catch(e){}try{closeSheet();}catch(e){}renderIo();};
 

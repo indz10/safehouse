@@ -10,13 +10,6 @@ function scudoSteps(){const r=S.result,m=Object.keys(S.rmiss||{}).length,g=(type
    ['✅','Fai 2 missioni della casa vera',m>=2,'mondo'],['🧾','Un acquisto verificato da uno sponsor',!!g,'mondo']];}
 function scudoLv(){return scudoSteps().filter(s=>s[2]).length;}
 function scudoBonus(lv){return{bar:lv*8,pv:Math.floor(lv/2)};}
-function scudoBar(){const lv=scudoLv(),b=scudoBonus(lv);
-  return`<button class="scudo" data-scudo><span class="sc-i">🛡️</span><span class="sc-t"><b>Scudo della casa vera · ${lv}/5</b><span class="sc-b">${[1,2,3,4,5].map(i=>`<i class="${i<=lv?'on':''}"></i>`).join('')}</span><small>${lv?`Nel gioco: barricata +${b.bar}%${b.pv?` · +${b.pv} provvist${b.pv>1?'e iniziali':'a iniziale'}`:''}`:'Migliora la casa vera per essere più forte qui'}</small></span><span class="sc-a">›</span></button>`;}
-function openScudo(){const st=scudoSteps(),lv=scudoLv(),b=scudoBonus(lv);
-  openSheet('🛡️ Scudo della casa vera',`<p style="font-weight:400;margin-bottom:8px">Una regola sola: <b>quello che fai per la casa vera ti rende più forte nel gioco.</b></p>
-   <div class="scl">${st.map(s=>`<div class="${s[2]?'ok':''}"><span>${s[2]?'✅':s[0]}</span><b>${s[1]}</b>${s[2]?'<small>fatto</small>':`<button class="btn small" data-sgo="${s[3]}">Fai</button>`}</div>`).join('')}</div>
-   <div class="panel moon" style="margin-top:10px"><b>Il tuo Scudo ora: ${lv}/5</b><p style="font-weight:400;margin-top:4px">Ogni livello: <b>+8% barricata</b> di casa tua. Ogni 2 livelli: <b>+1 provvista</b> all’inizio della notte. In più il <b>viatico</b> ti fa partire da una notte più avanzata.</p><p style="font-weight:400;margin-top:4px">Ora: barricata +${b.bar}% · provviste +${b.pv}.</p></div>`,
-   card=>card.querySelectorAll('[data-sgo]').forEach(x=>x.onclick=()=>{closeSheet();if(x.dataset.sgo==='mondo'){S.zv='mondo';go('mappa');}else go('valuta');}));}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-scudo]');if(b){vibe();openScudo();}},true);
 /* pagina Come funziona */
 function renderGuida(){const lv=scudoLv();

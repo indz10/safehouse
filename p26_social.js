@@ -81,9 +81,6 @@ NAV_ACT.social='social';NAV_ACT.io='io';
 renderNav=function(){try{document.body.dataset.tab=S.tab;}catch(e){}const items=[['home','Casa'],['mappa','Mappa'],['orda','Orda'],['social','Superstiti']];const act=NAV_ACT[S.tab]||S.tab;
   $('#nav').innerHTML=items.map(([k,l])=>`<button class="${act===k?'on':''}" data-tab="${k}" aria-label="${l}">${ICON[k]}<span>${l}</span></button>`).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{try{vibe();}catch(e){}go(b.dataset.tab);});socBadge();ioBtn();};
-function ioBtn(){try{let b=document.getElementById('ioBtn');const top=document.querySelector('.topbar')||document.querySelector('header');if(!top)return;
-  if(!b){top.insertAdjacentHTML('beforeend','<button id="ioBtn" aria-label="Il mio profilo"></button>');b=document.getElementById('ioBtn');b.onclick=()=>go('io');}
-  const nk=S.user?(S.user.nick||(S.user.email||'?').split('@')[0]):'';b.textContent=S.user?(nk[0]||'?').toUpperCase():'👤';b.classList.toggle('on',S.tab==='io');}catch(e){}}
 const _goSoc=go;go=function(tab){if(tab!=='social')return _goSoc(tab);window.__last='apre superstiti';document.body.classList.remove('inbattle');
   if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab='social';renderNav();window.scrollTo(0,0);try{setMusic('app');}catch(e){}try{closeSheet();}catch(e){}renderSocial();};
 /* in Casa: le novità dei superstiti, per entrarci ogni giorno */
@@ -109,10 +106,6 @@ function spDraw(lm){if(!lm||!lm.map)return;(lm._sp2||[]).forEach(x=>x.remove());
     el.style.zIndex='6';el.addEventListener('click',e=>{e.stopPropagation();try{dbEvent&&dbEvent(k,'map_tap');}catch(x){}sponsorSheet(k,z);});
     lm._sp2.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([g.lon,g.lat]).addTo(lm.map));});}
 /* 3) elenco degli sponsor per distanza, con "portami lì" */
-function spList(lm){let c=null;try{c=lm&&lm.map&&lm.map.getCenter?lm.map.getCenter():null;}catch(e){}const o=c?{lat:c.lat,lon:c.lng}:(S.zone&&S.zone.real)||null;
-  const L=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&SPONSORS[k]).map(([k,g])=>({k,g,d:o?trM(o.lat,o.lon,g.lat,g.lon):0})).sort((a,b)=>a.d-b.d);
-  openSheet(`⭐ Sponsor (${L.length})`,L.length?`<div class="splist">${L.map(x=>`<button class="strow" data-spk="${x.k}"><span class="splogo">${esc(SPONSORS[x.k].logo)}</span><div><b>${esc(SPONSORS[x.k].name)}</b><small>${esc(spCAT()[x.k]||'Sponsor')} · ${dist(Math.round(x.d))}${spOFF()[x.k]?' · '+esc(spOFF()[x.k]):''}</small></div></button>`).join('')}</div>`:'<p class="muted">Nessuno sponsor ancora.</p>',card=>{
-    card.querySelectorAll('[data-spk]').forEach(b=>b.onclick=()=>{const k=b.dataset.spk,g=SP_GEO[k];closeSheet();try{lm.map.flyTo({center:[g.lon,g.lat],zoom:17});}catch(e){}setTimeout(()=>sponsorSheet(k,S.zone||{seed:7}),900);});});}
 const _liveMapSp=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapSp(el,addr,o);try{spDraw(lm);setTimeout(()=>spDraw(lm),2500);
 }catch(e){}return lm;};
 /* i dati degli sponsor arrivati dopo: ridisegno senza ricaricare la pagina */

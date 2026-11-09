@@ -11,7 +11,6 @@
    ========================================================= */
 const RM={cache:{}};
 const RM_R=380;
-function rmTimeout(ms){const c=new AbortController();setTimeout(()=>c.abort(),ms);return c.signal;}
 async function rmFetch(addr){
   if(RM.cache[addr])return RM.cache[addr];
   const w=await trWhere(addr);const lat=w.lat,lon=w.lon;const key='zsh_rm2_'+lat.toFixed(5)+'_'+lon.toFixed(5);

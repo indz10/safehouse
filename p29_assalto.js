@@ -52,7 +52,7 @@ try{const _ssOfReg=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.acard'
 /* mappa: i pulsanti della barra dell'orda aprono la regia */
 const _renderMappaReg=renderMappa;renderMappa=function(){_renderMappaReg();try{const r=app.querySelector('[data-mfraid]');if(r){r.textContent='🎬 Assalti';r.onclick=e=>{e.stopPropagation();assalto('last');};}}catch(e){}};
 /* menu: due voci nuove */
-try{const _zmItemsReg=zmItems;zmItems=function(){const L=_zmItemsReg();const g=L.find(x=>x[0]==='Gioco');if(g)g[1].unshift(['🎬','Guarda gli assalti','a:last'],['🔮','Simula la prossima orda','a:sim']);const a=L.find(x=>x[0]==='Account');if(a)a[1].unshift(['🔔','Notifiche delle orde','push']);return L;};
+try{
   const _zmDoReg=zmDo;zmDo=function(k,b){if(k==='a:last'||k==='a:sim'){zmClose();assalto(k.slice(2));return;}if(k==='push'){zmClose();pushSheet();return;}return _zmDoReg(k,b);};}catch(e){}
 
 /* ---------------- 🔔 NOTIFICHE PUSH ---------------- */

@@ -59,18 +59,6 @@ function frNode(){if(FR.node)return FR.node;const d=document.createElement('div'
    <div class="frinfo"><div class="frchips" data-frchips></div><div class="frleg" data-frleg></div>
    <p class="muted" style="font-size:11.5px;margin:6px 0 0">Strade: <b style="color:#2f9e44">verde</b> piano · <b style="color:#e8590c">arancio</b> salita verso casa (zombie più lenti) · <b style="color:#d7263d">rosso</b> discesa (più veloci). Tocca uno zombie per vederlo. L’esito dell’orda del mondo lo decide il server con livello, preparazione e aiuti; meteo e salite cambiano la marcia qui e nelle notti che giochi.</p></div>`;
   d.querySelector('[data-frcal]').onclick=e=>{e.stopPropagation();oggiSheet();};FR.node=d;return d;}
-async function frMount(){const R=S.zone&&S.zone.real;if(!R||!FR.node)return;const box=FR.node.querySelector('.frmap');const key=(S.zone.address||'')+'|'+R.lat.toFixed(4);
-  frHeader();if(FR.lm&&FR.key===key){try{FR.lm.map.resize();}catch(e){}frLoop();return;}
-  FR.key=key;frStop();try{const nx=oggiNext();FR.lm=await liveMap(box,S.zone.address,{zoom:15.4,night:nx.getHours()>=18||nx.getHours()<7});}catch(e){box.innerHTML='<p class="muted" style="padding:20px">Mappa non disponibile ora.</p>';return;}
-  const m=RM.cache&&RM.cache[S.zone.address];FR.paths=frPaths(R,m);
-  try{const map=FR.lm.map;const draw=()=>{try{const fs=[];FR.paths.forEach(P=>P.seg.forEach(s=>fs.push({type:'Feature',properties:{c:frCol(s.g)},geometry:{type:'LineString',coordinates:[[s.a[1],s.a[0]],[s.b[1],s.b[0]]]}})));
-      if(map.getSource('fr-p'))map.getSource('fr-p').setData({type:'FeatureCollection',features:fs});
-      else{map.addSource('fr-p',{type:'geojson',data:{type:'FeatureCollection',features:fs}});map.addLayer({id:'fr-pc',type:'line',source:'fr-p',paint:{'line-color':'#140f1f','line-width':9,'line-opacity':.55}});
-        map.addLayer({id:'fr-pl',type:'line',source:'fr-p',paint:{'line-color':['get','c'],'line-width':5,'line-opacity':.95}});}}catch(e){}};
-    if(map.isStyleLoaded&&map.isStyleLoaded())draw();map.on('load',draw);map.on('styledata',()=>{if(!map.getSource||!map.getSource('fr-p'))draw();});}catch(e){}
-  /* la casa con l'anello della difesa */
-  try{const h=document.createElement('div');h.className='frhome';h.innerHTML='<div class="frring"></div><b>🏠</b><span data-frpct></span>';FR.home=new maplibregl.Marker({element:h}).setLngLat([R.lon,R.lat]).addTo(FR.lm.map);}catch(e){}
-  frSpawn();frLoop();}
 function frHeader(){try{const d=FR.node;const nx=oggiNext();const n=new Date();FR.wx=frWx();const w=FR.wx;const s=OR.s||{};
   d.querySelector('[data-frnext]').innerHTML=`Orda delle <b>${String(nx.getHours()).padStart(2,'0')}:00</b> · tra ${orLeft(nx)}`;d.querySelector('[data-frday]').textContent=`${GG[n.getDay()].slice(0,3)} ${n.getDate()} ${MM[n.getMonth()].slice(0,3)}`;const mo=d.querySelector('[data-frmon]'),dd=d.querySelector('[data-frdd]');if(mo)mo.textContent=MMs[n.getMonth()];if(dd)dd.textContent=n.getDate();
   const fx=d.querySelector('.frfx'),wb=d.querySelector('.frwx');fx.className='frfx'+(w?' fx-'+w.ev:'');d.querySelector('.frmapw').classList.toggle('dark',!!(w&&w.ev==='blackout'));
@@ -88,18 +76,6 @@ function frSpawn(){(FR.zs||[]).forEach(z=>{try{z.mk.remove();}catch(e){}});FR.zs
 function frStop(){cancelAnimationFrame(FR.raf);FR.raf=0;}
 /* posizione della casa: dalla valutazione sul telefono, altrimenti dal server (telefono nuovo, cambio account…) */
 function frR(){try{if(S.zone&&S.zone.real&&S.zone.real.lat!=null)return S.zone.real;const H=typeof myHouses==='function'?myHouses():[];const h=H.find(x=>x.home)||H[0];return h&&h.lat!=null?{lat:h.lat,lon:h.lon}:null;}catch(e){return null;}}
-function frLoop(){frStop();FR.last=performance.now();const step=t=>{FR.raf=requestAnimationFrame(step);if(S.tab!=='orda'||document.hidden||!FR.node||!FR.node.isConnected)return;if(t-FR.last<48)return;
-  const dt=Math.min(.1,(t-FR.last)/1000);FR.last=t;const w=FR.wx;const wf=frWf(w);const R=frR();if(!R)return;
-  const st=FR.zs.filter(z=>z.k==='strillone'&&z.x>0).map(z=>z.pos).filter(Boolean);
-  FR.zs.forEach(z=>{const P=z.P;let g=0;if(z.x>=0){const sg=P.seg.find(s=>z.x>=s.s&&z.x<s.s+s.d)||P.seg[P.seg.length-1];g=sg?sg.g:0;}
-    let f=z.k==='scavatore'?1:Math.max(.45,Math.min(1.45,1-g*(z.k==='runner'?6:3)));
-    if(z.pos&&st.some(p=>trM(p[0],p[1],z.pos[0],z.pos[1])<45)&&z.k!=='strillone')f*=1.15;
-    z.x+=z.v*f*wf*dt;
-    if(z.x>=P.L){z.x=-40-Math.random()*120;try{const h=FR.node.querySelector('.frhome');if(h){h.classList.remove('hit');void h.offsetWidth;h.classList.add('hit');}}catch(e){}}
-    const d=Math.max(0,z.x);const sg=P.seg.find(s=>d>=s.s&&d<=s.s+s.d)||P.seg[P.seg.length-1];const u=sg?Math.min(1,(d-sg.s)/sg.d):0;
-    const la=sg.a[0]+(sg.b[0]-sg.a[0])*u,lo=sg.a[1]+(sg.b[1]-sg.a[1])*u;z.pos=[la,lo];try{z.mk.setLngLat([lo,la]);}catch(e){}
-    const toH=trM(la,lo,R.lat,R.lon);let op=z.x<0?0:1;if(w&&w.ev==='nebbia')op=toH<150?1:.18;z.el.style.opacity=op;z.el.classList.toggle('glow',!!(w&&w.ev==='blackout'&&toH>120));});};
-  FR.raf=requestAnimationFrame(step);}
 /* ---------- SCHEDA ORDA UNICA ---------- */
 window.ORDA_ONE=true;
 try{const _ssApplyFr=ssApply;ssApply=function(){if(!(ORDA_ONE&&S.tab==='orda'))return _ssApplyFr();const pg=app.querySelector('.page');if(!pg)return;[...pg.children].forEach(el=>{const g=ssOf(el);el.hidden=(g==='x')||el.dataset.ohide==='1';});};}catch(e){}

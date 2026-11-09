@@ -15,15 +15,10 @@ const RV_TXT={
 };
 const VAC=[['hotel','Hotel','🏨',['€€','€€€']],['bb','B&B','🛏️',['€','€€']],['agri','Agriturismo','🌾',['€€']],['risto','Ristorante','🍝',['€','€€','€€€']],['attr','Da vedere','🏛️',['gratis','€']],['camp','Campeggio','⛺',['€']]];
 const VNAME={hotel:['Hotel Mincio','Hotel Alla Torre','Grand Hotel Lago'],bb:['B&B La Corte','B&B Il Glicine','B&B Casa Nonna'],agri:['Agriturismo Le Valli','Corte Bassa'],risto:['Trattoria del Ponte','Osteria La Nebbia','Pizzeria Luna Piena'],attr:['Castello medievale','Pista ciclabile del fiume','Museo civico'],camp:['Camping Riva Verde']};
-function rvGen(key,n,base){const r=rng(key.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*7+n);const out=[];
-  for(let i=0;i<n;i++){let st=Math.max(1,Math.min(5,Math.round(base+(r()-.5)*2.4)));const pool=RV_TXT[st];const tx=pool[Math.floor(r()*pool.length)];
-    out.push({nick:RV_NICK[Math.floor(r()*RV_NICK.length)],st,title:tx[0],txt:tx[1],type:RV_TYPE[Math.floor(r()*RV_TYPE.length)][0],when:['settembre 2026','agosto 2026','luglio 2026','giugno 2026','ottobre 2026'][Math.floor(r()*5)],useful:Math.floor(r()*14),ver:r()<.6});}
-  return out;}
 function rvStore(){S.rv=S.rv||{};return S.rv;}
 function rvList(key,seedN,base){const st=rvStore();if(!st[key])st[key]=rvGen(key,seedN,base);return st[key];}
 function rvAvg(l){return l.length?l.reduce((a,x)=>a+x.st,0)/l.length:0;}
 function rvStars(v,size=14){const full=Math.round(v*2)/2;return`<span class="rstars" style="font-size:${size}px" aria-label="${v.toFixed(1).replace('.',',')} su 5">${[1,2,3,4,5].map(i=>`<i class="${full>=i?'f':full>=i-.5?'h':''}"></i>`).join('')}</span>`;}
-function rvLine(key,seedN,base){const l=rvList(key,seedN,base);const a=rvAvg(l);return`${rvStars(a)} <b>${a.toFixed(1).replace('.',',')}</b> <small class="muted">(${l.length})</small>`;}
 function vacData(z){const r=rng((z.seed||7)+333);const out=[];VAC.forEach(([k,l,ic,pr])=>{(VNAME[k]||[]).forEach((nm,i)=>{if(r()<(k==='camp'&&z.type==='centro'?.1:.85))out.push({k,l,ic,name:nm,price:pr[Math.floor(r()*pr.length)],dist:Math.round(200+r()*4000),base:3.2+r()*1.6,n:6+Math.floor(r()*10),key:'v-'+(z.address||'')+'-'+nm,partner:r()<.18});});});return out;}
 function vacanzaHTML(z){
   const items=vacData(z);const f=S.vf||'tutti';const sorted=items.filter(x=>f==='tutti'||x.k===f).sort((a,b)=>(b.partner-a.partner)||(rvAvg(rvList(b.key,b.n,b.base))-rvAvg(rvList(a.key,a.n,a.base))));

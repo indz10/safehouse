@@ -23,14 +23,6 @@ function sponsorLayer(z){return sponsorSpots(z).map(s=>`<g data-spn="${s.k}" sty
   <text x="${s.x}" y="${s.y-5}" text-anchor="middle" font-family="Bangers,Impact" font-size="13" fill="#140f1f">${SPONSORS[s.k].logo}</text><text x="${s.x+14}" y="${s.y-18}" font-size="10">⭐</text><rect x="${s.x-17}" y="${s.y+6}" width="34" height="11" rx="3" fill="#fff" stroke="#140f1f" stroke-width="1.2"/><text x="${s.x}" y="${s.y+14.5}" text-anchor="middle" font-size="8" font-weight="700" fill="#140f1f">${typeof rvStarsTxt==='function'?rvStarsTxt('sp-'+s.k).split(' (')[0]:''}</text></g>`).join('');}
 function hexInfo(z,i){const c=commCells(z)[i];if(c.n<K_MIN)return`<b>Area con meno di ${K_MIN} utenti</b><span>Per proteggere la privacy non mostriamo numeri sotto questa soglia.</span>`;
   return`<b>👥 ${c.n} superstiti in quest’area</b><span>Indice medio ${fmtI(c.avg)} · ${c.avg<=4?'zona ben preparata':c.avg<=6?'zona da presidiare':'zona fragile'}</span>`;}
-function sponsorSheet(k,z){const s=SPONSORS[k];const sp=sponsorSpots(z).find(x=>x.k===k);
-  openSheet(`⭐ ${esc(s.name)}`,`<p class="muted" style="margin-bottom:6px">${SP_CAT[k]||'Sponsor'} · a ${sp?(sp.d<1000?sp.d+' m':(sp.d/1000).toFixed(1).replace('.',',')+' km'):'—'}</p>
-    <div class="row" style="gap:8px;align-items:center;margin-bottom:8px">${rvLine('sp-'+k,8,4.2)}${rvBtn('sp-'+k,s.name)}</div>
-    <div class="notice" style="margin-bottom:10px">🎁 ${SP_OFF[k]||'Offerta per i superstiti'}</div>
-    <p style="font-weight:400;font-size:14px;margin-bottom:10px">Alleato del quartiere: compare sulla mappa vera e come edificio nel quartiere del gioco.</p>
-    <div class="splinks">${SP_LINK[k]&&SP_LINK[k].web?`<a class="btn small" href="${SP_LINK[k].web}" target="_blank" rel="noopener">🌐 Sito</a>`:''}${SP_LINK[k]&&SP_LINK[k].ig?`<a class="btn small alt" href="${SP_LINK[k].ig}" target="_blank" rel="noopener">📷 Instagram</a>`:''}${SP_LINK[k]&&SP_LINK[k].fb?`<a class="btn small alt" href="${SP_LINK[k].fb}" target="_blank" rel="noopener">📘 Facebook</a>`:''}</div>
-    <button class="btn small ghost" data-tosp style="margin-top:8px">Tutti gli sponsor</button><p class="muted" style="font-size:11px;margin-top:6px">Contenuto sponsorizzato · link di esempio nell’anteprima.</p>`,
-  card=>{card.querySelector('[data-tosp]').onclick=()=>{closeSheet();go('sponsor');};});}
 function wireCommunity(root,z,info){if(!root||root.__comm)return;root.__comm=1;
   root.addEventListener('click',e=>{const h=e.target.closest('[data-hex]'),p=e.target.closest('[data-spn]');
     if(p){sponsorSheet(p.dataset.spn,z);return;}if(h&&info){info.innerHTML=hexInfo(z,+h.dataset.hex);}});}

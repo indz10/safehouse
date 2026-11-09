@@ -406,9 +406,6 @@ function logoSVG(size=512,bg=true){
   ${bg?`<rect x="7" y="7" width="498" height="498" rx="106" fill="none" stroke="${I}" stroke-width="14"/>`:''}
   </svg>`;
 }
-function logoWordmark(){return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360"><g transform="translate(10 10) scale(.66)">${logoSVG(512).replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'')}</g>
-  <text x="380" y="170" font-family="Bangers, Impact, sans-serif" font-size="150" fill="#140f1f" letter-spacing="4">ZOMBIE</text>
-  <text x="380" y="310" font-family="Bangers, Impact, sans-serif" font-size="150" fill="#d7263d" letter-spacing="4">SAFEHOUSE</text></svg>`;}
 
 /* ---------- icone nav ---------- */
 const ICON={

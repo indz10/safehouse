@@ -39,7 +39,6 @@ function accShow(sel){document.querySelectorAll('.acc-hl').forEach(e=>e.classLis
   setTimeout(()=>{const r=el.getBoundingClientRect();const tip=document.createElement('div');tip.className='acc-tip';tip.textContent='👆 Tocca qui';tip.style.left=Math.max(8,Math.min(innerWidth-130,r.left+r.width/2-60))+'px';tip.style.top=(r.bottom+8)+'px';document.body.appendChild(tip);},450);
   const off=()=>{el.classList.remove('acc-hl');document.querySelectorAll('.acc-tip').forEach(e=>e.remove());document.removeEventListener('pointerdown',off,true);};
   setTimeout(()=>document.addEventListener('pointerdown',off,true),500);setTimeout(off,9000);}
-function accSay(t){try{if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='it-IT';u.rate=.95;speechSynthesis.speak(u);}catch(e){}}
 function accBar(){let b=document.getElementById('accBar');if(!S.acc.on){if(b)b.remove();return;}
   const [h,t,sel]=accNext();if(!b){b=document.createElement('div');b.id='accBar';document.body.appendChild(b);}
   b.innerHTML=`<div class="ab-t"><b>🙋 ${h}</b><span>${t}</span></div><div class="ab-b">${sel?'<button data-ab="show">Mostrami dove</button>':''}<button data-ab="guide">📖 Guida</button><button data-ab="x" aria-label="Chiudi">✕</button></div>`;
