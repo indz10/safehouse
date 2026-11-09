@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ZombieSafeHouse · Pannello sponsor</title><meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--ink:#140f1f;--moon:#f7d64a;--red:#d7263d;--night:#241a4a;--paper:#f3e9d2;--green:#3f9b5f}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,Arial,sans-serif;background:var(--paper);color:var(--ink)}
+header{background:var(--night);color:#fff;padding:14px 16px;border-bottom:4px solid var(--moon);display:flex;justify-content:space-between;align-items:center}
+header b{font-size:20px;letter-spacing:.5px}header span{font-size:12px;opacity:.8}
+main{max-width:760px;margin:0 auto;padding:14px}
+.box{background:#fff;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px;margin-bottom:16px}
+h2{margin:0 0 10px;font-size:20px}label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px}
+input,select,textarea{width:100%;padding:11px;border:2px solid var(--ink);font-size:16px;background:#fff}
+.row{display:flex;gap:8px}.row>*{flex:1}
+button{padding:12px 14px;border:3px solid var(--ink);background:var(--moon);font-weight:700;font-size:15px;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+button.red{background:var(--red);color:#fff}button.ghost{background:#fff}button:disabled{opacity:.5}
+#map{height:320px;border:3px solid var(--ink);margin-top:10px}
+.msg{padding:10px;margin:10px 0;border:2px solid var(--ink);font-weight:700}.ok{background:#e3f3e7}.ko{background:#ffd9de}
+.sp{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;border-top:2px dashed #ccc;padding:10px 0}
+.sp small{display:block;color:#5a5470}.tag{display:inline-block;padding:2px 8px;border:2px solid var(--ink);font-size:12px;font-weight:700}
+.on{background:#e3f3e7}.off{background:#eee}.hint{font-size:13px;color:#5a5470;margin-top:6px}
+.hidden{display:none}
+</style></head><body>
+<header><div><b>ZombieSafeHouse</b><br><span>Pannello sponsor · INDZ</span></div><button class="ghost" id="logout" style="display:none">Esci</button></header>
+<main>
+<div class="box" id="loginBox"><h2>Accesso amministratore</h2>
+ <label>Email</label><input id="email" type="email" autocomplete="username">
+ <label>Password</label><input id="pw" type="password" autocomplete="current-password">
+ <div style="margin-top:12px"><button id="loginBtn">Entra</button></div><div id="loginMsg"></div></div>
+
+<div id="adminArea" class="hidden">
+<div class="box"><h2>➕ Nuovo sponsor</h2>
+ <label>🔎 Cerca l’attività (nome e paese): riempie i campi da sola</label><div class="row"><input id="f_q" placeholder="Es. Ferramenta Rossi Volta Mantovana"><button id="qBtn" style="flex:0 0 auto">Cerca</button></div>
+ <div id="qRes" style="margin:6px 0 10px"></div>
+ <label>Nome dell’attività</label><input id="f_name" placeholder="Es. Ferramenta Volta">
+ <div class="row"><div><label>Sigla nel bollino (2 lettere)</label><input id="f_logo" maxlength="3" placeholder="FV"></div>
+  <div><label>Categoria</label><input id="f_cat" placeholder="Es. Ferramenta e sicurezza"></div></div>
+ <div class="row"><div><label>Pacchetto</label><select id="f_pack"><option value="vetrina">Vetrina</option><option value="vetrina_plus">Vetrina Plus</option><option value="partner_categoria">Partner di categoria</option><option value="agenzia">Agenzia</option><option value="acchiappa">Acchiappa-clienti</option><option value="nazionale">Partner nazionale</option></select></div>
+  <div><label>Prezzo fondatori</label><select id="f_found"><option value="true">Sì</option><option value="false">No</option></select></div></div>
+ <label>Indirizzo</label><div class="row"><input id="f_addr" placeholder="Via Roma 10, Volta Mantovana"><button id="findBtn" style="flex:0 0 auto">📍 Trova</button></div>
+ <div id="map"></div><div class="hint">Trascina il segnaposto rosso sul punto esatto dell’attività. Coordinate: <b id="coords">–</b></div>
+ <div class="row"><div><label>Telefono</label><input id="f_tel"></div><div><label>WhatsApp</label><input id="f_wa" placeholder="+39 333…"></div></div>
+ <label>Sito</label><input id="f_web" placeholder="https://…">
+ <div class="row"><div><label>Instagram</label><input id="f_ig" placeholder="https://instagram.com/…"></div><div><label>Facebook</label><input id="f_fb" placeholder="https://facebook.com/…"></div></div>
+ <label>Offerta per chi usa l’app</label><input id="f_offer" placeholder="Es. −10% sulle grate con il codice dell’app">
+ <label>Rimedi collegati (facoltativo, separati da virgola)</label><input id="f_tags" placeholder="porta, grate, luci">
+ <label>Visibile nell’app subito?</label><select id="f_active"><option value="true">Sì, attivo</option><option value="false">No, lo attivo dopo</option></select>
+ <div style="margin-top:14px"><button class="red" id="saveBtn">Salva sponsor</button></div><div id="saveMsg"></div></div>
+
+<div class="box"><h2>📋 Sponsor inseriti</h2><div id="list">Caricamento…</div></div>
+<div class="box"><h2>➕ Attività aggiunte da INDZ (anche non sponsor)</h2>
+ <p class="hint" style="margin-top:0">Per le attività che sulla mappa non ci sono. Compaiono subito per tutti su mappa, Vivere qui e Vacanza.</p>
+ <label>Nome</label><input id="c_name" placeholder="Es. Panificio Rossi">
+ <div class="row"><div><label>Categoria</label><select id="c_cat">
+  <option value="spesa">🛒 Spesa (alimentari, supermercato, panificio)</option><option value="negozi">🛍️ Negozio</option><option value="casa">🔧 Negozio o artigiano per la casa</option><option value="bar">☕ Bar e locali</option><option value="risto">🍝 Ristorante / pizzeria</option>
+  <option value="salute">💊 Salute (farmacia, medico)</option><option value="servizi">🏦 Servizi (banca, posta, ufficio)</option><option value="scuola">🏫 Scuola</option><option value="sport">⚽ Sport</option><option value="verde">🌳 Parco</option>
+  <option value="hotel">🏨 Hotel</option><option value="bb">🛏️ B&amp;B / affittacamere</option><option value="agri">🌾 Agriturismo</option><option value="camp">⛺ Campeggio</option><option value="attr">🏛️ Da vedere</option></select></div></div>
+ <label>Indirizzo</label><div class="row"><input id="c_addr" placeholder="Via Roma 10, Volta Mantovana"><button id="c_find" style="flex:0 0 auto">📍 Trova</button></div>
+ <div class="hint" id="c_pos">Posizione: non ancora trovata. Dopo “Trova” puoi anche usare il punto del segnaposto della mappa sopra: <button class="ghost" id="c_usemap" style="padding:4px 8px;font-size:13px">usa il segnaposto</button></div>
+ <div class="row"><div><label>Telefono (facoltativo)</label><input id="c_tel"></div><div><label>Sito (facoltativo)</label><input id="c_web"></div></div>
+ <div style="margin-top:12px"><button class="red" id="c_save">Aggiungi attività</button></div><div id="c_msg"></div>
+ <div id="c_list" style="margin-top:10px"></div></div>
+<div class="box"><h2>⚠️ Segnalazioni degli utenti (“ha chiuso”)</h2><div id="reports">Caricamento…</div></div>
+<div class="box"><h2>🚫 Attività nascoste dalla mappa</h2><div id="hidden">Caricamento…</div></div>
+</div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SB=supabase.createClient('https://wmweptdpfworispqjhto.supabase.co','sb_publishable_kaNxtTEWBzAdqGVAp_wLdA_XzOtNQFp');
+const $=s=>document.querySelector(s);let map,mk,pos=null;
+const msg=(el,t,ok)=>{el.innerHTML=`<div class="msg ${ok?'ok':'ko'}">${t}</div>`;};
+const slug=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+async function isAdmin(){const{data:u}=await SB.auth.getUser();if(!u||!u.user)return false;const{data}=await SB.from('admins').select('user_id').eq('user_id',u.user.id).maybeSingle();return!!data;}
+async function enter(){if(!(await isAdmin())){msg($('#loginMsg'),'Sei entrato, ma il tuo account non è amministratore. Esegui in Supabase la riga “insert into public.admins…” con la tua email, poi ricarica.',false);return;}
+  $('#loginBox').classList.add('hidden');$('#adminArea').classList.remove('hidden');$('#logout').style.display='';initMap();loadList();}
+$('#loginBtn').onclick=async()=>{const{error}=await SB.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#pw').value});if(error){msg($('#loginMsg'),'Email o password non corretti.',false);return;}enter();};
+$('#logout').onclick=async()=>{await SB.auth.signOut();location.reload();};
+SB.auth.getSession().then(({data})=>{if(data.session)enter();});
+function initMap(){if(map)return;map=L.map('map').setView([45.3255,10.6582],15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+  mk=L.marker([45.3255,10.6582],{draggable:true}).addTo(map);mk.on('dragend',()=>setPos(mk.getLatLng()));map.on('click',e=>{mk.setLatLng(e.latlng);setPos(e.latlng);});}
+function setPos(ll){pos={lat:+ll.lat.toFixed(6),lon:+ll.lng.toFixed(6)};$('#coords').textContent=pos.lat+', '+pos.lon;}
+$('#findBtn').onclick=async()=>{const a=$('#f_addr').value.trim();if(!a)return;$('#findBtn').disabled=true;
+  try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=it&q='+encodeURIComponent(a)).then(x=>x.json());
+    if(!r[0])alert('Indirizzo non trovato: prova a scriverlo in modo diverso, oppure tocca la mappa sul punto giusto.');
+    else{const ll={lat:+r[0].lat,lng:+r[0].lon};map.setView(ll,18);mk.setLatLng(ll);setPos(ll);}}catch(e){alert('Ricerca non riuscita: tocca la mappa sul punto giusto.');}
+  $('#findBtn').disabled=false;};
+$('#saveBtn').onclick=async()=>{const name=$('#f_name').value.trim(),m=$('#saveMsg');
+  if(!name){msg(m,'Scrivi il nome dell’attività.',false);return;}if(!pos){msg(m,'Indica il punto sulla mappa: “Trova” oppure tocca la mappa.',false);return;}
+  const parts=$('#f_addr').value.split(',');const row={slug:slug(name),name,logo_text:($('#f_logo').value.trim()||name.split(/\s+/).map(w=>w[0]).join('').slice(0,2)).toUpperCase(),
+    category:$('#f_cat').value.trim()||'Attività',package:$('#f_pack').value,founder:$('#f_found').value==='true',address:$('#f_addr').value.trim(),comune:(parts[1]||'').trim(),
+    lat:pos.lat,lon:pos.lon,phone:$('#f_tel').value.trim(),whatsapp:$('#f_wa').value.trim(),website:$('#f_web').value.trim(),instagram:$('#f_ig').value.trim(),facebook:$('#f_fb').value.trim(),active:$('#f_active').value==='true'};
+  $('#saveBtn').disabled=true;
+  const{data,error}=EDIT?await SB.from('sponsors').update(row).eq('id',EDIT).select().single():await SB.from('sponsors').upsert(row,{onConflict:'slug'}).select().single();
+  if(error){msg(m,'Errore: '+error.message,false);$('#saveBtn').disabled=false;return;}
+  const off=$('#f_offer').value.trim();if(off){const tags=$('#f_tags').value.split(',').map(s=>s.trim()).filter(Boolean);
+    const{data:old}=await SB.from('offers').select('id').eq('sponsor_id',data.id).order('created_at',{ascending:true});
+    if(old&&old.length){await SB.from('offers').update({title:off,remedy_tags:tags,active:true}).eq('id',old[0].id);if(old.length>1)await SB.from('offers').delete().in('id',old.slice(1).map(o=>o.id));}
+    else await SB.from('offers').insert({sponsor_id:data.id,title:off,remedy_tags:tags});}
+  if(EDIT)resetForm();
+  msg(m,`✅ ${name} salvato${row.active?' e visibile nell’app':''}.`,true);$('#saveBtn').disabled=false;loadList();};
+async function loadList(){const{data,error}=await SB.from('sponsors').select('*').order('created_at',{ascending:false});const L=$('#list');
+  if(error){L.textContent='Errore: '+error.message;return;}if(!data.length){L.textContent='Nessuno sponsor ancora.';return;}
+  L.innerHTML=data.map(s=>`<div class="sp"><div><b>${s.name}</b> <span class="tag ${s.active?'on':'off'}">${s.active?'attivo':'non attivo'}</span><small>${s.category||''} · ${s.package} · ${s.address||''}</small><small>📍 ${s.lat??'–'}, ${s.lon??'–'}</small></div>
+    <div class="row" style="flex-direction:column"><button class="ghost" data-t="${s.id}" data-a="${s.active}">${s.active?'Disattiva':'Attiva'}</button><button class="ghost" data-show="${s.lat},${s.lon}">Mappa</button><button class="ghost" data-ed="${s.id}">✏️ Modifica</button><button class="ghost" data-acc="${s.id}">🔑 Account negozio</button><button class="ghost" data-del="${s.id}" style="color:#d7263d">🗑 Elimina</button></div></div>`).join('');
+  L.querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>editSp(data.find(x=>x.id===b.dataset.ed)));
+  L.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const sp=data.find(x=>x.id===b.dataset.del);
+    if(!confirm('Eliminare DEFINITIVAMENTE “'+sp.name+'”? Spariscono anche offerte, codici e preventivi collegati. Se vuoi solo sospenderlo usa “Disattiva”.'))return;
+    const{error}=await SB.from('sponsors').delete().eq('id',sp.id);if(error){alert('Errore: '+error.message);return;}if(EDIT===sp.id)resetForm();loadList();});
+  L.querySelectorAll('[data-t]').forEach(b=>b.onclick=async()=>{await SB.from('sponsors').update({active:b.dataset.a!=='true'}).eq('id',b.dataset.t);loadList();});
+  L.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>{const[a,o]=b.dataset.show.split(',').map(Number);if(!isNaN(a)){map.setView([a,o],18);mk.setLatLng([a,o]);window.scrollTo(0,0);}});}
+
+/* ricerca attività su OpenStreetMap: nome, indirizzo, telefono, sito e punto sulla mappa */
+const CATN={hardware:'Ferramenta',doityourself:'Fai da te',locksmith:'Fabbro',security:'Allarmi e sicurezza',electrical:'Materiale elettrico',trade:'Materiali edili',paint:'Colori',glaziery:'Vetreria',supermarket:'Supermercato',pharmacy:'Farmacia',electrician:'Elettricista',window_construction:'Serramenti',metal_construction:'Carpenteria metallica',builder:'Impresa edile',plumber:'Idraulico',carpenter:'Falegname'};
+$('#qBtn').onclick=async()=>{const q=$('#f_q').value.trim();if(!q)return;const R=$('#qRes');R.textContent='Cerco…';
+  try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&addressdetails=1&extratags=1&countrycodes=it&accept-language=it&q='+encodeURIComponent(q)).then(x=>x.json());
+    if(!r.length){R.textContent='Nessun risultato: scrivi nome e paese, oppure compila a mano.';return;}
+    R.innerHTML=r.map((x,i)=>{const a=x.address||{};const t=a.village||a.town||a.city||a.municipality||'';return`<button data-qi="${i}" style="display:block;width:100%;text-align:left;margin:4px 0;padding:8px;border:2px solid #140f1f;background:#fff;cursor:pointer"><b>${(x.name||x.display_name.split(',')[0]).replace(/</g,'&lt;')}</b><br><small>${[a.road,a.house_number].filter(Boolean).join(' ')}${t?', '+t:''} · ${CATN[x.type]||x.type}</small></button>`;}).join('');
+    R.querySelectorAll('[data-qi]').forEach(b=>b.onclick=()=>{const x=r[+b.dataset.qi],a=x.address||{},e=x.extratags||{};const t=a.village||a.town||a.city||a.municipality||'';
+      const nm=x.name||x.display_name.split(',')[0];$('#f_name').value=nm;if(!$('#f_logo').value)$('#f_logo').value=nm.split(/\s+/).filter(w=>w.length>2).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      if(!$('#f_cat').value)$('#f_cat').value=CATN[x.type]||'';$('#f_addr').value=`${[a.road,a.house_number].filter(Boolean).join(' ')}${t?', '+t:''}`;
+      const ph=e.phone||e['contact:phone']||'';if(ph)$('#f_tel').value=ph;const w=e.website||e['contact:website']||'';if(w)$('#f_web').value=w;
+      const fb=e['contact:facebook']||'';if(fb)$('#f_fb').value=fb;const ig=e['contact:instagram']||'';if(ig)$('#f_ig').value=ig;
+      const ll={lat:+x.lat,lng:+x.lon};initMap();map.setView(ll,18);mk.setLatLng(ll);setPos(ll);R.innerHTML='✅ Campi compilati: controlla il punto sulla mappa e salva.';});}
+  catch(e){R.textContent='Ricerca non riuscita: compila a mano.';}};
+
+/* modifica di uno sponsor esistente */
+let EDIT=null;
+async function editSp(sp){EDIT=sp.id;const set=(id,v)=>{$(id).value=v==null?'':String(v);};
+  set('#f_name',sp.name);set('#f_logo',sp.logo_text);set('#f_cat',sp.category);set('#f_pack',sp.package||'vetrina');set('#f_found',sp.founder?'true':'false');set('#f_addr',sp.address);
+  set('#f_tel',sp.phone);set('#f_wa',sp.whatsapp);set('#f_web',sp.website);set('#f_ig',sp.instagram);set('#f_fb',sp.facebook);set('#f_active',sp.active?'true':'false');
+  const{data:of}=await SB.from('offers').select('*').eq('sponsor_id',sp.id).order('created_at',{ascending:true});set('#f_offer',of&&of[0]?of[0].title:'');set('#f_tags',of&&of[0]&&of[0].remedy_tags?of[0].remedy_tags.join(', '):'');
+  if(sp.lat!=null){const ll={lat:sp.lat,lng:sp.lon};map.setView(ll,18);mk.setLatLng(ll);setPos(ll);}
+  $('#saveBtn').textContent='💾 Salva le modifiche a '+sp.name;let x=$('#cancelEd');if(!x){$('#saveBtn').insertAdjacentHTML('afterend','<button id="cancelEd" class="ghost" style="margin-left:8px">Annulla modifica</button>');$('#cancelEd').onclick=resetForm;}
+  window.scrollTo({top:0,behavior:'smooth'});}
+function resetForm(){EDIT=null;['#f_q','#f_name','#f_logo','#f_cat','#f_addr','#f_tel','#f_wa','#f_web','#f_ig','#f_fb','#f_offer','#f_tags'].forEach(id=>{if($(id))$(id).value='';});
+  $("#saveBtn").textContent="💾 Salva sponsor";const x=$('#cancelEd');if(x)x.remove();}
+/* attività nascoste dalla mappa (chi non vuole comparire o non paga) */
+async function loadHidden(){const H=$('#hidden');if(!H)return;const{data,error}=await SB.from('hidden_pois').select('*').order('created_at',{ascending:false});
+  if(error){H.innerHTML='<small>Per usare questa funzione esegui in Supabase il blocco SQL “hidden_pois” (istruzioni in chat).</small>';return;}
+  if(!data.length){H.innerHTML='<small>Nessuna attività nascosta. Nell’app, da amministratore, apri un’attività sulla mappa e premi “🚫 Nascondi dalla mappa”.</small>';return;}
+  H.innerHTML=data.map(h=>`<div class="sp"><div><b>${(h.name||'').replace(/</g,'&lt;')}</b><small>📍 ${h.lat??'–'}, ${h.lon??'–'}</small></div><button class="ghost" data-unh="${h.id}">Mostra di nuovo</button></div>`).join('');
+  H.querySelectorAll('[data-unh]').forEach(b=>b.onclick=async()=>{await SB.from('hidden_pois').delete().eq('id',b.dataset.unh);loadHidden();});}
+const _loadList2=loadList;loadList=async function(){await _loadList2();loadHidden();};
+
+/* segnalazioni: un tocco per nasconderla a tutti, oppure ignorarla */
+async function loadReports(){const B=$('#reports');if(!B)return;const{data,error}=await SB.from('poi_reports').select('*').order('created_at',{ascending:false});
+  if(error){B.innerHTML='<small>Per usare questa funzione esegui in Supabase il blocco SQL “community” (istruzioni in chat).</small>';return;}
+  if(!data.length){B.innerHTML='<small>Nessuna segnalazione.</small>';return;}
+  const by={};data.forEach(r=>{(by[r.name]=by[r.name]||[]).push(r);});
+  B.innerHTML=Object.entries(by).map(([n,L])=>`<div class="sp"><div><b>${n.replace(/</g,'&lt;')}</b> <span class="tag off">${L.length} ${L.length===1?'segnalazione':'segnalazioni'}</span><small>${L[0].motivo&&/^MANCA/.test(L[0].motivo)?'➕ '+L[0].motivo.replace(/</g,'&lt;'):'ultima: '+new Date(L[0].created_at).toLocaleDateString('it-IT')+' · 📍 '+(L[0].lat??'–')+', '+(L[0].lon??'–')}</small></div>
+    <div class="row" style="flex-direction:column">${L[0].motivo&&/^ESCLUDI EDIFICIO/.test(L[0].motivo)?`<button class="ghost" data-rexc="${encodeURIComponent(L[0].motivo.replace('ESCLUDI EDIFICIO ',''))}" data-rn="${encodeURIComponent(n)}" style="color:#d7263d">🚫 Escludi dal gioco</button>`:''}${L[0].motivo&&/^MANCA/.test(L[0].motivo)?`<button class="ghost" data-radd="${encodeURIComponent(n)}">➕ Aggiungi</button>`:`<button class="ghost" data-rh="${encodeURIComponent(n)}" style="color:#d7263d">🚫 Nascondi</button>`}<button class="ghost" data-ri="${encodeURIComponent(n)}">Ignora</button></div></div>`).join('');
+  B.querySelectorAll('[data-rh]').forEach(b=>b.onclick=async()=>{const n=decodeURIComponent(b.dataset.rh);const r=by[n][0];await SB.from('hidden_pois').insert({name:n,lat:r.lat,lon:r.lon});await SB.from('poi_reports').delete().eq('name',n);loadReports();loadHidden();});
+  B.querySelectorAll('[data-rexc]').forEach(b=>b.onclick=async()=>{const bid=decodeURIComponent(b.dataset.rexc);if(!confirm('Escludere l’edificio '+bid+' dal gioco? Se qualcuno lo possiede viene rimborsato.'))return;
+    const{data,error}=await SB.rpc('admin_world_exclude',{p_bid:bid});if(error||data!=='ok'){alert('Errore: '+(error?error.message:data));return;}await SB.from('poi_reports').delete().eq('name',decodeURIComponent(b.dataset.rn));alert('✅ Edificio escluso dal gioco');loadReports();});
+  B.querySelectorAll('[data-radd]').forEach(b=>b.onclick=()=>{const n=decodeURIComponent(b.dataset.radd);const m=(by[n][0].motivo||'').replace(/^MANCA:\s*/,'');const parts=m.split(' · ');$('#c_name').value=n;$('#c_addr').value=parts.slice(1).join(' · ');$('#c_name').scrollIntoView({behavior:'smooth',block:'center'});alert('Ho compilato nome e indirizzo nella sezione “Attività aggiunte”: scegli la categoria, premi Trova e poi Aggiungi. Poi ignora la segnalazione.');});
+  B.querySelectorAll('[data-ri]').forEach(b=>b.onclick=async()=>{await SB.from('poi_reports').delete().eq('name',decodeURIComponent(b.dataset.ri));loadReports();});}
+const _loadList3=loadList;loadList=async function(){await _loadList3();loadReports();};
+
+/* account del negozio: il negoziante si registra nell'app, tu lo colleghi qui con la sua email */
+document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('[data-acc]');if(!b)return;const id=b.dataset.acc;
+  let cur='';try{const{data}=await SB.rpc('admin_sponsor_accounts',{p_sponsor:id});cur=(data||[]).map(x=>x.email).join(', ');}catch(x){}
+  const em=prompt((cur?'Account già collegati: '+cur+'\n\n':'')+'Email con cui il negoziante si è registrato nell’app ZombieSafeHouse:');if(!em)return;
+  const{data,error}=await SB.rpc('admin_link_sponsor',{p_sponsor:id,p_email:em});
+  alert(error?'Errore: '+error.message:data==='ok'?'✅ Collegato. Il negoziante entra da safehousezombie.netlify.app/negozio.html con la sua email e password.':data);});
+
+/* attività aggiunte a mano */
+let CPOS=null;
+$('#c_find').onclick=async()=>{const q=$('#c_addr').value.trim();if(!q)return;try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=it&q='+encodeURIComponent(q)).then(x=>x.json());
+  if(!r[0]){$('#c_pos').firstChild.textContent='Indirizzo non trovato: prova a scriverlo meglio o usa il segnaposto. ';return;}CPOS={lat:+r[0].lat,lon:+r[0].lon};
+  $('#c_pos').firstChild.textContent=`Posizione: ${CPOS.lat.toFixed(5)}, ${CPOS.lon.toFixed(5)}. Se non è precisa: sposta il segnaposto della mappa sopra e premi `;
+  try{initMap();const ll={lat:CPOS.lat,lng:CPOS.lon};map.setView(ll,18);mk.setLatLng(ll);setPos(ll);}catch(e){}}catch(e){}};
+$('#c_usemap').onclick=()=>{if(!pos){alert('Prima metti il segnaposto sulla mappa in alto');return;}CPOS={lat:pos.lat,lon:pos.lng};$('#c_pos').firstChild.textContent=`Posizione dal segnaposto: ${CPOS.lat.toFixed(5)}, ${CPOS.lon.toFixed(5)}. `;};
+$('#c_save').onclick=async()=>{const name=$('#c_name').value.trim();if(!name||!CPOS){msg($('#c_msg'),'Servono nome e posizione',false);return;}
+  const{error}=await SB.from('custom_pois').insert({name,cat:$('#c_cat').value,address:$('#c_addr').value.trim(),lat:CPOS.lat,lon:CPOS.lon,phone:$('#c_tel').value.trim()||null,website:$('#c_web').value.trim()||null});
+  if(error){msg($('#c_msg'),'Errore: '+(/relation|does not exist/.test(error.message)?'manca la tabella: esegui attivita_aggiunte.sql in Supabase':error.message),false);return;}
+  msg($('#c_msg'),'✅ '+name+' aggiunta: è già visibile nell’app',true);['#c_name','#c_addr','#c_tel','#c_web'].forEach(i=>$(i).value='');CPOS=null;loadCustom();};
+async function loadCustom(){const{data,error}=await SB.from('custom_pois').select('*').order('created_at',{ascending:false});if(error){$('#c_list').innerHTML='';return;}
+  $('#c_list').innerHTML=(data||[]).map(c=>`<div class="sp"><div><b>${(c.name||'').replace(/</g,'&lt;')}</b><small>${c.cat} · ${(c.address||'').replace(/</g,'&lt;')}</small></div><button class="ghost" data-cdel="${c.id}" style="color:#d7263d">🗑</button></div>`).join('');
+  document.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=async()=>{if(!confirm('Togliere questa attività?'))return;await SB.from('custom_pois').delete().eq('id',b.dataset.cdel);loadCustom();});}
+const _loadList4=loadList;loadList=async function(){await _loadList4();loadCustom();};
+</script></body></html>

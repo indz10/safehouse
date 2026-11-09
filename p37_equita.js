@@ -1,0 +1,51 @@
+<script>
+/* =========================================================
+   EQUITÀ DEL MONDO UNICO (le regole stanno sul server, qui si mostrano)
+   1 Kit di benvenuto  2 Scudo 14 giorni  3 Spinta di recupero +50%
+   4 Leghe  5 Case più care per chi ne ha tante  6 Padrino
+   ========================================================= */
+window.EQ={s:null,t:0};
+async function eqLoad(force){if(!S.user||(typeof SB==='undefined'||!SB))return null;if(!force&&EQ.s&&Date.now()-EQ.t<10*60*1000)return EQ.s;
+  try{const{data,error}=await SB.rpc('world_status_extra');if(error)throw error;EQ.s=data;EQ.t=Date.now();eqPaint();}catch(e){}return EQ.s;}
+/* 1) kit di benvenuto: una volta per account (il server lo garantisce) */
+async function eqWelcome(){if(!S.user||(typeof SB==='undefined'||!SB))return;const k='zsh_kit_'+S.user.id;try{if(localStorage.getItem(k))return;}catch(e){}
+  try{const{data,error}=await SB.rpc('world_welcome');if(error)throw error;try{localStorage.setItem(k,'1');}catch(e){}
+    if(data&&data.got>0){try{G.gems=(G.gems||0)+50;saveLocal();}catch(e){}if(typeof wMine==='function')wMine(true);await eqLoad(true);
+      openSheet('🎁 Benvenuto nel mondo!',`<div class="kitbox"><div><b>🧱 300</b><small>Mattoni</small></div><div><b>💎 50</b><small>gemme</small></div><div><b>🛡️ 14</b><small>giorni di scudo</small></div></div>
+        <p style="font-weight:400">Con i Mattoni puoi comprare subito una seconda casa. Per 14 giorni <b>nessun giocatore può mandarti orde o dispetti</b> (se ne fai tu, lo scudo finisce).</p>
+        <p style="font-weight:400">E finché sei sotto il livello medio della tua zona, ogni Mattone che guadagni vale <b>+50%</b>.</p><button class="btn" data-kgo>🌍 Vai al mondo</button>`,c=>{c.querySelector('[data-kgo]').onclick=()=>{closeSheet();go('mappa');};});}}catch(e){}}
+/* indicatori: scudo, spinta, lega */
+function eqChips(){const s=EQ.s;if(!s)return'';return[s.shield?`<span class="eqc sh">🛡️ Scudo ${s.shield_days} g</span>`:'',s.boost?`<span class="eqc bo">🚀 +50% 🧱</span>`:'',s.league?`<span class="eqc lg">🏅 ${esc(s.league)}</span>`:''].join('');}
+function eqPaint(){try{const h=app.querySelector('.hschips');if(h){h.querySelectorAll('.eqc').forEach(x=>x.remove());h.insertAdjacentHTML('beforeend',eqChips());}}catch(e){}
+  try{const r=app.querySelector('.rivhead');if(r&&EQ.s){let x=r.querySelector('.eqriv');const t=EQ.s.shield?`🛡️ Hai lo <b>scudo del nuovo arrivato</b> ancora per ${EQ.s.shield_days} giorni: nessuno può mandarti orde o dispetti. Se ne fai tu, lo perdi.`:'';
+    if(t){if(!x){r.insertAdjacentHTML('beforeend','<p class="eqriv"></p>');x=r.querySelector('.eqriv');}x.innerHTML=t;}else if(x)x.remove();}}catch(e){}}
+const _renderHomeEq=renderHome;renderHome=function(){_renderHomeEq();eqPaint();if(S.user){eqLoad();}};
+/* al collegamento: kit e stato */
+const _wMineEq=wMine;wMine=async function(){const r=await _wMineEq.apply(this,arguments);try{if(S.user){eqWelcome();eqLoad();}}catch(e){}return r;};
+/* 2) rivali con lo scudo: pulsanti spenti */
+const _socPaintEq=socPaint;socPaint=function(){_socPaintEq();try{if(SOC.tab==='rivali'&&Array.isArray(SOC.riv)){
+  app.querySelectorAll('.rivc').forEach((c,i)=>{const r=SOC.riv[i];if(!r||!r.shield)return;c.querySelectorAll('[data-dv]').forEach(b=>b.disabled=true);const n=c.querySelector('.rivn small');if(n&&!/scudo/.test(n.textContent))n.insertAdjacentHTML('beforeend',' · 🛡️ nuovo arrivato, protetto');});
+  eqPaint();if(!EQ.s)eqLoad();}}catch(e){}
+  /* 4) leghe nelle classifiche */
+  try{if(SOC.tab!=='classifiche')return;const seg=app.querySelector('#socBody .schips');if(!seg||seg.querySelector('[data-rs=lega]'))return;
+    seg.insertAdjacentHTML('afterbegin',`<button data-rs="lega" class="${SOC.rs==='lega'?'on':''}">🏅 La mia lega</button>`);
+    seg.querySelector('[data-rs=lega]').onclick=()=>{SOC.rs='lega';socPaint();eqRank();};
+    if(SOC.rs==='lega'){seg.querySelectorAll('[data-rs]').forEach(b=>b.classList.toggle('on',b.dataset.rs==='lega'));eqRankPaint();}}catch(e){}};
+EQ.rank={};
+async function eqRank(){const p=SOC.rp||'settimana';try{const{data,error}=await SB.rpc('world_rank_lega',{p_period:p});if(error)throw error;EQ.rank[p]=data||[];}catch(e){EQ.rank[p]={err:e.message};}if(S.tab==='social'&&SOC.tab==='classifiche'&&SOC.rs==='lega')eqRankPaint();}
+function eqRankPaint(){const B=app.querySelector('#socBody');if(!B)return;const p=SOC.rp||'settimana';const L=EQ.rank[p];const seg=B.querySelector('.schips');const box=seg&&seg.nextElementSibling;if(!box)return;
+  const lg=EQ.s&&EQ.s.league||'';const head=`<p class="muted" style="font-size:12.5px;margin:0 0 6px">🏅 Lega <b>${esc(lg)}</b>: Bronzo 1–5 · Argento 6–12 · Oro 13–20 · Diamante 21+. Giochi solo contro chi ha il tuo livello.</p>`;
+  if(L==null){box.innerHTML=head+'<p class="muted"><span class="spin"></span> Carico la tua lega…</p>';if(!EQ._rq){EQ._rq=1;eqRank().finally(()=>EQ._rq=0);}return;}
+  if(L.err){box.innerHTML=head+`<p class="muted">Classifica della lega non disponibile (${esc(L.err)}).</p>`;return;}
+  box.innerHTML=head+(L.length?L.map(r=>`<div class="srank ${r.me?'me':''}"><span class="rpos">${r.pos<=3?['🥇','🥈','🥉'][r.pos-1]:r.pos}</span><div class="stx">${socNick(r.user_id,r.nick)}<small>livello ${r.wlevel}${r.comune?' · '+esc(r.comune):''}</small></div><b>🧱 ${wNum(r.punti)}</b></div>`).join(''):'<p class="muted">Ancora nessuno nella tua lega questa settimana: puoi essere il primo!</p>');}
+/* 3) spinta e 5) prezzo progressivo spiegati nella scheda casa e nel preventivo */
+const _houseSheetEq=houseSheet;houseSheet=async function(h){await _houseSheetEq(h);try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('.eqhs')||!EQ.s)return;const w=c.querySelector('.hwal');if(!w)return;
+  const t=[EQ.s.boost?`🚀 <b>Spinta di recupero</b>: sei sotto il livello medio della tua zona${EQ.s.median!=null?' ('+Math.round(EQ.s.median)+')':''}, ogni Mattone guadagnato vale +50%.`:'',EQ.s.shield?`🛡️ <b>Scudo</b> ancora ${EQ.s.shield_days} giorni.`:''].filter(Boolean);
+  if(t.length)w.insertAdjacentHTML('afterend',`<p class="eqhs">${t.join('<br>')}</p>`);}catch(e){}};
+try{const _wSheetEq=wSheet;wSheet=async function(){const r=await _wSheetEq.apply(this,arguments);try{const c=document.querySelector('#sheet.open .sheet-b');const buy=c&&[...c.querySelectorAll('button')].find(b=>/^\s*(🛒|🔑|🏠)?\s*Compra/.test(b.textContent));if(c&&!c.querySelector('.hshead')&&buy&&EQ.s&&EQ.s.houses>0&&!c.querySelector('.eqpr'))
+  buy.insertAdjacentHTML('beforebegin',`<p class="eqpr">Hai già ${EQ.s.houses} ${EQ.s.houses===1?'casa':'case'} comprate: il prezzo è +${EQ.s.houses*10}% (chi ha più case paga di più, così il mondo resta aperto ai nuovi).</p>`);}catch(e){}return r;};}catch(e){}
+/* 6) padrino: nell'invito si spiega il premio */
+function eqPad(){const c=document.querySelector('#sheet.open');if(c&&/[Ii]nvit/.test(c.textContent)&&!c.querySelector('.eqpad'))c.insertAdjacentHTML('beforeend','<p class="eqpad">🤝 <b>Padrino</b>: per i primi 14 giorni ricevi anche il 10% in più di quello che guadagna chi hai invitato (a lui non togliamo niente).</p>');}
+try{const _inviteSheetEq=inviteSheet;inviteSheet=function(){const r=_inviteSheetEq.apply(this,arguments);[0,300,900].forEach(t=>setTimeout(eqPad,t));return r;};}catch(e){}
+setInterval(()=>{if(S.user&&document.visibilityState==='visible')eqLoad();},5*60*1000);
+</script>

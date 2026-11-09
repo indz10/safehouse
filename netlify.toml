@@ -1,0 +1,11 @@
+# Netlify pubblica la cartella dist/ già costruita (con ./build.sh) e salvata nel repository.
+# Nessun comando di build: Netlify copia e basta.
+[build]
+  publish = "dist"
+  command = ""
+
+# il service worker deve arrivare sempre fresco, così l'app si aggiorna da sola
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"

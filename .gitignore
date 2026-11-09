@@ -1,0 +1,7 @@
+# file temporanei della build e delle prove (dist/ invece va nel repository)
+app.html
+y*.png
+x*.png
+__pycache__/
+*.pyc
+.DS_Store
