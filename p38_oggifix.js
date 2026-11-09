@@ -16,11 +16,6 @@ try{const _ssOfOf=ssOf;ssOf=function(el){try{
     if(el.matches('.panel')&&(el.querySelector('#jarDraw,#jarPoke,.jarbar')))return'x';
   }}catch(e){}return _ssOfOf(el);};}catch(e){}
 /* la fisarmonica vecchia diventa "Missioni delle notti": tengo solo le missioni */
-function ofMissioni(){try{app.querySelectorAll('details.fold').forEach(d=>{const dl=d.querySelector('.daily');if(!dl||d.dataset.of)return;d.dataset.of='1';
-  const s=d.querySelector('summary');if(s){const t=[...s.childNodes].find(n=>n.nodeType===3&&/Premi e missioni/.test(n.nodeValue));if(t)t.nodeValue=t.nodeValue.replace(/.*Premi e missioni di oggi/,'🎯 Missioni delle notti');else s.innerHTML=s.innerHTML.replace(/🎁\s*Premi e missioni di oggi/,'🎯 Missioni delle notti');}
-  [...dl.children].forEach(c=>{if(!c.classList.contains('missions'))c.remove();});
-  const m=dl.querySelector('.missions');if(m){const b=m.querySelector('b');if(b)b.textContent='Si fanno giocando le notti qui sotto';}});}catch(e){}}
-const _splitHubOf=splitHub;splitHub=function(){_splitHubOf();ofMissioni();try{ssApply();}catch(e){}};
 /* ---- Premio del giorno in una finestra ---- */
 function dailySheet(){const tmp=document.createElement('div');tmp.innerHTML=dailyHTML();const dl=tmp.querySelector('.daily');if(!dl)return;const ms=dl.querySelector('.missions');if(ms)ms.remove();
   const b=dl.querySelector('#dClaim');if(b){b.id='dClaimS';}

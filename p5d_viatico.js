@@ -23,21 +23,6 @@ function viatico(){
   const tipo=a.tipo==='schiera'?'schiera':/^apt/.test(a.tipo||'')?'apt':a.zona==='montagna'?'rifugio':a.zona==='campagna'?'casale':'villa';
   return{idx,L0,level,coins,gems,ver,verR,h,q,why,tipo};
 }
-function viaticoCard(){
-  const v=viatico();
-  if(!v)return`<div class="panel moon via"><b class="disp" style="font-size:22px">Parti avvantaggiato</b>
-    <p style="font-weight:400;margin:4px 0 10px">Valuta la tua casa vera: più è protetta, più alto è il livello da cui parti in Orda. Porta blindata, grate e luci diventano difese anche nel gioco.</p>
-    <button class="btn small" data-go="valuta">Valuta la mia casa</button></div>`;
-  const on=S.useVia!==false;
-  return`<div class="panel via ${on?'moon':''}">
-    <div class="row spread"><b class="disp" style="font-size:22px">Viatico della tua casa</b><label class="sw"><input type="checkbox" id="viaOn" ${on?'checked':''}><span>${on?'Attivo':'Spento'}</span></label></div>
-    <p style="font-weight:400;font-size:14px;margin:4px 0 8px">Indice reale <b>${fmtI(v.idx)}</b>: parti dall’<b>ondata ${v.level}</b>${v.coins?` con <b>+${v.coins} monete</b>`:''}${v.gems?` e <b>+${v.gems} gemme</b>`:''}.</p>
-    ${v.why.length?`<p style="font-size:13px;font-weight:400;margin-bottom:8px">Difese portate dalla casa vera: ${v.why.join(', ')}.</p>`:'<p class="muted" style="font-size:13px;margin-bottom:8px">Nessuna difesa reale da portare nel gioco: migliora la casa e rivaluta.</p>'}
-    <div class="vbar"><span style="width:${Math.round(v.verR*100)}%"></span></div>
-    <small>${v.ver}/${VIA_FOTO.length} difese confermate dalle foto. ${v.ver<VIA_FOTO.length?`Con tutte confermate partiresti dall’ondata ${v.L0}.`:'Bonus pieno.'}</small>
-    ${v.ver<VIA_FOTO.length?'<div style="margin-top:8px"><button class="btn small ghost" data-go="valuta" data-step="1">Conferma con le foto</button></div>':''}
-    <p class="muted" style="font-size:11px;margin-top:8px">Il viatico vale una volta per casa e per account. Rispondere il falso non conviene: senza foto vale metà.</p></div>`;
-}
 function applyViatico(){
   const v=viatico();if(!v||S.useVia===false)return null;
   G.level=Math.max(G.level,v.level);G.best=Math.max(G.best||0,v.level-1);G.coins+=v.coins;G.gems+=v.gems;

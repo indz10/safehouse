@@ -64,12 +64,6 @@ function alBind(){const p=app.querySelector('.apan');if(!p)return;const h=p.quer
   p.querySelectorAll('[data-aatk]').forEach(b=>b.onclick=async()=>{if(!confirm('Mandare un’orda a questo rivale? Costa 30 Mattoni.'))return;b.disabled=true;try{const{data,error}=await SB.rpc('world_send_attack',{p_target:b.dataset.aatk});if(error)throw error;toast((data.ok?'🧟 ':'')+data.msg);if(typeof wMine==='function')wMine(true);}catch(e){toast(e.message||'Non riuscito');}alLoad(true);});
   const iv=p.querySelector('[data-ainv]');if(iv)iv.onclick=()=>inviteSheet();}
 function alRefresh(){try{const p=app.querySelector('.apan');if(p){const n=document.createElement('div');n.innerHTML=alHTML();const np=n.firstElementChild;if(!np)return;np.dataset.grp=p.dataset.grp||'q';p.replaceWith(np);alBind();}}catch(e){}}
-const _splitHubA=splitHub;splitHub=function(){_splitHubA();try{
-  /* niente più schede con giocatori finti: gli alleati veri sono qui */
-  app.querySelectorAll('[data-sub="amici"],[data-sub="arena"]').forEach(b=>b.remove());if(G.sub==='amici'||G.sub==='arena')G.sub='q';
-  if((G.sub||'q')!=='q'||app.querySelector('.apan')||!S.user)return;const r=app.querySelector('.opan');const h=alHTML();if(!h)return;
-  if(r)r.insertAdjacentHTML('afterend',h);else{const pg=app.querySelector('.page');if(pg)pg.insertAdjacentHTML('afterbegin',h);}
-  const p=app.querySelector('.apan');if(p){p.dataset.grp='q';alBind();alLoad();}}catch(e){console.warn('alleati',e);}};
 /* premi dell'orda: anche le taglie, e raddoppio monete con le gemme */
 const _orPanelV3=orPanelHTML;orPanelHTML=function(){let h=_orPanelV3();const s=OR.s||{};
   if(s.bounty)h=h.replace('Riscatta: 🧱',`🎯 taglie incluse · Riscatta: 🧱`);
@@ -82,8 +76,6 @@ function shopHTML(){return`<div class="panel spanx"><b class="disp" style="font-
   <div class="passx"><b>⭐ Pass del Superstite · 4,99 €/mese</b><small>Case preparate in automatico a ogni orda · +20% affitti · 1 casa in più · premi doppi nelle missioni</small><button class="btn small ghost" disabled>Presto</button></div>
   <h4 class="ah">Cosa fai con le gemme, già oggi</h4><div class="shopu">
    <div><b>💰 10 💎 → 🪙 250</b><small>cambio in Potenzia</small></div><div><b>🔧 20 💎</b><small>ripara tutto durante una notte</small></div><div><b>✨ 5 💎</b><small>raddoppia le monete dell’ultima orda</small><button class="btn small" data-dbl ${G.gems>=5&&OR.s&&OR.s.claimed&&window.__dbl!==OR.s.prev_id?'':'disabled'}>Raddoppia</button></div></div></div>`;}
-const _splitHubS=splitHub;splitHub=function(){_splitHubS();try{if((G.sub||'q')!=='q'||app.querySelector('.spanx'))return;const pg=app.querySelector('.page');if(!pg)return;pg.insertAdjacentHTML('beforeend',shopHTML());const p=app.querySelector('.spanx');p.dataset.grp='q';
-  const d=p.querySelector('[data-dbl]');if(d)d.onclick=()=>{const s=OR.s;if(!s||G.gems<5||window.__dbl===s.prev_id)return;const c=30*(s.held||0)+10*((s.total||0)-(s.held||0));G.gems-=5;G.coins+=c;window.__dbl=s.prev_id;toast(`✨ Monete raddoppiate: +🪙 ${c}`);renderHub();};}catch(e){}};
 
 /* ---- PAGINA CASA, rifatta e pulita ---- */
 function vNextSlot(){const n=new Date();for(const d of[0,1])for(const h of[9,21]){const t=new Date(n.getFullYear(),n.getMonth(),n.getDate()+d,h,0,0);if(t>n)return t;}return n;}
@@ -124,5 +116,4 @@ const _manualV3=manualHTML;manualHTML=function(){return _manualV3().replace('<de
 </script>
 <script>
 /* la sezione con gli amici simulati non compare più (la fortuna resta) */
-try{OGRP['Amici e quartiere']='nascosto';}catch(e){}
 </script>

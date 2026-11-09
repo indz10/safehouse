@@ -22,13 +22,13 @@ function ordaPrep(){
   try{dailyBonus();}catch(e){}
   G.view='hub';G.sub='q';G.ss='oggi';G.replay=null;return false;}
 
-renderOrda=function(){
+var renderOrda=function(){
   if(G.run){G.run.stop=true;G.run=null;}
   try{setMusic('app');}catch(e){}
   document.body.classList.remove('inbattle');try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}
   renderHub();};
 
-renderHub=function(){
+var renderHub=function(){
   if(ordaPrep())return;
   app.innerHTML='<div class="page orda1" data-one="1"></div>';const pg=app.querySelector('.page');
   /* 🗺️ il fronte (lo stesso riquadro di prima, riusato tra un disegno e l'altro) */

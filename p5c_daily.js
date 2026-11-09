@@ -17,7 +17,6 @@ function dailyState(){G.streak=G.streak||{day:0,last:null};const today=dayKey(ne
   if(!G.today||G.today.date!==today)G.today={date:today,z:0,w:0,s:0,got:{},all:false};
   const claimed=G.streak.last===today;const cont=G.streak.last===yest;const missed=!claimed&&!cont&&G.streak.day>0;
   const next=claimed?G.streak.day:(cont?G.streak.day%7+1:1);return{today,claimed,missed,next};}
-function missionAdd(k,n){if(!G.today)return;G.today[k]=(G.today[k]||0)+n;}
 function dailyHTML(){
   const s=dailyState();const fr=(G.friends||[]).filter(f=>f.on).length;
   return`<div class="panel daily">
@@ -29,11 +28,5 @@ function dailyHTML(){
     <div class="missions"><b>Missioni di oggi</b>${MISSIONS.map(m=>{const v=Math.min(m.goal,G.today[m.k]||0),ok=v>=m.goal,got=G.today.got[m.k];return`<div class="mis"><div style="flex:1"><span>${m.n}</span><div class="hp" style="height:9px;margin-top:3px"><span style="width:${v/m.goal*100}%;background:var(--ok)"></span></div><small>${v}/${m.goal}</small></div>${got?'<span class="tag ia">✓</span>':`<button class="btn small" data-mis="${m.k}" ${ok?'':'disabled'}>+${m.g} 💎</button>`}</div>`;}).join('')}
       <small class="muted">Completale tutte e tre: +1 gratta e vinci bonus. Si rinnovano a mezzanotte.</small></div>
   </div>`;
-}
-function bindDaily(){
-  const b=$('#dClaim');if(b)b.onclick=()=>{const s=dailyState();if(s.claimed)return;DAILY[s.next-1].f(G);G.streak={day:s.next,last:s.today};
-    const fr=(G.friends||[]).filter(f=>f.on).length;if(fr+1>=3)G.gems+=5;sfx('win');toast(`Giorno ${s.next}: ${DAILY[s.next-1].t}${fr+1>=3?' + 5 💎 bonus di gruppo':''}`);renderHub();};
-  app.querySelectorAll('[data-mis]').forEach(x=>x.onclick=()=>{const m=MISSIONS.find(y=>y.k===x.dataset.mis);G.gems+=m.g;G.today.got[m.k]=true;sfx('coin');
-    if(MISSIONS.every(y=>G.today.got[y.k])&&!G.today.all){G.today.all=true;G.scratch=(G.scratch||0)+1;toast('Tutte le missioni: +1 gratta e vinci!');}else toast(`+${m.g} 💎`);renderHub();});
 }
 </script>

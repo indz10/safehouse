@@ -82,11 +82,6 @@ function ssOf(el){if(!el||!el.matches)return null;
 function ssApply(){const pg=app.querySelector('.page');if(!pg)return;const cur=G.ss||'oggi';
   [...pg.children].forEach(el=>{const k=ssOf(el);if(k==='top')return;if(k==='x'){el.hidden=true;return;}el.hidden=(k!==cur);});
   pg.querySelectorAll('.oseg2 button').forEach(b=>b.classList.toggle('on',b.dataset.ss===cur));}
-const _splitHubS2=splitHub;splitHub=function(){const was=G.sub;G.sub='q';try{_splitHubS2();}catch(e){console.warn('split',e);}G.sub=was&&was!=='q'?'q':G.sub;
-  try{const pg=app.querySelector('.page');if(!pg||G.view!=='hub')return;
-    if(!pg.querySelector('.oseg2')){pg.insertAdjacentHTML('afterbegin',`<div class="oseg2">${[['oggi','☀️ Oggi'],['impero','🌍 Impero'],['difendi','⚔️ Difendi tu']].map(([k,l])=>`<button data-ss="${k}">${l}</button>`).join('')}</div>`);
-      pg.querySelectorAll('.oseg2 button').forEach(b=>b.onclick=()=>{G.ss=b.dataset.ss;ssApply();window.scrollTo(0,0);});}
-    ssApply();}catch(e){console.warn('orda sezioni',e);}};
 /* i pannelli che si ridisegnano da soli tornano nella sezione giusta */
 ['orRefresh','alRefresh','wRefresh','ayRefresh'].forEach(n=>{try{const f=window[n];if(typeof f!=='function')return;window[n]=function(){const r=f.apply(this,arguments);try{if(S.tab==='orda')ssApply();}catch(e){}return r;};}catch(e){}});
 /* i pulsanti "premio del giorno / ruota / gratta" portano in Oggi */

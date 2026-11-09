@@ -8,7 +8,6 @@
 const _renderHomeS1=renderHome;renderHome=function(){_renderHomeS1();try{const r=app.querySelector('.hsrow');if(r)r.remove();}catch(e){}};
 /* ---- ORDA: due sezioni. "Impero" sparisce: le case sono nel Mondo, gli alleati in Superstiti ---- */
 try{const _ssOfS1=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.wpan,.apan,.acard'))return'x';return _ssOfS1(el);};}catch(e){}
-const _splitHubS1=splitHub;splitHub=function(){if(G.ss==='impero')G.ss='oggi';_splitHubS1();try{const seg=app.querySelector('.oseg2');if(seg){const b=seg.querySelector('[data-ss=impero]');if(b)b.remove();seg.classList.add('two');}opanExtra();ssApply();}catch(e){}};
 /* l'orda in UN solo riquadro: conto alla rovescia, prepara, riscatta + assalti, simulazione, notifiche */
 function opanExtra(){const o=app.querySelector('.opan');if(!o||o.querySelector('.opx'))return;
   o.insertAdjacentHTML('beforeend',`<div class="opx"><div class="rrow"><button class="btn ghost small" data-opx="sim">🔮 Simula la prossima</button><button class="btn ghost small" data-opx="mondo">🌍 Le mie case</button></div><div id="pushRow"></div></div>`);

@@ -95,32 +95,4 @@ function qReport(cs,me){const n=k=>cs.filter(c=>c.out===k).length,pp=k=>cs.filte
     else{const txt='Valuta la tua casa con ZombieSafeHouse e aiuta il nostro quartiere a reggere la notte!';if(navigator.share)navigator.share({title:'ZombieSafeHouse',text:txt}).catch(()=>{});else toast('Messaggio pronto da condividere');}});
   }
 /* ---------- gioco: anteprima della notte sul quartiere ---------- */
-function preNightCalc(){const L=G.level,att=1+L*.13;const res=[];
-  Object.entries(G.lots||{}).forEach(([id,o])=>{const lot=LOTS.find(l=>l.id===id);if(!lot)return;const isB=o.kind==='bld';
-    const def=1.1+(o.lv||1)*.55+(o.prep||0)*.3+(o.fort||0)*.35+(isB?.5:0)+(o.ten?.25:0);const r=def/att;
-    res.push({id,name:isB?(BLD[o.b]?BLD[o.b].name:'Edificio'):(lot.kind.charAt(0).toUpperCase()+lot.kind.slice(1)),out:r>=1.0?'tiene':r>=.78?'rischio':'cade'});});
-  const sl=typeof scudoLv==='function'?scudoLv():0;const hr=(1.6+(G.fort?Object.keys(G.fort).length*.1:0)+sl*.12)/att;
-  return{home:hr>=1.1?'tiene':hr>=.8?'rischio':'cade',res,L};}
-function preNight(){const hood=app.querySelector('.hood'),svg=hood&&hood.querySelector('svg');if(!svg)return;hood.scrollIntoView({behavior:'smooth',block:'center'});
-  const NS='http://www.w3.org/2000/svg';let L=svg.querySelector('#preL');if(L)L.remove();L=document.createElementNS(NS,'g');L.id='preL';svg.appendChild(L);
-  const vb=svg.viewBox.baseVal,W=vb&&vb.width||400,H=vb&&vb.height||680,y0=(vb&&vb.y||0);
-  const C=preNightCalc();const targets=C.res.map(r=>{const el=svg.querySelector(`[data-lot="${r.id}"]`);const p=el&&svgPoint(svg,el);return p?{...r,...p}:null;}).filter(Boolean);
-  const meT=[...svg.querySelectorAll('text')].find(t=>t.textContent.trim()==='TU');const mp=meT&&svgPoint(svg,meT);if(mp)targets.push({id:'home',name:'Casa tua',out:C.home,...mp});
-  const Z=[];for(let k=0;k<40;k++){const tg=targets.length?targets[k%targets.length]:{x:W/2,y:H/2};const e=document.createElementNS(NS,'circle');e.setAttribute('r','4.5');e.setAttribute('fill','#7bd36b');e.setAttribute('stroke','#140f1f');e.setAttribute('stroke-width','1.5');L.appendChild(e);
-    Z.push({e,sx:40+Math.random()*(W-80),sy:y0+H-10,tx:tg.x+(Math.random()-.5)*16,ty:tg.y+(Math.random()-.5)*16,d:Math.random()*2400});}
-  const t0=performance.now();(function mv(){const t=performance.now()-t0;Z.forEach(z=>{const p=Math.max(0,Math.min(1,(t-z.d)/6000)),q=1-Math.pow(1-p,2);z.e.setAttribute('cx',z.sx+(z.tx-z.sx)*q);z.e.setAttribute('cy',z.sy+(z.ty-z.sy)*q);});if(t<9000&&document.body.contains(svg))requestAnimationFrame(mv);})();
-  sfx('horn');toast(`Anteprima della notte ${C.L}: l’orda esce dal cimitero`);
-  setTimeout(()=>{if(!document.body.contains(svg))return;const col={tiene:'#3f9b5f',rischio:'#f7d64a',cade:'#d7263d'},ic={tiene:'✓',rischio:'!',cade:'✕'};
-    targets.forEach(t=>{const c=document.createElementNS(NS,'circle');c.setAttribute('cx',t.x);c.setAttribute('cy',t.y-18);c.setAttribute('r','11');c.setAttribute('fill',col[t.out]);c.setAttribute('stroke','#140f1f');c.setAttribute('stroke-width','2.5');L.appendChild(c);
-      const x=document.createElementNS(NS,'text');x.setAttribute('x',t.x);x.setAttribute('y',t.y-13.5);x.setAttribute('text-anchor','middle');x.setAttribute('font-size','13');x.setAttribute('font-weight','900');x.setAttribute('fill',t.out==='rischio'?'#140f1f':'#fff');x.textContent=ic[t.out];L.appendChild(x);});
-    Z.forEach(z=>z.e.setAttribute('opacity','.3'));sfx(targets.some(t=>t.out==='cade')?'crack':'win');
-    const box=$('#preRep');if(box){const k=o=>targets.filter(t=>t.out===o);const risk=k('rischio').concat(k('cade'));
-      box.innerHTML=`<div class="panel qrep"><b class="disp" style="font-size:22px">Anteprima della notte ${C.L}</b>
-       <div class="grid3" style="margin-top:6px"><div class="stat ok"><b>${k('tiene').length}</b><small>tengono</small></div><div class="stat mid"><b>${k('rischio').length}</b><small>a rischio</small></div><div class="stat ko"><b>${k('cade').length}</b><small>cadrebbero</small></div></div>
-       ${risk.length?`<p style="font-weight:400;margin:8px 0 4px">Da rinforzare prima di combattere:</p><ul class="prl">${risk.slice(0,6).map(t=>`<li><span style="color:${col[t.out]}">●</span> ${esc(t.name)} · ${t.out==='cade'?'cadrebbe':'a rischio'}</li>`).join('')}</ul>`:'<p style="font-weight:400;margin-top:8px">Il quartiere è pronto: tutti gli edifici reggono.</p>'}
-       <div class="row" style="gap:8px;margin-top:8px"><button class="btn small ghost" data-pr="pot">🛠️ Rinforza</button><button class="btn small" data-pr="go">⚔️ Difendi ora</button></div></div>`;
-      box.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{if(b.dataset.pr==='pot'){G.sub='pot';renderHub();window.scrollTo(0,0);}else{window.scrollTo(0,0);const f=$('#fight');if(f)f.click();}});
-      box.scrollIntoView({behavior:'smooth',block:'nearest'});}},6800);}
-function addPreNight(){if((G.sub||'q')!=='q'||app.querySelector('#preBtn'))return;const hood=app.querySelector('.hood');if(!hood)return;const pan=hood.closest('.panel')||hood;
-  pan.insertAdjacentHTML('afterend',`<button class="btn wide alt" id="preBtn" style="margin-top:8px">🎬 Anteprima della notte ${G.level} sul quartiere</button><div id="preRep"></div>`);$('#preBtn').onclick=()=>{vibe();preNight();};}
 </script>

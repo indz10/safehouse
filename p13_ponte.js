@@ -9,7 +9,6 @@ function scudoSteps(){const r=S.result,m=Object.keys(S.rmiss||{}).length,g=(type
   return[['📷','Valuta la tua casa vera',!!r,'valuta'],['🛡️','Indice di casa sotto 3,5',!!r&&r.idx<=3.5,'valuta'],['🏰','Indice di casa sotto 2,5',!!r&&r.idx<=2.5,'valuta'],
    ['✅','Fai 2 missioni della casa vera',m>=2,'mondo'],['🧾','Un acquisto verificato da uno sponsor',!!g,'mondo']];}
 function scudoLv(){return scudoSteps().filter(s=>s[2]).length;}
-function scudoBonus(lv){return{bar:lv*8,pv:Math.floor(lv/2)};}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-scudo]');if(b){vibe();openScudo();}},true);
 /* pagina Come funziona */
 function renderGuida(){const lv=scudoLv();

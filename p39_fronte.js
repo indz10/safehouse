@@ -100,7 +100,6 @@ function ordaUnify(){if(!ORDA_ONE||S.tab!=='orda'||G.view!=='hub')return;const p
   const fr=frNode();const play=document.createElement('div');play.className='panel odplay';play.innerHTML='<b class="disp" style="font-size:22px">⚔️ Gioca la notte</b><p style="font-weight:400;font-size:12.5px;margin:2px 0 8px">Difendi tu il quartiere vero: salite, meteo e zombie sono quelli del fronte qui sopra.</p>';B.play.forEach(e=>play.appendChild(e));
   const order=[fr,...B.main.filter(e=>e.matches('.opan')),play,...B.main.filter(e=>!e.matches('.opan')),frFold('of-camp','🌙 Campagna, quartiere e bestiario',B.camp),frFold('of-tools','🛠️ Attrezzi, casa e proprietà',B.tools),frFold('of-friends','👥 Amici e sfide',B.friends)].filter(Boolean);
   order.forEach(e=>pg.appendChild(e));B.hide.forEach(e=>pg.appendChild(e));setTimeout(frMount,30);}
-const _splitHubFr=splitHub;splitHub=function(){_splitHubFr();try{ordaUnify();ssApply();}catch(e){console.warn('orda unica',e);}};
 /* i pulsanti che portano a un riquadro dentro una fisarmonica: la apro */
 (function(){const o=Element.prototype.scrollIntoView;Element.prototype.scrollIntoView=function(a){try{let d=this.closest&&this.closest('details');while(d){d.open=true;d=d.parentElement&&d.parentElement.closest('details');}}catch(e){}return o.call(this,a);};})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.tab==='orda'&&FR.lm)frLoop();});

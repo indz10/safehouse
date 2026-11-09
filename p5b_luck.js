@@ -16,7 +16,6 @@ function dailyBonus(){luckInit();const today=new Date().toDateString();if(G.last
   const team=G.friends?G.friends.filter(f=>f.on&&houseOfFriend(f.id)).length:0;G.spins+=1+team;
   if(G.famOut){const f=G.friends.find(x=>x.id===G.famOut);const c=15*famSize(G.level);G.coins+=c;setTimeout(()=>toast(`La tua famiglia ha difeso il quartiere di @${f?f.nick:'un amico'}: +${c} 🪙`),2600);}
   setTimeout(()=>toast(team?`Giro del giorno + ${team} bonus squadra: i tuoi amici-inquilini hanno giocato oggi 🎡`:'Giro della ruota del giorno 🎡'),400);}
-function jarAfterWave(win){luckInit();G.jar.mine+=win?3:1;(G.friends||[]).forEach(f=>{if(Math.random()<(f.on?.8:.35))G.jar.fr[f.id]=(G.jar.fr[f.id]||0)+1+Math.floor(Math.random()*3);});}
 function jarTotal(){return G.jar.mine+Object.values(G.jar.fr).reduce((a,b)=>a+b,0);}
 function luckHTML(){
   luckInit();const tot=jarTotal(),pct=Math.min(100,tot/G.jar.goal*100);const fr=G.friends||[];const absent=fr.filter(f=>!G.jar.fr[f.id]);
@@ -35,12 +34,6 @@ function luckHTML(){
      <div class="row wrap" style="gap:8px">${pct>=100?'<button class="btn small" id="jarDraw">Estrai il premio del gruppo</button>':''}${absent.length?`<button class="btn small ghost" id="jarPoke">Sprona chi manca</button>`:''}</div>
    </div>
    ${G.perk.house||G.perk.power?`<div class="notice" style="margin-top:8px">Pronti per la prossima ondata: ${G.perk.house?'🛡️ Casa blindata':''}${G.perk.house&&G.perk.power?' · ':''}${G.perk.power?'💪 Superpugno':''}</div>`:''}`;
-}
-function bindLuck(){
-  app.querySelectorAll('[data-luck]').forEach(b=>b.onclick=()=>b.dataset.luck==='wheel'?wheelSheet():scratchSheet());
-  const d=$('#jarDraw');if(d)d.onclick=()=>{const all=(G.friends||[]).every(f=>G.jar.fr[f.id]);const m=all?2:1;giveMattoni(20*m,'Barattolo');G.gems+=10*m;sfx('win');
-    toast(`Estrazione del quartiere: +${100*m} 🪙 e +${10*m} 💎 a te e a ogni amico${all?' (doppio: avete giocato tutti!)':''}`);G.jar={goal:Math.round(G.jar.goal*1.25),mine:0,fr:{},round:G.jar.round+1};renderHub();};
-  const p=$('#jarPoke');if(p)p.onclick=()=>{const ab=(G.friends||[]).filter(f=>!G.jar.fr[f.id]);toast(`Promemoria inviato a ${ab.map(f=>'@'+f.nick).join(', ')}: “Manca solo il tuo biglietto!”`);vibe();};
 }
 function wheelSheet(){
   const tw=WHEEL.reduce((a,s)=>a+s.w,0);const n=WHEEL.length,A=360/n;
