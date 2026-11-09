@@ -4268,7 +4268,7 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 /* bollettino del territorio nella pagina del gioco */
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611092354';
+const ZSH_BUILD='202611092335';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -7339,7 +7339,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611092354';
+const APPV='202611092335';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -7431,14 +7431,9 @@ function hpSwitcher(cur){const H=myHouses();if(H.length<2)return'';return`<div c
 const _closeSheetHP=closeSheet;closeSheet=function(){const r=_closeSheetHP.apply(this,arguments);try{document.getElementById('sheet').classList.remove('hfull');}catch(e){}return r;};
 /* tutte le strade portano alla pagina della casa */
 const _renderHomeHP=renderHome;renderHome=function(){_renderHomeHP();try{const b=app.querySelector('[data-hs=casa]');if(b)b.onclick=async()=>{let home=S.user&&myHouses().find(x=>x.home);
-    /* Fase 4a: appena aperta l'app l'accesso all'account e i dati delle case possono arrivare dopo qualche secondo:
-       li aspetto (al massimo 10 s) con "Carico la casa…", invece di aprire la vecchia "La mia casa" */
-    if(!home){openSheet('🏠 La mia casa','<p><span class="spin"></span> Carico la casa…</p>',()=>{});b.disabled=true;
-      let sess=false;try{sess=Object.keys(localStorage).some(k=>/^sb-.*-auth-token/.test(k));}catch(e){}
-      for(let i=0;i<40&&!S.user&&sess;i++)await new Promise(r=>setTimeout(r,250));
-      if(S.user){try{await wMine(true);}catch(e){}}
-      b.disabled=false;home=S.user&&myHouses().find(x=>x.home);}
-    if(home)houseSheet(home);else{closeSheet();go('casa');}};}catch(e){}};
+    /* Fase 4a: se i dati delle case non sono ancora arrivati li aspetto, invece di aprire la vecchia "La mia casa" */
+    if(!home&&S.user){b.disabled=true;try{await wMine(true);}catch(e){}b.disabled=false;home=myHouses().find(x=>x.home);}
+    if(home)houseSheet(home);else go('casa');};}catch(e){}};
 const _casaAllHP=casaAll;casaAll=async function(){await thrLoad(true);await _casaAllHP();try{app.querySelectorAll('.mycasa2').forEach(c=>{const h=myHouses().filter(x=>!x.home)[+c.dataset.mc];c.querySelectorAll('[data-mcs]').forEach(b=>b.onclick=()=>houseSheet(h));});}catch(e){}};
 </script>
 <script>
