@@ -186,43 +186,11 @@ const _zoneCardTR=zoneCard;
 zoneCard=function(z,key,me){let h=_zoneCardTR(z,key,me);if(z&&z.real&&z.real.ov)h=h.replace(/Servizi e superstiti simulati\. In produzione: servizi da Google Maps, superstiti dal database\./,'Servizi veri da OpenStreetMap entro 2,5 km. Superstiti della community ancora simulati.');if(z&&z.real&&me!==false)h+=terrSummary(z.real);return h;};
 
 /* ---------- il gioco sul terreno vero ---------- */
-function trReal(){try{const H=G.hoods&&G.hoods[G.curHood];if(H&&H.id!=='own')return null;}catch(e){}const z=S.zone;return z&&z.real&&z.real.grid?z.real:null;}
 function trElevAt(R,dx,dy){const c=(TR_N-1)/2;const fx=Math.max(0,Math.min(TR_N-1,c+dx/TR_STEP)),fy=Math.max(0,Math.min(TR_N-1,c-dy/TR_STEP));
   const x0=Math.floor(fx),y0=Math.floor(fy),x1=Math.min(TR_N-1,x0+1),y1=Math.min(TR_N-1,y0+1),ax=fx-x0,ay=fy-y0;const g=(r,q)=>R.grid[r*TR_N+q];
   return g(y0,x0)*(1-ax)*(1-ay)+g(y0,x1)*ax*(1-ay)+g(y1,x0)*(1-ax)*ay+g(y1,x1)*ax*ay;}
 function trElevLL(R,la,lo){const k=Math.cos(R.lat*Math.PI/180);return trElevAt(R,(lo-R.lon)*111320*k,(la-R.lat)*110540);}
-function trHomeXY(){try{return HOME_POS[HTYPES[G.type].zone];}catch(e){return[200,300];}}
-const _terrainAtTR=terrainAt,_hillsTR=hills;
-terrainAt=function(x,y){const R=trReal();if(!R)return _terrainAtTR(x,y);const hp=trHomeXY();const dx=(x-hp[0])*TR_U,dy=-(y-hp[1])*TR_U;const e=trElevAt(R,dx,dy);
-  let ring=0;for(let i=0;i<8;i++){const a=i*Math.PI/4;ring+=trElevAt(R,dx+Math.cos(a)*90,dy+Math.sin(a)*90);}ring/=8;const d=e-ring;
-  const sl=Math.hypot((trElevAt(R,dx+30,dy)-trElevAt(R,dx-30,dy))/60,(trElevAt(R,dx,dy+30)-trElevAt(R,dx,dy-30))/60)*100;const rel=e-R.mean;const wet=R.water&&R.water.d<400;const E=Math.round(e);
-  if(rel>=8&&d>=1.5)return{k:'altura',l:'⛰ Altura',m:.8,d:`${E} m s.l.m., più in alto della zona: zombie −20%, vedetta +1`};
-  if(rel<=-4&&wet)return{k:'bassa',l:'💧 Zona bassa',m:.95,d:`Vicino a ${R.water.n}: barricata −25%, rischio allagamento`};
-  if(d>=1&&sl>=3)return{k:'salita',l:'⬆ Salita',m:.8,d:`Pendenza vera ${Math.round(sl)}%: l’orda sale, zombie −20%`};
-  if(d<=-1&&sl>=3)return{k:'discesa',l:'⬇ Discesa',m:1.2,d:`Pendenza vera ${Math.round(sl)}%: l’orda scende, zombie +20%`};
-  return{k:'piano',l:'➖ Pianura',m:1,d:`${E} m s.l.m., terreno piano: nessun effetto`};};
-hills=function(){const R=trReal();if(!R)return _hillsTR();const hp=trHomeXY(),c=(TR_N-1)/2,out=[];const g=(r,q)=>R.grid[r*TR_N+q];
-  for(let r=1;r<TR_N-1;r++)for(let q=1;q<TR_N-1;q++){const v=g(r,q);if(v-R.mean<6)continue;let top=true;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)if((a||b)&&g(r+a,q+b)>v)top=false;
-    if(top){const x=hp[0]+(q-c)*TR_STEP/TR_U,y=hp[1]-(c-r)*TR_STEP/TR_U;if(x>-40&&x<440&&y>-120&&y<640)out.push({x,y,a:1,s:Math.min(130,60+(v-R.mean)*3),v});}}
-  return out.sort((a,b)=>b.v-a.v).slice(0,3);};
 /* bonus veri: servizi vicini e sponsor come presidi */
-function terrBonus(){const z=S.zone,R=z&&z.real;if(!R)return null;let hp=0,bar=0;const L=[];const nd=k=>{const f=R.fac.find(x=>x.k===k);return f?f:null;};
-  const add=(ok,ic,t,dh,db)=>{if(!ok)return;hp+=dh;bar+=db;L.push({ic,t,pos:dh+db>0});};
-  const o=nd('osp'),f=nd('farm'),cc=nd('cc'),vv=nd('vvf'),su=nd('super');
-  add(o&&o.d<=1500,'🏥',`${o&&o.name} a ${o&&dist(o.d)}: resistenza casa +10%`,.10,0);
-  add(f&&f.d<=800,'✚',`${f&&f.name} a ${f&&dist(f.d)}: resistenza +5%`,.05,0);
-  add(cc&&cc.d<=2000,'🚓',`${cc&&cc.name} a ${cc&&dist(cc.d)}: barricata +10%`,0,.10);
-  add(vv&&vv.d<=3000,'🚒',`Vigili del fuoco a ${vv&&dist(vv.d)}: barricata +5%`,0,.05);
-  add(!su||su.d>2000,'🥫',`Supermercato lontano${su?' ('+dist(su.d)+')':''}: resistenza −5%`,-.05,0);
-  add(R.pos==='altura','⛰','Casa in altura: barricata +10%',0,.10);
-  add(R.pos==='bassa','💧',`Zona bassa vicino a ${R.water?R.water.n:'acqua'}: barricata −10%`,0,-.10);
-  const sp=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&SPONSORS[k]).map(([k,g])=>({k,d:Math.round(trM(R.lat,R.lon,g.lat,g.lon))})).filter(x=>x.d<=3000).sort((a,b)=>a.d-b.d).slice(0,3);
-  sp.forEach(x=>add(true,'⭐',`Presidio sponsor ${SPONSORS[x.k].name} a ${dist(x.d)}: barricata +5%`,0,.05));
-  if(!sp.length){const nc=R.fac.filter(x=>x.cand&&x.d<=3000).length;if(nc)L.push({ic:'📌',t:`${nc} attività della zona possono diventare presidi sponsor (+5% barricata ciascuno)`,pos:true});}
-  return{hp:Math.max(-.1,Math.min(.25,hp)),bar:Math.max(-.15,Math.min(.3,bar)),lines:L};}
-const _hmTR=houseMaxHP,_bmTR=barrierMax;
-houseMaxHP=function(){const v=_hmTR();const b=terrBonus();return b?Math.round(v*(1+b.hp)):v;};
-barrierMax=function(){const v=_bmTR();const b=terrBonus();return b?Math.round(v*(1+b.bar)):v;};
 /* spedizioni verso posti veri: tempo = distanza + salita */
 const EXPS0=EXPS.map(x=>({...x}));
 const trDur=(d,cl)=>Math.round(Math.min(240,20+d/30+Math.max(0,cl||0)*1.5));
@@ -245,20 +213,6 @@ function terrExps(){const R=S.zone&&S.zone.real;const list=[];
   EXPS.splice(0,EXPS.length,...list);}
 const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e){console.warn('spedizioni',e);}};
 /* bollettino del territorio nella pagina del gioco */
-function terrPanelHTML(){const R=S.zone&&S.zone.real;if(!R)return'';const b=terrBonus();const ht=terrainAt(...trHomeXY());
-  const pct=v=>(v>0?'+':'')+Math.round(v*100)+'%';
-  return`<div class="panel terrp"><div class="row spread"><b class="disp" style="font-size:22px">🗺️ Il territorio decide la notte</b><button class="btn ghost small" data-terrmap>🗺️ Mappa</button></div>
-   <p style="font-weight:400;font-size:13px;margin:4px 0 8px">Casa tua: <b>${ht.l}</b> · ${esc(ht.d)}</p>
-   <div class="terrb"><span class="${b.hp>=0?'ok':'ko'}">🏠 Resistenza ${pct(b.hp)}</span><span class="${b.bar>=0?'ok':'ko'}">🪵 Barricata ${pct(b.bar)}</span></div>
-   <ul class="terrl">${b.lines.map(l=>`<li class="${l.pos?'ok':'ko'}"><span>${l.ic}</span>${esc(l.t)}</li>`).join('')||'<li>Nessun servizio importante vicino: la notte sarà dura.</li>'}</ul>
-   <small class="muted">Le spedizioni del giorno vanno nei posti veri della tua zona: più sono lontani e in salita, più tempo servono.</small></div>`;}
-const _renderHubTR=renderHub;
-renderHub=function(){if(S.zone&&S.zone.real&&!G.rhAuto){G.rhAuto=1;G.realHood=true;}return _renderHubTR.apply(this,arguments);};
-const _splitHubTR=splitHub;
-splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('.terrp'))return;const h=terrPanelHTML();if(!h)return;
-  const pg=app.querySelector('.page');const f=app.querySelector('#fight');const host=f&&[...pg.children].find(e=>e===f||e.contains(f));
-  const anchor=app.querySelector('.camp')||host;if(!anchor)return;anchor.insertAdjacentHTML('beforebegin',h);const p=app.querySelector('.terrp');p.dataset.grp='q';
-  const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
 const ZSH_BUILD='__BUILD__';
@@ -366,9 +320,6 @@ function trSetupVera(){try{const R=S.zone&&S.zone.real,H=R&&R.house;if(!H)return
   const v={...B,base,name:'La tua casa vera',zone,zl:(KIND_N[H.kind]||'Casa')+' · dalla mappa',hp:Math.round(B.hp+Math.min(4,H.levels-1)*6),
     pitch:`${KIND_N[H.kind]||'Casa'}, ${H.levels} ${H.levels===1?'piano':'piani'}, ${H.len}×${H.wid} m${H.att?', attaccata ai vicini':''}: è casa tua, nel tuo quartiere vero.`};
   if(!HTYPES.vera){const rest={...HTYPES};Object.keys(HTYPES).forEach(k=>delete HTYPES[k]);HTYPES.vera=v;Object.assign(HTYPES,rest);if(!NEWTYPES.includes('vera'))NEWTYPES.push('vera');}else Object.assign(HTYPES.vera,v);}catch(e){console.warn('casa vera',e);}}
-const _custHouseV=custHouseSVG;custHouseSVG=function(kind,c,w,h){if(kind==='vera')kind=(HTYPES.vera&&HTYPES.vera.base)||'villa';return _custHouseV(kind,c,w,h);};
-const _renderPickV=renderPick;renderPick=function(){trSetupVera();return _renderPickV.apply(this,arguments);};
-const _renderHubV=renderHub;renderHub=function(){trSetupVera();if(G.type==='vera'&&!HTYPES.vera)G.type='villa';return _renderHubV.apply(this,arguments);};
 setTimeout(trSetupVera,0);
 </script>
 <script>
@@ -436,7 +387,6 @@ const _lmPoiO=lmPoi;lmPoi=function(name,cat,d,ll,pub){_lmPoiO(name,cat,d,ll,pub)
    - servizi veri, posti sponsor e sponsor nelle posizioni vere
    ========================================================= */
 const HQ={s:.62,map:null};
-function hqData(){const a=S.zone&&S.zone.address;if(!a||!G.realHood)return null;const H=G.hoods&&G.hoods[G.curHood];if(H&&H.id!=='own')return null;const m=RM.cache[a];return m&&m.els&&m.els.length?m:null;}
 function hqMy(){return G.type==='camper'?[250,600]:HOME_POS[HTYPES[G.type].zone];}
 function hqP(m,la,lo){const k=Math.cos(m.lat*Math.PI/180),[hx,hy]=hqMy();return[hx+(lo-m.lon)*111320*k*HQ.s,hy-(la-m.lat)*110540*HQ.s];}
 const hqIn=([x,y])=>x>12&&x<388&&y>-104&&y<604;
@@ -510,17 +460,7 @@ function hqBack(m){const pr=(la,lo)=>hqP(m,la,lo).map(v=>v.toFixed(1)).join(' ')
   return`<rect y="-120" width="400" height="800" fill="#efe4c8"/><rect y="-120" width="400" height="800" fill="url(#hthd)" opacity=".7"/>${green}${water}${r0}${bld}${r1}${lab}${pins}${arrows}
    <rect y="620" width="400" height="60" fill="#3b3550"/>${typeof mBanner==='function'?mBanner(200,640,'FUORI PAESE: QUI SI RADUNA L’ORDA',0,9):''}
    <text x="392" y="612" text-anchor="end" font-size="7.5" fill="#5a5470">© OpenStreetMap</text>`;}
-const _hoodSVGQ=hoodSVG;
-hoodSVG=function(){const m=hqData();if(!m){hqApply(false);return _hoodSVGQ();}
-  try{hqPlan(m);hqApply(true);let s=_hoodSVGQ();const my=hqMy();
-    const i0=s.indexOf('<rect y="-120" width="400"');const i1=s.indexOf(`<g transform="translate(${my[0]} ${my[1]})"`);if(i0<0||i1<0)return s;
-    let tail=s.slice(i1).replace(/<g data-rs[vp]="[^"]*"[^>]*>[\s\S]*?<\/g>/g,'');
-    return s.slice(0,i0)+hqBack(m)+tail;}catch(e){console.warn('quartiere vero',e);hqApply(false);return _hoodSVGQ();}};
 /* se i dati della zona non sono ancora in memoria, li carico e ridisegno */
-const _renderHubQ=renderHub;renderHub=function(){const r=_renderHubQ.apply(this,arguments);try{const a=S.zone&&S.zone.address;
-  if(G.realHood&&a&&!RM.cache[a]&&navigator.onLine&&!HQ.loading){HQ.loading=1;rmFetch(a).then(()=>{HQ.loading=0;HQ.map=null;if(S.tab==='orda'&&G.view==='hub'&&(G.sub||'q')==='q')renderHub();}).catch(()=>{HQ.loading=0;});}
-  const svg=app.querySelector('.hood svg');if(svg&&!svg._rf){svg._rf=1;svg.addEventListener('click',e=>{const f=e.target.closest&&e.target.closest('[data-rfac]');if(!f)return;const x=S.zone.real.fac[+f.dataset.rfac];if(!x)return;
-    const d=Math.round(trM(S.zone.real.lat,S.zone.real.lon,x.lat,x.lon));if(x.cand)bizSheet({i:'f'+f.dataset.rfac,ic:'🔧',name:x.name,cat:'Attività per la casa',d,tel:x.tel,web:x.web,ll:[x.lat,x.lon],cand:true},S.zone);else lmPoi(x.name,TR_NAME[x.k]||'Servizio',d,[x.lat,x.lon],['osp','farm','cc','vvf','racc'].includes(x.k));});}}catch(e){}return r;};
 </script>
 <script>
 /* =========================================================
@@ -606,9 +546,6 @@ const ZW={t:0,d:null};
 function moonInfo(d=new Date()){const age=((d.getTime()-Date.UTC(2000,0,6,18,14))/864e5)%29.530588;const a=age<0?age+29.530588:age;const ill=(1-Math.cos(2*Math.PI*a/29.530588))/2;
   const n=a<1.8||a>27.7?'luna nuova':a<6.4?'luna crescente':a<8.4?'primo quarto':a<13.8?'gibbosa crescente':a<15.8?'luna piena':a<21?'gibbosa calante':a<23?'ultimo quarto':'luna calante';
   const ic=a<1.8||a>27.7?'🌑':a<6.4?'🌒':a<8.4?'🌓':a<13.8?'🌔':a<15.8?'🌕':a<21?'🌖':a<23?'🌗':'🌘';return{age:a,ill,n,ic,full:a>=13.8&&a<15.8};}
-async function zWeather(){const R=S.zone&&S.zone.real;if(!R||!navigator.onLine)return null;if(ZW.d&&Date.now()-ZW.t<20*60*1000&&ZW.k===R.lat+','+R.lon)return ZW.d;
-  try{const d=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${R.lat.toFixed(3)}&longitude=${R.lon.toFixed(3)}&current=weather_code,precipitation,wind_speed_10m,wind_gusts_10m,visibility,temperature_2m,is_day&timezone=auto`,{signal:trSig(8000)}).then(x=>x.json());
-    if(!d||!d.current)return null;ZW.d=d.current;ZW.t=Date.now();ZW.k=R.lat+','+R.lon;return ZW.d;}catch(e){return null;}}
 function wName(c){return c===0?'sereno':c<=2?'poco nuvoloso':c===3?'nuvoloso':c===45||c===48?'nebbia':c>=51&&c<=57?'pioviggine':c>=61&&c<=67?'pioggia':c>=71&&c<=77?'neve':c>=80&&c<=82?'rovesci':c>=85&&c<=86?'neve':c>=95?'temporale':'variabile';}
 function wIcon(c){return c===0?'☀️':c<=2?'⛅':c===3?'☁️':c===45||c===48?'🌫️':c>=51&&c<=67?'🌧️':c>=71&&c<=77||c===85||c===86?'❄️':c>=80&&c<=82?'🌦️':c>=95?'⛈️':'🌥️';}
 function realNightCond(){const w=ZW.d;if(!w)return undefined;const m=moonInfo();const c=w.weather_code;
@@ -617,15 +554,8 @@ function realNightCond(){const w=ZW.d;if(!w)return undefined;const m=moonInfo();
   if((c>=51&&c<=67)||(c>=80&&c<=82)||(w.precipitation||0)>=.2)return{ev:'pioggia',why:`🌧️ Piove davvero (${String(w.precipitation||0).replace('.',',')} mm): zombie più lenti${S.zone.real.pos==='bassa'?', ma la tua zona bassa si allaga':''}`};
   if(m.full)return{ev:'luna',why:'🌕 Luna piena vera: orda più veloce, ma monete doppie'};
   return{ev:null,why:`${wIcon(c)} Notte tranquilla: ${wName(c)}, ${Math.round(w.temperature_2m)}°C, ${m.ic} ${m.n}`};}
-function realNightEv(L){if(L<2)return null;const r=realNightCond();return r===undefined?undefined:r.ev;}
 /* zona bassa + pioggia vera: la barricata soffre di più */
-const _bmW=barrierMax;barrierMax=function(){const v=_bmW();const r=realNightCond();return r&&r.ev==='pioggia'&&S.zone&&S.zone.real&&S.zone.real.pos==='bassa'?Math.round(v*.9):v;};
 /* nel pannello "Il territorio decide la notte" */
-const _terrPanelW=terrPanelHTML;terrPanelHTML=function(){const h=_terrPanelW();if(!h)return h;const r=realNightCond();const m=moonInfo();
-  const line=r?`<div class="wnight"><b>🌙 Stanotte, meteo vero</b><span>${esc(r.why)}</span>${r.ev?`<em>Evento della notte: ${{pioggia:'PIOGGIA',nebbia:'NEBBIA',blackout:'BLACKOUT',luna:'LUNA PIENA'}[r.ev]}</em>`:''}</div>`
-    :`<div class="wnight"><b>🌙 Stanotte</b><span>${m.ic} ${m.n} · meteo in arrivo…</span></div>`;
-  return h.replace('<div class="terrb">',line+'<div class="terrb">');};
-const _renderHubW=renderHub;renderHub=function(){const r=_renderHubW.apply(this,arguments);if(S.zone&&S.zone.real&&!ZW.d&&!ZW.busy){ZW.busy=1;zWeather().then(d=>{ZW.busy=0;if(d&&S.tab==='orda'&&G.view==='hub'&&(G.sub||'q')==='q'){const p=app.querySelector('.terrp');if(p){const n=document.createElement('div');n.innerHTML=terrPanelHTML();const np=n.firstElementChild;np.dataset.grp='q';p.replaceWith(np);const bm=np.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}}});}return r;};
 </script>
 <script>
 /* =========================================================
@@ -723,7 +653,6 @@ function tmBind(){const p=app.querySelector('.tmp');if(!p)return;const T=G.tm;
     else if(m.go==='sp'){sponsorSheet(m.id,S.zone);}
     else if(m.go==='poi'){lmPoi(m.id,TR_NAME[m.kk]||'Servizio',m.d,m.ll,true);renderHub();}
     else if(m.go==='biz'){bizSheet({i:'tm',ic:'🔧',name:m.id,cat:'Attività per la casa',d:m.d,ll:m.ll,cand:true,tel:m.f&&m.f.tel,web:m.f&&m.f.web},S.zone);}});}
-const _splitHubTM=splitHub;splitHub=function(){_splitHubTM();try{if((G.sub||'q')!=='q'||app.querySelector('.tmp'))return;const h=tmHTML();if(!h)return;const a=app.querySelector('.terrp')||app.querySelector('.camp');if(!a)return;a.insertAdjacentHTML('beforebegin',h);const p=app.querySelector('.tmp');p.dataset.grp='q';tmBind();}catch(e){console.warn('missioni',e);}};
 </script>
 <script>
 /* =========================================================
@@ -744,18 +673,13 @@ function terrHab(){const R=S.zone&&S.zone.real;if(!R)return null;
   if(R.water&&R.water.d<500)return{k:'fiume',ic:'🌊',n:'Piena',cd:16,why:`${R.water.n} a ${R.water.d} m: la piena travolge la corsia bassa`};
   if(R.pos==='altura'||R.pos==='pendio')return{k:'collina',ic:'⛰',n:'Collina',cd:15,why:'Casa in alto: sassi che rotolano sull’orda'};
   return null;}
-const _habOfT=habOf;habOf=function(site){if(site&&site.home){const t=terrHab();if(t)return t;}return _habOfT(site);};
 const ZVAR={annegato:['💧','Annegato: sale dal fiume, più resistente'],bracciante:['🌾','Bracciante: lento ma duro'],scalatore:['🧗','Scalatore: le salite non lo rallentano'],pendolare:['🚆','Pendolare: arriva di corsa']};
 window.zTerrZ=(z,s)=>{const R=S.zone&&S.zone.real;if(!R||!z||z.ty==='boss'||z.ty==='oro')return;const H=G.hoods&&G.hoods[G.curHood];if(H&&H.id!=='own')return;const r=Math.random();
   if(R.water&&R.water.d<500&&z.lane===2&&r<.4){z.vic='💧';z.hp*=1.35;z.max*=1.35;z.spMul=1.12;}
   else if(R.type==='campagna'&&z.ty==='walker'&&r<.25){z.vic='🌾';z.hp*=1.6;z.max*=1.6;z.spMul=.85;}
   else if((R.pos==='pendio'||R.pos==='altura'||(s&&s.slope&&s.slope<1))&&r<.22){z.vic='🧗';z.noSlope=1;}
   else if(R.type==='centro'&&z.ty==='runner'&&r<.35){z.vic='🚆';z.spMul=1.18;}};
-function terrZList(){const R=S.zone&&S.zone.real;if(!R)return[];const L=[];if(R.water&&R.water.d<500)L.push('annegato');if(R.type==='campagna')L.push('bracciante');if(R.pos==='pendio'||R.pos==='altura')L.push('scalatore');if(R.type==='centro')L.push('pendolare');return L;}
 /* nel pannello del territorio: abilità e zombie della zona */
-const _terrPanelH=terrPanelHTML;terrPanelHTML=function(){const h=_terrPanelH();if(!h)return h;const t=terrHab();const zl=terrZList();
-  const add=`<div class="thab">${t?`<div><b>${t.ic} Abilità della tua casa: ${esc(t.n)}</b><span>${esc(t.why)}</span></div>`:''}${zl.length?`<div><b>🧟 Zombie della tua zona</b>${zl.map(k=>`<span>${ZVAR[k][0]} ${esc(ZVAR[k][1])}</span>`).join('')}</div>`:''}</div>`;
-  return h.replace('<ul class="terrl">',add+'<ul class="terrl">');};
 </script>
 <script>
 /* =========================================================
@@ -982,7 +906,6 @@ openRules=function(start){let i=Math.max(0,Math.min(HOW.length-1,start||0));
 /* anche dalla pagina "Come funziona" */
 window.rulesSheet=()=>openRules(0);
 /* la prima volta nel gioco parte da sola */
-const _renderHubHow=renderHub;renderHub=function(){const r=_renderHubHow.apply(this,arguments);try{if(G.type&&!G.howSeen&&!document.querySelector('#sheet.open')&&(G.level||1)<=2){G.howSeen=1;setTimeout(()=>{if(!document.querySelector('#sheet.open'))openRules(0);},700);}}catch(e){}return r;};
 </script>
 <script>
 /* =========================================================
@@ -1023,7 +946,7 @@ function manualHTML(){const sec=(id,t,body,open)=>`<details class="man" ${open?'
   const S17=sec('classico','🕹️ Stile classico',`<p>Se lo scegli nella campagna: tocchi gli zombie per colpirli (testa = critico) e trascini il dito per colpirne tanti; il tocco consuma energia.</p>`);
   return`<div class="manual"><p class="muted" style="font-size:13px;margin:0 0 8px">Tocca un capitolo per aprirlo.</p>${[S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17].join('')}
     <div class="row" style="gap:8px;margin-top:12px;flex-wrap:wrap"><button class="btn small" data-howagain>📖 Rivedi le 7 tavole</button><button class="btn small ghost" data-tutagain>Rifai il tutorial alla prossima battaglia</button></div></div>`;}
-rulesHTML=manualHTML;
+var rulesHTML=manualHTML;  /* p5k_guida tolto (Fase 3b-2): le regole sono le istruzioni */
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-howagain]');if(!b)return;openRules(0);});
 </script>
 <script>

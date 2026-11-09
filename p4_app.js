@@ -346,22 +346,6 @@ function siege(){const sTo=(f,ms)=>setTimeout(()=>{if(!document.getElementById('
 }
 
 /* ---------------- MAPPA ---------------- */
-function renderZombieMap(){
-  const v=S.vacation;
-  app.innerHTML=`
-   <div class="maphero">${skyline()}<div class="mh-t"><h2>Mappa delle zone</h2><div class="caption">Servizi, superstiti e livello di ogni quartiere</div></div></div>
-   ${zoneSeg()}
-   <div class="page">
-   ${S.zone?`<h3 style="margin:4px 0 8px">La tua zona</h3>${zoneCard(S.zone,'own')}`:`<div class="panel moon"><p>Valuta la tua casa per vedere qui il tuo quartiere, i servizi e i superstiti vicini.</p><button class="btn small" style="margin-top:8px" data-go="valuta">Inizia</button></div>`}
-   <div class="panel night"><h3 style="color:var(--moon)">Modalità vacanza</h3><p style="font-weight:400;margin:6px 0 10px;color:#e5def5">Vai via qualche giorno? Guarda servizi, superstiti e livello della zona dove dormirai.</p>
-     <input id="vac" class="field" placeholder="Es. Riva del Garda" value="${esc(v?v.address:'')}" style="color:var(--ink)">
-     <button class="btn alt" id="vacBtn" style="margin-top:10px">Controlla la zona</button></div>
-   <div id="vres">${v?`<div class="panel" style="padding:0;overflow:hidden">${postcard(v.address)}</div>${zoneCard(v,'vac',false)}`:''}</div></div>`;
-  bindGo();bindZoneSeg();
-  if(S.zone)bindMap('own',S.zone);
-  if(v)bindMap('vac',v,false);
-  $('#vacBtn').onclick=async()=>{const t=$('#vac').value.trim();if(!t){toast('Scrivi una località');return;}$('#vacBtn').innerHTML='<span class="spin"></span>';S.vacation=await analyzeZone(t);renderMappa();setTimeout(()=>$('#vres').scrollIntoView({behavior:'smooth'}),50);};
-}
 
 /* ---------------- RADIO IA ---------------- */
 function renderRadio(){
@@ -387,6 +371,5 @@ async function sendChat(fromElsewhere){
   S.chat=S.chat.filter(m=>!m.typing);S.chat.push({r:'bot',t:reply});
   if(S.tab==='radio')renderRadio();
 }
-
 
 </script>

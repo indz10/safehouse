@@ -217,7 +217,6 @@ function houseScene(a,opt={}){
   </svg>`;
 }
 
-
 /* ---------- arredi per mappe illustrate ---------- */
 function mBanner(x,y,t,rot=0,fs=9){const w=t.length*fs*.56+12;return`<g transform="translate(${x} ${y}) rotate(${rot})"><path d="M${-w/2-6} -8 H${w/2+6} L${w/2} 0 L${w/2+6} 8 H${-w/2-6} L${-w/2} 0Z" fill="#f3e9d2" stroke="${INK}" stroke-width="1.6"/><text y="3.5" text-anchor="middle" font-family="Bangers,Impact" font-size="${fs}" letter-spacing=".5" fill="${INK}">${t}</text></g>`;}
 function mFrame(W,H,title){return`<g pointer-events="none"><rect x="3" y="3" width="${W-6}" height="${H-6}" fill="none" stroke="${INK}" stroke-width="6"/><rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${INK}" stroke-width="1.5" stroke-dasharray="4 4"/>
@@ -323,17 +322,6 @@ function skyline(){
    ${b}<rect y="168" width="400" height="22" fill="${INK}"/>
    ${zombie(40,186,.38)}${zombie(360,186,.36,true)}</svg>`;
 }
-function postcard(place){
-  const p=esc(place).slice(0,26).toUpperCase();
-  return`<svg viewBox="0 0 400 170" role="img" aria-label="Cartolina da ${esc(place)}">${defs('pc')}
-   <rect width="400" height="170" fill="#f7d64a"/><rect width="400" height="170" fill="url(#htpc)"/>
-   <circle cx="320" cy="58" r="30" fill="#f08a4b" stroke="${INK}" stroke-width="3"/>
-   <path d="M0 120 L70 50 L120 96 L170 40 L250 120Z" fill="#6b8f4e" stroke="${INK}" stroke-width="3"/><path d="M150 58 L170 40 L188 58 L176 54 L170 60 L162 54Z" fill="#fff" stroke="${INK}" stroke-width="2"/>
-   <rect y="120" width="400" height="50" fill="#6fa8dc" stroke="${INK}" stroke-width="3"/><path d="M20 140 q10 -6 20 0 t20 0 M120 150 q10 -6 20 0 t20 0 M260 138 q10 -6 20 0 t20 0" stroke="#fff" stroke-width="2.5" fill="none"/>
-   ${zombie(370,150,.32,true)}
-   <rect x="10" y="10" width="190" height="30" fill="#fff" stroke="${INK}" stroke-width="3"/><text x="20" y="32" font-family="Bangers,Impact" font-size="20" fill="${INK}">SALUTI DA…</text>
-   <text x="20" y="${p.length>16?84:92}" font-family="Bangers,Impact" font-size="${p.length>16?30:40}" fill="#fff" stroke="${INK}" stroke-width="2" textLength="${Math.min(360,p.length*20)}" lengthAdjust="spacingAndGlyphs">${p}</text></svg>`;
-}
 
 /* ---------- tavole della valutazione ---------- */
 function operatore(x,y,s){return`<g transform="translate(${x} ${y}) scale(${s})" stroke="${INK}" stroke-width="3" stroke-linejoin="round">
@@ -377,7 +365,6 @@ function chapterIcon(ch){
    mob:`<path d="M6 46 V34 L14 32 L22 18 H44 L52 32 L58 34 V46Z" fill="#2f7fb8"/><circle cx="18" cy="48" r="7" fill="#2b2240"/><circle cx="46" cy="48" r="7" fill="#2b2240"/>`}[ch];
   return`<svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true"><rect width="64" height="64" fill="#f7d64a" stroke="${INK}" stroke-width="4"/><g stroke="${INK}" stroke-width="3" stroke-linejoin="round">${g}</g></svg>`;
 }
-
 
 /* ---------- logo e icona dell'app ---------- */
 function logoSVG(size=512,bg=true){

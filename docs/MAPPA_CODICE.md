@@ -3,6 +3,8 @@
 Rapporto senza modifiche all'app. Fotografia della versione **zsh-202611091545** (9/11/2026).
 Serve a preparare la Fase 3 (via il vecchio gioco) e la Fase 4 (una funzione per ogni cosa).
 
+> **Aggiornamento dopo la Fase 3 (9/11):** tolti i moduli `p3a`, `p3b`, `p3c`, `p11_guida`, `p5e_sfide`, `p5f_arena`, `p5g_terreno`, `p5h_presidi`, `p5i_hoods`, `p5j_campagna`, `p5k_guida`; `p5_game` ridotto da 145 a 15 KB; nuova scheda Orda in `p63_orda.js`; pezzi salvati in `p5z_tenuti.js`. Le catene `splitHub` e `renderHub` qui sotto non esistono più. App pubblicata: da 1.336 a 1.037 KB. Le tabelle sotto descrivono ancora la situazione **prima** della Fase 3.
+
 ## Come è stata fatta
 - **Lettura del codice** (strumento `acorn`): per ogni modulo le funzioni definite, quelle che **avvolge** (`const _x=f; f=function(){… _x() …}`) e quelle che **sostituisce** del tutto (`f=function(){…}` senza richiamare la vecchia), e in quali altri moduli ogni nome compare.
 - **Giro dell'app con la copertura di Chromium**: app aperta col server finto (`sb_mock.js`) su iPhone 13, visitate le 4 schede e le sottoschede, premuti **207 pulsanti** (anche dentro le finestre aperte) e tutte le voci del menu ☰. Per ogni funzione: eseguita sì/no.

@@ -26,6 +26,4 @@ function hexInfo(z,i){const c=commCells(z)[i];if(c.n<K_MIN)return`<b>Area con me
 function wireCommunity(root,z,info){if(!root||root.__comm)return;root.__comm=1;
   root.addEventListener('click',e=>{const h=e.target.closest('[data-hex]'),p=e.target.closest('[data-spn]');
     if(p){sponsorSheet(p.dataset.spn,z);return;}if(h&&info){info.innerHTML=hexInfo(z,+h.dataset.hex);}});}
-function commCard(z){const c=commSummary(z);return`<div class="panel commc"><div class="row spread"><b>👥 Community in zona</b><small class="muted">aree con almeno ${K_MIN} utenti</small></div>
-  <div class="row" style="gap:8px;margin-top:8px"><div class="stat"><b>${c.tot}</b><small>superstiti</small></div><div class="stat"><b>${c.cells}</b><small>aree attive</small></div><div class="stat"><b>${c.avg?fmtI(c.avg):'–'}</b><small>indice medio</small></div></div></div>`;}
 </script>

@@ -83,7 +83,6 @@ function musicTick0(){const c=AUD.c;if(!c)return;
   while(AUD.next<c.currentTime+.15){const t=AUD.next,s=AUD.step;
     if(AUD.mode==='app')appStep(t,s,sd);else if(AUD.mode==='game')gameStep(t,s,sd);
     AUD.next+=sd;AUD.step++;}}
-function setMusicIntensity(v){AUD.int=v;}
 
 function musicTick(){try{musicTick0();}catch(e){clearInterval(AUD.timer);AUD.timer=null;}}
 function setMusic(mode,level){try{setMusic0(mode,level);}catch(e){}}

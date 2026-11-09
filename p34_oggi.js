@@ -20,13 +20,7 @@ function oggiAt(d,when){if(!d||!d.hourly)return null;const p=n=>String(n).padSta
   else if(m.full&&when.getHours()>=18){ev='luna';eff='🌕 Luna piena: orda più veloce, ma monete doppie.';}
   return{c,ic:wIcon(c),name:wName(c),t:Math.round(t),pr,ev,eff,moon:m};}
 function oggiNext(){const s=OR&&OR.s;return s&&s.next_at?new Date(s.next_at):vNextSlot();}
-function oggiCardHTML(){const n=new Date();const d=OGGI.d;const nx=oggiNext();const a=oggiAt(d,nx);const cur=d&&d.current;
-  return`<button class="panel ocal" data-ocal><div class="ocd"><small>${MMs[n.getMonth()]}</small><b>${n.getDate()}</b><i>${GG[n.getDay()].slice(0,3)}</i></div>
-   <div class="oci"><b class="occ" data-clock>${n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</b>
-    <span>${cur?`${wIcon(cur.weather_code)} ${Math.round(cur.temperature_2m)}°C ora · `:''}🧟 orda alle ${String(nx.getHours()).padStart(2,'0')}:00${a?` · ${a.ic} ${a.t}°C`:''}</span>
-    <em>${a?esc(a.eff):'Tocca per il meteo e il calendario'}</em></div><i class="ocgo">›</i></button>`;}
 try{const _ssOfOg=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.ocal'))return'oggi';return _ssOfOg(el);};}catch(e){}
-const _splitHubOg=splitHub;splitHub=function(){_splitHubOg();oggiPut();try{ssApply();}catch(e){}if(!OGGI.d||Date.now()-OGGI.t>20*60*1000)oggiMeteo().then(()=>oggiPut());};
 setInterval(()=>{const n=new Date();document.querySelectorAll('[data-clock]').forEach(e=>{e.textContent=n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});});},1000);
 /* il dettaglio: meteo delle prossime orde + calendario */
 async function oggiSheet(){openSheet('📅 Oggi','<p><span class="spin"></span> Leggo il meteo vero della tua zona…</p>',()=>{});const d=await oggiMeteo();const n=new Date();

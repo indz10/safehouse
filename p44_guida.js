@@ -66,7 +66,6 @@ function coAll(){const L=coSteps();openSheet('🧭 I tuoi passi',`<p style="font
 function coPut(){try{if(S.tab==='home'){const h=app.querySelector('.hsbtns');if(h){const o=h.querySelector('.coach');const n=document.createElement('div');n.innerHTML=coHTML(true);const el=n.firstElementChild;if(o)o.replaceWith(el);else h.prepend(el);coBind(el);}}
   if(S.tab==='orda'){const pg=app.querySelector('.page');if(pg){const o=pg.querySelector(':scope > .coach');const n=document.createElement('div');n.innerHTML=coHTML(false);const el=n.firstElementChild;if(o)o.replaceWith(el);else pg.prepend(el);coBind(el);}}}catch(e){}}
 const _renderHomeCo=renderHome;renderHome=function(){_renderHomeCo();coPut();};
-const _splitHubCo=splitHub;splitHub=function(){_splitHubCo();coPut();};
 /* aggiornamenti */
 const _wMineCo=wMine;wMine=async function(){const r=await _wMineCo.apply(this,arguments);try{rsSync();await defLoad(true);coPut();if(S.tab==='orda'&&FR.node)frHeader();}catch(e){}return r;};
 const _orLoadCo=orLoad;orLoad=async function(){const r=await _orLoadCo.apply(this,arguments);try{await defLoad(true);coPut();}catch(e){}return r;};

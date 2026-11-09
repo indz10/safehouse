@@ -60,10 +60,6 @@ function orBindBanner(){const b=document.querySelector('.obanner');if(!b)return;
 function orPutBanner(){try{if(!S.user||!OR.s||app.querySelector('.obanner')||!['mappa','valuta'].includes(S.tab)||(S.tab==='orda'&&G.view==='battle'))return;const h=document.createElement('div');h.innerHTML=orBannerHTML();app.insertBefore(h.firstElementChild,app.firstChild);orBindBanner();}catch(e){}}
 const _goOR=go;go=function(tab){_goOR(tab);orPutBanner();};
 /* ---- nel gioco: l'orda del mondo in cima, le notti a mano ("Difendi tu") sotto ---- */
-const _splitHubOR=splitHub;splitHub=function(){_splitHubOR();try{orPutBanner();if((G.sub||'q')!=='q'||app.querySelector('.opan'))return;const pg=app.querySelector('.page');if(!pg)return;
-  const first=[...pg.children].find(e=>!e.hidden&&e.dataset.grp==='q')||pg.firstElementChild;if(!first)return;
-  first.insertAdjacentHTML('beforebegin',orPanelHTML());const p=app.querySelector('.opan');p.dataset.grp='q';orBind(pg);
-  const f=app.querySelector('#fight');if(f&&!app.querySelector('.odyou')){const host=[...pg.children].find(e=>e===f||e.contains(f));if(host)host.insertAdjacentHTML('beforebegin','<div class="odyou" data-grp="q"><b class="disp">⚔️ Difendi tu</b><span>Vuoi giocare di più? Difendi la casa tu, con carte, bersaglio e abilità. Premi in più a ogni notte.</span></div>');}}catch(e){console.warn('orda',e);}};
 /* ---- l'assalto sulla mappa vera (visto da tutti) ---- */
 async function orView(lm){if(!lm||!lm.map||typeof SB==='undefined'||!SB)return[];const b=lm.map.getBounds();
   try{const{data}=await SB.rpc('world_raid_view',{p_minlat:b.getSouth(),p_minlon:b.getWest(),p_maxlat:b.getNorth(),p_maxlon:b.getEast()});return data||[];}catch(e){return[];}}
@@ -107,7 +103,6 @@ function orOffer(){if(!S.user||typeof G==='undefined'||G.tourDone||document.quer
 const _renderMenuOR=renderMenu;renderMenu=function(){_renderMenuOR();try{const ref=document.querySelector('.dr-user');if(!ref||document.querySelector('[data-mtour]'))return;
   ref.insertAdjacentHTML('afterend','<button class="mi" data-mtour="1"><span>🧭</span>Giro guidato</button>');document.querySelector('[data-mtour]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}orTour(0);};}catch(e){}};
 /* aggiornamenti */
-const _renderHubOR=renderHub;renderHub=function(){const r=_renderHubOR.apply(this,arguments);orLoad();if(typeof W!=='undefined'&&W.on&&!G.tourDone&&G.howSeen)setTimeout(orOffer,1500);return r;};
 setInterval(()=>{if(!document.hidden&&S.user){orLoad(Date.now()-OR.t>60000);document.querySelectorAll('.onext small').forEach(x=>{if(OR.s)x.textContent='tra '+orLeft(OR.s.next_at);});}},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user)orLoad(true);});
 setTimeout(()=>{if(S.user)orLoad(true);},3500);

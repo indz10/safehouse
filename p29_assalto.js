@@ -42,12 +42,6 @@ function regText(lm,t){const b=document.querySelector('.regbar');if(!b)return;b.
 /* uscendo dalla mappa la regia si spegne */
 const _goReg=go;go=function(t){if(t!=='mappa')REG.active=false;return _goReg(t);};
 /* ---- punti di accesso ben visibili ---- */
-function regCardHTML(){return`<div class="panel acard"><div class="row spread"><b class="disp" style="font-size:21px">🎬 Gli assalti</b>${OR.s&&OR.s.prev_at?`<small class="muted">ultima orda ${orTime(OR.s.prev_at)}</small>`:''}</div>
-  <p style="font-weight:400;font-size:13.5px;margin:4px 0 8px">Guarda l’orda arrivare sulle tue case, una per una, anche quelle lontane. Oppure simula la prossima con le difese di adesso.</p>
-  <div class="rrow"><button class="btn" data-acl>🎬 Ultimo assalto</button><button class="btn alt" data-acs>🔮 Simula la prossima</button></div>
-  <div id="pushRow" style="margin-top:10px"></div></div>`;}
-const _splitHubReg=splitHub;splitHub=function(){_splitHubReg();try{if(G.view!=='hub'||app.querySelector('.acard'))return;const o=app.querySelector('.opan');if(!o)return;o.insertAdjacentHTML('afterend',regCardHTML());const c=app.querySelector('.acard');
-  c.querySelector('[data-acl]').onclick=()=>assalto('last');c.querySelector('[data-acs]').onclick=()=>assalto('sim');pushRow();try{ssApply();}catch(e){}}catch(e){}};
 try{const _ssOfReg=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.acard'))return'oggi';return _ssOfReg(el);};}catch(e){}
 /* mappa: i pulsanti della barra dell'orda aprono la regia */
 const _renderMappaReg=renderMappa;renderMappa=function(){_renderMappaReg();try{const r=app.querySelector('[data-mfraid]');if(r){r.textContent='🎬 Assalti';r.onclick=e=>{e.stopPropagation();assalto('last');};}}catch(e){}};

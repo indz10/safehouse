@@ -19,19 +19,6 @@ function rvStore(){S.rv=S.rv||{};return S.rv;}
 function rvList(key,seedN,base){const st=rvStore();if(!st[key])st[key]=rvGen(key,seedN,base);return st[key];}
 function rvAvg(l){return l.length?l.reduce((a,x)=>a+x.st,0)/l.length:0;}
 function rvStars(v,size=14){const full=Math.round(v*2)/2;return`<span class="rstars" style="font-size:${size}px" aria-label="${v.toFixed(1).replace('.',',')} su 5">${[1,2,3,4,5].map(i=>`<i class="${full>=i?'f':full>=i-.5?'h':''}"></i>`).join('')}</span>`;}
-function vacData(z){const r=rng((z.seed||7)+333);const out=[];VAC.forEach(([k,l,ic,pr])=>{(VNAME[k]||[]).forEach((nm,i)=>{if(r()<(k==='camp'&&z.type==='centro'?.1:.85))out.push({k,l,ic,name:nm,price:pr[Math.floor(r()*pr.length)],dist:Math.round(200+r()*4000),base:3.2+r()*1.6,n:6+Math.floor(r()*10),key:'v-'+(z.address||'')+'-'+nm,partner:r()<.18});});});return out;}
-function vacanzaHTML(z){
-  const items=vacData(z);const f=S.vf||'tutti';const sorted=items.filter(x=>f==='tutti'||x.k===f).sort((a,b)=>(b.partner-a.partner)||(rvAvg(rvList(b.key,b.n,b.base))-rvAvg(rvList(a.key,a.n,a.base))));
-  return`${commCard(z)}<div class="panel mapwrap" style="padding:0;overflow:hidden" id="vacmap"><div class="mapsvg">${mapScene(z,{poi:false,users:false,heat:false,me:false,mode:'day',comm:true,spons:true})}</div><div class="mapinfo" id="vacinfo"><span class="muted">Tocca un’area per vedere la community, o una ⭐ per lo sponsor.</span></div></div><div class="panel moon"><b class="disp" style="font-size:22px">Vacanza in zona</b><p style="font-weight:400;font-size:14px;margin-top:4px">Dove dormire, mangiare e cosa vedere, con le recensioni di chi c’è stato davvero. E il livello di sicurezza della zona, per dormire tranquilli.</p></div>
-   <div class="chips" style="margin:8px 0">${[['tutti','Tutto'],...VAC.map(v=>[v[0],v[2]+' '+v[1]])].map(([k,l])=>`<button class="chip ${f===k?'on':''}" data-vf="${k}">${l}</button>`).join('')}</div>
-   ${sorted.map(x=>{const l=rvList(x.key,x.n,x.base);const a=rvAvg(l);return`<div class="vcard ${x.partner?'feat':''}">
-     <div class="vic">${x.ic}</div><div style="flex:1;min-width:0">${x.partner?'<span class="tag sp">Sponsorizzato</span> ':''}<b class="disp" style="font-size:20px">${esc(x.name)}</b>
-     <div class="row" style="gap:6px;flex-wrap:wrap">${rvStars(a,15)}<b>${a.toFixed(1).replace('.',',')}</b><small class="muted">${l.length} recensioni</small></div>
-     <small>${x.l} · ${x.price} · a ${x.dist<1000?x.dist+' m':(x.dist/1000).toFixed(1).replace('.',',')+' km'}</small>
-     ${l[0]?`<p class="vq">“${esc(l[l.length-1].txt)}” <small>— @${esc(l[l.length-1].nick)}</small></p>`:''}
-     <div class="row" style="gap:6px;margin-top:6px"><button class="btn small" data-rv="${esc(x.key)}" data-rvn="${esc(x.name)}" data-rvc="${x.n}" data-rvb="${x.base.toFixed(2)}">Recensioni</button><button class="btn small ghost" data-rvw="${esc(x.key)}" data-rvn="${esc(x.name)}" data-rvc="${x.n}" data-rvb="${x.base.toFixed(2)}">Scrivi</button></div></div></div>`;}).join('')}
-   <p class="notice" style="margin:10px 0">Come verifichiamo: una recensione per persona e per attività, controllo prima della pubblicazione, nessuna recensione a pagamento. Le recensioni “verificate” arrivano da chi ha dimostrato la visita.</p>`;
-}
 function reviewsSheet(key,name,n,base){
   const l=rvList(key,n,base);const a=rvAvg(l);const flt=S.rvf||'tutti';const cnt=[5,4,3,2,1].map(s=>l.filter(x=>x.st===s).length);
   const shown=l.filter(x=>flt==='tutti'||x.type===flt).slice().reverse();
@@ -68,12 +55,4 @@ function writeReview(key,name,n,base){
       rvList(key,n,base).push({nick:(S.user&&S.user.nick)||'tu',st,title:t,txt:x,type:card.querySelector('#rY').value,when:card.querySelector('#rM').value,useful:0,ver:false});
       toast('Grazie! La recensione è pubblicata (in produzione passa prima dalla moderazione)');sfx('coin');reviewsSheet(key,name,n,base);if(S.tab==='mappa')renderVivere();};});
 }
-function bindReviews(){
-  app.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>reviewsSheet(b.dataset.rv,b.dataset.rvn,+b.dataset.rvc,+b.dataset.rvb));
-  app.querySelectorAll('[data-rvw]').forEach(b=>b.onclick=()=>writeReview(b.dataset.rvw,b.dataset.rvn,+b.dataset.rvc,+b.dataset.rvb));
-  app.querySelectorAll('[data-vf]').forEach(b=>b.onclick=()=>{S.vf=b.dataset.vf;renderVivere();});
-  const vm=document.querySelector('#vacmap .mapsvg');if(vm){const z=S.reZone||S.zone;if(z)wireCommunity(vm,z,$('#vacinfo'));}
-  app.querySelectorAll('[data-rvm]').forEach(b=>b.onclick=()=>{S.rvMode=b.dataset.rvm;renderVivere();});
-}
-function rvSeg(){return'';return`<div class="seg" style="margin-bottom:12px"><button class="${S.rvMode!=='vacanza'?'on':''}" data-rvm="vivere">🏘️ Ci vivo o compro</button><button class="${S.rvMode==='vacanza'?'on':''}" data-rvm="vacanza">🧳 Ci vado in vacanza</button></div>`;}
 </script>

@@ -45,8 +45,6 @@ function wPanelHTML(){if(!S.user)return`<div class="panel wpan"><b class="disp" 
     <p>• <b>Mattoni</b>: notti vinte, missioni, accesso del giorno, casa valutata, codici usati in negozio, amici invitati, affitti. Ogni giorno c’è un tetto: non si possono “fabbricare”.</p></div></details></div>`;}
 function wBind(){const p=app.querySelector('.wpan');if(!p)return;const c=p.querySelector('[data-wcol]');if(c)c.onclick=async()=>{c.disabled=true;try{const r=await wRpc('world_collect');if(r&&r.ok){toast(`🏦 Affitti: +🧱 ${wNum(r.got)}`);sfx&&sfx('coin');}}catch(e){toast(e.message);}wMine(true);};
   p.querySelectorAll('[data-wh]').forEach(b=>b.onclick=()=>{const h=W.m.houses[+b.dataset.wh];wSheet(h.building_id,h.lat,h.lon);});}
-const _splitHubW=splitHub;splitHub=function(){_splitHubW();try{if((G.sub||'q')!=='q'||app.querySelector('.wpan'))return;const a=app.querySelector('.tmp')||app.querySelector('.terrp')||app.querySelector('.camp');if(!a)return;
-  a.insertAdjacentHTML('beforebegin',wPanelHTML());const p=app.querySelector('.wpan');p.dataset.grp='q';wBind();}catch(e){console.warn('mondo',e);}};
 /* ---- scheda di un edificio del mondo ---- */
 const W_ST={free:['🟢','Casa libera','#bfe8c9'],owned:['🟡','Casa di un altro giocatore','#fff0a0'],mine:['🔑','Casa tua (comprata)','#ffe680'],home:['🏠','Abitata da un superstite','#e2d6f5'],myhome:['❤️','Casa tua','#f6b8bf'],mypending:['⏳','Casa tua in conferma','#f6b8bf'],excluded:['🚫','Esclusa dal gioco','#e6e1d6']};
 async function wSheet(bid,lat,lon){openSheet('🌍 Edificio del mondo','<p><span class="spin"></span> Controllo l’edificio…</p>',()=>{});let q;
@@ -124,10 +122,7 @@ async function wHood(){if(!W.on||!HQ.map||!HQ.map.lotsB)return;const m=RM.cache[
     if(own&&r&&['owned','home','myhome'].includes(r.status)){const l=LOTS.find(x=>x.id===lid);if(!own.w)G.coins+=(l&&l.cost)||300;delete G.lots[lid];ch=true;toast('🏠 Un edificio del tuo quartiere è passato a chi ci abita: ti è stato rimborsato');}
     if(own&&own.w&&(!r||r.status!=='mine')){delete G.lots[lid];ch=true;}});
   if(ch||rows.length){HQ.map=HQ.map;try{if(S.tab==='orda'&&G.view==='hub'&&(G.sub||'q')==='q')renderHub();}catch(e){}}}
-const _renderHubW2=renderHub;renderHub=function(){const r=_renderHubW2.apply(this,arguments);if(S.user&&!W.m&&!W.busy)wMine();else if(W.on)wHood();return r;};
 /* nel quartiere del gioco: comprare un edificio = comprare la casa vera nel mondo (con i Mattoni) */
-const _lotSheetW=lotSheet;lotSheet=function(id){const wb=HQ.map&&HQ.map.lotsB&&HQ.map.lotsB[id];
-  if(!G.lots[id]&&wb&&G.realHood&&S.user&&W.on){wSheet(wb.bid,wb.lat,wb.lon);return;}return _lotSheetW(id);};
 /* case degli altri e abitate: segnate sulla mappa del quartiere */
 const _hqBackW=hqBack;hqBack=function(m){let s=_hqBackW(m);try{let pins='';HQW.st.forEach(r=>{if(!['owned','home','myhome'].includes(r.status))return;const P=hqP(m,r.lat,r.lon);if(!hqIn(P))return;const st=W_ST[r.status];
     pins+=`<g data-wst="${r.building_id}" style="cursor:pointer"><circle cx="${P[0]}" cy="${P[1]}" r="8" fill="${st[2]}" stroke="#140f1f" stroke-width="2"/><text x="${P[0]}" y="${P[1]+3.5}" text-anchor="middle" font-size="9">${st[0]}</text>${r.status==='owned'&&r.nick?`<text x="${P[0]}" y="${P[1]+16}" text-anchor="middle" font-size="7" font-weight="700" fill="#140f1f" stroke="#fff" stroke-width="2" paint-order="stroke">@${esc(r.nick.slice(0,10))}</text>`:''}</g>`;});
