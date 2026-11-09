@@ -11,14 +11,6 @@ function bizSpots(z){const r=rng((z.seed||7)+91);return BIZ_DEMO.map((b,i)=>({i,
 function bizLayer(z){return`<g class="bizL">${bizSpots(z).map(b=>`<g data-biz="${b.i}" style="cursor:pointer" opacity=".95"><circle cx="${b.x}" cy="${b.y}" r="11" fill="#9aa4b0" stroke="#140f1f" stroke-width="2"/><text x="${b.x}" y="${b.y+4}" text-anchor="middle" font-size="11">${b.ic}</text></g>`).join('')}</g>`;}
 const dist=d=>d<1000?d+' m':(d/1000).toFixed(1).replace('.',',')+' km';
 const mapsLink=(name,z)=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name+' '+((z&&z.address)||''))}`;
-function bizSheet(b,z){const key='biz-'+(z.seed||7)+'-'+b.i;
-  const nav=b.ll?`https://www.google.com/maps/dir/?api=1&destination=${b.ll[0]},${b.ll[1]}`:mapsLink(b.name,z);
-  const tel=(b.tel||'').replace(/[^\d+]/g,'');const web=b.web&&/^https?:/.test(b.web)?b.web:(b.web?'https://'+b.web:'');
-  openSheet(`${b.ic} ${esc(b.name)}`,`<p class="muted">${esc(b.cat)} · a ${dist(b.d)}${b.cand?' · <b style="color:#b8860b">📌 posto sponsor libero</b>':''}</p>
-   <div class="row" style="gap:8px;align-items:center;margin:8px 0">${rvLine(key,5,4)}${rvBtn(key,b.name,5,4)}</div>
-   <div class="splinks"><a class="btn small ghost" href="${nav}" target="_blank" rel="noopener">🧭 Indicazioni</a>${tel?`<a class="btn small ghost" href="tel:${tel}">📞 Chiama</a>`:''}${web?`<a class="btn small ghost" href="${esc(web)}" target="_blank" rel="noopener">🌐 Sito</a>`:''}</div>
-   <div class="claim"><b>${b.cand?'Questa attività può diventare il presidio sponsor della zona':'È la tua attività?'}</b><p>${b.cand?'Bollino giallo sulla mappa, offerta con codice in cassa, preventivi dai clienti della zona, presidio nel gioco (+5% barricata a chi abita vicino) e statistiche.':'Mettiti in evidenza: bollino sulla mappa, offerte con codice, contatti diretti, presenza nel gioco e statistiche delle visite.'}</p><button class="btn wide" data-claim>${b.cand?'Diventa sponsor':'Mettiti in evidenza'}</button></div>`,
-   card=>{card.querySelector('[data-claim]').onclick=()=>{closeSheet();S.motivo=b.cand?'sponsor':'negozio';S.motivoBiz=b.name;go('contatti');};});}
 function poiSheet(r,z){const key='p-'+(z.address||'')+'-'+r.name;const ic=(RES_ICON[r.kind]||['📍'])[0];
   openSheet(`${ic} ${esc(r.name)}`,`<p class="muted">Servizio pubblico · a ${dist(r.dist)}</p><div class="row" style="gap:8px;align-items:center;margin:8px 0">${rvLine(key,6,4)}${rvBtn(key,r.name,6,4)}</div>
    <div class="splinks"><a class="btn small" href="${mapsLink(r.name,z)}" target="_blank" rel="noopener">🧭 Indicazioni</a></div>`);}

@@ -161,8 +161,6 @@ async function liveMap(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[ad
   const fit=()=>{try{map.resize();if(!touched)map.jumpTo({center:[m.lon,m.lat]});}catch(e){}};
   [120,400,1200].forEach(t=>setTimeout(fit,t));try{new ResizeObserver(fit).observe(box);}catch(e){}
   return lm;}
-function lmPoi(name,cat,d,ll,pub){openSheet(`📍 ${esc(name)}`,`<p class="muted">${esc(cat)}${pub?' · servizio pubblico':''} · a ${d<1000?d+' m':(d/1000).toFixed(1).replace('.',',')+' km'}</p>
-  <div class="splinks" style="margin-top:8px"><a class="btn small" href="https://www.google.com/maps/dir/?api=1&destination=${ll[0]},${ll[1]}" target="_blank" rel="noopener">🧭 Indicazioni</a></div>`);}
 /* Mondo, Valuta e scheda "zona vera" */
 const _rmMount19=rmMount;
 rmMount=async function(box,addr){const el=box.querySelector('.rm-svg'),info=box.querySelector('.rm-info');

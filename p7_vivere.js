@@ -62,62 +62,6 @@ function reMap(z,d,own){
     pins+=`<g class="pin" data-re="ad:${i}" style="cursor:pointer"><path d="M${x-w/2} ${y-26} h${w} v18 h${-w/2+6} l-6 8 l-6 -8 h${-w/2+6}Z" fill="${l.rent?'#2f7fb8':'#d7263d'}" stroke="${INK}" stroke-width="2.5"/><text x="${x}" y="${y-13}" text-anchor="middle" font-family="Arial" font-weight="700" font-size="10" fill="#fff">${t}</text></g>`;});
   return svg.replace(/<\/svg>\s*$/,pins+'</svg>');
 }
-function renderVivere(){
-  const z=S.reZone||S.zone;const own=z&&S.zone&&z===S.zone;
-  const head=`<div class="maphero">${vivereHero()}<div class="mh-t"><h2>Vivere qui</h2><div class="caption">Servizi, negozi, prezzi e annunci di ogni zona</div></div></div>${zoneSeg()}`;
-  const search=`<div class="panel"><label for="reQ" class="disp" style="font-size:20px">Cerca una zona o un indirizzo</label>
-     <div class="row" style="margin-top:6px"><input id="reQ" class="field" placeholder="Es. Mantova centro" value="${esc(z?z.address:'')}"><button class="btn small" id="reGo">Cerca</button></div></div>`;
-  if(!z){app.innerHTML=head+`<div class="page">${search}<div class="panel moon"><p>Scrivi una zona per vedere vivibilità, prezzi, negozi e annunci. Oppure valuta prima la tua casa: la tua zona comparirà qui.</p></div>${b2b()}</div>`;bindVivere(null);return;}
-  if(S.rvMode==='vacanza'){app.innerHTML=head+`<div class="page">${search}${rvSeg()}${vacanzaHTML(z)}</div>`;bindVivere(z,reData(z));bindReviews();return;}
-  const d=reData(z);const [lab,col]=liveLabel(d.score);
-  const L=S.reL||(S.reL={shops:true,serv:true,tr:true,sch:true,ads:true,comm:false,spons:true});
-  const ads=d.listings.filter(l=>(S.reMode||'vendita')==='affitto'?l.rent:!l.rent).sort((a,b)=>b.feat-a.feat);
-  const cats={};d.shops.forEach(s=>{(cats[s.lab]=cats[s.lab]||[]).push(s);});
-  const cmp=S.zone&&z!==S.zone?(()=>{const o=reData(S.zone);return`<div class="panel"><h3>Confronto con la tua zona</h3><table class="cmp"><tr><th></th><th>${esc(z.address)}</th><th>La tua zona</th></tr>
-     <tr><td>Vivibilità</td><td><b>${d.score}</b></td><td><b>${o.score}</b></td></tr><tr><td>Vendita €/m²</td><td>${fmtEur(d.sale)}</td><td>${fmtEur(o.sale)}</td></tr>
-     <tr><td>Affitto €/m² mese</td><td>${d.rent.toFixed(1).replace('.',',')} €</td><td>${o.rent.toFixed(1).replace('.',',')} €</td></tr><tr><td>Negozi</td><td>${d.shops.length}</td><td>${o.shops.length}</td></tr><tr><td>Fermate bus</td><td>${d.stops.length}</td><td>${o.stops.length}</td></tr></table></div>`;})():'';
-  app.innerHTML=head+`<div class="page">${search}${rvSeg()}
-   <div class="panel">
-     <div class="row spread"><div><small class="muted">Indice di vivibilità</small><h3>${esc(z.address)}</h3><span class="tag" style="background:${col}">${lab}</span></div><div class="ring-s" style="--v:${d.score};--c:${col}"><b>${d.score}</b><small>su 100</small></div></div>
-     <div class="bars" style="margin-top:8px">${d.subs.map(([n,v])=>`<div class="b"><div class="row spread"><span>${n}</span><b>${v}</b></div><div><span class="fill ${v>=65?'good':v>=50?'mid':''}" style="width:${v}%"></span></div></div>`).join('')}</div>
-     <p class="muted" style="font-size:12px;margin-top:8px">Calcolato su distanze e quantità di servizi, negozi, trasporti, scuole e verde. Non usiamo dati su criminalità o sulle persone che ci abitano.</p>
-   </div>
-   <div class="row" style="gap:8px;margin-bottom:16px">
-     <div class="stat"><b>${fmtEur(d.sale)}</b><small>al m² in vendita</small></div>
-     <div class="stat"><b>${d.rent.toFixed(1).replace('.',',')} €</b><small>al m² al mese in affitto</small></div>
-     <div class="stat"><b style="color:${d.trend>=0?'#3f9b5f':'#d7263d'}">${d.trend>=0?'▲':'▼'} ${Math.abs(d.trend).toString().replace('.',',')}%</b><small>ultimi 12 mesi</small></div>
-   </div>
-   <div class="panel mapwrap" style="padding:0;overflow:hidden" id="remap">
-     <div class="maptools">${[['ads','Annunci'],['spons','Sponsor'],['comm','Community'],['shops','Negozi partner'],['serv','Servizi pubblici'],['tr','Trasporti'],['sch','Scuole']].map(([k,l])=>`<button class="chip ${L[k]?'on':''}" data-rl="${k}">${l}</button>`).join('')}</div>
-     <div class="mapsvg">${reMap(z,d,own)}</div>
-     <div class="mapinfo" id="reinfo"><span class="muted">Tocca un segnaposto: negozi, fermate, scuole o annunci.</span></div>
-   </div>
-   <h3 style="margin:16px 0 8px">Case in zona</h3>
-   <div class="seg" style="margin-bottom:10px"><button class="${(S.reMode||'vendita')==='vendita'?'on':''}" data-rm="vendita">In vendita</button><button class="${S.reMode==='affitto'?'on':''}" data-rm="affitto">In affitto</button></div>
-   ${ads.length?ads.map((l,i)=>`<div class="listing ${l.feat?'feat':''}">
-      <img alt="${l.kl}" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(gHouse(l.t,{}))}">
-      <div style="flex:1;min-width:0">${l.feat?'<span class="tag sp">Annuncio sponsorizzato</span>':''}
-        <div class="disp" style="font-size:26px;margin-top:2px">${l.rent?fmtEur(l.price)+' al mese':fmtEur(l.price)}</div>
-        <div style="font-size:14px">${l.kl} · ${l.mq} m² · ${l.rooms} locali · classe ${l.energy}</div>
-        <div class="row" style="gap:6px;margin-top:6px"><span class="aglogo" style="background:${l.ag.c}">${l.ag.n[0]}</span><small>${l.ag.n}</small></div>
-        <button class="btn small alt" style="margin-top:8px" data-contact="${d.listings.indexOf(l)}">Contatta l’agenzia</button>
-      </div></div>`).join(''):`<div class="notice">Nessun annuncio ${S.reMode==='affitto'?'in affitto':'in vendita'} in questa zona per ora.</div>`}
-   <div id="contactBox"></div>
-   ${cmp}
-   <h3 style="margin:16px 0 8px">Negozi e attività</h3>
-   <div class="panel">${Object.entries(cats).map(([k,arr])=>`<div class="shopcat"><b>${arr[0].ic} ${k}</b><small class="muted"> · ${arr.length}</small>${arr.map(s=>{const key='s-'+z.address+'-'+s.name;const n=4+(s.name.length%7),b=3.4+(s.name.length%5)*.3;return`<div class="shoprow"><div style="flex:1;min-width:0">${s.partner?`<b class="ptn">${esc(s.name)} ★ partner</b>`:`<b>${esc(s.name)}</b>`}<div>${rvLine(key,n,b)}</div></div><button class="btn small ghost" data-rv="${esc(key)}" data-rvn="${esc(s.name)}" data-rvc="${n}" data-rvb="${b}">Recensioni</button></div>`;}).join('')}</div>`).join('')}</div>
-   <div class="panel"><b>Trasporti e scuole</b>
-     <div class="frow"><span style="font-size:20px;width:28px">🚌</span><div style="flex:1">${d.stops.length} fermate dell’autobus in zona</div></div>
-     <div class="frow"><span style="font-size:20px;width:28px">🚆</span><div style="flex:1">Stazione a ${d.station<1000?d.station+' m':(d.station/1000).toFixed(1).replace('.',',')+' km'}</div></div>
-     <div class="frow"><span style="font-size:20px;width:28px">🏫</span><div style="flex:1">${d.schools.map(s=>s.name).join(', ')}</div></div>
-     <div class="frow"><span style="font-size:20px;width:28px">🌳</span><div style="flex:1">${d.parks} aree verdi</div></div></div>
-   <h3 style="margin:16px 0 8px">Agenzie in zona</h3>
-   ${[...new Set(d.listings.map(l=>l.ag))].map(a=>`<div class="panel sponsor"><div class="logo" style="background:${a.c};color:#fff">${a.n[0]}</div><div style="flex:1"><b>${a.n}</b><div class="muted" style="font-size:13px">${d.listings.filter(l=>l.ag===a).length} annunci in zona · agenzia partner</div></div></div>`).join('')}
-   ${b2b()}
-   <p class="notice" style="margin:8px 0 20px">Anteprima: dati simulati. Nella versione pubblicata: negozi e servizi da Google Maps e OpenStreetMap, prezzi dalle quotazioni dell’Agenzia delle Entrate (OMI), annunci dalle agenzie partner. Gli annunci a pagamento sono sempre segnalati come sponsorizzati.</p>
-  </div>`;
-  bindVivere(z,d);bindReviews();wireCommunity($('#remap .mapsvg'),z,$('#reinfo'));
-}
 function b2b(){return`<div class="panel night" style="margin-top:16px"><h3 style="color:var(--moon)">Sei un’agenzia o un negozio?</h3>
    <p style="font-weight:400;color:#e5def5;margin:6px 0 10px">Chi usa ZombieSafeHouse conosce la sua zona: servizi, negozi, prezzi. Fatti trovare proprio lì.</p>
    <div class="b2b"><div><b>Vetrina di zona</b><small>Logo e scheda in evidenza nella zona scelta</small><span>da 49 € al mese</span></div>

@@ -32,8 +32,6 @@ function presPlay(id){const p=presList().find(x=>x.id===id);const ps=myProps();
       arenaResult({...res,opp:st.rec,res:res.mine>=st.rec?'win':'lose'},{nick:p.holder==='Tu'?'il record':p.holder},null,extra);}});}));}
 function bindPres(){app.querySelectorAll('[data-pres]').forEach(b=>b.onclick=()=>presPlay(b.dataset.pres));}
 /* ---------- stelle e recensioni ovunque ---------- */
-function rvKeySp(k){return'sp-'+k;}
 function rvStarsTxt(key){const l=rvList(key,8,4.2);const a=rvAvg(l);return`★ ${a.toFixed(1).replace('.',',')} (${l.length})`;}
-function rvBtn(key,name,n=8,b=4.2){return`<button class="btn small ghost" data-rvx="${esc(key)}" data-rvn="${esc(name)}" data-rvc="${n}" data-rvb="${b}">Recensioni</button>`;}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-rvx]');if(!b)return;e.stopPropagation();reviewsSheet(b.dataset.rvx,b.dataset.rvn,+b.dataset.rvc,+b.dataset.rvb);},true);
 </script>

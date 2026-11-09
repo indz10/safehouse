@@ -38,6 +38,7 @@ Regola d'oro: **una fase = una proposta (pull request)**, piccola, provata, cont
 **Esito (9/11):** fatta. Proposta: dividere la Fase 3 in 3a (file fuori build, funzioni mai chiamate, strati scavalcati) e 3b (spostare ciò che serve del vecchio gioco, poi toglierlo). Vedi §7 della mappa.
 
 ## Fase 3 — Via il vecchio gioco a carte/notti
+**Divisa in due (decisione 9/11):** **3a** toglie solo il codice sicuramente morto (file fuori build, funzioni mai chiamate, versioni vecchie già sostituite: vedi `docs/MAPPA_CODICE.md` §2 e §4); **3b** sposta ciò che serve ancora del vecchio gioco (§5 della mappa) e poi toglie il resto.
 - Togli battaglia a carte, campagna, arena, sfide, vecchi presidi locali, "Difendi tu", monete, attrezzi, perk, quartieri finti.
 - Tieni (spostandoli nei moduli giusti): disegno zombie (zArt), suoni (sfx), ruota e gratta e vinci, premio del giorno, missioni del giorno se usate.
 - renderHub di base sostituita da una pagina Orda pulita (fronte, orda del mondo, alleati, premi, missioni).
@@ -104,8 +105,8 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | Fase | Stato | PR | Note |
 |---|---|---|---|
 | 1 | fatta | #1, #2 | sorgenti alla radice, netlify.toml → dist/ (con controllo che dist/ sia completa), build.sh e prove senza percorsi fissi, prove.sh |
-| 2 | fatta (in attesa di Merge) | Fase 2 — Mappa del codice | docs/MAPPA_CODICE.md, strumenti in docs/strumenti/ |
-| 3 | da fare | | |
+| 2 | fatta | #3 | docs/MAPPA_CODICE.md, strumenti in docs/strumenti/ |
+| 3 | 3a fatta (in attesa di Merge); 3b da fare | Fase 3a — Via il codice morto | 3a: 4 file fuori build, 6 funzioni mai chiamate, 25 versioni vecchie già sostituite, stile .ring-s (−32 KB) |
 | 4 | da fare | | |
 | 5 | da fare | | |
 | 6 | da fare | | |

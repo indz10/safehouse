@@ -4,15 +4,6 @@
    logo · contatore · 🔔 novità · ☰ menu
    il menu raggiunge TUTTO: casa, gioco, community, aiuto, account
    ========================================================= */
-function zmItems(){const u=S.user;const adm=!!window.__zmAdmin,shop=!!window.__zmShop;
-  return[
-   ['La mia casa',[['📷','Valuta o aggiorna la casa','valuta'],['📋','Piano d’azione e sponsor','home'],['📍','Correggi la posizione','pos'],['🚚','Ho cambiato casa','move']]],
-   ['Gioco',[['☀️','Oggi: orda, premi, missioni','g:oggi'],['🌍','Il mio impero','g:impero'],['⚔️','Difendi tu (notti)','g:difendi'],['🎁','Premi e fortuna','g:oggi'],['💎','Bottega','io']]],
-   ['Community',[['💬','Piazza (chat)','s:piazza'],['📰','Bacheca','s:bacheca'],['🤝','La mia squadra','s:squadra'],['🏆','Classifiche','s:classifiche'],['📨','Invita amici e vicini','invite']]],
-   ['Aiuto',[['🧭','Giro guidato','tour'],['📖','Come si gioca','rules'],['📻','Radio Operatore','radio'],['⭐','Sponsor e come diventarlo','sponsor'],['✉️','Chi siamo e contatti','contatti']]],
-   ['Account',[...(u?[['👤','Il mio profilo','io']]:[]),['toggle','Visibile sulla mappa','vis',u?!!S.pubOk:null],['toggle','Suoni del gioco','snd',!(typeof G!=='undefined'&&G.mute)],['toggle','Musica','mus',!!(window.AUD&&AUD.on&&AUD.started)],
-     ['🔒','Privacy','url:privacy.html'],['📄','Termini','url:termini.html'],...(adm?[['🛠️','Pannello admin INDZ','url:admin.html']]:[]),...(shop?[['🏪','Pannello del mio negozio','url:negozio.html']]:[]),
-     ...(u?[['🚪','Esci dall’account','logout'],['🗑','Elimina il mio account','del']]:[])]]];}
 function zmHTML(){const u=S.user,m=window.W&&W.m;const nk=u?(u.nick||(u.email||'?').split('@')[0]):'';
   const head=u?`<div class="zmhead"><span class="zmav">${esc((nk[0]||'?').toUpperCase())}</span><div><b>@${esc(nk)}</b><small>Livello mondo ${m?m.wlevel:'…'}</small>${typeof STATS!=='undefined'&&STATS.reg?`<span class="zmstats">👥 ${STATS.reg} superstiti · 🟢 ${STATS.on||0} online ora</span>`:''}<div class="zmwal"><span>🧱 ${m?wNum(m.mattoni):'…'}</span><span>💎 ${(typeof G!=='undefined'&&G.gems)||0}</span><span>🪙 ${(typeof G!=='undefined'&&G.coins)||0}</span></div></div></div>`
     :`<div class="zmhead"><span class="zmav">👤</span><div><b>Ospite</b><small>Accedi per salvare i progressi e giocare con gli altri</small><button class="btn small" data-zm="login" style="margin-top:6px">Accedi o registrati</button></div></div>`;

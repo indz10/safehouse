@@ -25,9 +25,6 @@ function oggiCardHTML(){const n=new Date();const d=OGGI.d;const nx=oggiNext();co
    <div class="oci"><b class="occ" data-clock>${n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</b>
     <span>${cur?`${wIcon(cur.weather_code)} ${Math.round(cur.temperature_2m)}°C ora · `:''}🧟 orda alle ${String(nx.getHours()).padStart(2,'0')}:00${a?` · ${a.ic} ${a.t}°C`:''}</span>
     <em>${a?esc(a.eff):'Tocca per il meteo e il calendario'}</em></div><i class="ocgo">›</i></button>`;}
-function oggiPut(){try{if(S.tab!=='orda'||G.view!=='hub')return;const pg=app.querySelector('.page');if(!pg)return;let c=pg.querySelector('.ocal');const h=oggiCardHTML();
-  if(c){const t=document.createElement('div');t.innerHTML=h;c.replaceWith(t.firstElementChild);}else{const o=pg.querySelector('.opan');if(o)o.insertAdjacentHTML('beforebegin',h);else return;}
-  c=pg.querySelector('.ocal');c.dataset.grp='q';c.onclick=oggiSheet;}catch(e){}}
 try{const _ssOfOg=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.ocal'))return'oggi';return _ssOfOg(el);};}catch(e){}
 const _splitHubOg=splitHub;splitHub=function(){_splitHubOg();oggiPut();try{ssApply();}catch(e){}if(!OGGI.d||Date.now()-OGGI.t>20*60*1000)oggiMeteo().then(()=>oggiPut());};
 setInterval(()=>{const n=new Date();document.querySelectorAll('[data-clock]').forEach(e=>{e.textContent=n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});});},1000);

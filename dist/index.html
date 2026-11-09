@@ -217,9 +217,6 @@ details summary{list-style:none;margin:8px 0 4px}
 
 
 /* ---- VIVERE QUI ---- */
-.ring-s{width:96px;height:96px;border-radius:50%;border:var(--line);display:grid;place-items:center;align-content:center;background:conic-gradient(var(--c) calc(var(--v)*1%),#fff 0);position:relative;flex:none}
-.ring-s:before{content:"";position:absolute;inset:12px;border-radius:50%;background:#fff;border:3px solid var(--ink)}
-.ring-s b,.ring-s small{position:relative;z-index:1;text-align:center;line-height:1}.ring-s b{font-family:var(--display);font-weight:400;font-size:34px}.ring-s small{font-size:10px;font-weight:400}
 .listing{display:flex;gap:12px;border:var(--line);background:#fff;padding:10px;margin-bottom:10px;box-shadow:4px 4px 0 var(--ink)}
 .listing.feat{background:#fff8d6;box-shadow:4px 4px 0 var(--blood)}
 .listing img{width:84px;height:120px;object-fit:cover;object-position:top;border:2px solid var(--ink);background:#33276a;flex:none}
@@ -1719,7 +1716,6 @@ function voice(t,f,d,o={}){const c=AUD.c;const osc=c.createOscillator();osc.type
   node.connect(g);let out=g;if(o.pan&&c.createStereoPanner){const p=c.createStereoPanner();p.pan.value=o.pan;g.connect(p);out=p;}
   out.connect(o.dest||AUD.mus);if(o.rev||o.dly){const F=fx();if(o.rev){const s=c.createGain();s.gain.value=o.rev;out.connect(s);s.connect(F.conv);}if(o.dly){const s=c.createGain();s.gain.value=o.dly;out.connect(s);s.connect(F.dl);}}
   osc.start(t);osc.stop(t+d+.1);}
-function mTone(t,f,d,type,v,dest,f2,attack=.01){voice(t,f,d,{type,v,dest,f2,a:attack,r:d*.95});}
 function mNoise(t,d,v,hp=6000,dest,band){const c=AUD.c,b=c.createBuffer(1,Math.max(1,Math.floor(c.sampleRate*d)),c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;
   const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();f.type=band?'bandpass':'highpass';f.frequency.value=band||hp;if(band)f.Q.value=1.2;s.buffer=b;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(g);g.connect(dest||AUD.mus);s.start(t);}
 /* --- batteria --- */
@@ -2208,9 +2204,6 @@ function logoSVG(size=512,bg=true){
   ${bg?`<rect x="7" y="7" width="498" height="498" rx="106" fill="none" stroke="${I}" stroke-width="14"/>`:''}
   </svg>`;
 }
-function logoWordmark(){return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360"><g transform="translate(10 10) scale(.66)">${logoSVG(512).replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'')}</g>
-  <text x="380" y="170" font-family="Bangers, Impact, sans-serif" font-size="150" fill="#140f1f" letter-spacing="4">ZOMBIE</text>
-  <text x="380" y="310" font-family="Bangers, Impact, sans-serif" font-size="150" fill="#d7263d" letter-spacing="4">SAFEHOUSE</text></svg>`;}
 
 /* ---------- icone nav ---------- */
 const ICON={
@@ -2247,14 +2240,6 @@ function sponsorLayer(z){return sponsorSpots(z).map(s=>`<g data-spn="${s.k}" sty
   <text x="${s.x}" y="${s.y-5}" text-anchor="middle" font-family="Bangers,Impact" font-size="13" fill="#140f1f">${SPONSORS[s.k].logo}</text><text x="${s.x+14}" y="${s.y-18}" font-size="10">⭐</text><rect x="${s.x-17}" y="${s.y+6}" width="34" height="11" rx="3" fill="#fff" stroke="#140f1f" stroke-width="1.2"/><text x="${s.x}" y="${s.y+14.5}" text-anchor="middle" font-size="8" font-weight="700" fill="#140f1f">${typeof rvStarsTxt==='function'?rvStarsTxt('sp-'+s.k).split(' (')[0]:''}</text></g>`).join('');}
 function hexInfo(z,i){const c=commCells(z)[i];if(c.n<K_MIN)return`<b>Area con meno di ${K_MIN} utenti</b><span>Per proteggere la privacy non mostriamo numeri sotto questa soglia.</span>`;
   return`<b>👥 ${c.n} superstiti in quest’area</b><span>Indice medio ${fmtI(c.avg)} · ${c.avg<=4?'zona ben preparata':c.avg<=6?'zona da presidiare':'zona fragile'}</span>`;}
-function sponsorSheet(k,z){const s=SPONSORS[k];const sp=sponsorSpots(z).find(x=>x.k===k);
-  openSheet(`⭐ ${esc(s.name)}`,`<p class="muted" style="margin-bottom:6px">${SP_CAT[k]||'Sponsor'} · a ${sp?(sp.d<1000?sp.d+' m':(sp.d/1000).toFixed(1).replace('.',',')+' km'):'—'}</p>
-    <div class="row" style="gap:8px;align-items:center;margin-bottom:8px">${rvLine('sp-'+k,8,4.2)}${rvBtn('sp-'+k,s.name)}</div>
-    <div class="notice" style="margin-bottom:10px">🎁 ${SP_OFF[k]||'Offerta per i superstiti'}</div>
-    <p style="font-weight:400;font-size:14px;margin-bottom:10px">Alleato del quartiere: compare sulla mappa vera e come edificio nel quartiere del gioco.</p>
-    <div class="splinks">${SP_LINK[k]&&SP_LINK[k].web?`<a class="btn small" href="${SP_LINK[k].web}" target="_blank" rel="noopener">🌐 Sito</a>`:''}${SP_LINK[k]&&SP_LINK[k].ig?`<a class="btn small alt" href="${SP_LINK[k].ig}" target="_blank" rel="noopener">📷 Instagram</a>`:''}${SP_LINK[k]&&SP_LINK[k].fb?`<a class="btn small alt" href="${SP_LINK[k].fb}" target="_blank" rel="noopener">📘 Facebook</a>`:''}</div>
-    <button class="btn small ghost" data-tosp style="margin-top:8px">Tutti gli sponsor</button><p class="muted" style="font-size:11px;margin-top:6px">Contenuto sponsorizzato · link di esempio nell’anteprima.</p>`,
-  card=>{card.querySelector('[data-tosp]').onclick=()=>{closeSheet();go('sponsor');};});}
 function wireCommunity(root,z,info){if(!root||root.__comm)return;root.__comm=1;
   root.addEventListener('click',e=>{const h=e.target.closest('[data-hex]'),p=e.target.closest('[data-spn]');
     if(p){sponsorSheet(p.dataset.spn,z);return;}if(h&&info){info.innerHTML=hexInfo(z,+h.dataset.hex);}});}
@@ -2271,59 +2256,9 @@ const fmtI=v=>v.toFixed(1).replace('.',',');
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600);}
 function vibe(){try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}}
 
-function renderNav(){
-  const items=[['home','Casa'],['valuta','Valuta'],['orda','Gioco'],['mappa','Mondo']];const act=S.tab==='gioco'?'valuta':S.tab;
-  $('#nav').innerHTML=items.map(([k,l])=>`<button class="${act===k?'on':''}" data-tab="${k}" aria-label="${l}">${ICON[k]}<span>${l}</span></button>`).join('');
-  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{vibe();go(b.dataset.tab);});
-}
 function go(tab){window.__last='apre '+tab;document.body.classList.remove('inbattle');if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab=tab;renderNav();window.scrollTo(0,0);if(tab!=='orda')setMusic('app');closeSheet&&closeSheet();({sponsor:renderSponsor,contatti:renderContatti,home:renderHome,valuta:renderValuta,gioco:renderGioco,orda:()=>{G.view=G.view==='battle'?'hub':G.view;renderOrda();},mappa:renderMappa,radio:renderRadio,guida:renderGuida})[tab]();}
 
 /* ---------------- HOME ---------------- */
-function renderHome(){
-  const last=S.result?`<div class="panel night"><div class="row spread"><div><h3 style="color:var(--moon)">La tua casa</h3><p class="muted" style="color:#cfc6e6">${esc(S.zone?S.zone.address:'Valutazione completata')}</p></div>
-     <div class="disp" style="font-size:54px;color:#fff">${fmtI(S.result.idx)}</div></div>
-     <div class="row" style="margin-top:10px"><button class="btn alt small" data-go="gioco">Fortificala nel gioco</button><button class="btn ghost small" data-go="valuta">Rivedi</button></div></div>`:'';
-  app.innerHTML=`
-  <section class="hero">
-    ${heroSVG()}
-    <div class="title"><h1>Zombie<span>Safe House</span></h1></div>
-    <div class="boom sfx">GRRRAAH!</div>
-    <div class="cta">
-      <div class="caption">Mezzanotte. La luna è piena. Quanto resiste la tua casa alla prima notte?</div>
-      <button class="btn wide" data-go="valuta">Valuta la mia casa</button>
-      <button class="btn alt wide" data-go="gioco">Gioca con una casa d’esempio</button>
-      <button class="btn ghost wide" data-go="guida" style="margin-top:8px">❓ Come funziona</button>
-    </div>
-  </section>
-  <div class="page dots">
-    ${last}
-    <h2 style="margin:6px 0 4px">Come funziona</h2>
-    <p class="muted" style="margin-bottom:14px">Quattro tavole, circa cinque minuti. Le foto restano sul tuo telefono.</p>
-    <div class="strip">
-      <button class="panel" data-go="valuta" data-step="0"><span class="num">1</span>${vignette('map')}<div class="t"><b>Trova la zona</b><small>Dall’indirizzo: risorse vicine e livello del quartiere</small></div></button>
-      <button class="panel" data-go="valuta" data-step="1"><span class="num">2</span>${vignette('cam')}<div class="t"><b>Inquadra la casa</b><small>L’IA guarda porta, finestre e cancello</small></div></button>
-      <button class="panel" data-go="valuta" data-step="2"><span class="num">3</span>${vignette('quiz')}<div class="t"><b>Completa le risposte</b><small>28 domande, molte già compilate dall’IA</small></div></button>
-      <button class="panel" data-go="gioco"><span class="num">4</span>${vignette('game')}<div class="t"><b>Fortifica nel gioco</b><small>Prova i consigli e guarda la casa cambiare</small></div></button>
-    </div>
-    <button class="panel night" data-go="orda" style="margin-top:18px;width:100%;text-align:left;padding:0;overflow:hidden">${skyline()}<div style="padding:12px 14px"><h3 style="color:var(--moon)">Orda: il gioco</h3><p style="font-weight:400;color:#e5def5;margin-top:4px">Scaccia ondate di zombie sempre più forti e fortifica il tuo quartiere.</p></div></button>
-    <div class="panel moon" style="margin-top:18px">
-      <h3>Radio Operatore è in linea</h3>
-      <p style="margin:6px 0 10px;font-weight:400">Hai dubbi su punteggio, foto o privacy? Chiedi al chatbot.</p>
-      <button class="btn small" data-go="radio">Apri la radio</button>
-    </div>
-    <div class="row spread" style="margin:18px 0 10px"><h3>Alleati del quartiere</h3><button class="btn ghost small" data-go="sponsor">Tutti gli sponsor</button></div>
-    ${Object.values(SPONSORS).map(s=>`<div class="panel sponsor"><div class="logo">${s.logo}</div><div><b>${s.name}</b><div class="muted" style="font-size:13px">Sponsor: i suoi prodotti compaiono nel gioco come potenziamenti</div></div></div>`).join('')}
-    <button class="btn alt small" data-go="contatti" data-mot2="sponsor" style="margin-bottom:12px">Diventa alleato del quartiere</button>
-    <footer class="foot">
-      <div class="disp" style="font-size:24px;color:var(--moon)">ZombieSafeHouse</div>
-      <p>La casa sicura, raccontata con un fumetto. Un progetto nato in provincia di Mantova.</p>
-      <div class="row wrap" style="gap:8px;margin-top:10px"><button class="btn small alt" data-go="contatti">Chi siamo e contatti</button><button class="btn small ghost" data-go="contatti" data-mot2="sponsor">Per sponsor e agenzie</button></div>
-      <small>© 2026 ZombieSafeHouse S.r.l. (in costituzione)</small>
-    </footer>
-    <p class="notice" style="margin:8px 0 20px">Anteprima: zona, foto e chatbot funzionano con l’IA quando apri il file dentro Claude; altrove usano dati simulati. Nessun dato viene salvato.</p>
-  </div>`;
-  bindGo();
-}
 function bindGo(){app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{vibe();if(b.dataset.step)S.step=+b.dataset.step;if(b.dataset.mot2)S.motivo=b.dataset.mot2;else if(b.dataset.go==='contatti')S.motivo='info';go(b.dataset.go);});}
 
 /* ---------------- VALUTA ---------------- */
@@ -2659,7 +2594,6 @@ function siege(){const sTo=(f,ms)=>setTimeout(()=>{if(!document.getElementById('
 }
 
 /* ---------------- MAPPA ---------------- */
-function renderMappa(){if(S.zv==='mondo')return renderMondo();if(S.zv==='vivere')return renderVivere();renderZombieMap();}
 function renderZombieMap(){
   const v=S.vacation;
   app.innerHTML=`
@@ -4574,9 +4508,7 @@ function presPlay(id){const p=presList().find(x=>x.id===id);const ps=myProps();
       arenaResult({...res,opp:st.rec,res:res.mine>=st.rec?'win':'lose'},{nick:p.holder==='Tu'?'il record':p.holder},null,extra);}});}));}
 function bindPres(){app.querySelectorAll('[data-pres]').forEach(b=>b.onclick=()=>presPlay(b.dataset.pres));}
 /* ---------- stelle e recensioni ovunque ---------- */
-function rvKeySp(k){return'sp-'+k;}
 function rvStarsTxt(key){const l=rvList(key,8,4.2);const a=rvAvg(l);return`★ ${a.toFixed(1).replace('.',',')} (${l.length})`;}
-function rvBtn(key,name,n=8,b=4.2){return`<button class="btn small ghost" data-rvx="${esc(key)}" data-rvn="${esc(name)}" data-rvc="${n}" data-rvb="${b}">Recensioni</button>`;}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-rvx]');if(!b)return;e.stopPropagation();reviewsSheet(b.dataset.rvx,b.dataset.rvn,+b.dataset.rvc,+b.dataset.rvb);},true);
 </script>
 <script>
@@ -4667,7 +4599,6 @@ function rulesHTML(){return`<div class="rules">
   <div class="rb"><b>✨ Premi</b><p>Fino a 3 <b>stelle</b> per notte (casa poco danneggiata, nessun edificio perso). In alto c’è l’<b>obiettivo bonus</b> dell’ondata. Raccogli il <b>bottino</b> (monete, gemme, cuori) toccandolo prima che sparisca.</p></div>
   <div class="rb"><b>👆 Stile Classico</b><p>Se lo scegli nella campagna: tocchi gli zombie per colpirli (testa = critico), trascini il dito per colpirne tanti; il tocco consuma energia.</p></div>
   <button class="btn small ghost" data-tutagain style="margin-top:8px">Rifai il tutorial alla prossima battaglia</button></div>`;}
-function openRules(){openSheet('📖 Come si gioca',rulesHTML(),card=>{const b=card.querySelector('[data-tutagain]');if(b)b.onclick=()=>{G.tutDone=false;toast('Il tutorial ripartirà alla prossima battaglia');closeSheet();};});}
 const COACH=[[null,'Benvenuta nell’assedio!','Gli zombie arrivano da destra su 3 corsie. Prima abbattono la barricata, poi attaccano la casa. Il gioco è in pausa: leggi con calma.'],
  ['#cv','Le provviste','La barra gialla in basso a sinistra del campo. Si ricaricano da sole e servono per giocare le carte. Per la prova te le abbiamo riempite.'],
  ['#hand','Le carte','Il numero giallo è il costo. Le carte “su corsia”: trascinale sulla corsia (o toccale e poi tocca la corsia). Le altre agiscono subito. Prova a mettere le trappole!'],
@@ -4806,62 +4737,6 @@ function reMap(z,d,own){
     pins+=`<g class="pin" data-re="ad:${i}" style="cursor:pointer"><path d="M${x-w/2} ${y-26} h${w} v18 h${-w/2+6} l-6 8 l-6 -8 h${-w/2+6}Z" fill="${l.rent?'#2f7fb8':'#d7263d'}" stroke="${INK}" stroke-width="2.5"/><text x="${x}" y="${y-13}" text-anchor="middle" font-family="Arial" font-weight="700" font-size="10" fill="#fff">${t}</text></g>`;});
   return svg.replace(/<\/svg>\s*$/,pins+'</svg>');
 }
-function renderVivere(){
-  const z=S.reZone||S.zone;const own=z&&S.zone&&z===S.zone;
-  const head=`<div class="maphero">${vivereHero()}<div class="mh-t"><h2>Vivere qui</h2><div class="caption">Servizi, negozi, prezzi e annunci di ogni zona</div></div></div>${zoneSeg()}`;
-  const search=`<div class="panel"><label for="reQ" class="disp" style="font-size:20px">Cerca una zona o un indirizzo</label>
-     <div class="row" style="margin-top:6px"><input id="reQ" class="field" placeholder="Es. Mantova centro" value="${esc(z?z.address:'')}"><button class="btn small" id="reGo">Cerca</button></div></div>`;
-  if(!z){app.innerHTML=head+`<div class="page">${search}<div class="panel moon"><p>Scrivi una zona per vedere vivibilità, prezzi, negozi e annunci. Oppure valuta prima la tua casa: la tua zona comparirà qui.</p></div>${b2b()}</div>`;bindVivere(null);return;}
-  if(S.rvMode==='vacanza'){app.innerHTML=head+`<div class="page">${search}${rvSeg()}${vacanzaHTML(z)}</div>`;bindVivere(z,reData(z));bindReviews();return;}
-  const d=reData(z);const [lab,col]=liveLabel(d.score);
-  const L=S.reL||(S.reL={shops:true,serv:true,tr:true,sch:true,ads:true,comm:false,spons:true});
-  const ads=d.listings.filter(l=>(S.reMode||'vendita')==='affitto'?l.rent:!l.rent).sort((a,b)=>b.feat-a.feat);
-  const cats={};d.shops.forEach(s=>{(cats[s.lab]=cats[s.lab]||[]).push(s);});
-  const cmp=S.zone&&z!==S.zone?(()=>{const o=reData(S.zone);return`<div class="panel"><h3>Confronto con la tua zona</h3><table class="cmp"><tr><th></th><th>${esc(z.address)}</th><th>La tua zona</th></tr>
-     <tr><td>Vivibilità</td><td><b>${d.score}</b></td><td><b>${o.score}</b></td></tr><tr><td>Vendita €/m²</td><td>${fmtEur(d.sale)}</td><td>${fmtEur(o.sale)}</td></tr>
-     <tr><td>Affitto €/m² mese</td><td>${d.rent.toFixed(1).replace('.',',')} €</td><td>${o.rent.toFixed(1).replace('.',',')} €</td></tr><tr><td>Negozi</td><td>${d.shops.length}</td><td>${o.shops.length}</td></tr><tr><td>Fermate bus</td><td>${d.stops.length}</td><td>${o.stops.length}</td></tr></table></div>`;})():'';
-  app.innerHTML=head+`<div class="page">${search}${rvSeg()}
-   <div class="panel">
-     <div class="row spread"><div><small class="muted">Indice di vivibilità</small><h3>${esc(z.address)}</h3><span class="tag" style="background:${col}">${lab}</span></div><div class="ring-s" style="--v:${d.score};--c:${col}"><b>${d.score}</b><small>su 100</small></div></div>
-     <div class="bars" style="margin-top:8px">${d.subs.map(([n,v])=>`<div class="b"><div class="row spread"><span>${n}</span><b>${v}</b></div><div><span class="fill ${v>=65?'good':v>=50?'mid':''}" style="width:${v}%"></span></div></div>`).join('')}</div>
-     <p class="muted" style="font-size:12px;margin-top:8px">Calcolato su distanze e quantità di servizi, negozi, trasporti, scuole e verde. Non usiamo dati su criminalità o sulle persone che ci abitano.</p>
-   </div>
-   <div class="row" style="gap:8px;margin-bottom:16px">
-     <div class="stat"><b>${fmtEur(d.sale)}</b><small>al m² in vendita</small></div>
-     <div class="stat"><b>${d.rent.toFixed(1).replace('.',',')} €</b><small>al m² al mese in affitto</small></div>
-     <div class="stat"><b style="color:${d.trend>=0?'#3f9b5f':'#d7263d'}">${d.trend>=0?'▲':'▼'} ${Math.abs(d.trend).toString().replace('.',',')}%</b><small>ultimi 12 mesi</small></div>
-   </div>
-   <div class="panel mapwrap" style="padding:0;overflow:hidden" id="remap">
-     <div class="maptools">${[['ads','Annunci'],['spons','Sponsor'],['comm','Community'],['shops','Negozi partner'],['serv','Servizi pubblici'],['tr','Trasporti'],['sch','Scuole']].map(([k,l])=>`<button class="chip ${L[k]?'on':''}" data-rl="${k}">${l}</button>`).join('')}</div>
-     <div class="mapsvg">${reMap(z,d,own)}</div>
-     <div class="mapinfo" id="reinfo"><span class="muted">Tocca un segnaposto: negozi, fermate, scuole o annunci.</span></div>
-   </div>
-   <h3 style="margin:16px 0 8px">Case in zona</h3>
-   <div class="seg" style="margin-bottom:10px"><button class="${(S.reMode||'vendita')==='vendita'?'on':''}" data-rm="vendita">In vendita</button><button class="${S.reMode==='affitto'?'on':''}" data-rm="affitto">In affitto</button></div>
-   ${ads.length?ads.map((l,i)=>`<div class="listing ${l.feat?'feat':''}">
-      <img alt="${l.kl}" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(gHouse(l.t,{}))}">
-      <div style="flex:1;min-width:0">${l.feat?'<span class="tag sp">Annuncio sponsorizzato</span>':''}
-        <div class="disp" style="font-size:26px;margin-top:2px">${l.rent?fmtEur(l.price)+' al mese':fmtEur(l.price)}</div>
-        <div style="font-size:14px">${l.kl} · ${l.mq} m² · ${l.rooms} locali · classe ${l.energy}</div>
-        <div class="row" style="gap:6px;margin-top:6px"><span class="aglogo" style="background:${l.ag.c}">${l.ag.n[0]}</span><small>${l.ag.n}</small></div>
-        <button class="btn small alt" style="margin-top:8px" data-contact="${d.listings.indexOf(l)}">Contatta l’agenzia</button>
-      </div></div>`).join(''):`<div class="notice">Nessun annuncio ${S.reMode==='affitto'?'in affitto':'in vendita'} in questa zona per ora.</div>`}
-   <div id="contactBox"></div>
-   ${cmp}
-   <h3 style="margin:16px 0 8px">Negozi e attività</h3>
-   <div class="panel">${Object.entries(cats).map(([k,arr])=>`<div class="shopcat"><b>${arr[0].ic} ${k}</b><small class="muted"> · ${arr.length}</small>${arr.map(s=>{const key='s-'+z.address+'-'+s.name;const n=4+(s.name.length%7),b=3.4+(s.name.length%5)*.3;return`<div class="shoprow"><div style="flex:1;min-width:0">${s.partner?`<b class="ptn">${esc(s.name)} ★ partner</b>`:`<b>${esc(s.name)}</b>`}<div>${rvLine(key,n,b)}</div></div><button class="btn small ghost" data-rv="${esc(key)}" data-rvn="${esc(s.name)}" data-rvc="${n}" data-rvb="${b}">Recensioni</button></div>`;}).join('')}</div>`).join('')}</div>
-   <div class="panel"><b>Trasporti e scuole</b>
-     <div class="frow"><span style="font-size:20px;width:28px">🚌</span><div style="flex:1">${d.stops.length} fermate dell’autobus in zona</div></div>
-     <div class="frow"><span style="font-size:20px;width:28px">🚆</span><div style="flex:1">Stazione a ${d.station<1000?d.station+' m':(d.station/1000).toFixed(1).replace('.',',')+' km'}</div></div>
-     <div class="frow"><span style="font-size:20px;width:28px">🏫</span><div style="flex:1">${d.schools.map(s=>s.name).join(', ')}</div></div>
-     <div class="frow"><span style="font-size:20px;width:28px">🌳</span><div style="flex:1">${d.parks} aree verdi</div></div></div>
-   <h3 style="margin:16px 0 8px">Agenzie in zona</h3>
-   ${[...new Set(d.listings.map(l=>l.ag))].map(a=>`<div class="panel sponsor"><div class="logo" style="background:${a.c};color:#fff">${a.n[0]}</div><div style="flex:1"><b>${a.n}</b><div class="muted" style="font-size:13px">${d.listings.filter(l=>l.ag===a).length} annunci in zona · agenzia partner</div></div></div>`).join('')}
-   ${b2b()}
-   <p class="notice" style="margin:8px 0 20px">Anteprima: dati simulati. Nella versione pubblicata: negozi e servizi da Google Maps e OpenStreetMap, prezzi dalle quotazioni dell’Agenzia delle Entrate (OMI), annunci dalle agenzie partner. Gli annunci a pagamento sono sempre segnalati come sponsorizzati.</p>
-  </div>`;
-  bindVivere(z,d);bindReviews();wireCommunity($('#remap .mapsvg'),z,$('#reinfo'));
-}
 function b2b(){return`<div class="panel night" style="margin-top:16px"><h3 style="color:var(--moon)">Sei un’agenzia o un negozio?</h3>
    <p style="font-weight:400;color:#e5def5;margin:6px 0 10px">Chi usa ZombieSafeHouse conosce la sua zona: servizi, negozi, prezzi. Fatti trovare proprio lì.</p>
    <div class="b2b"><div><b>Vetrina di zona</b><small>Logo e scheda in evidenza nella zona scelta</small><span>da 49 € al mese</span></div>
@@ -4913,15 +4788,10 @@ const RV_TXT={
 };
 const VAC=[['hotel','Hotel','🏨',['€€','€€€']],['bb','B&B','🛏️',['€','€€']],['agri','Agriturismo','🌾',['€€']],['risto','Ristorante','🍝',['€','€€','€€€']],['attr','Da vedere','🏛️',['gratis','€']],['camp','Campeggio','⛺',['€']]];
 const VNAME={hotel:['Hotel Mincio','Hotel Alla Torre','Grand Hotel Lago'],bb:['B&B La Corte','B&B Il Glicine','B&B Casa Nonna'],agri:['Agriturismo Le Valli','Corte Bassa'],risto:['Trattoria del Ponte','Osteria La Nebbia','Pizzeria Luna Piena'],attr:['Castello medievale','Pista ciclabile del fiume','Museo civico'],camp:['Camping Riva Verde']};
-function rvGen(key,n,base){const r=rng(key.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*7+n);const out=[];
-  for(let i=0;i<n;i++){let st=Math.max(1,Math.min(5,Math.round(base+(r()-.5)*2.4)));const pool=RV_TXT[st];const tx=pool[Math.floor(r()*pool.length)];
-    out.push({nick:RV_NICK[Math.floor(r()*RV_NICK.length)],st,title:tx[0],txt:tx[1],type:RV_TYPE[Math.floor(r()*RV_TYPE.length)][0],when:['settembre 2026','agosto 2026','luglio 2026','giugno 2026','ottobre 2026'][Math.floor(r()*5)],useful:Math.floor(r()*14),ver:r()<.6});}
-  return out;}
 function rvStore(){S.rv=S.rv||{};return S.rv;}
 function rvList(key,seedN,base){const st=rvStore();if(!st[key])st[key]=rvGen(key,seedN,base);return st[key];}
 function rvAvg(l){return l.length?l.reduce((a,x)=>a+x.st,0)/l.length:0;}
 function rvStars(v,size=14){const full=Math.round(v*2)/2;return`<span class="rstars" style="font-size:${size}px" aria-label="${v.toFixed(1).replace('.',',')} su 5">${[1,2,3,4,5].map(i=>`<i class="${full>=i?'f':full>=i-.5?'h':''}"></i>`).join('')}</span>`;}
-function rvLine(key,seedN,base){const l=rvList(key,seedN,base);const a=rvAvg(l);return`${rvStars(a)} <b>${a.toFixed(1).replace('.',',')}</b> <small class="muted">(${l.length})</small>`;}
 function vacData(z){const r=rng((z.seed||7)+333);const out=[];VAC.forEach(([k,l,ic,pr])=>{(VNAME[k]||[]).forEach((nm,i)=>{if(r()<(k==='camp'&&z.type==='centro'?.1:.85))out.push({k,l,ic,name:nm,price:pr[Math.floor(r()*pr.length)],dist:Math.round(200+r()*4000),base:3.2+r()*1.6,n:6+Math.floor(r()*10),key:'v-'+(z.address||'')+'-'+nm,partner:r()<.18});});});return out;}
 function vacanzaHTML(z){
   const items=vacData(z);const f=S.vf||'tutti';const sorted=items.filter(x=>f==='tutti'||x.k===f).sort((a,b)=>(b.partner-a.partner)||(rvAvg(rvList(b.key,b.n,b.base))-rvAvg(rvList(a.key,a.n,a.base))));
@@ -5178,7 +5048,6 @@ function renderSponsor(){
    ========================================================= */
 const RM={cache:{}};
 const RM_R=380;
-function rmTimeout(ms){const c=new AbortController();setTimeout(()=>c.abort(),ms);return c.signal;}
 async function rmFetch(addr){
   if(RM.cache[addr])return RM.cache[addr];
   const w=await trWhere(addr);const lat=w.lat,lon=w.lon;const key='zsh_rm2_'+lat.toFixed(5)+'_'+lon.toFixed(5);
@@ -5320,13 +5189,6 @@ function scudoSteps(){const r=S.result,m=Object.keys(S.rmiss||{}).length,g=(type
    ['✅','Fai 2 missioni della casa vera',m>=2,'mondo'],['🧾','Un acquisto verificato da uno sponsor',!!g,'mondo']];}
 function scudoLv(){return scudoSteps().filter(s=>s[2]).length;}
 function scudoBonus(lv){return{bar:lv*8,pv:Math.floor(lv/2)};}
-function scudoBar(){const lv=scudoLv(),b=scudoBonus(lv);
-  return`<button class="scudo" data-scudo><span class="sc-i">🛡️</span><span class="sc-t"><b>Scudo della casa vera · ${lv}/5</b><span class="sc-b">${[1,2,3,4,5].map(i=>`<i class="${i<=lv?'on':''}"></i>`).join('')}</span><small>${lv?`Nel gioco: barricata +${b.bar}%${b.pv?` · +${b.pv} provvist${b.pv>1?'e iniziali':'a iniziale'}`:''}`:'Migliora la casa vera per essere più forte qui'}</small></span><span class="sc-a">›</span></button>`;}
-function openScudo(){const st=scudoSteps(),lv=scudoLv(),b=scudoBonus(lv);
-  openSheet('🛡️ Scudo della casa vera',`<p style="font-weight:400;margin-bottom:8px">Una regola sola: <b>quello che fai per la casa vera ti rende più forte nel gioco.</b></p>
-   <div class="scl">${st.map(s=>`<div class="${s[2]?'ok':''}"><span>${s[2]?'✅':s[0]}</span><b>${s[1]}</b>${s[2]?'<small>fatto</small>':`<button class="btn small" data-sgo="${s[3]}">Fai</button>`}</div>`).join('')}</div>
-   <div class="panel moon" style="margin-top:10px"><b>Il tuo Scudo ora: ${lv}/5</b><p style="font-weight:400;margin-top:4px">Ogni livello: <b>+8% barricata</b> di casa tua. Ogni 2 livelli: <b>+1 provvista</b> all’inizio della notte. In più il <b>viatico</b> ti fa partire da una notte più avanzata.</p><p style="font-weight:400;margin-top:4px">Ora: barricata +${b.bar}% · provviste +${b.pv}.</p></div>`,
-   card=>card.querySelectorAll('[data-sgo]').forEach(x=>x.onclick=()=>{closeSheet();if(x.dataset.sgo==='mondo'){S.zv='mondo';go('mappa');}else go('valuta');}));}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-scudo]');if(b){vibe();openScudo();}},true);
 /* pagina Come funziona */
 function renderGuida(){const lv=scudoLv();
@@ -5357,14 +5219,6 @@ function bizSpots(z){const r=rng((z.seed||7)+91);return BIZ_DEMO.map((b,i)=>({i,
 function bizLayer(z){return`<g class="bizL">${bizSpots(z).map(b=>`<g data-biz="${b.i}" style="cursor:pointer" opacity=".95"><circle cx="${b.x}" cy="${b.y}" r="11" fill="#9aa4b0" stroke="#140f1f" stroke-width="2"/><text x="${b.x}" y="${b.y+4}" text-anchor="middle" font-size="11">${b.ic}</text></g>`).join('')}</g>`;}
 const dist=d=>d<1000?d+' m':(d/1000).toFixed(1).replace('.',',')+' km';
 const mapsLink=(name,z)=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name+' '+((z&&z.address)||''))}`;
-function bizSheet(b,z){const key='biz-'+(z.seed||7)+'-'+b.i;
-  const nav=b.ll?`https://www.google.com/maps/dir/?api=1&destination=${b.ll[0]},${b.ll[1]}`:mapsLink(b.name,z);
-  const tel=(b.tel||'').replace(/[^\d+]/g,'');const web=b.web&&/^https?:/.test(b.web)?b.web:(b.web?'https://'+b.web:'');
-  openSheet(`${b.ic} ${esc(b.name)}`,`<p class="muted">${esc(b.cat)} · a ${dist(b.d)}${b.cand?' · <b style="color:#b8860b">📌 posto sponsor libero</b>':''}</p>
-   <div class="row" style="gap:8px;align-items:center;margin:8px 0">${rvLine(key,5,4)}${rvBtn(key,b.name,5,4)}</div>
-   <div class="splinks"><a class="btn small ghost" href="${nav}" target="_blank" rel="noopener">🧭 Indicazioni</a>${tel?`<a class="btn small ghost" href="tel:${tel}">📞 Chiama</a>`:''}${web?`<a class="btn small ghost" href="${esc(web)}" target="_blank" rel="noopener">🌐 Sito</a>`:''}</div>
-   <div class="claim"><b>${b.cand?'Questa attività può diventare il presidio sponsor della zona':'È la tua attività?'}</b><p>${b.cand?'Bollino giallo sulla mappa, offerta con codice in cassa, preventivi dai clienti della zona, presidio nel gioco (+5% barricata a chi abita vicino) e statistiche.':'Mettiti in evidenza: bollino sulla mappa, offerte con codice, contatti diretti, presenza nel gioco e statistiche delle visite.'}</p><button class="btn wide" data-claim>${b.cand?'Diventa sponsor':'Mettiti in evidenza'}</button></div>`,
-   card=>{card.querySelector('[data-claim]').onclick=()=>{closeSheet();S.motivo=b.cand?'sponsor':'negozio';S.motivoBiz=b.name;go('contatti');};});}
 function poiSheet(r,z){const key='p-'+(z.address||'')+'-'+r.name;const ic=(RES_ICON[r.kind]||['📍'])[0];
   openSheet(`${ic} ${esc(r.name)}`,`<p class="muted">Servizio pubblico · a ${dist(r.dist)}</p><div class="row" style="gap:8px;align-items:center;margin:8px 0">${rvLine(key,6,4)}${rvBtn(key,r.name,6,4)}</div>
    <div class="splinks"><a class="btn small" href="${mapsLink(r.name,z)}" target="_blank" rel="noopener">🧭 Indicazioni</a></div>`);}
@@ -5578,7 +5432,6 @@ function accShow(sel){document.querySelectorAll('.acc-hl').forEach(e=>e.classLis
   setTimeout(()=>{const r=el.getBoundingClientRect();const tip=document.createElement('div');tip.className='acc-tip';tip.textContent='👆 Tocca qui';tip.style.left=Math.max(8,Math.min(innerWidth-130,r.left+r.width/2-60))+'px';tip.style.top=(r.bottom+8)+'px';document.body.appendChild(tip);},450);
   const off=()=>{el.classList.remove('acc-hl');document.querySelectorAll('.acc-tip').forEach(e=>e.remove());document.removeEventListener('pointerdown',off,true);};
   setTimeout(()=>document.addEventListener('pointerdown',off,true),500);setTimeout(off,9000);}
-function accSay(t){try{if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='it-IT';u.rate=.95;speechSynthesis.speak(u);}catch(e){}}
 function accBar(){let b=document.getElementById('accBar');if(!S.acc.on){if(b)b.remove();return;}
   const [h,t,sel]=accNext();if(!b){b=document.createElement('div');b.id='accBar';document.body.appendChild(b);}
   b.innerHTML=`<div class="ab-t"><b>🙋 ${h}</b><span>${t}</span></div><div class="ab-b">${sel?'<button data-ab="show">Mostrami dove</button>':''}<button data-ab="guide">📖 Guida</button><button data-ab="x" aria-label="Chiudi">✕</button></div>`;
@@ -5642,7 +5495,6 @@ document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest
 CONFIG.SB_URL='https://wmweptdpfworispqjhto.supabase.co';
 CONFIG.SB_KEY='sb_publishable_kaNxtTEWBzAdqGVAp_wLdA_XzOtNQFp';
 let SB=null;const SAVE_KEY='zsh_v2_salvataggio';const SNAP={b:null,at:0};
-function sbReady(){return!!SB;}
 (function loadSB(){if(!CONFIG.SB_KEY||CONFIG.SB_KEY.indexOf('%%')===0)return;
   const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';
   s.onload=async()=>{try{SB=window.supabase.createClient(CONFIG.SB_URL,CONFIG.SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
@@ -5920,8 +5772,6 @@ async function liveMap(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[ad
   const fit=()=>{try{map.resize();if(!touched)map.jumpTo({center:[m.lon,m.lat]});}catch(e){}};
   [120,400,1200].forEach(t=>setTimeout(fit,t));try{new ResizeObserver(fit).observe(box);}catch(e){}
   return lm;}
-function lmPoi(name,cat,d,ll,pub){openSheet(`📍 ${esc(name)}`,`<p class="muted">${esc(cat)}${pub?' · servizio pubblico':''} · a ${d<1000?d+' m':(d/1000).toFixed(1).replace('.',',')+' km'}</p>
-  <div class="splinks" style="margin-top:8px"><a class="btn small" href="https://www.google.com/maps/dir/?api=1&destination=${ll[0]},${ll[1]}" target="_blank" rel="noopener">🧭 Indicazioni</a></div>`);}
 /* Mondo, Valuta e scheda "zona vera" */
 const _rmMount19=rmMount;
 rmMount=async function(box,addr){const el=box.querySelector('.rm-svg'),info=box.querySelector('.rm-info');
@@ -6226,7 +6076,7 @@ splitHub=function(){_splitHubTR();try{if((G.sub||'q')!=='q'||app.querySelector('
   const bm=p.querySelector('[data-terrmap]');if(bm)bm.onclick=()=>{S.zv='mondo';go('mappa');};}catch(e){console.warn('bollettino',e);}};
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611091545';
+const ZSH_BUILD='202611091900';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -7557,10 +7407,6 @@ const GK={mattoni:['🧱','Mattoni'],monete:['🪙','Monete'],cibo:['🥫','Cibo
 async function ayLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return;if(!force&&Date.now()-AY.t<60000)return;AY.t=Date.now();
   try{const a=await SB.rpc('world_allies');if(!a.error)AY.list=a.data||[];const l=await SB.rpc('world_loans');if(!l.error)AY.loans=l.data||[];}catch(e){}ayRefresh();}
 /* regali ricevuti: monete, gemme, materiali entrano nella partita */
-async function ayInbox(){if(!S.user||typeof SB==='undefined'||!SB||typeof G==='undefined'||!G.type)return;try{const{data,error}=await SB.rpc('world_gifts_in');if(error||!data||!data.length)return;
-  const got=[];for(const g of data){const r=await SB.rpc('world_gift_claim',{p_id:g.id});if(r.data&&r.data.ok){const k=g.kind;
-    if(k==='monete')G.coins+=g.amount;else if(k==='gemme')G.gems+=g.amount;else{G.mat=G.mat||{};G.mat[k]=(G.mat[k]||0)+g.amount;}got.push(`${GK[k][0]} ${g.amount} da @${g.nick}`);}}
-  if(got.length){try{saveLocal();sfx('coin');}catch(e){}toast('🎁 Regali ricevuti: '+got.join(' · '));}}catch(e){}}
 const _wMineAY=wMine;wMine=async function(silent){await _wMineAY(silent);ayInbox();};
 function ayHTML(){if(!S.user)return'';const L=AY.list,LO=AY.loans;
   return`<div class="ayb"><h4 class="ah">🤝 I tuoi alleati (${L.length})</h4>
@@ -7568,18 +7414,6 @@ function ayHTML(){if(!S.user)return'';const L=AY.list,LO=AY.loans;
    ${LO.length?`<h4 class="ah">📒 Prestiti in corso</h4>${LO.map(l=>`<div class="arow"><div><b>${l.dir==='dato'?'Hai prestato':'Devi restituire'} 🧱 ${l.left_due}</b><small>${l.dir==='dato'?'a':'a'} @${esc(l.nick)} · ${new Date(l.due_at)>new Date()?'torna il '+new Date(l.due_at).toLocaleDateString('it-IT',{day:'numeric',month:'short'}):'in restituzione'}</small></div></div>`).join('')}`:''}</div>`;}
 function ayRefresh(){try{const p=app.querySelector('.apan');if(!p)return;const old=p.querySelector('.ayb');const n=document.createElement('div');n.innerHTML=ayHTML();const nb=n.firstElementChild;if(!nb)return;if(old)old.replaceWith(nb);else{const iv=p.querySelector('[data-ainv]');if(iv)iv.insertAdjacentElement('beforebegin',nb);else p.appendChild(nb);}ayBind();}catch(e){}}
 function ayBind(){app.querySelectorAll('[data-agive]').forEach(b=>b.onclick=()=>aySheet(b.dataset.agive,b.dataset.anick));}
-function aySheet(uid,nick){let kind='mattoni',loan=true;const have=k=>k==='mattoni'?(W.m?W.m.mattoni:0):k==='monete'?G.coins:k==='gemme'?G.gems:((G.mat||{})[k]||0);
-  const draw=card=>{card.querySelector('.ayk').innerHTML=Object.entries(GK).map(([k,v])=>`<button class="chip ${k===kind?'on':''}" data-k="${k}">${v[0]} ${v[1]}<small> (${wNum(have(k))})</small></button>`).join('');
-    card.querySelector('.aym').innerHTML=kind==='mattoni'?`<button class="chip ${loan?'on':''}" data-m="1">🤝 Presta (torna fra 3 giorni)</button><button class="chip ${!loan?'on':''}" data-m="0">🎁 Regala</button>`:'<span class="muted" style="font-size:12.5px">Monete, gemme e materiali si possono solo regalare.</span>';
-    card.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{kind=b.dataset.k;if(kind!=='mattoni')loan=false;draw(card);});card.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{loan=b.dataset.m==='1';draw(card);});};
-  openSheet('🎁 A @'+esc(nick),`<p style="font-weight:400">Cosa vuoi dare?</p><div class="ayk chips" style="margin:6px 0"></div><div class="aym" style="margin:6px 0"></div>
-   <label class="disp" style="font-size:16px">Quantità</label><input id="ayN" type="number" inputmode="numeric" min="1" value="50" class="field">
-   <p class="muted" style="font-size:12px;margin:6px 0">Limiti al giorno: 300 Mattoni, 1.000 monete, 20 gemme, 10 per materiale.</p>
-   <button class="btn wide" data-ayok>Conferma</button>`,card=>{draw(card);card.querySelector('[data-ayok]').onclick=async()=>{const n=Math.floor(+card.querySelector('#ayN').value||0);if(n<1){toast('Scrivi una quantità');return;}
-     if(have(kind)<n){toast('Non ne hai abbastanza');return;}const btn=card.querySelector('[data-ayok]');btn.disabled=true;
-     try{const{data,error}=await SB.rpc('world_give',{p_to:uid,p_kind:kind,p_amount:n,p_loan:kind==='mattoni'&&loan});if(error)throw error;
-       if(data.ok){if(kind==='monete')G.coins-=n;else if(kind==='gemme')G.gems-=n;else if(kind!=='mattoni'){G.mat[kind]-=n;}try{saveLocal();}catch(e){}toast('✅ '+data.msg);closeSheet();wMine(true);ayLoad(true);}else{toast(data.msg);btn.disabled=false;}}
-     catch(e){toast(e.message||'Non riuscito');btn.disabled=false;}};});}
 /* il pannello alleati mostra anche gli alleati, regali e prestiti */
 const _alHTMLAY=alHTML;alHTML=function(){const h=_alHTMLAY();return h?h.replace('<button class="btn ghost small" data-ainv',ayHTML()+'<button class="btn ghost small" data-ainv'):h;};
 const _alBindAY=alBind;alBind=function(){_alBindAY();ayBind();ayLoad();};
@@ -7594,11 +7428,6 @@ function luckTopHTML(){try{luckInit();}catch(e){}const ds=(typeof dailyState==='
     <button data-lt="scratch" class="${G.scratch>0?'hot':''}"><span>🎟️</span><b>Gratta e vinci</b><small>${G.scratch||0} ${G.scratch===1?'biglietto':'biglietti'}</small></button>
     <button data-lt="jar"><span>🫙</span><b>Barattolo</b><small>${Math.min(tot,goal)}/${goal}</small></button></div>
    <p class="muted" style="font-size:12px;margin:8px 0 0">Giri e biglietti si guadagnano riscattando l’orda, vincendo notti e aiutando gli alleati.</p></div>`;}
-function luckTopBind(){const p=app.querySelector('.lpan');if(!p)return;p.querySelectorAll('[data-lt]').forEach(b=>b.onclick=()=>{const k=b.dataset.lt;
-  if(k==='wheel'){if(G.spins>0)wheelSheet();else toast('Niente giri: riscatta l’orda o vinci una notte');return;}
-  if(k==='scratch'){if(G.scratch>0)scratchSheet();else toast('Niente biglietti: aiuta un alleato o vinci una notte');return;}
-  const t=k==='daily'?document.getElementById('dClaim'):document.querySelector('[data-luck]');if(t){const f=t.closest('details');if(f)f.open=true;const sec=t.closest('[data-grp]');if(sec&&sec.hidden){G.sub=sec.dataset.grp;renderHub();setTimeout(()=>{const t2=k==='daily'?document.getElementById('dClaim'):document.querySelector('[data-luck]');if(t2){const f2=t2.closest('details');if(f2)f2.open=true;t2.scrollIntoView({behavior:'smooth',block:'center'});}},150);return;}
-    t.scrollIntoView({behavior:'smooth',block:'center'});if(k==='daily'&&!t.disabled)setTimeout(()=>t.click(),600);}});}
 const _splitHubL=splitHub;splitHub=function(){_splitHubL();try{if((G.sub||'q')!=='q'||app.querySelector('.lpan'))return;const anchor=app.querySelector('.apan')||app.querySelector('.opan');const h=luckTopHTML();
   if(anchor)anchor.insertAdjacentHTML('afterend',h);else{const pg=app.querySelector('.page');if(pg)pg.insertAdjacentHTML('afterbegin',h);}const p=app.querySelector('.lpan');if(p){p.dataset.grp='q';luckTopBind();}}catch(e){console.warn('fortuna',e);}};
 /* manuale */
@@ -7613,9 +7442,6 @@ const _manualAY=manualHTML;manualHTML=function(){return _manualAY().replace('<de
    ========================================================= */
 ICON.io='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
 const NAV_ACT={home:'home',valuta:'home',gioco:'home',mappa:'mappa',orda:'orda',io:'io',radio:'io',contatti:'io',sponsor:'io',guida:'io'};
-renderNav=function(){try{document.body.dataset.tab=S.tab;}catch(e){}const items=[['home','Casa'],['mappa','Mappa'],['orda','Orda'],['io','Io']];const act=NAV_ACT[S.tab]||S.tab;
-  $('#nav').innerHTML=items.map(([k,l])=>`<button class="${act===k?'on':''}" data-tab="${k}" aria-label="${l}">${ICON[k]}<span>${l}</span></button>`).join('');
-  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{try{vibe();}catch(e){}go(b.dataset.tab);});};
 const _goS=go;go=function(tab){if(tab!=='io')return _goS(tab);window.__last='apre io';document.body.classList.remove('inbattle');
   if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab='io';renderNav();window.scrollTo(0,0);try{setMusic('app');}catch(e){}try{closeSheet();}catch(e){}renderIo();};
 
@@ -7819,9 +7645,6 @@ NAV_ACT.social='social';NAV_ACT.io='io';
 renderNav=function(){try{document.body.dataset.tab=S.tab;}catch(e){}const items=[['home','Casa'],['mappa','Mappa'],['orda','Orda'],['social','Superstiti']];const act=NAV_ACT[S.tab]||S.tab;
   $('#nav').innerHTML=items.map(([k,l])=>`<button class="${act===k?'on':''}" data-tab="${k}" aria-label="${l}">${ICON[k]}<span>${l}</span></button>`).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{try{vibe();}catch(e){}go(b.dataset.tab);});socBadge();ioBtn();};
-function ioBtn(){try{let b=document.getElementById('ioBtn');const top=document.querySelector('.topbar')||document.querySelector('header');if(!top)return;
-  if(!b){top.insertAdjacentHTML('beforeend','<button id="ioBtn" aria-label="Il mio profilo"></button>');b=document.getElementById('ioBtn');b.onclick=()=>go('io');}
-  const nk=S.user?(S.user.nick||(S.user.email||'?').split('@')[0]):'';b.textContent=S.user?(nk[0]||'?').toUpperCase():'👤';b.classList.toggle('on',S.tab==='io');}catch(e){}}
 const _goSoc=go;go=function(tab){if(tab!=='social')return _goSoc(tab);window.__last='apre superstiti';document.body.classList.remove('inbattle');
   if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab='social';renderNav();window.scrollTo(0,0);try{setMusic('app');}catch(e){}try{closeSheet();}catch(e){}renderSocial();};
 /* in Casa: le novità dei superstiti, per entrarci ogni giorno */
@@ -7847,10 +7670,6 @@ function spDraw(lm){if(!lm||!lm.map)return;(lm._sp2||[]).forEach(x=>x.remove());
     el.style.zIndex='6';el.addEventListener('click',e=>{e.stopPropagation();try{dbEvent&&dbEvent(k,'map_tap');}catch(x){}sponsorSheet(k,z);});
     lm._sp2.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([g.lon,g.lat]).addTo(lm.map));});}
 /* 3) elenco degli sponsor per distanza, con "portami lì" */
-function spList(lm){let c=null;try{c=lm&&lm.map&&lm.map.getCenter?lm.map.getCenter():null;}catch(e){}const o=c?{lat:c.lat,lon:c.lng}:(S.zone&&S.zone.real)||null;
-  const L=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&SPONSORS[k]).map(([k,g])=>({k,g,d:o?trM(o.lat,o.lon,g.lat,g.lon):0})).sort((a,b)=>a.d-b.d);
-  openSheet(`⭐ Sponsor (${L.length})`,L.length?`<div class="splist">${L.map(x=>`<button class="strow" data-spk="${x.k}"><span class="splogo">${esc(SPONSORS[x.k].logo)}</span><div><b>${esc(SPONSORS[x.k].name)}</b><small>${esc(spCAT()[x.k]||'Sponsor')} · ${dist(Math.round(x.d))}${spOFF()[x.k]?' · '+esc(spOFF()[x.k]):''}</small></div></button>`).join('')}</div>`:'<p class="muted">Nessuno sponsor ancora.</p>',card=>{
-    card.querySelectorAll('[data-spk]').forEach(b=>b.onclick=()=>{const k=b.dataset.spk,g=SP_GEO[k];closeSheet();try{lm.map.flyTo({center:[g.lon,g.lat],zoom:17});}catch(e){}setTimeout(()=>sponsorSheet(k,S.zone||{seed:7}),900);});});}
 const _liveMapSp=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapSp(el,addr,o);try{spDraw(lm);setTimeout(()=>spDraw(lm),2500);
 }catch(e){}return lm;};
 /* i dati degli sponsor arrivati dopo: ridisegno senza ricaricare la pagina */
@@ -7940,15 +7759,6 @@ document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.c
    logo · contatore · 🔔 novità · ☰ menu
    il menu raggiunge TUTTO: casa, gioco, community, aiuto, account
    ========================================================= */
-function zmItems(){const u=S.user;const adm=!!window.__zmAdmin,shop=!!window.__zmShop;
-  return[
-   ['La mia casa',[['📷','Valuta o aggiorna la casa','valuta'],['📋','Piano d’azione e sponsor','home'],['📍','Correggi la posizione','pos'],['🚚','Ho cambiato casa','move']]],
-   ['Gioco',[['☀️','Oggi: orda, premi, missioni','g:oggi'],['🌍','Il mio impero','g:impero'],['⚔️','Difendi tu (notti)','g:difendi'],['🎁','Premi e fortuna','g:oggi'],['💎','Bottega','io']]],
-   ['Community',[['💬','Piazza (chat)','s:piazza'],['📰','Bacheca','s:bacheca'],['🤝','La mia squadra','s:squadra'],['🏆','Classifiche','s:classifiche'],['📨','Invita amici e vicini','invite']]],
-   ['Aiuto',[['🧭','Giro guidato','tour'],['📖','Come si gioca','rules'],['📻','Radio Operatore','radio'],['⭐','Sponsor e come diventarlo','sponsor'],['✉️','Chi siamo e contatti','contatti']]],
-   ['Account',[...(u?[['👤','Il mio profilo','io']]:[]),['toggle','Visibile sulla mappa','vis',u?!!S.pubOk:null],['toggle','Suoni del gioco','snd',!(typeof G!=='undefined'&&G.mute)],['toggle','Musica','mus',!!(window.AUD&&AUD.on&&AUD.started)],
-     ['🔒','Privacy','url:privacy.html'],['📄','Termini','url:termini.html'],...(adm?[['🛠️','Pannello admin INDZ','url:admin.html']]:[]),...(shop?[['🏪','Pannello del mio negozio','url:negozio.html']]:[]),
-     ...(u?[['🚪','Esci dall’account','logout'],['🗑','Elimina il mio account','del']]:[])]]];}
 function zmHTML(){const u=S.user,m=window.W&&W.m;const nk=u?(u.nick||(u.email||'?').split('@')[0]):'';
   const head=u?`<div class="zmhead"><span class="zmav">${esc((nk[0]||'?').toUpperCase())}</span><div><b>@${esc(nk)}</b><small>Livello mondo ${m?m.wlevel:'…'}</small>${typeof STATS!=='undefined'&&STATS.reg?`<span class="zmstats">👥 ${STATS.reg} superstiti · 🟢 ${STATS.on||0} online ora</span>`:''}<div class="zmwal"><span>🧱 ${m?wNum(m.mattoni):'…'}</span><span>💎 ${(typeof G!=='undefined'&&G.gems)||0}</span><span>🪙 ${(typeof G!=='undefined'&&G.coins)||0}</span></div></div></div>`
     :`<div class="zmhead"><span class="zmav">👤</span><div><b>Ospite</b><small>Accedi per salvare i progressi e giocare con gli altri</small><button class="btn small" data-zm="login" style="margin-top:6px">Accedi o registrati</button></div></div>`;
@@ -8054,7 +7864,7 @@ try{const _ssOfReg=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.acard'
 /* mappa: i pulsanti della barra dell'orda aprono la regia */
 const _renderMappaReg=renderMappa;renderMappa=function(){_renderMappaReg();try{const r=app.querySelector('[data-mfraid]');if(r){r.textContent='🎬 Assalti';r.onclick=e=>{e.stopPropagation();assalto('last');};}}catch(e){}};
 /* menu: due voci nuove */
-try{const _zmItemsReg=zmItems;zmItems=function(){const L=_zmItemsReg();const g=L.find(x=>x[0]==='Gioco');if(g)g[1].unshift(['🎬','Guarda gli assalti','a:last'],['🔮','Simula la prossima orda','a:sim']);const a=L.find(x=>x[0]==='Account');if(a)a[1].unshift(['🔔','Notifiche delle orde','push']);return L;};
+try{
   const _zmDoReg=zmDo;zmDo=function(k,b){if(k==='a:last'||k==='a:sim'){zmClose();assalto(k.slice(2));return;}if(k==='push'){zmClose();pushSheet();return;}return _zmDoReg(k,b);};}catch(e){}
 
 /* ---------------- 🔔 NOTIFICHE PUSH ---------------- */
@@ -8374,9 +8184,6 @@ function oggiCardHTML(){const n=new Date();const d=OGGI.d;const nx=oggiNext();co
    <div class="oci"><b class="occ" data-clock>${n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</b>
     <span>${cur?`${wIcon(cur.weather_code)} ${Math.round(cur.temperature_2m)}°C ora · `:''}🧟 orda alle ${String(nx.getHours()).padStart(2,'0')}:00${a?` · ${a.ic} ${a.t}°C`:''}</span>
     <em>${a?esc(a.eff):'Tocca per il meteo e il calendario'}</em></div><i class="ocgo">›</i></button>`;}
-function oggiPut(){try{if(S.tab!=='orda'||G.view!=='hub')return;const pg=app.querySelector('.page');if(!pg)return;let c=pg.querySelector('.ocal');const h=oggiCardHTML();
-  if(c){const t=document.createElement('div');t.innerHTML=h;c.replaceWith(t.firstElementChild);}else{const o=pg.querySelector('.opan');if(o)o.insertAdjacentHTML('beforebegin',h);else return;}
-  c=pg.querySelector('.ocal');c.dataset.grp='q';c.onclick=oggiSheet;}catch(e){}}
 try{const _ssOfOg=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.ocal'))return'oggi';return _ssOfOg(el);};}catch(e){}
 const _splitHubOg=splitHub;splitHub=function(){_splitHubOg();oggiPut();try{ssApply();}catch(e){}if(!OGGI.d||Date.now()-OGGI.t>20*60*1000)oggiMeteo().then(()=>oggiPut());};
 setInterval(()=>{const n=new Date();document.querySelectorAll('[data-clock]').forEach(e=>{e.textContent=n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});});},1000);
@@ -8573,7 +8380,6 @@ const _houseSheetEq=houseSheet;houseSheet=async function(h){await _houseSheetEq(
 try{const _wSheetEq=wSheet;wSheet=async function(){const r=await _wSheetEq.apply(this,arguments);try{const c=document.querySelector('#sheet.open .sheet-b');const buy=c&&[...c.querySelectorAll('button')].find(b=>/^\s*(🛒|🔑|🏠)?\s*Compra/.test(b.textContent));if(c&&!c.querySelector('.hshead')&&buy&&EQ.s&&EQ.s.houses>0&&!c.querySelector('.eqpr'))
   buy.insertAdjacentHTML('beforebegin',`<p class="eqpr">Hai già ${EQ.s.houses} ${EQ.s.houses===1?'casa':'case'} comprate: il prezzo è +${EQ.s.houses*10}% (chi ha più case paga di più, così il mondo resta aperto ai nuovi).</p>`);}catch(e){}return r;};}catch(e){}
 /* 6) padrino: nell'invito si spiega il premio */
-function eqPad(){const c=document.querySelector('#sheet.open');if(c&&/[Ii]nvit/.test(c.textContent)&&!c.querySelector('.eqpad'))c.insertAdjacentHTML('beforeend','<p class="eqpad">🤝 <b>Padrino</b>: per i primi 14 giorni ricevi anche il 10% in più di quello che guadagna chi hai invitato (a lui non togliamo niente).</p>');}
 try{const _inviteSheetEq=inviteSheet;inviteSheet=function(){const r=_inviteSheetEq.apply(this,arguments);[0,300,900].forEach(t=>setTimeout(eqPad,t));return r;};}catch(e){}
 setInterval(()=>{if(S.user&&document.visibilityState==='visible')eqLoad();},5*60*1000);
 </script>
@@ -8683,18 +8489,6 @@ function frNode(){if(FR.node)return FR.node;const d=document.createElement('div'
    <div class="frinfo"><div class="frchips" data-frchips></div><div class="frleg" data-frleg></div>
    <p class="muted" style="font-size:11.5px;margin:6px 0 0">Strade: <b style="color:#2f9e44">verde</b> piano · <b style="color:#e8590c">arancio</b> salita verso casa (zombie più lenti) · <b style="color:#d7263d">rosso</b> discesa (più veloci). Tocca uno zombie per vederlo. L’esito dell’orda del mondo lo decide il server con livello, preparazione e aiuti; meteo e salite cambiano la marcia qui e nelle notti che giochi.</p></div>`;
   d.querySelector('[data-frcal]').onclick=e=>{e.stopPropagation();oggiSheet();};FR.node=d;return d;}
-async function frMount(){const R=S.zone&&S.zone.real;if(!R||!FR.node)return;const box=FR.node.querySelector('.frmap');const key=(S.zone.address||'')+'|'+R.lat.toFixed(4);
-  frHeader();if(FR.lm&&FR.key===key){try{FR.lm.map.resize();}catch(e){}frLoop();return;}
-  FR.key=key;frStop();try{const nx=oggiNext();FR.lm=await liveMap(box,S.zone.address,{zoom:15.4,night:nx.getHours()>=18||nx.getHours()<7});}catch(e){box.innerHTML='<p class="muted" style="padding:20px">Mappa non disponibile ora.</p>';return;}
-  const m=RM.cache&&RM.cache[S.zone.address];FR.paths=frPaths(R,m);
-  try{const map=FR.lm.map;const draw=()=>{try{const fs=[];FR.paths.forEach(P=>P.seg.forEach(s=>fs.push({type:'Feature',properties:{c:frCol(s.g)},geometry:{type:'LineString',coordinates:[[s.a[1],s.a[0]],[s.b[1],s.b[0]]]}})));
-      if(map.getSource('fr-p'))map.getSource('fr-p').setData({type:'FeatureCollection',features:fs});
-      else{map.addSource('fr-p',{type:'geojson',data:{type:'FeatureCollection',features:fs}});map.addLayer({id:'fr-pc',type:'line',source:'fr-p',paint:{'line-color':'#140f1f','line-width':9,'line-opacity':.55}});
-        map.addLayer({id:'fr-pl',type:'line',source:'fr-p',paint:{'line-color':['get','c'],'line-width':5,'line-opacity':.95}});}}catch(e){}};
-    if(map.isStyleLoaded&&map.isStyleLoaded())draw();map.on('load',draw);map.on('styledata',()=>{if(!map.getSource||!map.getSource('fr-p'))draw();});}catch(e){}
-  /* la casa con l'anello della difesa */
-  try{const h=document.createElement('div');h.className='frhome';h.innerHTML='<div class="frring"></div><b>🏠</b><span data-frpct></span>';FR.home=new maplibregl.Marker({element:h}).setLngLat([R.lon,R.lat]).addTo(FR.lm.map);}catch(e){}
-  frSpawn();frLoop();}
 function frHeader(){try{const d=FR.node;const nx=oggiNext();const n=new Date();FR.wx=frWx();const w=FR.wx;const s=OR.s||{};
   d.querySelector('[data-frnext]').innerHTML=`Orda delle <b>${String(nx.getHours()).padStart(2,'0')}:00</b> · tra ${orLeft(nx)}`;d.querySelector('[data-frday]').textContent=`${GG[n.getDay()].slice(0,3)} ${n.getDate()} ${MM[n.getMonth()].slice(0,3)}`;const mo=d.querySelector('[data-frmon]'),dd=d.querySelector('[data-frdd]');if(mo)mo.textContent=MMs[n.getMonth()];if(dd)dd.textContent=n.getDate();
   const fx=d.querySelector('.frfx'),wb=d.querySelector('.frwx');fx.className='frfx'+(w?' fx-'+w.ev:'');d.querySelector('.frmapw').classList.toggle('dark',!!(w&&w.ev==='blackout'));
@@ -8712,18 +8506,6 @@ function frSpawn(){(FR.zs||[]).forEach(z=>{try{z.mk.remove();}catch(e){}});FR.zs
 function frStop(){cancelAnimationFrame(FR.raf);FR.raf=0;}
 /* posizione della casa: dalla valutazione sul telefono, altrimenti dal server (telefono nuovo, cambio account…) */
 function frR(){try{if(S.zone&&S.zone.real&&S.zone.real.lat!=null)return S.zone.real;const H=typeof myHouses==='function'?myHouses():[];const h=H.find(x=>x.home)||H[0];return h&&h.lat!=null?{lat:h.lat,lon:h.lon}:null;}catch(e){return null;}}
-function frLoop(){frStop();FR.last=performance.now();const step=t=>{FR.raf=requestAnimationFrame(step);if(S.tab!=='orda'||document.hidden||!FR.node||!FR.node.isConnected)return;if(t-FR.last<48)return;
-  const dt=Math.min(.1,(t-FR.last)/1000);FR.last=t;const w=FR.wx;const wf=frWf(w);const R=frR();if(!R)return;
-  const st=FR.zs.filter(z=>z.k==='strillone'&&z.x>0).map(z=>z.pos).filter(Boolean);
-  FR.zs.forEach(z=>{const P=z.P;let g=0;if(z.x>=0){const sg=P.seg.find(s=>z.x>=s.s&&z.x<s.s+s.d)||P.seg[P.seg.length-1];g=sg?sg.g:0;}
-    let f=z.k==='scavatore'?1:Math.max(.45,Math.min(1.45,1-g*(z.k==='runner'?6:3)));
-    if(z.pos&&st.some(p=>trM(p[0],p[1],z.pos[0],z.pos[1])<45)&&z.k!=='strillone')f*=1.15;
-    z.x+=z.v*f*wf*dt;
-    if(z.x>=P.L){z.x=-40-Math.random()*120;try{const h=FR.node.querySelector('.frhome');if(h){h.classList.remove('hit');void h.offsetWidth;h.classList.add('hit');}}catch(e){}}
-    const d=Math.max(0,z.x);const sg=P.seg.find(s=>d>=s.s&&d<=s.s+s.d)||P.seg[P.seg.length-1];const u=sg?Math.min(1,(d-sg.s)/sg.d):0;
-    const la=sg.a[0]+(sg.b[0]-sg.a[0])*u,lo=sg.a[1]+(sg.b[1]-sg.a[1])*u;z.pos=[la,lo];try{z.mk.setLngLat([lo,la]);}catch(e){}
-    const toH=trM(la,lo,R.lat,R.lon);let op=z.x<0?0:1;if(w&&w.ev==='nebbia')op=toH<150?1:.18;z.el.style.opacity=op;z.el.classList.toggle('glow',!!(w&&w.ev==='blackout'&&toH>120));});};
-  FR.raf=requestAnimationFrame(step);}
 /* ---------- SCHEDA ORDA UNICA ---------- */
 window.ORDA_ONE=true;
 try{const _ssApplyFr=ssApply;ssApply=function(){if(!(ORDA_ONE&&S.tab==='orda'))return _ssApplyFr();const pg=app.querySelector('.page');if(!pg)return;[...pg.children].forEach(el=>{const g=ssOf(el);el.hidden=(g==='x')||el.dataset.ohide==='1';});};}catch(e){}
@@ -9535,7 +9317,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611091545';
+const APPV='202611091900';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}

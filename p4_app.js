@@ -8,59 +8,9 @@ const fmtI=v=>v.toFixed(1).replace('.',',');
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600);}
 function vibe(){try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}}
 
-function renderNav(){
-  const items=[['home','Casa'],['valuta','Valuta'],['orda','Gioco'],['mappa','Mondo']];const act=S.tab==='gioco'?'valuta':S.tab;
-  $('#nav').innerHTML=items.map(([k,l])=>`<button class="${act===k?'on':''}" data-tab="${k}" aria-label="${l}">${ICON[k]}<span>${l}</span></button>`).join('');
-  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{vibe();go(b.dataset.tab);});
-}
 function go(tab){window.__last='apre '+tab;document.body.classList.remove('inbattle');if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab=tab;renderNav();window.scrollTo(0,0);if(tab!=='orda')setMusic('app');closeSheet&&closeSheet();({sponsor:renderSponsor,contatti:renderContatti,home:renderHome,valuta:renderValuta,gioco:renderGioco,orda:()=>{G.view=G.view==='battle'?'hub':G.view;renderOrda();},mappa:renderMappa,radio:renderRadio,guida:renderGuida})[tab]();}
 
 /* ---------------- HOME ---------------- */
-function renderHome(){
-  const last=S.result?`<div class="panel night"><div class="row spread"><div><h3 style="color:var(--moon)">La tua casa</h3><p class="muted" style="color:#cfc6e6">${esc(S.zone?S.zone.address:'Valutazione completata')}</p></div>
-     <div class="disp" style="font-size:54px;color:#fff">${fmtI(S.result.idx)}</div></div>
-     <div class="row" style="margin-top:10px"><button class="btn alt small" data-go="gioco">Fortificala nel gioco</button><button class="btn ghost small" data-go="valuta">Rivedi</button></div></div>`:'';
-  app.innerHTML=`
-  <section class="hero">
-    ${heroSVG()}
-    <div class="title"><h1>Zombie<span>Safe House</span></h1></div>
-    <div class="boom sfx">GRRRAAH!</div>
-    <div class="cta">
-      <div class="caption">Mezzanotte. La luna è piena. Quanto resiste la tua casa alla prima notte?</div>
-      <button class="btn wide" data-go="valuta">Valuta la mia casa</button>
-      <button class="btn alt wide" data-go="gioco">Gioca con una casa d’esempio</button>
-      <button class="btn ghost wide" data-go="guida" style="margin-top:8px">❓ Come funziona</button>
-    </div>
-  </section>
-  <div class="page dots">
-    ${last}
-    <h2 style="margin:6px 0 4px">Come funziona</h2>
-    <p class="muted" style="margin-bottom:14px">Quattro tavole, circa cinque minuti. Le foto restano sul tuo telefono.</p>
-    <div class="strip">
-      <button class="panel" data-go="valuta" data-step="0"><span class="num">1</span>${vignette('map')}<div class="t"><b>Trova la zona</b><small>Dall’indirizzo: risorse vicine e livello del quartiere</small></div></button>
-      <button class="panel" data-go="valuta" data-step="1"><span class="num">2</span>${vignette('cam')}<div class="t"><b>Inquadra la casa</b><small>L’IA guarda porta, finestre e cancello</small></div></button>
-      <button class="panel" data-go="valuta" data-step="2"><span class="num">3</span>${vignette('quiz')}<div class="t"><b>Completa le risposte</b><small>28 domande, molte già compilate dall’IA</small></div></button>
-      <button class="panel" data-go="gioco"><span class="num">4</span>${vignette('game')}<div class="t"><b>Fortifica nel gioco</b><small>Prova i consigli e guarda la casa cambiare</small></div></button>
-    </div>
-    <button class="panel night" data-go="orda" style="margin-top:18px;width:100%;text-align:left;padding:0;overflow:hidden">${skyline()}<div style="padding:12px 14px"><h3 style="color:var(--moon)">Orda: il gioco</h3><p style="font-weight:400;color:#e5def5;margin-top:4px">Scaccia ondate di zombie sempre più forti e fortifica il tuo quartiere.</p></div></button>
-    <div class="panel moon" style="margin-top:18px">
-      <h3>Radio Operatore è in linea</h3>
-      <p style="margin:6px 0 10px;font-weight:400">Hai dubbi su punteggio, foto o privacy? Chiedi al chatbot.</p>
-      <button class="btn small" data-go="radio">Apri la radio</button>
-    </div>
-    <div class="row spread" style="margin:18px 0 10px"><h3>Alleati del quartiere</h3><button class="btn ghost small" data-go="sponsor">Tutti gli sponsor</button></div>
-    ${Object.values(SPONSORS).map(s=>`<div class="panel sponsor"><div class="logo">${s.logo}</div><div><b>${s.name}</b><div class="muted" style="font-size:13px">Sponsor: i suoi prodotti compaiono nel gioco come potenziamenti</div></div></div>`).join('')}
-    <button class="btn alt small" data-go="contatti" data-mot2="sponsor" style="margin-bottom:12px">Diventa alleato del quartiere</button>
-    <footer class="foot">
-      <div class="disp" style="font-size:24px;color:var(--moon)">ZombieSafeHouse</div>
-      <p>La casa sicura, raccontata con un fumetto. Un progetto nato in provincia di Mantova.</p>
-      <div class="row wrap" style="gap:8px;margin-top:10px"><button class="btn small alt" data-go="contatti">Chi siamo e contatti</button><button class="btn small ghost" data-go="contatti" data-mot2="sponsor">Per sponsor e agenzie</button></div>
-      <small>© 2026 ZombieSafeHouse S.r.l. (in costituzione)</small>
-    </footer>
-    <p class="notice" style="margin:8px 0 20px">Anteprima: zona, foto e chatbot funzionano con l’IA quando apri il file dentro Claude; altrove usano dati simulati. Nessun dato viene salvato.</p>
-  </div>`;
-  bindGo();
-}
 function bindGo(){app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{vibe();if(b.dataset.step)S.step=+b.dataset.step;if(b.dataset.mot2)S.motivo=b.dataset.mot2;else if(b.dataset.go==='contatti')S.motivo='info';go(b.dataset.go);});}
 
 /* ---------------- VALUTA ---------------- */
@@ -396,7 +346,6 @@ function siege(){const sTo=(f,ms)=>setTimeout(()=>{if(!document.getElementById('
 }
 
 /* ---------------- MAPPA ---------------- */
-function renderMappa(){if(S.zv==='mondo')return renderMondo();if(S.zv==='vivere')return renderVivere();renderZombieMap();}
 function renderZombieMap(){
   const v=S.vacation;
   app.innerHTML=`

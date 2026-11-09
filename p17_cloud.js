@@ -6,7 +6,6 @@
 CONFIG.SB_URL='https://wmweptdpfworispqjhto.supabase.co';
 CONFIG.SB_KEY='sb_publishable_kaNxtTEWBzAdqGVAp_wLdA_XzOtNQFp';
 let SB=null;const SAVE_KEY='zsh_v2_salvataggio';const SNAP={b:null,at:0};
-function sbReady(){return!!SB;}
 (function loadSB(){if(!CONFIG.SB_KEY||CONFIG.SB_KEY.indexOf('%%')===0)return;
   const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';
   s.onload=async()=>{try{SB=window.supabase.createClient(CONFIG.SB_URL,CONFIG.SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}});

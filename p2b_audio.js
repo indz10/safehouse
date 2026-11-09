@@ -33,7 +33,6 @@ function voice(t,f,d,o={}){const c=AUD.c;const osc=c.createOscillator();osc.type
   node.connect(g);let out=g;if(o.pan&&c.createStereoPanner){const p=c.createStereoPanner();p.pan.value=o.pan;g.connect(p);out=p;}
   out.connect(o.dest||AUD.mus);if(o.rev||o.dly){const F=fx();if(o.rev){const s=c.createGain();s.gain.value=o.rev;out.connect(s);s.connect(F.conv);}if(o.dly){const s=c.createGain();s.gain.value=o.dly;out.connect(s);s.connect(F.dl);}}
   osc.start(t);osc.stop(t+d+.1);}
-function mTone(t,f,d,type,v,dest,f2,attack=.01){voice(t,f,d,{type,v,dest,f2,a:attack,r:d*.95});}
 function mNoise(t,d,v,hp=6000,dest,band){const c=AUD.c,b=c.createBuffer(1,Math.max(1,Math.floor(c.sampleRate*d)),c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;
   const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();f.type=band?'bandpass':'highpass';f.frequency.value=band||hp;if(band)f.Q.value=1.2;s.buffer=b;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(g);g.connect(dest||AUD.mus);s.start(t);}
 /* --- batteria --- */
