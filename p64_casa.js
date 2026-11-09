@@ -62,9 +62,17 @@ async function hs_equita(h){try{const c=document.querySelector('#sheet.open');if
   const t=[EQ.s.boost?`🚀 <b>Spinta di recupero</b>: sei sotto il livello medio della tua zona${EQ.s.median!=null?' ('+Math.round(EQ.s.median)+')':''}, ogni Mattone guadagnato vale +50%.`:'',EQ.s.shield?`🛡️ <b>Scudo</b> ancora ${EQ.s.shield_days} giorni.`:''].filter(Boolean);
   if(t.length)w.insertAdjacentHTML('afterend',`<p class="eqhs">${t.join('<br>')}</p>`);}catch(e){}}
 /* disegno per tipo di edificio (era in p41_case.js) */
-async function hs_tipo(h){try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('.hsart'))return;const hd=c.querySelector('.hshead');if(!hd)return;
-  const t=h.home?(homeBT()||await bType(h.lat,h.lon,h.bid||'home')):await bType(h.lat,h.lon,h.bid);const lvl=+((c.querySelector('.hshead b')||{}).textContent||'').replace(/\D/g,'')||h.level||1;
-  hd.insertAdjacentHTML('beforebegin',`<div class="hsart">${h.home&&S.answers?houseScene(S.answers,{sid:'hs'}):houseArt(t,lvl,h.bid||'home',{k:'s'})}<span>${BT[t][0]} ${BT[t][1]}</span></div>`);}catch(e){}}
+/* disegno della casa (Fase 4a-2): il riquadro c'è subito, nella posizione giusta, con "Disegno la casa…";
+   il disegno vero arriva quando la forma dell'edificio è pronta (OpenStreetMap può metterci molti secondi)
+   e cambia solo dentro il suo riquadro. Poi casa vera a fumetto (hs_reale) e "Sul disegno" (hs_legenda). */
+function hs_tipo(h){try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('.hsart'))return;const hd=c.querySelector('.hshead');if(!hd)return;
+  hd.insertAdjacentHTML('beforebegin','<div class="hsart hswait"><p class="hswaitp"><span class="spin"></span> Disegno la casa…</p></div>');
+  const box=c.querySelector('.hsart');const tok=HS.tok;
+  HS.art=(async()=>{try{
+    const t=h.home?(homeBT()||await bType(h.lat,h.lon,h.bid||'home')):await bType(h.lat,h.lon,h.bid);if(tok!==HS.tok||!box.isConnected)return;
+    const lvl=+((c.querySelector('.hshead b')||{}).textContent||'').replace(/\D/g,'')||h.level||1;
+    box.classList.remove('hswait');box.innerHTML=`${h.home&&S.answers?houseScene(S.answers,{sid:'hs'}):houseArt(t,lvl,h.bid||'home',{k:'s'})}<span>${BT[t][0]} ${BT[t][1]}</span>`;
+    await hs_reale(h);if(tok!==HS.tok||!box.isConnected)return;await hs_legenda(h);}catch(e){console.warn('disegno casa',e);}})();}catch(e){}}
 /* casa vera a fumetto (forma da OpenStreetMap) (era in p42_reale.js) */
 async function hs_reale(h){try{const c=document.querySelector('#sheet.open');const box=c&&c.querySelector('.hsart');if(!box)return;const lvl=+((c.querySelector('.hshead b')||{}).textContent||'').replace(/\D/g,'')||h.level||1;
   const tmp=document.createElement('div');const g=await drawHouse(tmp,h,{lvl,a:h.home?(S.answers||{}):{},prep:!!(OR.s&&OR.s.prepared),helps:h.home?Math.min(4,+((OR.s||{}).helps_in||0)):0});
@@ -126,6 +134,9 @@ async function houseSheet(h){const tok=++HS.tok;
   const sh=document.getElementById('sheet');const card=sh&&sh.querySelector('.sheet-card');const body=card&&card.querySelector('.sheet-b');if(!body)return;
   hsHide(card);
   const reveal=()=>{body.style.visibility='';const l=card.querySelector('.hsload');if(l)l.remove();};const t=setTimeout(reveal,HS_MAXMS);
-  for(const f of [hs_mattoni,hs_attivita,hs_equita,hs_tipo,hs_reale,hs_tenuta,hs_zombie,hs_fortezze,hs_pagina,hs_residenti,hs_abitazione,hs_legenda]){if(tok!==HS.tok||!body.isConnected)break;try{await f(h);}catch(e){console.warn('pagina casa',f.name,e);}}
+  HS.art=null;
+  for(const f of [hs_mattoni,hs_attivita,hs_equita,hs_tipo,hs_tenuta,hs_zombie,hs_fortezze,hs_pagina,hs_residenti,hs_abitazione]){if(tok!==HS.tok||!body.isConnected)break;try{await f(h);}catch(e){console.warn('pagina casa',f.name,e);}}
+  /* se il disegno è quasi pronto lo aspetto un attimo, così compare già con la pagina */
+  if(HS.art)await Promise.race([HS.art,new Promise(r=>setTimeout(r,1500))]);
   clearTimeout(t);if(body.isConnected)reveal();}
 </script>

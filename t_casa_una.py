@@ -31,6 +31,17 @@ async def main():
             hv=await pg.evaluate("()=>{__mo.disconnect();return __hv}")
             h=await pg.evaluate(f"()=>myHouses()[{i}].label")
             print(f'casa {i+1} ({h}): "Carico la casa…" visibile: {loading} | stati mostrati: {hv} | cambi visibili: {max(0,len([x for x in hv if x])-1)}')
+        # forma dell'edificio lenta (come OpenStreetMap sul telefono): 12 s. La pagina deve comparire subito completa
+        # col riquadro "Disegno la casa…"; dopo cambia solo il disegno (e compare "Sul disegno")
+        await pg.evaluate("()=>{window.__bT=bType;bType=async(...a)=>{await new Promise(r=>setTimeout(r,12000));return __bT(...a);};window.__hBT=homeBT;homeBT=()=>null;}")
+        await pg.evaluate("()=>closeSheet()");await pg.evaluate(WATCH)
+        await pg.evaluate("()=>{houseSheet(myHouses()[0])}");await pg.wait_for_timeout(5000)
+        primo=await pg.evaluate("()=>{const b=document.querySelector('#sheet.open .sheet-b');return [getComputedStyle(b).visibility,!!b.querySelector('.hsart.hswait'),!!b.querySelector('.fortpan'),!!b.querySelector('.thpan')]}")
+        await pg.wait_for_timeout(10000)
+        hv=await pg.evaluate("()=>{__mo.disconnect();return __hv}")
+        fine=await pg.evaluate("()=>!!document.querySelector('#sheet.open .hsart:not(.hswait) svg')")
+        print('disegno lento: dopo 5 s [visibile, riquadro in attesa, fortificazioni, zombie]:',primo,'| stati:',hv,'| disegno arrivato:',fine)
+        await pg.evaluate("()=>{bType=__bT;homeBT=__hBT;}")
         # pulsante "La mia casa" della homepage: apre la pagina nuova anche se i dati delle case non ci sono ancora
         await pg.evaluate("()=>{closeSheet();W.m=null;go('home')}");await pg.wait_for_timeout(500)
         await pg.evaluate("()=>{const b=document.querySelector('[data-hs=casa]');if(b)b.click();}");await pg.wait_for_timeout(5000)
