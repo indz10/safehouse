@@ -38,6 +38,7 @@ Regola d'oro: **una fase = una proposta (pull request)**, piccola, provata, cont
 **Esito (9/11):** fatta. Proposta: dividere la Fase 3 in 3a (file fuori build, funzioni mai chiamate, strati scavalcati) e 3b (spostare ciò che serve del vecchio gioco, poi toglierlo). Vedi §7 della mappa.
 
 ## Fase 3 — Via il vecchio gioco a carte/notti
+**3b divisa a sua volta (9/11):** **3b-1** la scheda Orda disegna direttamente i suoi 6 riquadri (`p63_orda.js`) e non costruisce più il vecchio gioco per poi nasconderlo; **3b-2** toglie il codice del vecchio gioco rimasto senza uso (catena `splitHub`, p4b, p5*, gli strati di p20 sul vecchio quartiere) e le prove che lo provavano.
 **Divisa in due (decisione 9/11):** **3a** toglie solo il codice sicuramente morto (file fuori build, funzioni mai chiamate, versioni vecchie già sostituite: vedi `docs/MAPPA_CODICE.md` §2 e §4); **3b** sposta ciò che serve ancora del vecchio gioco (§5 della mappa) e poi toglie il resto.
 - Togli battaglia a carte, campagna, arena, sfide, vecchi presidi locali, "Difendi tu", monete, attrezzi, perk, quartieri finti.
 - Tieni (spostandoli nei moduli giusti): disegno zombie (zArt), suoni (sfx), ruota e gratta e vinci, premio del giorno, missioni del giorno se usate.
@@ -79,6 +80,7 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 - Animazioni leggere (transform/opacity), niente lavoro con l'app in background.
 - Prova di prestazioni (`t_perf.py`) confrontata prima/dopo nella PR.
 - **Nota di Alessandro (9/11):** l'app è lenta all'apertura.
+- **Nota di Alessandro (9/11, anteprima Fase 3a):** la **casa 1** resta sempre generica (disegno e potenziamenti; i potenziamenti si sistemano dopo qualche secondo, il disegno no). Probabile causa: in OpenStreetMap non c'è un edificio entro 60 m dal punto salvato, o la risposta di Overpass non arriva. Da verificare con paese/via e posizione del segnaposto.
 - **Controllo sul telefono dopo la Fase 1 (9/11):** la casa 2 resta stilizzata (disegno generico), la casa 3 impiega molto ad apparire: stessa causa (forma da Overpass).
 - **Nota di Alessandro (9/11):** a volte la casa è il disegno generico (mattoni, garage, auto) invece dell'edificio vero: la forma arriva da Overpass (lento) ed è salvata solo nella memoria del browser. Salvare la forma dell'edificio **una volta sul server (Supabase) per tutti**, e usare Overpass solo se manca (servirà un blocco SQL in `supabase/migrazioni/`).
 
@@ -106,7 +108,7 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 |---|---|---|---|
 | 1 | fatta | #1, #2 | sorgenti alla radice, netlify.toml → dist/ (con controllo che dist/ sia completa), build.sh e prove senza percorsi fissi, prove.sh |
 | 2 | fatta | #3 | docs/MAPPA_CODICE.md, strumenti in docs/strumenti/ |
-| 3 | 3a fatta (in attesa di Merge); 3b da fare | Fase 3a — Via il codice morto | 3a: 4 file fuori build, 6 funzioni mai chiamate, 25 versioni vecchie già sostituite, stile .ring-s (−32 KB) |
+| 3 | 3a fatta (#4); 3b-1 fatta (in attesa di Merge); 3b-2 da fare | #4, Fase 3b-1 — Orda pulita | 3a: 4 file fuori build, 6 funzioni mai chiamate, 25 versioni vecchie già sostituite, stile .ring-s (−32 KB) |
 | 4 | da fare | | |
 | 5 | da fare | | |
 | 6 | da fare | | |

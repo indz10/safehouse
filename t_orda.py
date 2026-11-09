@@ -6,8 +6,8 @@ async def main():
     async with async_playwright() as p:
         b=await p.chromium.launch();pg=await (await b.new_context(viewport={'width':390,'height':844})).new_page();errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
         await pg.route('**/*',t_terr.route);await pg.add_init_script(path='ml_stub.js');await pg.add_init_script(path='sb_mock.js');await pg.add_init_script('window.__noHello=1');await pg.goto('file://'+D+'/app.html');await pg.wait_for_timeout(400)
-        await pg.evaluate("async()=>{SB=__mockSB;S.user={id:'me',nick:'ale'};S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');await rmFetch('A');go('orda');}")
-        await pg.wait_for_timeout(300);await pg.click('[data-type=vera]');await pg.wait_for_timeout(1200);await pg.evaluate("()=>{closeSheet();G.howSeen=1;G.tourDone=1;}")
+        await pg.evaluate("async()=>{SB=__mockSB;S.user={id:'me',nick:'ale'};zSyncProfile.asked=1;S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');await rmFetch('A');go('orda');}")
+        await pg.wait_for_timeout(300);await pg.evaluate("()=>{const b=document.querySelector('[data-type=vera]');if(b)b.click();}");await pg.wait_for_timeout(1200);await pg.evaluate("()=>{closeSheet();G.howSeen=1;G.tourDone=1;}")
         await pg.evaluate("async()=>{await wMine(true);await orLoad(true);renderHub();}");await pg.wait_for_timeout(900)
         el=await pg.query_selector('.opan');print('pannello orda:',bool(el),'| striscia:',await pg.evaluate("()=>{const b=document.querySelector('.obanner');return b&&b.textContent.replace(/\\s+/g,' ')}"))
         try:
