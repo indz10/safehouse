@@ -54,6 +54,7 @@ Riscrivi per aree, ognuna con le sue funzioni definite UNA volta:
 - `menu/` menu, controllo del gioco, versione, uscita, benvenuto inviti.
 - `comune/` stato, cloud, account, Mattoni/premi, notifiche, formule condivise (thrCalc), testi.
 Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un unico orologio centrale per i timer.
+**Ordine deciso (9/11):** 4a pagina della casa → 4b Orda → 4c Mappa → 4d Superstiti → 4e Menu → 4f Comune (orologio unico).
 - **Nota di Alessandro (9/11):** nella pagina della casa compare prima la versione vecchia e poi quella nuova (strati sovrapposti): la pagina deve disegnarsi una volta sola, già nella forma finale.
 - **Nota di Alessandro (9/11, sull'anteprima della Fase 2):** aprendo una casa compaiono subito i potenziamenti vecchi e dopo qualche secondo le fortificazioni nuove; dalla homepage il pulsante "🏠 La mia casa" a volte apre la vecchia pagina "La mia casa" con tutte le case; da Mappa/Orda la casa mia e la 2 si aprono bene, la 1 no. Cause in `docs/MAPPA_CODICE.md` §3.
 **Controllo:** tutte le schermate uguali o più chiare; nessuna funzione persa (lista nella PR).
@@ -108,8 +109,8 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 |---|---|---|---|
 | 1 | fatta | #1, #2 | sorgenti alla radice, netlify.toml → dist/ (con controllo che dist/ sia completa), build.sh e prove senza percorsi fissi, prove.sh |
 | 2 | fatta | #3 | docs/MAPPA_CODICE.md, strumenti in docs/strumenti/ |
-| 3 | fatta: 3a (#4), 3b-1 (#5), 3b-2 (#6), 3c (#7); 3d in attesa di Merge | #4–#7, Fase 3d — Regole dal menu | app pubblicata da 1.336 KB a 1.037 KB (−22 %): 3a codice morto; 3b-1 Orda pulita (p63); 3b-2 tolti 7 moduli del vecchio gioco, p5_game da 145 a 15 KB, circa 30 strati che li avvolgevano e 34 funzioni rimaste orfane. 3c: "Come si gioca" e istruzioni riscritte per il gioco di oggi. Restano p4b e p5j_giorno (Fase 4) |
-| 4 | da fare | | |
+| 3 | fatta: 3a (#4), 3b-1 (#5), 3b-2 (#6), 3c (#7), 3d (#8) | #4–#8 | app pubblicata da 1.336 KB a 1.037 KB (−22 %): 3a codice morto; 3b-1 Orda pulita (p63); 3b-2 tolti 7 moduli del vecchio gioco, p5_game da 145 a 15 KB, circa 30 strati che li avvolgevano e 34 funzioni rimaste orfane. 3c: "Come si gioca" e istruzioni riscritte per il gioco di oggi. Restano p4b e p5j_giorno (Fase 4) |
+| 4 | 4a fatta (in attesa di Merge); 4b–4f da fare | Fase 4a — Pagina della casa | 4a: houseSheet unica in p64_casa.js, la pagina compare una volta sola già completa; "La mia casa" dalla homepage aspetta i dati invece di aprire la pagina vecchia |
 | 5 | da fare | | |
 | 6 | da fare | | |
 | 7 | da fare | | |

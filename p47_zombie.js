@@ -59,10 +59,6 @@ async function thrSection(card,h){await thrLoad();const T=thrOf(h);const box=car
       for(let l=T.level;l<sim.level;l++){const r=await wRpc('world_upgrade',{p_bid:T.bid});if(!r.ok)throw new Error(r.msg);}
       toast('🛡️ Migliorie fatte!');try{sfx('win');}catch(e){}}catch(e){toast(e.message||'Non riuscito');}
       await wMine(true);await thrLoad(true);await defLoad(true);houseSheet(h);};};draw();}
-const _houseSheetZ=houseSheet;houseSheet=async function(h){await _houseSheetZ(h);try{const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('.thpan'))return;
-  const at=[...c.querySelectorAll('h4.hh')].find(x=>/Cosa puoi fare/.test(x.textContent));const html=`<div class="thpan"><h4 class="hh" style="margin-top:4px">🧟 Chi arriva su questa casa</h4><div class="thbox"><p class="muted"><span class="spin"></span> Calcolo l’orda con meteo e terreno veri…</p></div></div>`;
-  if(at)at.insertAdjacentHTML('beforebegin',html);else c.insertAdjacentHTML('beforeend',html);await thrSection(c,h);
-  const T=thrOf(h);if(T){const box=c.querySelector('.hsdef b');if(box)box.textContent=thrCalc(T).ch+'%';}}catch(e){console.warn(e);}};
 /* ---------- fronte: composizione e meteo veri della casa inquadrata ---------- */
 FZ.ombra={ic:'👤',v:3,sc:1.05,sp:'Si muove nell’ombra: fortissima con nebbia, blackout e di notte. La fermano fari e luci.'};
 if(typeof ZT!=='undefined'&&!ZT.ombra)ZT.ombra={name:'Ombra',sp:22,hp:14,dps:9};

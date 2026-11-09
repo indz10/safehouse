@@ -14,6 +14,7 @@ PWA in un solo file `index.html`: valuta la sicurezza della casa vera e la trasf
 - `check_syntax.js` e `check_css.py` bloccano la build in caso di errori.
 - Molti moduli **avvolgono** funzioni dei moduli precedenti (`const _x=f; f=function(){…}`): l'ordine in `build.sh` conta.
 - Scheda Orda: la disegna `p63_orda.js` (`renderOrda`/`renderHub`) con i suoi 6 riquadri. Il **vecchio gioco a carte/notti è stato tolto** (Fasi 3a–3b-2): restano solo `p5_game.js` ridotto (finestre `openSheet`/`closeSheet`, stato `G`, `sfx`, tipi di zombie `ZT`, `startGame`, tabelle usate da p15/p20/p21), `p5b_luck` (ruota, gratta, barattolo), `p5c_daily` (premio del giorno), `p5d_viatico`, `p5j_giorno` (`busy`, `dayInit`, `EXPS` ancora usati), `p5z_tenuti.js` (pezzi salvati dai moduli tolti) e `p4b_tavole` ("Simula la notte" nella vecchia pagina Gioco: da decidere in Fase 4).
+- Pagina della casa: dalla Fase 4a è **una sola funzione** `houseSheet` in `p64_casa.js` (i 13 strati di p31…p62 sono diventati i passi `hs_*`, nello stesso ordine). La pagina resta nascosta ("Carico la casa…") finché tutti i passi non sono finiti (massimo 8 s) e poi compare già completa. Per cambiarla: modificare il passo giusto in p64, non aggiungere strati.
 - **Mappa del codice**: `docs/MAPPA_CODICE.md` (moduli, catene di avvolgimenti, codice morto, cosa serve del vecchio gioco, struttura della Fase 4). Strumenti per rifare le misure: `docs/strumenti/`.
 - SQL: file `*.sql` (blocchi già eseguiti su Supabase; i più recenti: zombie, alleati_sim, assedio, fortezze, premi, residenti, abitazione, nome_casa, classifica).
 - Funzione Edge: `supabase/functions/zsh-push/index.ts` (notifiche + meteo/pendenza per casa).
@@ -21,7 +22,7 @@ PWA in un solo file `index.html`: valuta la sicurezza della casa vera e la trasf
 ## Prove
 - Server finto: `sb_mock.js` (+ `ml_stub.js` per la mappa). Le prove sono `t_*.py` (Playwright, iPhone 13).
 - `t_ar3.py` è la **prova generale** (riscritta nella Fase 3b-1: tutte le schede, Orda, pagina della casa, menu, schermo orizzontale) → `ERR2 []`.
-- Prove principali in un colpo: `./prove.sh` (build + t_ar3 `ERR2 []`, t_buttons `problemi: 0`, t_fronte_lento, t_account) → deve finire con `TUTTO OK`. Prove della zona toccata in aggiunta: `./prove.sh t_map.py t_case.py`.
+- Prove principali in un colpo: `./prove.sh` (build + t_ar3 `ERR2 []`, t_buttons `problemi: 0`, t_fronte_lento, t_account, t_casa_una `cambi visibili: 0`) → deve finire con `TUTTO OK`. Prove della zona toccata in aggiunta: `./prove.sh t_map.py t_case.py`.
 - Le prove trovano `app.html`, `sb_mock.js`, `ml_stub.js` nella loro cartella (variabile `D`): niente percorsi fissi.
 - Nel cloud di Claude Code serve Playwright per Python della stessa versione del Chromium preinstallato (`/opt/pw-browsers`); se la versione non coincide, lanciare Chromium con `executable_path`.
 - Le prove NON vedono il Supabase vero, l'iPhone vero e la rete lenta: per questo i difetti veri arrivano dalle foto di Alessandro. Prova sempre anche: rete lenta/bloccata (`t_fronte_lento.py`), telefono senza dati salvati (S.zone nullo), cambio account.

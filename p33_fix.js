@@ -15,8 +15,6 @@ const _zTopbarFx=zTopbar;zTopbar=function(){_zTopbarFx();zSoundBtn();};setTimeou
 /* se l'audio era stato spento, resta spento alla riapertura */
 setTimeout(()=>{try{if(localStorage.getItem('zsh_mute')==='1'){if(typeof G!=='undefined')G.mute=true;try{musicOff();}catch(e){}zSoundBtn();}}catch(e){}},1200);
 /* ---- 2) "Acquista" più chiaro ---- */
-const _houseSheetFx=houseSheet;houseSheet=async function(h){await _houseSheetFx(h);try{const b=document.querySelector('#sheet.open .hwal [data-ha=shop]');if(b){b.textContent='🧱 Più Mattoni';b.classList.remove('ghost');}
-  const w=document.querySelector('#sheet.open .hwal');if(w&&!w.querySelector('.hwhy'))w.insertAdjacentHTML('afterend','<p class="hwhy">I 🧱 Mattoni servono per potenziare e comprare case. Toccando <b>Più Mattoni</b> vedi come guadagnarne subito (orde, missioni, affitti, inviti) e i pacchetti in vendita quando l’app sarà negli store.</p>');}catch(e){}};
 const _shopSheetFx=shopSheet;shopSheet=function(miss){_shopSheetFx(miss);try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('.earnfirst'))return;const h=c.querySelector('.sheet-h, h3, .disp');
   const box=`<div class="earnfirst"><b>Come avere Mattoni adesso, gratis</b><ul><li>🧟 Riscatta i premi di ogni orda (2 al giorno)</li><li>🎯 3 missioni al giorno: 15 🧱 ciascuna</li><li>🏦 Affitti delle tue case, ogni giorno</li><li>📨 Ogni amico che entra e valuta la casa: 150 🧱</li><li>🎟️ Ogni codice sconto usato in un negozio sponsor: 100 🧱</li></ul></div>`;
   const first=c.querySelector('.notice')||c.querySelector('h4.hh');if(first)first.insertAdjacentHTML(first.classList.contains('notice')?'afterend':'beforebegin',box);}catch(e){}};

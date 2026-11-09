@@ -32,13 +32,6 @@ function fortCard(card,h){const T=thrOf(h);const rf=card.querySelector('.rinf');
 const _casaAllF=casaAll;casaAll=async function(){await _casaAllF();try{const H=myHouses();const home=H.find(h=>h.home);const hc=app.querySelector('.page > .mycasa:not(.mycasa2)');if(hc&&home)fortCard(hc,home);
   const L=H.filter(h=>!h.home);app.querySelectorAll('.mycasa2').forEach(c=>{const h=L[+c.dataset.mc];if(h)fortCard(c,h);});}catch(e){console.warn(e);}};
 /* ---- 2) scheda della casa: fortificazioni consigliate ---- */
-const _houseSheetF=houseSheet;houseSheet=async function(h){await _houseSheetF(h);try{const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('.fortpan'))return;await thrLoad();const T=thrOf(h);if(!T)return;
-  const ai=[...c.querySelectorAll('h4.hh')].find(x=>/Migliorie consigliate/.test(x.textContent));const top=fortOpts(T).filter(o=>!o.max&&o.gain>0).slice(0,4);
-  const html=`<div class="fortpan"><h4 class="hh">🎯 Fortificazioni consigliate per questa casa</h4><p class="muted" style="font-size:12px;margin:0 0 6px">In base agli zombie in arrivo e al meteo (${(EVN[T.ev]||EVN.calma)[0]} ${(EVN[T.ev]||EVN.calma)[1].toLowerCase()}). Tocca per comprare.</p>
-    <div class="rinf">${top.length?top.map(o=>`<button class="fch no up" data-fk="${o.k}"><span>${fortLabel(o)}</span><small><b>+${o.gain}%</b> · 🧱 ${wNum(o.cost)}</small></button>`).join(''):'<span class="ok fdone">✓ Questa casa è già ben fortificata per l’orda in arrivo</span>'}</div></div>`;
-  if(ai&&!h.home){let n=ai.nextElementSibling;while(n&&n.classList&&n.classList.contains('hai')){const nx=n.nextElementSibling;n.remove();n=nx;}if(ai.isConnected)ai.outerHTML=html;}
-  else{const at=[...c.querySelectorAll('h4.hh')].find(x=>/Cosa puoi fare/.test(x.textContent));if(at)at.insertAdjacentHTML('beforebegin',html);else c.insertAdjacentHTML('beforeend',html);}
-  c.querySelectorAll('.fortpan [data-fk]').forEach(b=>b.onclick=()=>{const o=fortOpts(T).find(x=>x.k===b.dataset.fk);if(o)fortBuy(h,T,o,()=>houseSheet(h));});}catch(e){console.warn(e);}};
 /* ---- 3) versione dell'app nel menu ---- */
 function appVerTxt(){const v=String(APPV);return /^\d{12}$/.test(v)?`${v.slice(6,8)}/${v.slice(4,6)} ${v.slice(8,10)}:${v.slice(10,12)} (zsh-${v})`:v;}
 const _zmOpenF=zmOpen;zmOpen=function(){const r=_zmOpenF.apply(this,arguments);setTimeout(()=>{try{const v=document.querySelector('#zmenu .zmver');if(v)v.textContent=`ZombieSafeHouse · un marchio INDZ · versione ${appVerTxt()}`;}catch(e){}},30);return r;};
