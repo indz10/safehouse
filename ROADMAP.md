@@ -51,6 +51,7 @@ Riscrivi per aree, ognuna con le sue funzioni definite UNA volta:
 - `menu/` menu, controllo del gioco, versione, uscita, benvenuto inviti.
 - `comune/` stato, cloud, account, Mattoni/premi, notifiche, formule condivise (thrCalc), testi.
 Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un unico orologio centrale per i timer.
+- **Nota di Alessandro (9/11):** nella pagina della casa compare prima la versione vecchia e poi quella nuova (strati sovrapposti): la pagina deve disegnarsi una volta sola, già nella forma finale.
 **Controllo:** tutte le schermate uguali o più chiare; nessuna funzione persa (lista nella PR).
 
 ## Fase 5 — Chiarezza per chi usa l'app
@@ -74,6 +75,8 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 - Caricare a pezzi le parti pesanti (fumetto, disegni, classifica, piazza).
 - Animazioni leggere (transform/opacity), niente lavoro con l'app in background.
 - Prova di prestazioni (`t_perf.py`) confrontata prima/dopo nella PR.
+- **Nota di Alessandro (9/11):** l'app è lenta all'apertura.
+- **Nota di Alessandro (9/11):** a volte la casa è il disegno generico (mattoni, garage, auto) invece dell'edificio vero: la forma arriva da Overpass (lento) ed è salvata solo nella memoria del browser. Salvare la forma dell'edificio **una volta sul server (Supabase) per tutti**, e usare Overpass solo se manca (servirà un blocco SQL in `supabase/migrazioni/`).
 
 ## Fase 8 — Prove automatiche su GitHub
 - GitHub Actions: a ogni pull request build + prove principali; risultato visibile nella PR.
