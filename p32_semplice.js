@@ -29,11 +29,11 @@ zmItems=function(){const u=S.user;const adm=!!window.__zmAdmin,shop=!!window.__z
    ['La mia casa',[['🏠','La mia casa (indice e piano)','casa'],['📷','Valuta o aggiorna la casa','valuta'],['🚚','Ho cambiato casa','move']]],
    ['Gioco',[['🎬','Guarda gli assalti','a:last'],['🔮','Simula la prossima orda','a:sim'],['⚔️','Difendi tu (notti)','g:difendi'],['💎','Bottega','shop']]],
    ['Amici',[['📨','Invita amici e vicini','invite']]],
-   ['Aiuto',[['🧭','Giro guidato','tour'],['📖','Come si gioca','rules'],['📻','Radio Operatore','radio'],['⭐','Sponsor e contatti','sponsor']]],
+   ['Aiuto',[['🧭','Giro guidato','tour'],['📖','Come si gioca','rules'],['📚','Tutte le regole','manual'],['📻','Radio Operatore','radio'],['⭐','Sponsor e contatti','sponsor']]],
    ['Account',[...(u?[['👤','Il mio profilo','io']]:[]),['🔔','Notifiche delle orde','push'],['toggle','Visibile sulla mappa','vis',u?!!S.pubOk:null],['toggle','Suoni','snd',!(typeof G!=='undefined'&&G.mute)],['toggle','Musica','mus',!!(window.AUD&&AUD.on&&AUD.started)],
      ['🔒','Privacy','url:privacy.html'],['📄','Termini','url:termini.html'],...(adm?[['🛠️','Pannello admin INDZ','url:admin.html']]:[]),...(shop?[['🏪','Pannello del mio negozio','url:negozio.html']]:[]),
      ...(u?[['🚪','Esci','logout'],['🗑','Elimina il mio account','del']]:[])]]];};
-const _zmDoS1=zmDo;zmDo=function(k,b){if(k==='casa'){zmClose();go('casa');return;}if(k==='shop'){zmClose();shopSheet(0);return;}return _zmDoS1(k,b);};
+const _zmDoS1=zmDo;zmDo=function(k,b){if(k==='casa'){zmClose();go('casa');return;}if(k==='manual'){zmClose();openSheet('📚 Tutte le regole',rulesHTML());return;}if(k==='shop'){zmClose();shopSheet(0);return;}return _zmDoS1(k,b);};
 /* ---- il giro guidato segue la nuova struttura ---- */
 try{if(typeof OT!=='undefined'&&Array.isArray(OT)){for(let i=OT.length-1;i>=0;i--){const st=OT[i];if(st&&st.sel&&/wpan|apan/.test(st.sel))OT.splice(i,1);}}}catch(e){}
 /* ---- manuale: testo dei regali allineato alle regole vere ---- */

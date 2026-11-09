@@ -4267,7 +4267,7 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 /* bollettino del territorio nella pagina del gioco */
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611092259';
+const ZSH_BUILD='202611092306';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -4929,7 +4929,7 @@ function hwChips(L){return`<div style="display:flex;flex-wrap:wrap;gap:6px;justi
 function howHTML(i){const h=HOW[i];return`<div class="hw" data-hi="${i}"><div class="hw-dots">${HOW.map((_,k)=>`<i class="${k===i?'on':k<i?'done':''}"></i>`).join('')}</div>
   <div class="hw-panel"><div class="hw-num">${i+1}/${HOW.length}</div><div class="hw-ic">${h.ic}</div><h3>${h.t}</h3><p>${h.p}</p><div class="hw-demo">${h.demo()}</div></div>
   <div class="hw-nav"><button class="btn ghost small" data-hprev ${i?'':'style="visibility:hidden"'}>← Indietro</button>${i<HOW.length-1?`<button class="btn" data-hnext>Avanti →</button>`:`<button class="btn" data-hplay>🧟 Vai all’Orda</button>`}</div>
-  ${i===HOW.length-1?`<button class="btn small ghost wide" data-hall style="margin-top:10px">📚 Tutte le regole</button>`:'<button class="hw-skip" data-hskip>Salta: so già giocare</button>'}</div>`;}
+  <button class="btn small ghost wide" data-hall style="margin-top:10px">📚 Tutte le regole</button>${i===HOW.length-1?'':'<button class="hw-skip" data-hskip>Salta: so già giocare</button>'}</div>`;}
 openRules=function(start){let i=Math.max(0,Math.min(HOW.length-1,start||0));
   openSheet('📖 Come si gioca',howHTML(i),card=>{const draw=()=>{const w=card.querySelector('.hw');w.outerHTML=howHTML(i);bind();};
     const bind=()=>{const w=card.querySelector('.hw');const h=HOW[i];if(h.bind)h.bind(w);
@@ -6217,11 +6217,11 @@ zmItems=function(){const u=S.user;const adm=!!window.__zmAdmin,shop=!!window.__z
    ['La mia casa',[['🏠','La mia casa (indice e piano)','casa'],['📷','Valuta o aggiorna la casa','valuta'],['🚚','Ho cambiato casa','move']]],
    ['Gioco',[['🎬','Guarda gli assalti','a:last'],['🔮','Simula la prossima orda','a:sim'],['⚔️','Difendi tu (notti)','g:difendi'],['💎','Bottega','shop']]],
    ['Amici',[['📨','Invita amici e vicini','invite']]],
-   ['Aiuto',[['🧭','Giro guidato','tour'],['📖','Come si gioca','rules'],['📻','Radio Operatore','radio'],['⭐','Sponsor e contatti','sponsor']]],
+   ['Aiuto',[['🧭','Giro guidato','tour'],['📖','Come si gioca','rules'],['📚','Tutte le regole','manual'],['📻','Radio Operatore','radio'],['⭐','Sponsor e contatti','sponsor']]],
    ['Account',[...(u?[['👤','Il mio profilo','io']]:[]),['🔔','Notifiche delle orde','push'],['toggle','Visibile sulla mappa','vis',u?!!S.pubOk:null],['toggle','Suoni','snd',!(typeof G!=='undefined'&&G.mute)],['toggle','Musica','mus',!!(window.AUD&&AUD.on&&AUD.started)],
      ['🔒','Privacy','url:privacy.html'],['📄','Termini','url:termini.html'],...(adm?[['🛠️','Pannello admin INDZ','url:admin.html']]:[]),...(shop?[['🏪','Pannello del mio negozio','url:negozio.html']]:[]),
      ...(u?[['🚪','Esci','logout'],['🗑','Elimina il mio account','del']]:[])]]];};
-const _zmDoS1=zmDo;zmDo=function(k,b){if(k==='casa'){zmClose();go('casa');return;}if(k==='shop'){zmClose();shopSheet(0);return;}return _zmDoS1(k,b);};
+const _zmDoS1=zmDo;zmDo=function(k,b){if(k==='casa'){zmClose();go('casa');return;}if(k==='manual'){zmClose();openSheet('📚 Tutte le regole',rulesHTML());return;}if(k==='shop'){zmClose();shopSheet(0);return;}return _zmDoS1(k,b);};
 /* ---- il giro guidato segue la nuova struttura ---- */
 try{if(typeof OT!=='undefined'&&Array.isArray(OT)){for(let i=OT.length-1;i>=0;i--){const st=OT[i];if(st&&st.sel&&/wpan|apan/.test(st.sel))OT.splice(i,1);}}}catch(e){}
 /* ---- manuale: testo dei regali allineato alle regole vere ---- */
@@ -7399,7 +7399,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611092259';
+const APPV='202611092306';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
