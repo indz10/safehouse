@@ -53,6 +53,7 @@ Riscrivi per aree, ognuna con le sue funzioni definite UNA volta:
 - `comune/` stato, cloud, account, Mattoni/premi, notifiche, formule condivise (thrCalc), testi.
 Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un unico orologio centrale per i timer.
 - **Nota di Alessandro (9/11):** nella pagina della casa compare prima la versione vecchia e poi quella nuova (strati sovrapposti): la pagina deve disegnarsi una volta sola, già nella forma finale.
+- **Nota di Alessandro (9/11, sull'anteprima della Fase 2):** aprendo una casa compaiono subito i potenziamenti vecchi e dopo qualche secondo le fortificazioni nuove; dalla homepage il pulsante "🏠 La mia casa" a volte apre la vecchia pagina "La mia casa" con tutte le case; da Mappa/Orda la casa mia e la 2 si aprono bene, la 1 no. Cause in `docs/MAPPA_CODICE.md` §3.
 **Controllo:** tutte le schermate uguali o più chiare; nessuna funzione persa (lista nella PR).
 
 ## Fase 5 — Chiarezza per chi usa l'app
