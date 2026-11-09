@@ -877,7 +877,7 @@ function hwChips(L){return`<div style="display:flex;flex-wrap:wrap;gap:6px;justi
 function howHTML(i){const h=HOW[i];return`<div class="hw" data-hi="${i}"><div class="hw-dots">${HOW.map((_,k)=>`<i class="${k===i?'on':k<i?'done':''}"></i>`).join('')}</div>
   <div class="hw-panel"><div class="hw-num">${i+1}/${HOW.length}</div><div class="hw-ic">${h.ic}</div><h3>${h.t}</h3><p>${h.p}</p><div class="hw-demo">${h.demo()}</div></div>
   <div class="hw-nav"><button class="btn ghost small" data-hprev ${i?'':'style="visibility:hidden"'}>← Indietro</button>${i<HOW.length-1?`<button class="btn" data-hnext>Avanti →</button>`:`<button class="btn" data-hplay>🧟 Vai all’Orda</button>`}</div>
-  ${i===HOW.length-1?`<button class="btn small ghost wide" data-hall style="margin-top:10px">📚 Tutte le regole</button>`:'<button class="hw-skip" data-hskip>Salta: so già giocare</button>'}</div>`;}
+  <button class="btn small ghost wide" data-hall style="margin-top:10px">📚 Tutte le regole</button>${i===HOW.length-1?'':'<button class="hw-skip" data-hskip>Salta: so già giocare</button>'}</div>`;}
 openRules=function(start){let i=Math.max(0,Math.min(HOW.length-1,start||0));
   openSheet('📖 Come si gioca',howHTML(i),card=>{const draw=()=>{const w=card.querySelector('.hw');w.outerHTML=howHTML(i);bind();};
     const bind=()=>{const w=card.querySelector('.hw');const h=HOW[i];if(h.bind)h.bind(w);
