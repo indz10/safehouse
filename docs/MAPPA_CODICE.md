@@ -117,6 +117,7 @@ Note sulla tabella:
 Ogni riga è uno strato, nell'ordine in cui viene caricato. L'ultimo strato è quello chiamato per primo: richiama il precedente, poi aggiunge il suo pezzo.
 
 ### splitHub — scheda Orda (base in `p5f_arena`, 14 strati)
+> **Dopo la Fase 3b-1** questa catena non viene più usata: la scheda Orda la disegna `p63_orda.js` (6 riquadri, pagina da ~115 KB a ~6 KB di HTML). Si toglie nella 3b-2.
 1. `p5f_arena` base: divide il vecchio hub del gioco in gruppi (quartiere, arena…).
 2. `p20_territorio`: aggiunge il pannello del territorio vero.
 3. `p21_mondo`: aggiunge il pannello del mondo unico (le tue case, Mattoni).

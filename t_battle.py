@@ -7,7 +7,7 @@ async def main():
         b=await p.chromium.launch();ctx=await b.new_context(viewport={'width':390,'height':844});pg=await ctx.new_page();errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
         await pg.route('**/*',t_terr.route);await pg.add_init_script('window.__noHello=1');await pg.goto('file://'+D+'/app.html');await pg.wait_for_timeout(400)
         await pg.evaluate("async()=>{S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');await rmFetch('A');go('orda');}");await pg.wait_for_timeout(300)
-        await pg.click('[data-type=vera]');await pg.wait_for_timeout(500);await pg.evaluate("()=>{G.ss='difendi';try{closeSheet();renderHub();}catch(e){}}");await pg.wait_for_timeout(500)
+        await pg.evaluate("()=>{const b=document.querySelector('[data-type=vera]');if(b)b.click();}");await pg.wait_for_timeout(500);await pg.evaluate("()=>{G.ss='difendi';try{closeSheet();renderHub();}catch(e){}}");await pg.wait_for_timeout(500)
         print('hab0',await pg.evaluate("()=>terrHab()&&terrHab().k"))
         await pg.evaluate("()=>{window.ZUSERS=[{user_id:'x',nick:'giangy',lat_r:45.326,lon_r:10.659,indice:5}];G.tutDone=1;}")
         print('hab1',await pg.evaluate("()=>[terrHab().k,terrHab().why,terrZList()]"))

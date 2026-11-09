@@ -13,13 +13,14 @@ PWA in un solo file `index.html`: valuta la sicurezza della casa vera e la trasf
 - `build.sh` (funziona da qualsiasi cartella) li concatena nell'ordine scritto lì → `app.html` → `dist/index.html` + `dist/sw.js` (versione = data/ora della build, `zsh-AAAAMMGGhhmm`).
 - `check_syntax.js` e `check_css.py` bloccano la build in caso di errori.
 - Molti moduli **avvolgono** funzioni dei moduli precedenti (`const _x=f; f=function(){…}`): l'ordine in `build.sh` conta.
-- Sotto la scheda Orda c'è ancora il **vecchio gioco a carte/notti** (p5_game, p5b…p5h, renderHubBase), nascosto: è codice morto da eliminare con cura.
+- Scheda Orda: dalla Fase 3b-1 la disegna `p63_orda.js` (`renderOrda`/`renderHub`), direttamente con i suoi 6 riquadri. Il codice del **vecchio gioco a carte/notti** (p4b, p5_game, p5b…p5k, catena `splitHub`) è ancora nel file ma non viene più usato per l'Orda: si toglie nella Fase 3b-2, tenendo ciò che serve (vedi `docs/MAPPA_CODICE.md` §5).
 - **Mappa del codice**: `docs/MAPPA_CODICE.md` (moduli, catene di avvolgimenti, codice morto, cosa serve del vecchio gioco, struttura della Fase 4). Strumenti per rifare le misure: `docs/strumenti/`.
 - SQL: file `*.sql` (blocchi già eseguiti su Supabase; i più recenti: zombie, alleati_sim, assedio, fortezze, premi, residenti, abitazione, nome_casa, classifica).
 - Funzione Edge: `supabase/functions/zsh-push/index.ts` (notifiche + meteo/pendenza per casa).
 
 ## Prove
 - Server finto: `sb_mock.js` (+ `ml_stub.js` per la mappa). Le prove sono `t_*.py` (Playwright, iPhone 13).
+- `t_ar3.py` è la **prova generale** (riscritta nella Fase 3b-1: tutte le schede, Orda, pagina della casa, menu, schermo orizzontale) → `ERR2 []`.
 - Prove principali in un colpo: `./prove.sh` (build + t_ar3 `ERR2 []`, t_buttons `problemi: 0`, t_fronte_lento, t_account) → deve finire con `TUTTO OK`. Prove della zona toccata in aggiunta: `./prove.sh t_map.py t_case.py`.
 - Le prove trovano `app.html`, `sb_mock.js`, `ml_stub.js` nella loro cartella (variabile `D`): niente percorsi fissi.
 - Nel cloud di Claude Code serve Playwright per Python della stessa versione del Chromium preinstallato (`/opt/pw-browsers`); se la versione non coincide, lanciare Chromium con `executable_path`.

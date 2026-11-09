@@ -94,7 +94,7 @@ async def main():
         await pg.evaluate("()=>go('orda')");await pg.wait_for_timeout(300)
         await pg.screenshot(path='y_pick.png')
         print('vera' , await pg.evaluate("()=>HTYPES.vera&&[HTYPES.vera.name,HTYPES.vera.zl,HTYPES.vera.pitch,Object.keys(HTYPES)[0]]"))
-        await pg.click('[data-type=vera]');await pg.wait_for_timeout(600)
+        await pg.evaluate("()=>{const b=document.querySelector('[data-type=vera]');if(b)b.click();}");await pg.wait_for_timeout(600)
         g=await pg.evaluate("()=>({rh:G.realHood,exps:EXPS.map(x=>x.id+':'+x.n+':'+x.t+'s:'+x.d),hp:houseMaxHP(),bar:barrierMax(),terr:terrainAt(...trHomeXY()),hills:hills().length,bonus:terrBonus()})")
         print(json.dumps(g,ensure_ascii=False,indent=0))
         await pg.wait_for_timeout(1500)

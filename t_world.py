@@ -7,7 +7,7 @@ async def main():
         b=await p.chromium.launch();pg=await (await b.new_context(viewport={'width':390,'height':844})).new_page();errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
         await pg.route('**/*',t_terr.route);await pg.add_init_script(path='sb_mock.js');await pg.add_init_script('window.__noHello=1');await pg.goto('file://'+D+'/app.html');await pg.wait_for_timeout(400)
         await pg.evaluate("async()=>{SB=__mockSB;S.user={id:'me',nick:'ale'};S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');await rmFetch('A');go('orda');}")
-        await pg.wait_for_timeout(300);await pg.click('[data-type=vera]');await pg.wait_for_timeout(1200);await pg.evaluate("()=>{closeSheet();G.howSeen=1;}")
+        await pg.wait_for_timeout(300);await pg.evaluate("()=>{const b=document.querySelector('[data-type=vera]');if(b)b.click();}");await pg.wait_for_timeout(1200);await pg.evaluate("()=>{closeSheet();G.howSeen=1;}")
         await pg.evaluate("async()=>{await wMine(true);G.ss='impero';renderHub();}");await pg.wait_for_timeout(800)
         print('casa bid',await pg.evaluate("()=>S.zone.real.house&&S.zone.real.house.bid"))
         print('pannello',await pg.evaluate("()=>{const p=document.querySelector('.wpan');return p&&p.textContent.replace(/\\s+/g,' ').slice(0,160)}"))
