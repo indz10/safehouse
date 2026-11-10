@@ -16,3 +16,8 @@ python3 tempi.py "$REPO"                         # tempi degli strati della pagi
 ```
 
 Dopo la misura: `git checkout -- dist/` se non si vuole pubblicare la build appena fatta.
+
+## Database (Fase 6a)
+- `schema_sql.js` — ordine di esecuzione dei file `*.sql` (ORDER) e inventario → `docs/DATABASE.md`. `node docs/strumenti/schema_sql.js .`
+- `db_locale.sh <cartella di lavoro>` — Postgres 16 di prova: esegue i file nell'ordine + `supabase/migrazioni/`, scrive `supabase/schema.sql` e `supabase/controllo/impronte_attese.txt`. Usa `db_supabase_finto.sql` (utenti, ruoli, cron finti).
+- `confronta_db.js <impronte vere>` — confronta il risultato di `supabase/controllo/001_impronte.sql` sul database vero con quello atteso.

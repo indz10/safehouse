@@ -75,6 +75,8 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 **Controllo:** Alessandro e un tester nuovo provano senza spiegazioni.
 
 ## Fase 6 — Database in ordine
+- Piano a passi: **6a** stato ricostruito (`supabase/schema.sql`), inventario (`docs/DATABASE.md`), controllo di sola lettura del database vero · **6b** prima migrazione: togliere le funzioni non usate e sistemare le differenze trovate · **6c** formule in un posto solo (SQL = app) · **6d** funzioni Edge con istruzioni.
+- **6a:** i 30 file eseguiti in ordine su un Postgres di prova girano senza errori: 42 tabelle, 124 funzioni (3 non usate: `w_attack`, `w_power`, `world_blocked`), 41 regole, 11 trigger, 1 lavoro programmato.
 - `supabase/schema.sql`: lo stato attuale completo (tabelle, funzioni, permessi) ricostruito dai 30 file.
 - `supabase/migrazioni/`: da ora ogni cambio è un file numerato.
 - Elenco delle funzioni SQL non più usate dall'app e blocco per toglierle.
@@ -119,8 +121,8 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 2 | fatta | #3 | docs/MAPPA_CODICE.md, strumenti in docs/strumenti/ |
 | 3 | fatta: 3a (#4), 3b-1 (#5), 3b-2 (#6), 3c (#7), 3d (#8) | #4–#8 | app pubblicata da 1.336 KB a 1.037 KB (−22 %): 3a codice morto; 3b-1 Orda pulita (p63); 3b-2 tolti 7 moduli del vecchio gioco, p5_game da 145 a 15 KB, circa 30 strati che li avvolgevano e 34 funzioni rimaste orfane. 3c: "Come si gioca" e istruzioni riscritte per il gioco di oggi. Restano p4b e p5j_giorno (Fase 4) |
 | 4 | fatta: 4a–4f-2 (#9–#18) | #9–#18 | 4f-2: un solo timer di sistema al posto di 28 (p1z_orologio.js, zEvery), tolto un contatore sponsor doppio. 4f-1: navigazione go (base + 8 strati), accesso, salvataggi, finestre e analisi della zona definiti una volta in p68. 4e: menu ☰ (zmDo base + 5 strati), barre e istruzioni (manualHTML base + 5) definiti una volta in p67; tolto il vecchio menu a tendina di p10. 4d: socPaint (base + 10 strati) e altre 11 funzioni dei Superstiti definite una volta in p66. 4c: liveMap (base + 9 strati) e altre 6 funzioni della mappa definite una volta in p65. 4b: 14 funzioni dell'Orda definite una volta in p63 (prima base + 1–3 strati), tolte le catene morte del vecchio hub. 4a: houseSheet unica in p64_casa.js, la pagina compare una volta sola già completa; "La mia casa" dalla homepage aspetta i dati invece di aprire la pagina vecchia |
-| 5 | 5a–5d fatte (#19–#22); 5e (nomi, guida, prossimo passo) in attesa di Merge | #19–#22, Fase 5e — Nomi, guida e prossimo passo | 5e: premio inviti uguale ovunque, prossimo passo e giro guidato aggiornati. 5d: "Aggiorno l'app…" e ricarica anche quando l'app torna dallo sfondo. 5c: pulsanti ‹ Menu e ‹ Le mie case, link d'invito al sito vero. 5b: elenco Le mie case, piano e valutazione nella pagina della casa vera. 5a: via monete, notti, battaglia e "Difendi tu" dai testi ancora visibili; premi mostrati in 🧱 |
-| 6 | da fare | | |
+| 5 | fatta: 5a–5e (#19–#23) | #19–#23 | 5e: premio inviti uguale ovunque, prossimo passo e giro guidato aggiornati. 5d: "Aggiorno l'app…" e ricarica anche quando l'app torna dallo sfondo. 5c: pulsanti ‹ Menu e ‹ Le mie case, link d'invito al sito vero. 5b: elenco Le mie case, piano e valutazione nella pagina della casa vera. 5a: via monete, notti, battaglia e "Difendi tu" dai testi ancora visibili; premi mostrati in 🧱 |
+| 6 | 6a (stato del database e controllo) in attesa di Merge | Fase 6a — Stato del database | 6a: schema.sql ricostruito, inventario, controllo di sola lettura |
 | 7 | da fare | | |
 | 8 | da fare | | |
 | 9 | da fare | | |
