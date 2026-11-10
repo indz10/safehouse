@@ -104,6 +104,7 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 
 ## Fase 8 — Prove automatiche su GitHub
 - GitHub Actions: a ogni pull request build + prove principali; risultato visibile nella PR.
+- **8 fatta:** `.github/workflows/prove.yml`, due lavori a ogni pull request verso main e a ogni modifica di main: **App** (`prove.sh` + t_case, t_map, t_menu, t_reale; controllo che `dist/` nel commit sia ricostruita dai sorgenti; schermate allegate se qualcosa fallisce) e **Database** (file SQL e migrazioni sul Postgres di prova senza errori, `impronte_attese.txt` aggiornato, `prova_formule.js` → FORMULE UGUALI).
 
 ## Fase 9 — Funzioni nuove già decise
 - Presidi veri condivisi (luoghi pubblici da OpenStreetMap; le orde li attaccano; chi li tiene dà +3 di difesa alle case entro 500 m).
@@ -130,7 +131,7 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 4 | fatta: 4a–4f-2 (#9–#18) | #9–#18 | 4f-2: un solo timer di sistema al posto di 28 (p1z_orologio.js, zEvery), tolto un contatore sponsor doppio. 4f-1: navigazione go (base + 8 strati), accesso, salvataggi, finestre e analisi della zona definiti una volta in p68. 4e: menu ☰ (zmDo base + 5 strati), barre e istruzioni (manualHTML base + 5) definiti una volta in p67; tolto il vecchio menu a tendina di p10. 4d: socPaint (base + 10 strati) e altre 11 funzioni dei Superstiti definite una volta in p66. 4c: liveMap (base + 9 strati) e altre 6 funzioni della mappa definite una volta in p65. 4b: 14 funzioni dell'Orda definite una volta in p63 (prima base + 1–3 strati), tolte le catene morte del vecchio hub. 4a: houseSheet unica in p64_casa.js, la pagina compare una volta sola già completa; "La mia casa" dalla homepage aspetta i dati invece di aprire la pagina vecchia |
 | 5 | fatta: 5a–5e (#19–#23) | #19–#23 | 5e: premio inviti uguale ovunque, prossimo passo e giro guidato aggiornati. 5d: "Aggiorno l'app…" e ricarica anche quando l'app torna dallo sfondo. 5c: pulsanti ‹ Menu e ‹ Le mie case, link d'invito al sito vero. 5b: elenco Le mie case, piano e valutazione nella pagina della casa vera. 5a: via monete, notti, battaglia e "Difendi tu" dai testi ancora visibili; premi mostrati in 🧱 |
 | 6 | fatta: 6a–6d (#24–#26; migrazioni 001 e 002 eseguite) | #24–#26 | 6d: funzioni Edge con istruzioni, controllo notifiche. 6c: una sola % di tenere, migrazione 002, docs/FORMULE.md. 6b: migrazione 001 (7 funzioni mancanti, 3 tolte). 6a: schema.sql ricostruito, inventario, controllo di sola lettura |
-| 7 | 7a–7b fatte (#27, #28; migrazione 003 eseguita); 7c (apertura più veloce) in attesa di Merge | #27, #28, Fase 7c — Apertura più veloce | 7c: compressione, stile pulito, caratteri non bloccanti, copia salvata se la rete tarda |
-| 8 | da fare | | |
+| 7 | fatta: 7a–7c (#27–#29; migrazione 003 eseguita) | #27–#29 | 7c: compressione, stile pulito, caratteri non bloccanti, copia salvata se la rete tarda |
+| 8 | prove automatiche in attesa di Merge | Fase 8 — Prove automatiche su GitHub | .github/workflows/prove.yml: App + Database |
 | 9 | da fare | | |
 | 10 | da fare | | |
