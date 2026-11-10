@@ -68,7 +68,7 @@ for(const f of [...ORDER,...MIG]){const s=fs.readFileSync(path.join(R,f),'utf8')
 /* chi usa ogni funzione */
 const appSrc=fs.readdirSync(R).filter(f=>/^p.*\.(js|html)$/.test(f)).map(f=>fs.readFileSync(path.join(R,f),'utf8')).join('\n')
   +['admin.html','negozio.html'].map(f=>{try{return fs.readFileSync(path.join(R,'pwa',f),'utf8');}catch(e){try{return fs.readFileSync(path.join(R,f),'utf8');}catch(x){return'';}}}).join('\n');
-const edge=['supabase/functions/zsh-push/index.ts','supabase/zsh-api.ts'].map(f=>{try{return fs.readFileSync(path.join(R,f),'utf8');}catch(e){return'';}}).join('\n');
+const edge=['supabase/functions/zsh-push/index.ts','supabase/functions/zsh-api/index.ts'].map(f=>{try{return fs.readFileSync(path.join(R,f),'utf8');}catch(e){return'';}}).join('\n');
 const fns=[...S.fn.values()];const names=[...new Set(fns.map(x=>x.name))].sort();
 const inApp=nm=>new RegExp(`rpc\\(\\s*['"\`]${nm}['"\`]`).test(appSrc)||new RegExp(`['"\`]${nm}['"\`]`).test(appSrc);
 const inEdge=nm=>new RegExp(`\\b${nm}\\b`).test(edge);
