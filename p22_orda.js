@@ -12,7 +12,7 @@ window.OR={s:null,t:0,busy:false};
 const orTime=t=>new Date(t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
 function orLeft(t){const ms=new Date(t)-Date.now();if(ms<=0)return'adesso';const h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4);return h?`${h} h ${m} min`:`${m} min`;}
 function orLive(){return OR.s&&Date.now()-new Date(OR.s.prev_at)<20*60*1000;}
-async function orLoad(force){if(OR.busy||(!force&&Date.now()-OR.t<45000))return OR.s;if(typeof SB==='undefined'||!SB)return null;OR.busy=true;
+async function orLoadBase(force){if(OR.busy||(!force&&Date.now()-OR.t<45000))return OR.s;if(typeof SB==='undefined'||!SB)return null;OR.busy=true;
   try{const{data,error}=await SB.rpc('world_raid_status');if(!error&&data){OR.s=data;OR.t=Date.now();orRefresh();}}catch(e){}finally{OR.busy=false;}return OR.s;}
 function orChance(){const m=W.m;if(!m)return null;const prep=OR.s&&OR.s.prepared;const L=[];if(m.home)L.push({lv:1,home:true});(m.houses||[]).forEach(h=>L.push({lv:h.level,home:false}));if(!L.length)return null;
   const p=L.map(x=>{const pw=45+12*x.lv+(prep?15:0)+(x.home?5:0);return Math.max(0,Math.min(1,(pw-40+1)/60));});return Math.round(p.reduce((a,b)=>a+b,0)/p.length*100);}
@@ -22,9 +22,9 @@ function orPanelHTML(){const s=OR.s;
   if(!s||!s.next_at)return`<div class="panel opan"><b class="disp opt">🧟 L’orda del mondo</b><p class="osub"><span class="spin"></span> Controllo quando arriva… (serve il blocco SQL “orda del mondo” su Supabase)</p></div>`;
   const live=orLive(),ch=orChance();const nH=s.total||0;
   const last=nH?`<div class="olast ${s.held===s.total?'ok':''}"><b>Ultima orda · ore ${orTime(s.prev_at)}</b><span>${s.held===s.total?'🛡️ Tutte le tue case hanno tenuto!':`🛡️ ${s.held} ${s.held===1?'tenuta':'tenute'} · 💥 ${s.total-s.held} ${s.total-s.held===1?'sfondata':'sfondate'}`}</span>
-     ${s.claimed?'<small>✅ Premi riscattati</small>':`<button class="btn" data-ocl>🎁 Riscatta: 🧱 ${s.mattoni} + 🪙 ${30*s.held}${s.held===s.total?' + 💎 2':''}</button>`}</div>`:'';
+     ${s.claimed?'<small>✅ Premi riscattati</small>':`<button class="btn" data-ocl>🎁 ${s.bounty?'🎯 taglie incluse · ':''}Riscatta: 🧱 ${s.mattoni} + 🪙 ${30*s.held}${s.held===s.total?' + 💎 2':''}</button>`}</div>`:'';
   return`<div class="panel opan ${live?'live':''}"><div class="row spread"><b class="disp opt">🧟 L’orda del mondo</b>${live?'<span class="olive">● IN CORSO</span>':''}</div>
-   <div class="onext"><span>Prossima orda</span><b>${orTime(s.next_at)}</b><small>tra ${orLeft(s.next_at)}</small></div>
+   <div class="onext"><span>${s.next_bonus?`<span class="rbon">${s.next_bonus>0?'+':''}${s.next_bonus} difesa da aiuti/orde</span> `:''}Prossima orda</span><b>${orTime(s.next_at)}</b><small>tra ${orLeft(s.next_at)}</small></div>
    <div class="ostep"><div class="${s.prepared?'done':''}"><i>1</i><b>Prepara</b>${s.prepared?'<small>✅ Case pronte (+15 difesa)</small>':'<button class="btn small" data-oprep>🛡️ Prepara le case</button>'}</div>
      <div><i>2</i><b>Fortifica</b><small>${ch!=null?`Probabilità di tenere: <b>${ch}%</b>`:'Valuta la casa per entrare'}</small><button class="btn small ghost" data-ofort>🔨 Fortifica</button></div>
      <div><i>3</i><b>Dopo l’orda</b><small>Guarda l’assalto e riscatta</small><button class="btn small ghost" data-owatch>👀 Guarda l’assalto</button></div></div>
@@ -38,7 +38,7 @@ function orBind(root){const p=(root||document).querySelector('.opan');if(!p)retu
   const f=p.querySelector('[data-ofort]');if(f)f.onclick=()=>orFortify();
   const wa=p.querySelector('[data-owatch]');if(wa)wa.onclick=()=>orWatch();
   const ca=p.querySelector('[data-ocal]');if(ca)ca.onclick=orCalendar;const to=p.querySelector('[data-otour]');if(to)to.onclick=()=>orTour(0);}
-function orRefresh(){document.querySelectorAll('.opan').forEach(p=>{const n=document.createElement('div');n.innerHTML=orPanelHTML();const np=n.firstElementChild;if(p.dataset.grp)np.dataset.grp=p.dataset.grp;const par=p.parentElement;p.replaceWith(np);orBind(par);});
+function orRefreshBase(){document.querySelectorAll('.opan').forEach(p=>{const n=document.createElement('div');n.innerHTML=orPanelHTML();const np=n.firstElementChild;if(p.dataset.grp)np.dataset.grp=p.dataset.grp;const par=p.parentElement;p.replaceWith(np);orBind(par);});
   const b=document.querySelector('.obanner');if(b){const n=document.createElement('div');n.innerHTML=orBannerHTML();b.replaceWith(n.firstElementChild);orBindBanner();}}
 function orFortify(){const m=W.m;if(!m){toast('Accedi e valuta la casa');return;}const L=[];if(m.home)L.push({bid:m.home.building_id,lat:m.home.lat,lon:m.home.lon,t:'❤️ Casa tua'});(m.houses||[]).forEach(h=>L.push({bid:h.building_id,lat:h.lat,lon:h.lon,t:`🔑 Casa ${h.building_id.slice(1,7)} · livello ${h.level}`}));
   openSheet('🔨 Fortifica le tue case',`<p style="font-weight:400">Ogni livello dà <b>+12 difesa</b> contro l’orda (massimo 5). “Prepara” dà +15. Nel gioco, i potenziamenti della casa la rendono più forte nelle notti.</p>${L.map((x,i)=>`<button class="strow" data-of="${i}"><span>🏠</span><div><b>${x.t}</b><small>Tocca per potenziarla</small></div></button>`).join('')||'<p class="muted">Ancora nessuna casa nel mondo: valuta la tua.</p>'}
@@ -61,7 +61,7 @@ function orPutBanner(){try{if(!S.user||!OR.s||app.querySelector('.obanner')||!['
 const _goOR=go;go=function(tab){_goOR(tab);orPutBanner();};
 /* ---- nel gioco: l'orda del mondo in cima, le notti a mano ("Difendi tu") sotto ---- */
 /* ---- l'assalto sulla mappa vera (visto da tutti) ---- */
-async function orView(lm){if(!lm||!lm.map||typeof SB==='undefined'||!SB)return[];const b=lm.map.getBounds();
+async function orViewBase(lm){if(!lm||!lm.map||typeof SB==='undefined'||!SB)return[];const b=lm.map.getBounds();
   try{const{data}=await SB.rpc('world_raid_view',{p_minlat:b.getSouth(),p_minlon:b.getWest(),p_maxlat:b.getNorth(),p_maxlon:b.getEast()});return data||[];}catch(e){return[];}}
 async function orBadges(lm){if(!lm||!lm.map||lm.map.getZoom()<13)return;const rows=await orView(lm);(lm._ob||[]).forEach(x=>x.remove());lm._ob=[];
   rows.forEach(r=>{const el=elDiv('lm-ob '+(r.held?'held':'fell')+(r.mine?' mine':''),r.held?'🛡️':'💥');lm._ob.push(new maplibregl.Marker({element:el,anchor:'bottom',offset:[14,-14]}).setLngLat([r.lon,r.lat]).addTo(lm.map));});}

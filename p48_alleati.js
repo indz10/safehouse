@@ -61,7 +61,6 @@ const _socPaintAls=socPaint;socPaint=function(){_socPaintAls();try{if(SOC.tab!==
 function alsPutOrda(){try{if(S.tab!=='orda'||!S.user)return;const pg=app.querySelector('.page');if(!pg)return;let p=pg.querySelector(':scope > .alsorda');
   if(!p){const o=pg.querySelector('.opan');if(!o)return;o.insertAdjacentHTML('afterend','<div class="panel alsorda"><b class="disp" style="font-size:20px">🤝 I tuoi alleati</b><div class="alsbox cmp"></div></div>');p=pg.querySelector(':scope > .alsorda');}
   const b=p.querySelector('.alsbox');b.innerHTML=alsHTML(ALS.L,true);alsBind(b);if(!ALS.L)alsLoad().then(alsRefresh);}catch(e){}}
-try{const _ssOfAls=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.alsorda'))return'oggi';return _ssOfAls(el);};}catch(e){}
 /* ---------- scheda giocatore di un alleato: "Vedi la sua simulazione" ---------- */
 const _playerSheetAls=playerSheet;playerSheet=async function(uid){await _playerSheetAls(uid);try{const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('[data-alsim]'))return;
   if(!/Siete alleati/.test(c.textContent))return;const ac=c.querySelector('.placts')||c;ac.insertAdjacentHTML('afterbegin','<button class="btn small" data-alsim>🔍 Vedi la sua simulazione</button>');

@@ -15,7 +15,7 @@ openScudo=function(){const st=scudoSteps(),lv=scudoLv();
    card=>card.querySelectorAll('[data-sgo]').forEach(x=>x.onclick=()=>{closeSheet();if(x.dataset.sgo==='mondo'){go('casa');}else go('valuta');}));};
 /* ---- 2) conto esatto ---- */
 window.DEF={d:null,t:0};
-async function defLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return null;if(!force&&DEF.d&&Date.now()-DEF.t<60000)return DEF.d;
+async function defLoadBase(force){if(!S.user||typeof SB==='undefined'||!SB)return null;if(!force&&DEF.d&&Date.now()-DEF.t<60000)return DEF.d;
   try{const{data,error}=await SB.rpc('world_my_defense');if(error)throw error;DEF.d=data;DEF.t=Date.now();}catch(e){}return DEF.d;}
 function defChance(total){const d=DEF.d;if(!d||total==null)return null;return Math.max(0,Math.min(100,Math.round((total-d.attack_min+1)/60*100)));}
 function defHouse(bid,home){const d=DEF.d;if(!d||!d.houses)return null;return d.houses.find(h=>(home&&h.home)||(bid&&h.bid===bid))||null;}
@@ -31,9 +31,6 @@ function whySheet(bid,home){const d=DEF.d;if(!d){toast('Conto non disponibile or
    <p class="muted" style="font-size:12px;margin-top:6px">Per salire: prepara le case, chiedi rinforzi, potenzia la casa, migliora la casa vera (Scudo).</p>`);}
 /* nella scheda di ogni casa: probabilità vera + "Perché" */
 /* sul fronte: probabilità vera della casa vera */
-const _frHeaderDef=frHeader;frHeader=function(){_frHeaderDef();try{const d=DEF.d;if(!d)return;const hh=defHouse(null,true);if(!hh)return;const ch=defChance(hh.total);const n=FR.node;if(!n)return;
-  const chip=[...n.querySelectorAll('[data-frchips] span')].find(s=>/di tenere/.test(s.textContent));if(chip){chip.innerHTML=`🛡️ ${ch}% di tenere · <u>perché</u>`;chip.style.cursor='pointer';chip.onclick=()=>whySheet(null,true);}
-  const pc=n.querySelector('[data-frpct]');if(pc)pc.textContent=ch+'%';const ring=n.querySelector('.frring');if(ring)ring.style.setProperty('--ok',ch>=50?'#5bd16a':'#d7263d');}catch(e){}};
 /* la simulazione usa il conto vero di ogni casa */
 const _regSimRowsDef=regSimRows;regSimRows=function(){const rows=_regSimRowsDef();try{if(!DEF.d)return rows;rows.forEach((r,i)=>{const h=REG.H[i];const dh=h&&defHouse(h.bid,h.home);if(!dh)return;r.sim.pw=dh.total;r.held=dh.total>=r.sim.atk;});}catch(e){}return rows;};
 /* ---- 3) 🧭 IL TUO PROSSIMO PASSO ---- */
@@ -66,9 +63,7 @@ function coPut(){try{if(S.tab==='home'){const h=app.querySelector('.hsbtns');if(
 const _renderHomeCo=renderHome;renderHome=function(){_renderHomeCo();coPut();};
 /* aggiornamenti */
 const _wMineCo=wMine;wMine=async function(){const r=await _wMineCo.apply(this,arguments);try{rsSync();await defLoad(true);coPut();if(S.tab==='orda'&&FR.node)frHeader();}catch(e){}return r;};
-const _orLoadCo=orLoad;orLoad=async function(){const r=await _orLoadCo.apply(this,arguments);try{await defLoad(true);coPut();}catch(e){}return r;};
 setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='home'||S.tab==='orda'))coPut();},30000);
 </script>
 <script>
-try{const _ssOfCo=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.coach'))return'oggi';return _ssOfCo(el);};}catch(e){}
 </script>

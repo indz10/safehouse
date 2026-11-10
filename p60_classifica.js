@@ -33,12 +33,4 @@ const _thrViewAz=thrView;thrView=function(T){const h=_thrViewAz(T);if(!window.__
 const _allySheetAz=allySheet;allySheet=async function(uid){window.__azT=[];window.__azU=uid;const r=await _allySheetAz(uid);return r;};
 document.addEventListener('click',e=>{const row=e.target.closest&&e.target.closest('[data-azk]');if(!row||!window.__azT)return;const T=window.__azT[+row.dataset.azt];if(!T)return;
   const nick=((document.querySelector('#sheet.open h3')||{}).textContent||'').replace(/^🤝\s*@?/,'');window.__zsCtx={T,ally:true,uid:window.__azU,nick,label:(T.home?'casa vera':'una sua casa')+' di @'+nick};frZSheet(row.dataset.azk);},true);
-const _frZSheetAz=frZSheet;frZSheet=function(k){const ctx=window.__zsCtx;if(!ctx)return _frZSheetAz(k);window.__zsCtx=null;
-  const sv=FR.dests;FR.dests=[{label:ctx.label,home:ctx.T.home,bid:ctx.T.bid}];const svT=window.thrOf;window.thrOf=()=>ctx.T;try{_frZSheetAz(k);}finally{FR.dests=sv;window.thrOf=svT;}
-  try{const c=document.querySelector('#sheet.open .sheet-b');const z=c&&c.querySelector('.zsh');if(!z)return;
-    z.querySelectorAll('[data-zfk]').forEach(b=>{b.disabled=true;b.classList.add('ro');const sm=b.querySelector('small');if(sm)sm.innerHTML=sm.innerHTML.replace(/ · 🧱 \d+/,'').replace(/🧱 \d+/,'da comprare');});
-    const zs=ZSP[k]||{n:'Vaganti'};const best=[...z.querySelectorAll('[data-zfk]')].map(b=>b.dataset.zfk)[0];const PL={walker:'tanti Vaganti',runner:'i Corridori',casco:'gli zombie col casco',strillone:'gli Strilloni',scavatore:'gli Scavatori',brute:'i Bruti',ombra:'le Ombre',boss:'il Bruto della Sagra'};const tip=best&&ZDEF[best]?`Ti arrivano ${PL[k]||'gli zombie'}: metti ${ZDEF[best][0]} ${ZDEF[best][1]}!`:`Attento all’orda di stasera!`;
-    z.insertAdjacentHTML('beforeend',`<small class="zshw">È la casa del tuo alleato: le fortificazioni le compra lui. Tu puoi aiutarlo così:</small><div class="alacts big"><button class="btn small" data-azh>🤝 Rinforzi +5</button><button class="btn small ghost" data-azs>🛡️ Scudo 💎20</button><button class="btn small ghost" data-azm>💬 Consigliagli</button></div>`);
-    z.querySelector('[data-azh]').onclick=e=>alHelp(ctx.uid,e.target);z.querySelector('[data-azs]').onclick=()=>allyShield(ctx.uid,ctx.nick);
-    z.querySelector('[data-azm]').onclick=async e=>{e.target.disabled=true;try{const{data,error}=await SB.rpc('world_dm_send',{p_to:ctx.uid,p_body:tip});if(error)throw error;toast(data.ok?'💬 Inviato: “'+tip+'”':data.msg);}catch(x){toast(x.message||'Non inviato');e.target.disabled=false;}};}catch(e){console.warn(e);}};
 </script>

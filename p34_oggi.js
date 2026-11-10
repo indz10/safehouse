@@ -20,7 +20,6 @@ function oggiAt(d,when){if(!d||!d.hourly)return null;const p=n=>String(n).padSta
   else if(m.full&&when.getHours()>=18){ev='luna';eff='🌕 Luna piena: orda più veloce, ma monete doppie.';}
   return{c,ic:wIcon(c),name:wName(c),t:Math.round(t),pr,ev,eff,moon:m};}
 function oggiNext(){const s=OR&&OR.s;return s&&s.next_at?new Date(s.next_at):vNextSlot();}
-try{const _ssOfOg=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.ocal'))return'oggi';return _ssOfOg(el);};}catch(e){}
 setInterval(()=>{const n=new Date();document.querySelectorAll('[data-clock]').forEach(e=>{e.textContent=n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});});},1000);
 /* il dettaglio: meteo delle prossime orde + calendario */
 async function oggiSheet(){openSheet('📅 Oggi','<p><span class="spin"></span> Leggo il meteo vero della tua zona…</p>',()=>{});const d=await oggiMeteo();const n=new Date();

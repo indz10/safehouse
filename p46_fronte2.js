@@ -22,7 +22,7 @@ function frDrawLines(){try{const map=FR.lm.map;const fs=[];FR.paths.forEach(P=>P
   /* disegno finché compare: anche se la mappa sta ancora caricando, e di nuovo dopo ogni cambio giorno/notte o 3D */
   FR.lmData=data;let n=0;const tryGo=()=>{go();if(!map.getSource('fr-p')&&n++<40)setTimeout(tryGo,500);};tryGo();
   if(!map._frsd){map._frsd=1;map.on('styledata',()=>{setTimeout(()=>{try{if(FR.lm&&FR.lm.map===map&&FR.lmData&&!map.getSource('fr-p'))frDrawLines();}catch(e){}},400);});}}catch(e){}}
-function frChanceOf(h){try{const dh=defHouse(h.bid,h.home);return dh?defChance(dh.total):null;}catch(e){return null;}}
+function frChanceOfBase(h){try{const dh=defHouse(h.bid,h.home);return dh?defChance(dh.total):null;}catch(e){return null;}}
 function frSel(H,F){const n=FR.node;if(!n)return;let s=n.querySelector('.frsel');if(!s){n.querySelector('.frmapw').insertAdjacentHTML('beforebegin','<div class="frsel"></div>');s=n.querySelector('.frsel');}
   s.innerHTML=H.map((h,i)=>{const c=frChanceOf(h);const on=(h.home&&F.home)||(!h.home&&!F.home&&h.bid===F.bid);return`<button data-frh="${i}" class="${on?'on':''}"><b>${h.ic} ${esc(h.label)}</b><small>${c!=null?c+'%':'…'}${h.km>1.5?' · '+kmTxt(h.km):''}</small></button>`;}).join('');
   s.querySelectorAll('[data-frh]').forEach(b=>b.onclick=()=>{const h=H[+b.dataset.frh];FR.focus={bid:h.bid,home:h.home};FR.key='';frMount();});}
@@ -67,5 +67,4 @@ frLoop=function(){frStop();FR.last=performance.now();const step=t=>{FR.raf=reque
     const toH=Math.max(0,P.L-z.x);let op=z.x<0?0:1;if(w&&w.ev==='nebbia')op=toH<150?1:.18;z.el.style.opacity=op;z.el.classList.toggle('glow',!!(w&&w.ev==='blackout'&&toH>120));});};
   FR.raf=requestAnimationFrame(step);};
 /* quando arriva il conto del server, aggiorno le % */
-const _defLoadFr=defLoad;defLoad=async function(){const r=await _defLoadFr.apply(this,arguments);try{if(S.tab==='orda'&&FR.node){frRings();}}catch(e){}return r;};
 </script>

@@ -24,7 +24,6 @@ async function thrLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return nu
   try{const{data,error}=await SB.rpc('world_threats');if(error)throw error;THR.L=data||[];THR.t=Date.now();}catch(e){THR.err=e.message;}return THR.L;}
 function thrOf(h){const L=THR.L||[];return L.find(x=>(h.home&&x.home)||(!h.home&&x.bid===h.bid))||null;}
 /* le % ovunque vengono dalla minaccia vera della casa */
-const _frChanceOfZ=frChanceOf;frChanceOf=function(h){const T=thrOf(h);if(T)return thrCalc(T).ch;return _frChanceOfZ(h);};
 /* ---------- scheda della casa: chi arriva + difese mirate + simulatore ---------- */
 function thrHTML(T,sim){const r=thrCalc(T,sim);const base=thrCalc(T);const ev=EVN[T.ev]||EVN.calma;const sl=T.slope||0;const slT=Math.abs(sl)<.01?'terreno piano':sl>0?`casa in alto: salita del ${Math.round(sl*100)}% per gli zombie`:`casa in basso: discesa del ${Math.round(-sl*100)}% per gli zombie`;
   const lvl=sim.level!=null?sim.level:T.level;let cost=0;Object.keys(sim.defs||{}).forEach(k=>{const a=(T.defs||{})[k]||0,b=sim.defs[k];for(let l=a;l<b;l++)cost+=80*(l+1);});for(let l=T.level;l<lvl;l++)cost+=150*l;
@@ -62,13 +61,7 @@ async function thrSection(card,h){await thrLoad();const T=thrOf(h);const box=car
 /* ---------- fronte: composizione e meteo veri della casa inquadrata ---------- */
 FZ.ombra={ic:'👤',v:3,sc:1.05,sp:'Si muove nell’ombra: fortissima con nebbia, blackout e di notte. La fermano fari e luci.'};
 if(typeof ZT!=='undefined'&&!ZT.ombra)ZT.ombra={name:'Ombra',sp:22,hp:14,dps:9};
-const _frCompZ=frComp;frComp=function(wl){const F=FR.dests&&FR.dests[0];const T=F&&thrOf(F);if(!T)return _frCompZ(wl);const L=[];const n=Math.min(14,6+Math.floor(T.wl/2));for(let i=0;i<n;i++)L.push('walker');
-  (T.specials||[]).forEach(x=>{const c=x.k==='boss'?1:Math.max(1,Math.round(2*x.mod*(1-.3*Math.min(3,x.dl||0))));for(let i=0;i<c;i++)L.push(x.k);});L.push('oro');return L;};
-const _frWxZ=frWx;frWx=function(){const F=FR.dests&&FR.dests[0];const T=F&&thrOf(F);if(!T||T.ev==null)return _frWxZ();const e=EVN[T.ev]||EVN.calma;
-  const base=F.home?_frWxZ():null;const t=T.temp!=null?Math.round(T.temp):(base?base.t:null);return{ev:T.ev==='neve'?'pioggia':T.ev,ic:e[0],name:e[1],t,eff:`${e[0]} ${e[1]}: ${e[2]}`};};
-const _frHeaderZ=frHeader;frHeader=function(){_frHeaderZ();try{const w=FR.wx;const wb=FR.node&&FR.node.querySelector('.frwx');if(w&&wb&&(w.t==null||w.t===''))wb.textContent=`${w.ic} ${w.name}`;}catch(e){}};
 /* aggiornamenti */
-const _defLoadZ=defLoad;defLoad=async function(){const r=await _defLoadZ.apply(this,arguments);try{await thrLoad(true);if(S.tab==='orda'&&FR.node){frRings();}}catch(e){}return r;};
 </script>
 <script>
 /* "Perché": la forza dell'orda è quella vera di quella casa */
