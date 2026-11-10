@@ -45,7 +45,7 @@ async function hs_base(h){openSheet(`${h.ic} ${h.label}`,'<p><span class="spin">
       if(k==='watch'){closeSheet();const i=myHouses().findIndex(x=>x.bid===h.bid&&x.home===h.home);assalto('last',Math.max(0,i));return;}
       if(k==='rent'){const r=await wRpc('world_collect');toast(r.ok?`🏦 +🧱 ${wNum(r.got)}`:(r.msg||'Ancora niente'));await wMine(true);houseSheet(h);return;}
       if(k==='sell'){if(!confirm('Vendere la casa? Ricevi il 70% del valore.'))return;const r=await wRpc('world_sell',{p_bid:h.bid});toast(r.ok?`Venduta: +🧱 ${wNum(r.back)}`:r.msg);closeSheet();await wMine(true);mhBar();return;}
-      if(k==='plan'){closeSheet();go('casa');return;}if(k==='foto'){closeSheet();S.step=1;go('valuta');return;}
+      if(k==='plan'){const p=card.querySelector('.plan');if(p)p.scrollIntoView({behavior:'smooth',block:'start'});else{closeSheet();S.step=3;go('valuta');}return;}if(k==='foto'){closeSheet();S.step=1;go('valuta');return;}
       if(k==='comm'){closeSheet();SOC.tab='piazza';PZ.room='zona';go('social');setTimeout(()=>{const t=document.getElementById('pzTxt');if(t){t.value=`Consigli per la mia casa${h.home?'':' a '+kmTxt(h.km)}? Cosa conviene migliorare prima? `;t.focus();}},900);return;}
       if(k==='spon'){closeSheet();go('sponsor');return;}}catch(e){toast(e.message||'Non riuscito');b.disabled=false;}});});}
 /* "Più Mattoni" e spiegazione (era in p33_fix.js) */
@@ -125,6 +125,33 @@ async function hs_residenti(h){try{if(!h.home)return;const c=document.querySelec
 async function hs_abitazione(h){try{if(!h.home||!S.user)return;const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('.abpan'))return;await abitMount(c,h);}catch(e){console.warn(e);}}
 /* "Sul disegno" (era in p62_legenda.js) */
 async function hs_legenda(h){try{const box=document.querySelector('#sheet.open .hsart');if(box)await hLegendPut(box,h);}catch(e){}}
+/* casa vera: piano d'azione e valutazione al posto delle 3 migliorie dell'IA (Fase 5b: prima stavano nella vecchia pagina "La mia casa") */
+async function hs_valutazione(h){try{if(!h.home||!S.result)return;const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('.hval'))return;
+  let plan='';try{plan=planHTML();}catch(e){}
+  const ai=[...c.querySelectorAll('h4.hh')].find(x=>/Migliorie consigliate/.test(x.textContent));
+  const html=`${plan}<div class="panel hval"><b class="disp" style="font-size:20px">📷 La tua valutazione</b><small class="muted" style="display:block;margin:2px 0 6px">Indice ${fmtI(S.result.idx)}/10 · ${esc((S.zone&&S.zone.address)||'')}</small>
+    <div class="hvalg"><button data-hv="foto">📷<span>Nuove foto</span></button><button data-hv="risposte">✏️<span>Risposte</span></button><button data-hv="pos">📍<span>Posizione</span></button><button data-hv="moving">🚚<span>Trasloco</span></button></div>
+    <button class="btn ghost wide" data-hv="tutto" style="margin-top:8px">Rivedi tutta la valutazione</button></div>`;
+  if(ai){/* tolgo il titolo e le 3 migliorie (sono le prime del piano); resta la riga dei pulsanti */
+    let n=ai.nextElementSibling;while(n&&n.classList.contains('hai')){const x=n;n=n.nextElementSibling;x.remove();}
+    const pb=c.querySelector('[data-ha="plan"]');if(pb)pb.remove();ai.insertAdjacentHTML('beforebegin',html);ai.remove();}
+  else{const lv=[...c.querySelectorAll('h4.hh')].find(x=>/Lavori veri/.test(x.textContent));if(lv)lv.insertAdjacentHTML('beforebegin',html);else c.insertAdjacentHTML('beforeend',html);}
+  c.querySelectorAll('[data-plsp]').forEach(b=>b.onclick=()=>sponsorSheet(b.dataset.plsp,S.zone));
+  c.querySelectorAll('[data-hv]').forEach(b=>b.onclick=()=>{const k=b.dataset.hv;closeSheet();
+    if(k==='moving'){try{moveSheet();}catch(e){go('valuta');}return;}
+    S.step=k==='pos'?0:k==='foto'?1:k==='risposte'?2:3;go('valuta');});}catch(e){console.warn(e);}}
+/* "Le mie case" (Fase 5b): per chi ha l'account e ha valutato la casa. In cima ❤️ la casa dove abiti, poi quelle comprate */
+function casasOk(){try{return !!(S.user&&S.result&&myHouses().some(x=>x.home));}catch(e){return false;}}
+function casasSheet(){const L=myHouses();const s=OR.s||{};
+  const row=(h,i)=>{let c=null;try{c=frChanceOf(h);}catch(e){}const real=(s.houses||[]).find(x=>Math.abs(x.lat-h.lat)<.0003&&Math.abs(x.lon-h.lon)<.0004);
+    return`<button class="strow csrow" data-cs="${i}"><span class="splogo">${h.home?'❤️':'🔑'}</span><div><b>${h.home?'Casa tua':esc(h.label)}${h.home?' · dove abiti':''}</b><small>${h.home?`Indice ${fmtI(S.result.idx)}/10 · `:kmTxt(h.km)+' da casa tua · '}livello ${h.level||1}${c!=null?` · tiene ${c}%`:''}${real?(real.held?' · 🛡️ ha tenuto':' · 💥 sfondata'):''}</small></div><i>›</i></button>`;};
+  openSheet('🏠 Le mie case',`<p style="font-weight:400;margin-bottom:8px">Tocca una casa per vedere difese, fortificazioni e modifiche.</p>
+    ${L.map(row).join('')}
+    ${L.length<2?'<p class="muted" style="font-size:13px;margin:10px 0 6px">Con i 🧱 Mattoni puoi comprare altre case libere sulla mappa del mondo.</p>':''}
+    <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" data-csm>🌍 ${L.length<2?'Compra una casa':'Compra altre case'}</button><button class="btn ghost small" data-csv>📷 Aggiorna la valutazione</button></div>`,card=>{
+    card.querySelectorAll('[data-cs]').forEach(b=>b.onclick=()=>{const h=myHouses()[+b.dataset.cs];if(h)houseSheet(h);});
+    card.querySelector('[data-csm]').onclick=()=>{closeSheet();S.mfHouses=true;go('mappa');};
+    card.querySelector('[data-csv]').onclick=()=>{closeSheet();S.step=3;go('valuta');};});}
 /* nasconde il corpo appena la pagina base viene creata (dentro openSheet, prima che lo schermo si ridisegni) */
 function hsHide(card){const b=card.querySelector('.sheet-b');if(b)b.style.visibility='hidden';const sh=document.getElementById('sheet');if(sh)sh.classList.add('hfull');
   if(!card.querySelector('.hsload'))card.insertAdjacentHTML('beforeend','<p class="hsload"><span class="spin"></span> Carico la casa…</p>');}
@@ -136,7 +163,7 @@ async function houseSheet(h){const tok=++HS.tok;
   hsHide(card);
   const reveal=()=>{body.style.visibility='';const l=card.querySelector('.hsload');if(l)l.remove();};const t=setTimeout(reveal,HS_MAXMS);
   HS.art=null;
-  for(const f of [hs_mattoni,hs_attivita,hs_equita,hs_tipo,hs_tenuta,hs_zombie,hs_fortezze,hs_pagina,hs_residenti,hs_abitazione]){if(tok!==HS.tok||!body.isConnected)break;try{await f(h);}catch(e){console.warn('pagina casa',f.name,e);}}
+  for(const f of [hs_mattoni,hs_attivita,hs_equita,hs_tipo,hs_tenuta,hs_zombie,hs_fortezze,hs_pagina,hs_residenti,hs_abitazione,hs_valutazione]){if(tok!==HS.tok||!body.isConnected)break;try{await f(h);}catch(e){console.warn('pagina casa',f.name,e);}}
   /* se il disegno è quasi pronto lo aspetto un attimo, così compare già con la pagina */
   if(HS.art)await Promise.race([HS.art,new Promise(r=>setTimeout(r,1500))]);
   clearTimeout(t);if(body.isConnected)reveal();}

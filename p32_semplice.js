@@ -22,7 +22,7 @@ const _mfMoreS1=mfMore;mfMore=function(){_mfMoreS1();try{const c=document.queryS
 /* ---- MENU: corto, senza doppioni della barra in basso ---- */
 function zmItemsBase(){const u=S.user;const adm=!!window.__zmAdmin,shop=!!window.__zmShop;
   return[
-   ['La mia casa',[['🏠','La mia casa (indice e piano)','casa'],['📷','Valuta o aggiorna la casa','valuta'],['🚚','Ho cambiato casa','move']]],
+   ['Casa',[['🏠','Le mie case','casa'],['📷','Valuta o aggiorna la casa','valuta'],['🚚','Ho cambiato casa','move']]],
    ['Gioco',[['🎬','Guarda gli assalti','a:last'],['🔮','Simula la prossima orda','a:sim'],['⚔️','Difendi tu (notti)','g:difendi'],['💎','Bottega','shop']]],
    ['Amici',[['📨','Invita amici e vicini','invite']]],
    ['Aiuto',[['🧭','Giro guidato','tour'],['📖','Come si gioca','rules'],['📚','Tutte le regole','manual'],['📻','Radio Operatore','radio'],['⭐','Sponsor e contatti','sponsor']]],
