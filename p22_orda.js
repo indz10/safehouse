@@ -96,7 +96,7 @@ function orOffer(){if(!S.user||typeof G==='undefined'||G.tourDone||document.quer
   openSheet('🧭 Vuoi un giro guidato?',`<p style="font-weight:400">Un minuto per capire tutto: la mappa vera, le case da comprare, l’<b>orda del mondo</b> delle 9 e delle 21, i premi da riscattare.</p><div class="row" style="gap:8px;margin-top:12px"><button class="btn" data-oty>Sì, fammi vedere</button><button class="btn ghost small" data-otn2>No, grazie</button></div>`,c=>{c.querySelector('[data-oty]').onclick=()=>orTour(0);c.querySelector('[data-otn2]').onclick=closeSheet;});}
 /* menu */
 /* aggiornamenti */
-setInterval(()=>{if(!document.hidden&&S.user){orLoad(Date.now()-OR.t>60000);document.querySelectorAll('.onext small').forEach(x=>{if(OR.s)x.textContent='tra '+orLeft(OR.s.next_at);});}},30000);
+zEvery(()=>{if(!document.hidden&&S.user){orLoad(Date.now()-OR.t>60000);document.querySelectorAll('.onext small').forEach(x=>{if(OR.s)x.textContent='tra '+orLeft(OR.s.next_at);});}},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user)orLoad(true);});
 setTimeout(()=>{if(S.user)orLoad(true);},3500);
 /* manuale */

@@ -20,7 +20,7 @@ function oggiAt(d,when){if(!d||!d.hourly)return null;const p=n=>String(n).padSta
   else if(m.full&&when.getHours()>=18){ev='luna';eff='🌕 Luna piena: orda più veloce, ma monete doppie.';}
   return{c,ic:wIcon(c),name:wName(c),t:Math.round(t),pr,ev,eff,moon:m};}
 function oggiNext(){const s=OR&&OR.s;return s&&s.next_at?new Date(s.next_at):vNextSlot();}
-setInterval(()=>{const n=new Date();document.querySelectorAll('[data-clock]').forEach(e=>{e.textContent=n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});});},1000);
+zEvery(()=>{const n=new Date();document.querySelectorAll('[data-clock]').forEach(e=>{e.textContent=n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});});},1000);
 /* il dettaglio: meteo delle prossime orde + calendario */
 async function oggiSheet(){openSheet('📅 Oggi','<p><span class="spin"></span> Leggo il meteo vero della tua zona…</p>',()=>{});const d=await oggiMeteo();const n=new Date();
   const slots=[];for(const dd of[0,1])for(const h of[9,21]){const t=new Date(n.getFullYear(),n.getMonth(),n.getDate()+dd,h,0,0);if(t>n&&slots.length<3)slots.push(t);}
@@ -43,6 +43,6 @@ async function oggiSheet(){openSheet('📅 Oggi','<p><span class="spin"></span> 
 function oggiTile(){try{document.querySelectorAll('.lpan button, .lpan .ltile, .lpan [data-luck]').forEach(t=>{if(!/Premio del giorno/.test(t.textContent)||t.querySelector('.ocd'))return;
   const n=new Date();const em=[...t.querySelectorAll('span,b,i,div')].find(x=>x.textContent.trim()==='📅');const tile=`<span class="ocd mini"><small>${MMs[n.getMonth()]}</small><b>${n.getDate()}</b></span>`;
   if(em)em.outerHTML=tile;else{const w=document.createTreeWalker(t,NodeFilter.SHOW_TEXT);let x;while((x=w.nextNode())){if(x.nodeValue.includes('📅')){x.nodeValue=x.nodeValue.replace('📅','');x.parentNode.insertAdjacentHTML('afterbegin',tile);break;}}}});}catch(e){}}
-setInterval(()=>{if(S.tab==='home'||S.tab==='orda')oggiTile();},5000);
+zEvery(()=>{if(S.tab==='home'||S.tab==='orda')oggiTile();},5000);
 /* nel menu */
 </script>

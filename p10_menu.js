@@ -8,7 +8,7 @@ Object.assign(SPONSORS.sol,{cat:'Energia',tier:'Alleato del quartiere',desc:'Fot
 const STATS={reg:null,on:null};
 function tickStats(){const e=document.getElementById('ucount');if(e)e.innerHTML=statHTML();}
 function statHTML(){return`<span title="Utenti registrati">👥 ${STATS.reg==null?'…':STATS.reg.toLocaleString('it-IT')} <small>superstiti</small></span><span class="dotlive"></span><span title="Attivi negli ultimi 5 minuti">${STATS.on==null?'…':STATS.on} <small>online</small></span>`;}
-setInterval(tickStats,6000);
+zEvery(tickStats,6000);
 function topbar(){
   if(document.getElementById('topbar'))return;
   document.body.insertAdjacentHTML('afterbegin',`<header id="topbar" class="topbar">

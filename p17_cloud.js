@@ -50,10 +50,10 @@ async function onLoginBase(u,fresh){S.user={id:u.id,email:u.email,nick:(u.user_m
   if(useCloud){restore(cloud);snapshot();SNAP.at=cloud.at||SNAP.at;SNAP.pushed=SNAP.at;saveLocal();try{if(typeof trSetupVera==='function')trSetupVera();}catch(e){}if(fresh||wl<1)toast('Dati recuperati dal tuo account');try{go(S.tab||'home');}catch(e){}}
   else if(wl>=1)pushCloud();
   if(fresh)toast(`Ciao @${S.user.nick}! I tuoi progressi ora sono salvati.`);}
-setInterval(()=>{saveLocal();const d=snapshot();if(S.user&&S.user.id&&d.at>(SNAP.pushed||0)){clearTimeout(SNAP.t);SNAP.t=setTimeout(pushCloud,3000);}},10000);
+zEvery(()=>{saveLocal();const d=snapshot();if(S.user&&S.user.id&&d.at>(SNAP.pushed||0)){clearTimeout(SNAP.t);SNAP.t=setTimeout(pushCloud,3000);}},10000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden){saveLocal();pushCloud();}else syncCloud();});
 window.addEventListener('focus',()=>syncCloud());window.addEventListener('pagehide',()=>{saveLocal();pushCloud();});
-setInterval(()=>{if(S.user&&S.user.id)syncCloud();},20000);
+zEvery(()=>{if(S.user&&S.user.id)syncCloud();},20000);
 /* al primo avvio: riprende da dove eri rimasto */
 (function(){const d=loadLocal();if(d){try{restoreBase(d);snapshotBase();/* all'avvio, come prima: le versioni di p17 (Fase 4f-1) */SNAP.at=d.at||SNAP.at;}catch(e){}}})();
 /* ---------- login vero ---------- */

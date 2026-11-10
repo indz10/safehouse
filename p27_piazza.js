@@ -44,16 +44,16 @@ function pzActions(m){openSheet('💬 Messaggio',`<div class="pzm ${m.mine?'mine
 /* la piazza è la prima voce di Superstiti */
 SOC.tab='piazza';
 /* ---------------- accesso chiaro e avatar sempre aggiornato ---------------- */
-setInterval(()=>{try{const b=document.getElementById('ioBtn');if(!b)return;const want=S.user?((S.user.nick||(S.user.email||'?').split('@')[0])[0]||'?').toUpperCase():'👤';if(b.textContent!==want){b.textContent=want;b.classList.toggle('nolog',!S.user);}}catch(e){}},2000);
+zEvery(()=>{try{const b=document.getElementById('ioBtn');if(!b)return;const want=S.user?((S.user.nick||(S.user.email||'?').split('@')[0])[0]||'?').toUpperCase():'👤';if(b.textContent!==want){b.textContent=want;b.classList.toggle('nolog',!S.user);}}catch(e){}},2000);
 /* in Casa, se non sei collegato, lo vedi subito */
 const _renderHomePz=renderHome;renderHome=function(){_renderHomePz();try{if(S.user||!S.result||app.querySelector('.nolog'))return;const c=app.querySelector('.hcard');if(c)c.insertAdjacentHTML('beforebegin',`<div class="panel nolog"><b>🔒 Non sei collegato in questa app</b><p style="font-weight:400;margin:4px 0">Accedi per salvare i progressi, avere la tua casa nel mondo e giocare con gli altri.</p>${pzSafariNote()}<button class="btn" onclick="loginSheet()">Accedi</button></div>`);}catch(e){}};
 /* ---------------- giocatori sulla mappa: sempre la scheda nuova ---------------- */
 document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('.lm-usr');if(!m||!m.dataset.uid)return;e.stopPropagation();e.preventDefault();
   if(S.user&&m.dataset.uid===S.user.id){go('io');return;}playerSheet(m.dataset.uid);},true);
 /* il tuo segnaposto non compare come "altro giocatore" */
-setInterval(()=>{try{if(!S.user)return;document.querySelectorAll('.lm-usr').forEach(m=>{if(m.dataset.uid===S.user.id)m.style.display='none';});}catch(e){}},6000);
+zEvery(()=>{try{if(!S.user)return;document.querySelectorAll('.lm-usr').forEach(m=>{if(m.dataset.uid===S.user.id)m.style.display='none';});}catch(e){}},6000);
 /* ---------------- contatore sponsor vivo ---------------- */
-setInterval(()=>{try{const b=document.querySelector('.mfsp');if(!b)return;const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null).length;const t=n?`⭐ ${n} sponsor`:'⭐ Sponsor';if(b.textContent!==t)b.textContent=t;}catch(e){}},1500);
+/* (Fase 4f-2) qui c'era un secondo contatore degli sponsor sulla mappa, in contrasto con quello di p36: tolto */
 /* ---------------- riscontro a ogni tocco ---------------- */
 document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('button,.btn,[role=button],.strow,.iorow');if(!b||b.disabled)return;b.classList.add('pressed');setTimeout(()=>b.classList.remove('pressed'),160);},{passive:true,capture:true});
 </script>

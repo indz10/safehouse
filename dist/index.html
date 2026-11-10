@@ -1477,6 +1477,23 @@ body[data-tab=orda] #accFab{display:none!important}
 </script>
 <nav class="nav" id="nav" aria-label="Navigazione principale"></nav>
 <script>
+/* =========================================================
+   OROLOGIO UNICO (Fase 4f-2)
+   Prima: 28 setInterval permanenti sparsi in 20 moduli, ognuno col suo timer di sistema.
+   Ora: UN solo timer (ogni 250 ms) che fa girare i compiti periodici, ognuno col suo intervallo
+   di sempre. zEvery(fn, ms, nome) ha gli stessi argomenti di setInterval(fn, ms).
+   I timer "di una volta" dentro pagine e animazioni (ruota, musica, attese) restano setInterval.
+   Un errore in un compito non ferma gli altri (come con setInterval).
+   ========================================================= */
+const ZCLOCK={tick:250,h:null,t:[]};
+function zEvery(fn,ms,nome){const t={fn,ms:Math.max(ZCLOCK.tick,+ms||0),nome:nome||(fn&&fn.name)||'',next:Date.now()+(+ms||0)};ZCLOCK.t.push(t);
+  if(!ZCLOCK.h)ZCLOCK.h=setInterval(zClockTick,ZCLOCK.tick);return t;}
+function zClockTick(){const now=Date.now();
+  for(const t of ZCLOCK.t){if(now<t.next-60)continue;   /* 60 ms di tolleranza: il compito da 1 s gira davvero ogni secondo */
+    t.next+=t.ms;if(t.next<=now)t.next=now+t.ms;          /* cadenza fissa; dopo una pausa lunga riparte da adesso */
+    try{t.fn();}catch(e){console.warn('orologio',t.nome,e);}}}
+</script>
+<script>
 /* VELOCITÀ: i timer di sottofondo (≥1 s) non lavorano quando l'app non è in primo piano */
 (function(){const _si=window.setInterval;window.__zsiv=1;window.setInterval=function(fn,ms,...a){if(typeof fn==='function'&&ms>=1000){const f=fn;fn=function(){if(document.hidden)return;return f.apply(this,arguments);};}return _si.call(window,fn,ms,...a);};})();
 /* =========================================================
@@ -3228,7 +3245,7 @@ Object.assign(SPONSORS.sol,{cat:'Energia',tier:'Alleato del quartiere',desc:'Fot
 const STATS={reg:null,on:null};
 function tickStats(){const e=document.getElementById('ucount');if(e)e.innerHTML=statHTML();}
 function statHTML(){return`<span title="Utenti registrati">👥 ${STATS.reg==null?'…':STATS.reg.toLocaleString('it-IT')} <small>superstiti</small></span><span class="dotlive"></span><span title="Attivi negli ultimi 5 minuti">${STATS.on==null?'…':STATS.on} <small>online</small></span>`;}
-setInterval(tickStats,6000);
+zEvery(tickStats,6000);
 function topbar(){
   if(document.getElementById('topbar'))return;
   document.body.insertAdjacentHTML('afterbegin',`<header id="topbar" class="topbar">
@@ -3753,10 +3770,10 @@ async function onLoginBase(u,fresh){S.user={id:u.id,email:u.email,nick:(u.user_m
   if(useCloud){restore(cloud);snapshot();SNAP.at=cloud.at||SNAP.at;SNAP.pushed=SNAP.at;saveLocal();try{if(typeof trSetupVera==='function')trSetupVera();}catch(e){}if(fresh||wl<1)toast('Dati recuperati dal tuo account');try{go(S.tab||'home');}catch(e){}}
   else if(wl>=1)pushCloud();
   if(fresh)toast(`Ciao @${S.user.nick}! I tuoi progressi ora sono salvati.`);}
-setInterval(()=>{saveLocal();const d=snapshot();if(S.user&&S.user.id&&d.at>(SNAP.pushed||0)){clearTimeout(SNAP.t);SNAP.t=setTimeout(pushCloud,3000);}},10000);
+zEvery(()=>{saveLocal();const d=snapshot();if(S.user&&S.user.id&&d.at>(SNAP.pushed||0)){clearTimeout(SNAP.t);SNAP.t=setTimeout(pushCloud,3000);}},10000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden){saveLocal();pushCloud();}else syncCloud();});
 window.addEventListener('focus',()=>syncCloud());window.addEventListener('pagehide',()=>{saveLocal();pushCloud();});
-setInterval(()=>{if(S.user&&S.user.id)syncCloud();},20000);
+zEvery(()=>{if(S.user&&S.user.id)syncCloud();},20000);
 /* al primo avvio: riprende da dove eri rimasto */
 (function(){const d=loadLocal();if(d){try{restoreBase(d);snapshotBase();/* all'avvio, come prima: le versioni di p17 (Fase 4f-1) */SNAP.at=d.at||SNAP.at;}catch(e){}}})();
 /* ---------- login vero ---------- */
@@ -4241,7 +4258,7 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 /* bollettino del territorio nella pagina del gioco */
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611101356';
+const ZSH_BUILD='202611101736';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -4502,7 +4519,7 @@ async function zSyncProfile(force){try{const sb=typeof SB!=='undefined'&&SB;if(!
 /* numeri veri in alto: utenti registrati e online negli ultimi 5 minuti */
 async function zStats(){try{const sb=await waitSB(4000);if(!sb)return;const{data,error}=await sb.rpc('zsh_stats');if(error||!data)return;
   STATS.reg=data.utenti||0;STATS.on=data.online||0;tickStats();}catch(e){}}
-zStats();setInterval(()=>{if(!document.hidden)zStats();},60*1000);
+zStats();zEvery(()=>{if(!document.hidden)zStats();},60*1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){zSyncProfile();zStats();}});
 function zAskPublic(){if(document.querySelector('#sheet.open'))return setTimeout(zAskPublic,4000);
   openSheet('👥 Vuoi comparire sulla mappa?',`<p style="font-weight:400;margin-bottom:10px">Gli altri superstiti vedranno il tuo <b>nickname @${esc(S.user.nick)}</b>, l'<b>indice della casa</b> e il livello nel gioco, in una <b>posizione approssimata di circa 200 metri</b>. Mai l'indirizzo, mai i punti deboli della casa.</p>
@@ -4520,7 +4537,7 @@ function zDrawUsers(lm){if(!lm||!lm.map)return;(lm._usr||[]).forEach(x=>x.remove
       <p class="muted" style="font-size:13px">Per privacy non vedi l'indirizzo né i punti deboli della sua casa.</p></div>`);});
     lm._usr.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([u.lon_r,u.lat_r]).addTo(lm.map));});}
 /* quando ci si collega o si valuta la casa */
-zLoadUsers();setInterval(()=>{if(!document.hidden)zSyncProfile();},3*60*1000);setInterval(()=>{if(!document.hidden)zLoadUsers();},5*60*1000);
+zLoadUsers();zEvery(()=>{if(!document.hidden)zSyncProfile();},3*60*1000);zEvery(()=>{if(!document.hidden)zLoadUsers();},5*60*1000);
 /* menu: cambiare idea */
 window.zTogglePublic=()=>{S.pubOk=!S.pubOk;zSyncProfile(true);toast(S.pubOk?'👥 Ora sei visibile sulla mappa':'Ora sei invisibile sulla mappa');try{saveLocal();}catch(e){}};
 /* aree community calcolate sugli utenti veri (un'area si colora solo con almeno K_MIN persone) */
@@ -5302,7 +5319,7 @@ function orOffer(){if(!S.user||typeof G==='undefined'||G.tourDone||document.quer
   openSheet('🧭 Vuoi un giro guidato?',`<p style="font-weight:400">Un minuto per capire tutto: la mappa vera, le case da comprare, l’<b>orda del mondo</b> delle 9 e delle 21, i premi da riscattare.</p><div class="row" style="gap:8px;margin-top:12px"><button class="btn" data-oty>Sì, fammi vedere</button><button class="btn ghost small" data-otn2>No, grazie</button></div>`,c=>{c.querySelector('[data-oty]').onclick=()=>orTour(0);c.querySelector('[data-otn2]').onclick=closeSheet;});}
 /* menu */
 /* aggiornamenti */
-setInterval(()=>{if(!document.hidden&&S.user){orLoad(Date.now()-OR.t>60000);document.querySelectorAll('.onext small').forEach(x=>{if(OR.s)x.textContent='tra '+orLeft(OR.s.next_at);});}},30000);
+zEvery(()=>{if(!document.hidden&&S.user){orLoad(Date.now()-OR.t>60000);document.querySelectorAll('.onext small').forEach(x=>{if(OR.s)x.textContent='tra '+orLeft(OR.s.next_at);});}},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user)orLoad(true);});
 setTimeout(()=>{if(S.user)orLoad(true);},3500);
 /* manuale */
@@ -5377,7 +5394,7 @@ function shopHTML(){return`<div class="panel spanx"><b class="disp" style="font-
 
 /* ---- PAGINA CASA, rifatta e pulita ---- */
 function vNextSlot(){const n=new Date();for(const d of[0,1])for(const h of[9,21]){const t=new Date(n.getFullYear(),n.getMonth(),n.getDate()+d,h,0,0);if(t>n)return t;}return n;}
-setInterval(()=>{document.querySelectorAll('[data-oleft]').forEach(e=>{e.textContent=orLeft((OR.s&&OR.s.next_at)||vNextSlot());});},20000);
+zEvery(()=>{document.querySelectorAll('[data-oleft]').forEach(e=>{e.textContent=orLeft((OR.s&&OR.s.next_at)||vNextSlot());});},20000);
 renderHome=function(){const z=S.zone,Rr=S.result,m=W&&W.m,s=OR.s;const next=(s&&s.next_at)||vNextSlot();
   const hero=`<section class="hero2">${heroSVG()}<div class="h2t"><h1>Zombie<span>Safe House</span></h1></div><div class="boom sfx">GRRRAAH!</div></section>`;
   const sp=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&SPONSORS[k]);const near=z&&z.real?sp.map(([k,g])=>({k,d:trM(z.real.lat,z.real.lon,g.lat,g.lon)})).sort((a,b)=>a.d-b.d).slice(0,3):sp.slice(0,3).map(([k])=>({k,d:null}));
@@ -5579,7 +5596,7 @@ async function socLoad(what,force){const key=what+(what==='feed'?SOC.scope:what=
 /* numerino rosso sulla scheda: novità per te dall'ultima visita */
 function socBadge(){try{const seen=+(localStorage.getItem('zsh_soc_seen')||0);const n=(SOC.per||[]).filter(f=>new Date(f.created_at).getTime()>seen).length+(SOC.pend||[]).length;
   const b=document.querySelector('#nav [data-tab=social]');if(!b)return;let d=b.querySelector('.nbadge');if(n>0){if(!d){b.insertAdjacentHTML('beforeend','<i class="nbadge"></i>');d=b.querySelector('.nbadge');}d.textContent=n>9?'9+':n;}else if(d)d.remove();}catch(e){}}
-setInterval(()=>{if(S.user&&document.visibilityState==='visible')socLoad('per');},60000);
+zEvery(()=>{if(S.user&&document.visibilityState==='visible')socLoad('per');},60000);
 /* ---------------- la scheda ---------------- */
 function renderSocialBase(){app.innerHTML=`<div class="page dots soc">
   <div class="panel night shead"><div><b class="disp" style="font-size:28px;color:var(--moon)">👥 Superstiti</b><small>${typeof STATS!=='undefined'&&STATS.reg?`${STATS.reg} nel mondo · 🟢 ${STATS.on||0} online ora`:'Il mondo gioca insieme'}</small></div><button class="btn small" data-sinv>📨 Invita</button></div>
@@ -5660,7 +5677,7 @@ function spDraw(lm){if(!lm||!lm.map)return;(lm._sp2||[]).forEach(x=>x.remove());
     lm._sp2.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([g.lon,g.lat]).addTo(lm.map));});}
 /* 3) elenco degli sponsor per distanza, con "portami lì" */
 /* i dati degli sponsor arrivati dopo: ridisegno senza ricaricare la pagina */
-(function(){let last='';setInterval(()=>{try{const sig=Object.entries(window.SP_GEO||{}).map(([k,g])=>k+(g&&g.lat)).join('|');if(sig!==last){last=sig;(window.__zlms||[]).forEach(lm=>spDraw(lm));}}catch(e){}},3000);})();
+(function(){let last='';zEvery(()=>{try{const sig=Object.entries(window.SP_GEO||{}).map(([k,g])=>k+(g&&g.lat)).join('|');if(sig!==last){last=sig;(window.__zlms||[]).forEach(lm=>spDraw(lm));}}catch(e){}},3000);})();
 /* nella Mappa: pulsante "⭐ Sponsor" con l'elenco, accanto a "⋯" */
 /* i giocatori sulla mappa (filtro 🤝): toccandoli si apre la loro scheda */
 document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('.lm-usr');if(!m)return;const id=m.dataset.uid;if(id&&S.user){e.stopPropagation();playerSheet(id);}},true);
@@ -5714,16 +5731,16 @@ function pzActions(m){openSheet('💬 Messaggio',`<div class="pzm ${m.mine?'mine
 /* la piazza è la prima voce di Superstiti */
 SOC.tab='piazza';
 /* ---------------- accesso chiaro e avatar sempre aggiornato ---------------- */
-setInterval(()=>{try{const b=document.getElementById('ioBtn');if(!b)return;const want=S.user?((S.user.nick||(S.user.email||'?').split('@')[0])[0]||'?').toUpperCase():'👤';if(b.textContent!==want){b.textContent=want;b.classList.toggle('nolog',!S.user);}}catch(e){}},2000);
+zEvery(()=>{try{const b=document.getElementById('ioBtn');if(!b)return;const want=S.user?((S.user.nick||(S.user.email||'?').split('@')[0])[0]||'?').toUpperCase():'👤';if(b.textContent!==want){b.textContent=want;b.classList.toggle('nolog',!S.user);}}catch(e){}},2000);
 /* in Casa, se non sei collegato, lo vedi subito */
 const _renderHomePz=renderHome;renderHome=function(){_renderHomePz();try{if(S.user||!S.result||app.querySelector('.nolog'))return;const c=app.querySelector('.hcard');if(c)c.insertAdjacentHTML('beforebegin',`<div class="panel nolog"><b>🔒 Non sei collegato in questa app</b><p style="font-weight:400;margin:4px 0">Accedi per salvare i progressi, avere la tua casa nel mondo e giocare con gli altri.</p>${pzSafariNote()}<button class="btn" onclick="loginSheet()">Accedi</button></div>`);}catch(e){}};
 /* ---------------- giocatori sulla mappa: sempre la scheda nuova ---------------- */
 document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('.lm-usr');if(!m||!m.dataset.uid)return;e.stopPropagation();e.preventDefault();
   if(S.user&&m.dataset.uid===S.user.id){go('io');return;}playerSheet(m.dataset.uid);},true);
 /* il tuo segnaposto non compare come "altro giocatore" */
-setInterval(()=>{try{if(!S.user)return;document.querySelectorAll('.lm-usr').forEach(m=>{if(m.dataset.uid===S.user.id)m.style.display='none';});}catch(e){}},6000);
+zEvery(()=>{try{if(!S.user)return;document.querySelectorAll('.lm-usr').forEach(m=>{if(m.dataset.uid===S.user.id)m.style.display='none';});}catch(e){}},6000);
 /* ---------------- contatore sponsor vivo ---------------- */
-setInterval(()=>{try{const b=document.querySelector('.mfsp');if(!b)return;const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null).length;const t=n?`⭐ ${n} sponsor`:'⭐ Sponsor';if(b.textContent!==t)b.textContent=t;}catch(e){}},1500);
+/* (Fase 4f-2) qui c'era un secondo contatore degli sponsor sulla mappa, in contrasto con quello di p36: tolto */
 /* ---------------- riscontro a ogni tocco ---------------- */
 document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('button,.btn,[role=button],.strow,.iorow');if(!b||b.disabled)return;b.classList.add('pressed');setTimeout(()=>b.classList.remove('pressed'),160);},{passive:true,capture:true});
 </script>
@@ -5777,7 +5794,7 @@ function zTopbarBase(){try{const T=document.getElementById('topbar');if(!T)retur
   const n=(()=>{try{const seen=+(localStorage.getItem('zsh_soc_seen')||0);return(SOC.per||[]).filter(f=>new Date(f.created_at).getTime()>seen).length+(SOC.pend||[]).length;}catch(e){return 0;}})();
   const bb=document.getElementById('zbell');let d=bb.querySelector('.nbadge');if(n>0){if(!d){bb.insertAdjacentHTML('beforeend','<i class="nbadge"></i>');d=bb.querySelector('.nbadge');}d.textContent=n>9?'9+':n;}else if(d)d.remove();}catch(e){}}
 ioBtn=function(){zTopbar();};
-setInterval(zTopbarBase,3000);setTimeout(zTopbarBase,200);  /* come prima: la versione di p28 (Fase 4e: zTopbar ora è in p67) */
+zEvery(zTopbarBase,3000);setTimeout(zTopbarBase,200);  /* come prima: la versione di p28 (Fase 4e: zTopbar ora è in p67) */
 /* musica: niente più pulsante volante, sta nel menu */
 setTimeout(()=>{try{const f=document.querySelector('.musicfab');if(f)f.style.display='none';}catch(e){}},300);
 /* tasto indietro del telefono / gesto: chiude prima il menu */
@@ -6071,7 +6088,7 @@ function oggiAt(d,when){if(!d||!d.hourly)return null;const p=n=>String(n).padSta
   else if(m.full&&when.getHours()>=18){ev='luna';eff='🌕 Luna piena: orda più veloce, ma monete doppie.';}
   return{c,ic:wIcon(c),name:wName(c),t:Math.round(t),pr,ev,eff,moon:m};}
 function oggiNext(){const s=OR&&OR.s;return s&&s.next_at?new Date(s.next_at):vNextSlot();}
-setInterval(()=>{const n=new Date();document.querySelectorAll('[data-clock]').forEach(e=>{e.textContent=n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});});},1000);
+zEvery(()=>{const n=new Date();document.querySelectorAll('[data-clock]').forEach(e=>{e.textContent=n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});});},1000);
 /* il dettaglio: meteo delle prossime orde + calendario */
 async function oggiSheet(){openSheet('📅 Oggi','<p><span class="spin"></span> Leggo il meteo vero della tua zona…</p>',()=>{});const d=await oggiMeteo();const n=new Date();
   const slots=[];for(const dd of[0,1])for(const h of[9,21]){const t=new Date(n.getFullYear(),n.getMonth(),n.getDate()+dd,h,0,0);if(t>n&&slots.length<3)slots.push(t);}
@@ -6094,7 +6111,7 @@ async function oggiSheet(){openSheet('📅 Oggi','<p><span class="spin"></span> 
 function oggiTile(){try{document.querySelectorAll('.lpan button, .lpan .ltile, .lpan [data-luck]').forEach(t=>{if(!/Premio del giorno/.test(t.textContent)||t.querySelector('.ocd'))return;
   const n=new Date();const em=[...t.querySelectorAll('span,b,i,div')].find(x=>x.textContent.trim()==='📅');const tile=`<span class="ocd mini"><small>${MMs[n.getMonth()]}</small><b>${n.getDate()}</b></span>`;
   if(em)em.outerHTML=tile;else{const w=document.createTreeWalker(t,NodeFilter.SHOW_TEXT);let x;while((x=w.nextNode())){if(x.nodeValue.includes('📅')){x.nodeValue=x.nodeValue.replace('📅','');x.parentNode.insertAdjacentHTML('afterbegin',tile);break;}}}});}catch(e){}}
-setInterval(()=>{if(S.tab==='home'||S.tab==='orda')oggiTile();},5000);
+zEvery(()=>{if(S.tab==='home'||S.tab==='orda')oggiTile();},5000);
 /* nel menu */
 </script>
 <script>
@@ -6123,7 +6140,7 @@ function spDemoPlace(){try{if(spRealCount()>0){/* ci sono sponsor veri: via gli 
     if(x){used.add(x.name);SP_GEO[k]={lat:x.lat,lon:x.lon,demo:true,place:x.name};}
     else{const a=(i+1)*2.1,r=260+i*140;const o=trOff(R.lat,R.lon,Math.cos(a)*r,Math.sin(a)*r);SP_GEO[k]={lat:o[0],lon:o[1],demo:true};}});
   SP_DEMO_ON=true;(window.__zlms||[]).forEach(lm=>{try{spDraw(lm);}catch(e){}});}catch(e){console.warn('sponsor esempio',e);}}
-setInterval(spDemoPlace,8000);setTimeout(spDemoPlace,800);
+zEvery(spDemoPlace,8000);setTimeout(spDemoPlace,800);
 /* alla prima apertura della mappa li piazzo subito */
 /* il segnaposto "vecchio" piccolo non serve: c'è quello grande con l'offerta */
 </script>
@@ -6172,7 +6189,7 @@ spList=function(lm){let c=null;try{c=lm&&lm.map&&lm.map.getCenter?lm.map.getCent
     <h4 class="hh">🔧 Attività della zona (${A.length})</h4>${A.length?A.map((a,i)=>`<button class="strow" data-ati="${i}"><span class="splogo">${ATT_CAT[a.typ][0]}</span><div><b>${esc(a.name)}</b><small>${ATT_CAT[a.typ][1]} · ${dist(Math.round(a.d2))}</small></div></button>`).join(''):'<p class="muted" style="font-size:13px"><span class="spin"></span> Cerco le attività entro 20 km…</p>'}`,card=>{
     card.querySelectorAll('[data-spk]').forEach(b=>b.onclick=()=>{const k=b.dataset.spk,g=SP_GEO[k];closeSheet();try{lm.map.flyTo({center:[g.lon,g.lat],zoom:17});}catch(e){}setTimeout(()=>sponsorSheet(k,S.zone||{seed:7}),900);});
     card.querySelectorAll('[data-ati]').forEach(b=>b.onclick=()=>{const a=A[+b.dataset.ati];closeSheet();try{lm.map.flyTo({center:[a.lon,a.lat],zoom:17});}catch(e){}setTimeout(()=>attSheet(a),900);});});};
-setInterval(()=>{try{const b=document.querySelector('.mfsp');if(!b)return;const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null&&!g.demo).length;const t=n?`⭐ ${n} sponsor`:`🔧 ${attVis().length} attività`;if(b.textContent!==t)b.textContent=t;}catch(e){}},1500);
+zEvery(()=>{try{const b=document.querySelector('.mfsp');if(!b)return;const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null&&!g.demo).length;const t=n?`⭐ ${n} sponsor`:`🔧 ${attVis().length} attività`;if(b.textContent!==t)b.textContent=t;}catch(e){}},1500);
 /* nella scheda casa: se non ci sono sponsor entro 50 km, le attività della zona */
 
 /* ---- 2) 😈 RIVALI ---- */
@@ -6221,7 +6238,7 @@ function eqRankPaintBase(){const B=app.querySelector('#socBody');if(!B)return;co
   box.innerHTML=head+(L.length?L.map(r=>`<div class="srank ${r.me?'me':''}"><span class="rpos">${r.pos<=3?['🥇','🥈','🥉'][r.pos-1]:r.pos}</span><div class="stx">${socNick(r.user_id,r.nick)}<small>livello ${r.wlevel}${r.comune?' · '+esc(r.comune):''}</small></div><b>🧱 ${wNum(r.punti)}</b></div>`).join(''):'<p class="muted">Ancora nessuno nella tua lega questa settimana: puoi essere il primo!</p>');}
 /* 3) spinta e 5) prezzo progressivo spiegati nella scheda casa e nel preventivo */
 /* 6) padrino: nell'invito si spiega il premio */
-setInterval(()=>{if(S.user&&document.visibilityState==='visible')eqLoad();},5*60*1000);
+zEvery(()=>{if(S.user&&document.visibilityState==='visible')eqLoad();},5*60*1000);
 </script>
 <script>
 /* =========================================================
@@ -6329,7 +6346,7 @@ window.ORDA_ONE=true;
 /* i pulsanti che portano a un riquadro dentro una fisarmonica: la apro */
 (function(){const o=Element.prototype.scrollIntoView;Element.prototype.scrollIntoView=function(a){try{let d=this.closest&&this.closest('details');while(d){d.open=true;d=d.parentElement&&d.parentElement.closest('details');}}catch(e){}return o.call(this,a);};})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.tab==='orda'&&FR.lm)frLoop();});
-setInterval(()=>{if(S.tab==='orda'&&FR.node&&FR.node.isConnected)frHeader();},30000);
+zEvery(()=>{if(S.tab==='orda'&&FR.node&&FR.node.isConnected)frHeader();},30000);
 </script>
 <script>
 /* menu: "Difendi tu" porta al riquadro "Gioca la notte"; "Oggi" in cima al fronte */
@@ -6349,7 +6366,7 @@ function tmSimFix(T){if(!T||!T.list||T.sim)return T;let j=(new Date().getDate())
     return{k:s[0],id:s[0],ic:s[1],t:s[2],goal:1,prog:0,done:false,cl:false,rw:m.rw||{c:80,g:2},go:s[0]};});T.sim=true;try{saveLocal();}catch(e){}return T;}
 /* eventi che completano le missioni */
 function tmSim(k){try{tmInit();tmEvent(k,k);if(S.tab==='orda')setTimeout(()=>{try{renderHub();}catch(e){}},1700);}catch(e){}}
-setInterval(()=>{try{if(typeof SB==='undefined'||!SB||SB.__tmw||!SB.rpc)return;const o=SB.rpc.bind(SB);
+zEvery(()=>{try{if(typeof SB==='undefined'||!SB||SB.__tmw||!SB.rpc)return;const o=SB.rpc.bind(SB);
   SB.rpc=async function(n,a){const r=await o(n,a);try{const ok=r&&!r.error&&!(r.data&&r.data.ok===false);if(ok){if(n==='world_prepare')tmSim('prep');else if(n==='world_raid_claim')tmSim('claim');else if(n==='world_send_help'||n==='world_shout')tmSim('help');}}catch(e){}return r;};SB.__tmw=1;}catch(e){}},1000);
 /* "Vai" delle missioni nuove */
 /* ---- testi e menu senza le notti ---- */
@@ -6696,7 +6713,7 @@ function coPut(){try{if(S.tab==='home'){const h=app.querySelector('.hsbtns');if(
   if(S.tab==='orda'){const pg=app.querySelector('.page');if(pg){const o=pg.querySelector(':scope > .coach');const n=document.createElement('div');n.innerHTML=coHTML(false);const el=n.firstElementChild;if(o)o.replaceWith(el);else pg.prepend(el);coBind(el);}}}catch(e){}}
 const _renderHomeCo=renderHome;renderHome=function(){_renderHomeCo();coPut();};
 /* aggiornamenti */
-setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='home'||S.tab==='orda'))coPut();},30000);
+zEvery(()=>{if(document.visibilityState==='visible'&&(S.tab==='home'||S.tab==='orda'))coPut();},30000);
 </script>
 <script>
 </script>
@@ -6711,7 +6728,7 @@ setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='home'||S.tab
 /* ---- 1) ---- */
 eqPad=function(){const c=document.querySelector('#sheet.open .sheet-b');if(c&&/[Ii]nvit/.test(c.textContent)&&!c.querySelector('.eqpad'))c.insertAdjacentHTML('beforeend','<p class="eqpad">🤝 <b>Padrino</b>: per i primi 14 giorni ricevi anche il 10% in più di quello che guadagna chi hai invitato (a lui non togliamo niente).</p>');};
 function sheetClean(){try{const sh=document.getElementById('sheet');if(!sh)return;[...sh.children].forEach(ch=>{if(!ch.classList.contains('sheet-bg')&&!ch.classList.contains('sheet-card'))ch.remove();});}catch(e){}}
-setInterval(sheetClean,6000);
+zEvery(sheetClean,6000);
 /* ---- 2) ---- */
 async function allyAsk(uid,nick,btn){try{if(btn)btn.disabled=true;const r=await socRpc('world_ally_request',{p_target:uid});toast((r&&r.msg)||'🤝 Proposta inviata');}catch(e){toast(e.message||'Non riuscito');if(btn)btn.disabled=false;}}
 async function allyNudge(uid,btn){try{if(btn)btn.disabled=true;const r=await socRpc('world_shout',{p_to:uid,p_code:5});toast(r&&r.ok===false?r.msg:'📣 Ricordato: “🤝 Facciamo squadra?”');}catch(e){toast(e.message||'Non riuscito');if(btn)btn.disabled=false;}}
@@ -6930,7 +6947,7 @@ function alsPutOrda(){try{if(S.tab!=='orda'||!S.user)return;const pg=app.querySe
   if(!p){const o=pg.querySelector('.opan');if(!o)return;o.insertAdjacentHTML('afterend','<div class="panel alsorda"><b class="disp" style="font-size:20px">🤝 I tuoi alleati</b><div class="alsbox cmp"></div></div>');p=pg.querySelector(':scope > .alsorda');}
   const b=p.querySelector('.alsbox');b.innerHTML=alsHTML(ALS.L,true);alsBind(b);if(!ALS.L)alsLoad().then(alsRefresh);}catch(e){}}
 /* ---------- scheda giocatore di un alleato: "Vedi la sua simulazione" ---------- */
-setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='orda'||(S.tab==='social'&&SOC.tab==='squadra')))alsRefresh();},60000);
+zEvery(()=>{if(document.visibilityState==='visible'&&(S.tab==='orda'||(S.tab==='social'&&SOC.tab==='squadra')))alsRefresh();},60000);
 </script>
 <script>
 /* =========================================================
@@ -7006,7 +7023,7 @@ function fxDraw(){(window.__zlms||[]).forEach(lm=>{try{if(!lm||!lm.map)return;(l
     el.title=[...new Set(g.k)].map(k=>(FXI[k]||['',''])[1]).join(', ');el.addEventListener('click',e=>{e.stopPropagation();playerSheet(g.uid);});
     lm._fx.push(new maplibregl.Marker({element:el}).setLngLat([g.lon,g.lat]).addTo(lm.map));});}catch(e){}});}
 ['doDisp','allyShield','alHelp'].forEach(n=>{try{const f=window[n];if(typeof f!=='function')return;window[n]=async function(){const r=await f.apply(this,arguments);setTimeout(()=>fxLoad(true),700);return r;};}catch(e){}});
-setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='mappa'||S.tab==='orda'))fxLoad();},60000);
+zEvery(()=>{if(document.visibilityState==='visible'&&(S.tab==='mappa'||S.tab==='orda'))fxLoad();},60000);
 /* ---- 4) MESSAGGI DIRETTI ---- */
 window.DM={with:null,nick:'',t:0,timer:0};
 async function dmSheet(uid,nick){DM.with=uid;DM.nick=nick||'';const draw=async()=>{let L=[];try{const{data,error}=await SB.rpc('world_dm_list',{p_with:uid});if(error)throw error;L=(data||[]).slice().reverse();}catch(e){return openSheet('💬 Messaggi',`<p class="muted">Messaggi non disponibili (${esc(e.message||'')}). Esegui il file assedio.sql su Supabase.</p>`);}
@@ -7036,7 +7053,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611101356';
+const APPV='202611101736';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -7104,7 +7121,7 @@ async function matFlush(){if(!S.user)return;let q=[];try{q=JSON.parse(localStora
 function coinSweep(){try{if(typeof G==='undefined'||!G)return;const k='zsh_coinbase';let base=+(localStorage.getItem(k)||NaN);
   if(isNaN(base)){/* prima volta: converto le monete che avevi */const old=Math.max(0,G.coins||0);localStorage.setItem(k,'0');G.coins=0;try{saveLocal();}catch(e){}if(old>=5)giveMattoni(Math.min(300,Math.floor(old/5)),'Monete convertite');return;}
   const c=G.coins||0;if(c>0){G.coins=0;try{saveLocal();}catch(e){}if(c>=5)giveMattoni(Math.floor(c/5),'Premi');}}catch(e){}}
-setInterval(coinSweep,10000);
+zEvery(coinSweep,10000);
 /* testi: dove c'erano monete ora ci sono Mattoni */
 function coinText(root){try{(root||app).querySelectorAll('.tmp, .lpan, .daily, #sheet.open .sheet-b').forEach(el=>{const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;const L=[];while((n=w.nextNode()))if(/🪙/.test(n.nodeValue))L.push(n);
   L.forEach(n=>{n.nodeValue=n.nodeValue.replace(/🪙\s*(\d+)/g,(m,v)=>'🧱 '+Math.max(1,Math.floor(+v/5))).replace(/(\d+)\s*🪙/g,(m,v)=>Math.max(1,Math.floor(+v/5))+' 🧱').replace(/🪙/g,'🧱').replace(/\bmonete\b/g,'Mattoni');});});}catch(e){}}
@@ -7221,7 +7238,7 @@ async function zCheckVersion(){const L=await zLatest();if(!L||!/^\d{12}$/.test(S
   /* appena aperta: si aggiorna da sola (una volta per versione, niente cicli) */
   if(+L>+APPV&&performance.now()<20000){try{const k='zsh_upd_'+L;if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');zUpdateNow();return;}}catch(e){}}
   if(+L>+APPV)zBanner('zbver',`🆕 <b>C’è una versione nuova</b> dell’app<button class="btn small" data-zup>Aggiorna</button>`,b=>b.querySelector('[data-zup]').onclick=zUpdateNow);}
-setTimeout(zCheckVersion,4000);setInterval(()=>{if(document.visibilityState==='visible')zCheckVersion();},10*60000);
+setTimeout(zCheckVersion,4000);zEvery(()=>{if(document.visibilityState==='visible')zCheckVersion();},10*60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(zCheckVersion,800);});
 setTimeout(()=>{try{if(zWhere()==='inapp'&&!sessionStorage.getItem('zsh_inapp'))
   zBanner('zbinapp',`⚠️ <b>Sei nel browser di un’altra app</b> (es. WhatsApp): qui l’app funziona a metà. Tocca <b>•••</b> o <b>⋮</b> → <b>Apri in Safari/Chrome</b>, poi aggiungila alla Home.`,b=>{sessionStorage.setItem('zsh_inapp','1');});}catch(e){}},2500);
@@ -7349,7 +7366,7 @@ function zIsNight(lat,lon,d){try{d=d||new Date();if(lat==null){const H=typeof my
 /* scelta manuale: se tocchi 🌙/☀️ quella mappa non cambia più da sola */
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.lm-mode');if(b&&e.isTrusted){const box=b.closest('.lmap');if(box)box.dataset.manual='1';}},true);
 /* con l'app aperta: al tramonto e all'alba le mappe cambiano da sole */
-setInterval(()=>{try{if(document.hidden)return;const want=zIsNight();document.querySelectorAll('.lmap').forEach(box=>{if(box.dataset.manual)return;const now=box.classList.contains('night');if(now!==want){const b=box.querySelector('.lm-mode');if(b)b.click();}});}catch(e){}},60000);
+zEvery(()=>{try{if(document.hidden)return;const want=zIsNight();document.querySelectorAll('.lmap').forEach(box=>{if(box.dataset.manual)return;const now=box.classList.contains('night');if(now!==want){const b=box.querySelector('.lm-mode');if(b)b.click();}});}catch(e){}},60000);
 </script>
 <script>
 /* =========================================================

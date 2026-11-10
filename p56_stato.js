@@ -18,7 +18,7 @@ async function zCheckVersion(){const L=await zLatest();if(!L||!/^\d{12}$/.test(S
   /* appena aperta: si aggiorna da sola (una volta per versione, niente cicli) */
   if(+L>+APPV&&performance.now()<20000){try{const k='zsh_upd_'+L;if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');zUpdateNow();return;}}catch(e){}}
   if(+L>+APPV)zBanner('zbver',`🆕 <b>C’è una versione nuova</b> dell’app<button class="btn small" data-zup>Aggiorna</button>`,b=>b.querySelector('[data-zup]').onclick=zUpdateNow);}
-setTimeout(zCheckVersion,4000);setInterval(()=>{if(document.visibilityState==='visible')zCheckVersion();},10*60000);
+setTimeout(zCheckVersion,4000);zEvery(()=>{if(document.visibilityState==='visible')zCheckVersion();},10*60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(zCheckVersion,800);});
 setTimeout(()=>{try{if(zWhere()==='inapp'&&!sessionStorage.getItem('zsh_inapp'))
   zBanner('zbinapp',`⚠️ <b>Sei nel browser di un’altra app</b> (es. WhatsApp): qui l’app funziona a metà. Tocca <b>•••</b> o <b>⋮</b> → <b>Apri in Safari/Chrome</b>, poi aggiungila alla Home.`,b=>{sessionStorage.setItem('zsh_inapp','1');});}catch(e){}},2500);

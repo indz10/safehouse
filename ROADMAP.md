@@ -79,6 +79,7 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 **Controllo:** Alessandro esegue i blocchi indicati; l'app funziona come prima.
 
 ## Fase 7 — Velocità e peso
+- Con l'orologio unico (4f-2) si può, in un posto solo, fermare o rallentare i compiti periodici quando l'app è in background (oggi solo alcuni lo fanno da sé).
 - Obiettivo: app pubblicata sotto 700 KB, prima schermata in meno di 2 s sul telefono.
 - Caricare a pezzi le parti pesanti (fumetto, disegni, classifica, piazza).
 - Animazioni leggere (transform/opacity), niente lavoro con l'app in background.
@@ -113,7 +114,7 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 1 | fatta | #1, #2 | sorgenti alla radice, netlify.toml → dist/ (con controllo che dist/ sia completa), build.sh e prove senza percorsi fissi, prove.sh |
 | 2 | fatta | #3 | docs/MAPPA_CODICE.md, strumenti in docs/strumenti/ |
 | 3 | fatta: 3a (#4), 3b-1 (#5), 3b-2 (#6), 3c (#7), 3d (#8) | #4–#8 | app pubblicata da 1.336 KB a 1.037 KB (−22 %): 3a codice morto; 3b-1 Orda pulita (p63); 3b-2 tolti 7 moduli del vecchio gioco, p5_game da 145 a 15 KB, circa 30 strati che li avvolgevano e 34 funzioni rimaste orfane. 3c: "Come si gioca" e istruzioni riscritte per il gioco di oggi. Restano p4b e p5j_giorno (Fase 4) |
-| 4 | 4a–4e fatte (#9–#16); 4f-1 in attesa di Merge; 4f-2 (orologio unico) da fare | #9–#16, Fase 4f-1 — Comune | 4f-1: navigazione go (base + 8 strati), accesso, salvataggi, finestre e analisi della zona definiti una volta in p68. 4e: menu ☰ (zmDo base + 5 strati), barre e istruzioni (manualHTML base + 5) definiti una volta in p67; tolto il vecchio menu a tendina di p10. 4d: socPaint (base + 10 strati) e altre 11 funzioni dei Superstiti definite una volta in p66. 4c: liveMap (base + 9 strati) e altre 6 funzioni della mappa definite una volta in p65. 4b: 14 funzioni dell'Orda definite una volta in p63 (prima base + 1–3 strati), tolte le catene morte del vecchio hub. 4a: houseSheet unica in p64_casa.js, la pagina compare una volta sola già completa; "La mia casa" dalla homepage aspetta i dati invece di aprire la pagina vecchia |
+| 4 | 4a–4f-1 fatte (#9–#17); 4f-2 (orologio unico) in attesa di Merge | #9–#17, Fase 4f-2 — Orologio unico | 4f-2: un solo timer di sistema al posto di 28 (p1z_orologio.js, zEvery), tolto un contatore sponsor doppio. 4f-1: navigazione go (base + 8 strati), accesso, salvataggi, finestre e analisi della zona definiti una volta in p68. 4e: menu ☰ (zmDo base + 5 strati), barre e istruzioni (manualHTML base + 5) definiti una volta in p67; tolto il vecchio menu a tendina di p10. 4d: socPaint (base + 10 strati) e altre 11 funzioni dei Superstiti definite una volta in p66. 4c: liveMap (base + 9 strati) e altre 6 funzioni della mappa definite una volta in p65. 4b: 14 funzioni dell'Orda definite una volta in p63 (prima base + 1–3 strati), tolte le catene morte del vecchio hub. 4a: houseSheet unica in p64_casa.js, la pagina compare una volta sola già completa; "La mia casa" dalla homepage aspetta i dati invece di aprire la pagina vecchia |
 | 5 | da fare | | |
 | 6 | da fare | | |
 | 7 | da fare | | |

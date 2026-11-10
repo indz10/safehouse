@@ -57,5 +57,5 @@ function alsPutOrda(){try{if(S.tab!=='orda'||!S.user)return;const pg=app.querySe
   if(!p){const o=pg.querySelector('.opan');if(!o)return;o.insertAdjacentHTML('afterend','<div class="panel alsorda"><b class="disp" style="font-size:20px">🤝 I tuoi alleati</b><div class="alsbox cmp"></div></div>');p=pg.querySelector(':scope > .alsorda');}
   const b=p.querySelector('.alsbox');b.innerHTML=alsHTML(ALS.L,true);alsBind(b);if(!ALS.L)alsLoad().then(alsRefresh);}catch(e){}}
 /* ---------- scheda giocatore di un alleato: "Vedi la sua simulazione" ---------- */
-setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='orda'||(S.tab==='social'&&SOC.tab==='squadra')))alsRefresh();},60000);
+zEvery(()=>{if(document.visibilityState==='visible'&&(S.tab==='orda'||(S.tab==='social'&&SOC.tab==='squadra')))alsRefresh();},60000);
 </script>

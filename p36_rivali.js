@@ -43,7 +43,7 @@ spList=function(lm){let c=null;try{c=lm&&lm.map&&lm.map.getCenter?lm.map.getCent
     <h4 class="hh">🔧 Attività della zona (${A.length})</h4>${A.length?A.map((a,i)=>`<button class="strow" data-ati="${i}"><span class="splogo">${ATT_CAT[a.typ][0]}</span><div><b>${esc(a.name)}</b><small>${ATT_CAT[a.typ][1]} · ${dist(Math.round(a.d2))}</small></div></button>`).join(''):'<p class="muted" style="font-size:13px"><span class="spin"></span> Cerco le attività entro 20 km…</p>'}`,card=>{
     card.querySelectorAll('[data-spk]').forEach(b=>b.onclick=()=>{const k=b.dataset.spk,g=SP_GEO[k];closeSheet();try{lm.map.flyTo({center:[g.lon,g.lat],zoom:17});}catch(e){}setTimeout(()=>sponsorSheet(k,S.zone||{seed:7}),900);});
     card.querySelectorAll('[data-ati]').forEach(b=>b.onclick=()=>{const a=A[+b.dataset.ati];closeSheet();try{lm.map.flyTo({center:[a.lon,a.lat],zoom:17});}catch(e){}setTimeout(()=>attSheet(a),900);});});};
-setInterval(()=>{try{const b=document.querySelector('.mfsp');if(!b)return;const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null&&!g.demo).length;const t=n?`⭐ ${n} sponsor`:`🔧 ${attVis().length} attività`;if(b.textContent!==t)b.textContent=t;}catch(e){}},1500);
+zEvery(()=>{try{const b=document.querySelector('.mfsp');if(!b)return;const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null&&!g.demo).length;const t=n?`⭐ ${n} sponsor`:`🔧 ${attVis().length} attività`;if(b.textContent!==t)b.textContent=t;}catch(e){}},1500);
 /* nella scheda casa: se non ci sono sponsor entro 50 km, le attività della zona */
 
 /* ---- 2) 😈 RIVALI ---- */

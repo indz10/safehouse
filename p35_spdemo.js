@@ -24,7 +24,7 @@ function spDemoPlace(){try{if(spRealCount()>0){/* ci sono sponsor veri: via gli 
     if(x){used.add(x.name);SP_GEO[k]={lat:x.lat,lon:x.lon,demo:true,place:x.name};}
     else{const a=(i+1)*2.1,r=260+i*140;const o=trOff(R.lat,R.lon,Math.cos(a)*r,Math.sin(a)*r);SP_GEO[k]={lat:o[0],lon:o[1],demo:true};}});
   SP_DEMO_ON=true;(window.__zlms||[]).forEach(lm=>{try{spDraw(lm);}catch(e){}});}catch(e){console.warn('sponsor esempio',e);}}
-setInterval(spDemoPlace,8000);setTimeout(spDemoPlace,800);
+zEvery(spDemoPlace,8000);setTimeout(spDemoPlace,800);
 /* alla prima apertura della mappa li piazzo subito */
 /* il segnaposto "vecchio" piccolo non serve: c'è quello grande con l'offerta */
 </script>
