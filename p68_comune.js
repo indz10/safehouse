@@ -69,8 +69,13 @@ async function pushCloud(){if(window.__noSave)return;return pushCloudBase.apply(
 function snapshot(){const d=snapshotBase();if(d&&d.S)d.S.pubOk=S.pubOk;if(d&&d.S)d.S.case=S.case||[];return d;}
 function restore(d){const r=restoreBase(d);try{if(d&&d.S&&d.S.pubOk!=null)S.pubOk=d.S.pubOk;}catch(e){}try{if(d&&d.S&&d.S.case)S.case=d.S.case;}catch(e){}return r;}
 /* finestre: base (p5) + pulizia (p45) + Mattoni al posto delle monete (p52); chiusura + pulizia (p45) + pagina intera (p53) */
-function openSheet(){const r=openSheetBase.apply(this,arguments);setTimeout(sheetClean,80);setTimeout(()=>coinText(),60);return r;}
-function closeSheet(){const r=closeSheetBase.apply(this,arguments);sheetClean();try{document.getElementById('sheet').classList.remove('hfull');}catch(e){}return r;}
+/* "indietro" (Fase 5c): chi apre una finestra da un elenco (menu ☰, Le mie case) mette prima window.SHEET_BACK={t,fn};
+   la finestra mostra il pulsante finché non viene chiusa */
+window.SHEET_BACK=null;
+function sheetBackPut(){try{const B=window.SHEET_BACK;const h=document.querySelector('#sheet .sheet-h');if(!B||!h||h.querySelector('.sback'))return;
+  h.insertAdjacentHTML('afterbegin',`<button class="sback" data-sback>${B.t}</button>`);h.querySelector('[data-sback]').onclick=()=>{const f=B.fn;window.SHEET_BACK=null;f();};}catch(e){}}
+function openSheet(){const r=openSheetBase.apply(this,arguments);sheetBackPut();setTimeout(sheetClean,80);setTimeout(()=>coinText(),60);return r;}
+function closeSheet(){window.SHEET_BACK=null;const r=closeSheetBase.apply(this,arguments);sheetClean();try{document.getElementById('sheet').classList.remove('hfull');}catch(e){}return r;}
 /* analisi della zona: base (p2) → territorio vero (p20) → tipo e piani della casa (p20) → profilo (p20) → trasloco (p20) → casa nel mondo (p21) */
 async function analyzeZone(address){let z=await analyzeZoneBase(address);
   z=await (async()=>{const base=z;if(!navigator.onLine)return base;try{const R=await terrFetch(address);return terrApply(base,R);}catch(e){console.warn('territorio vero',e);return base;}})();

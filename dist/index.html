@@ -1116,6 +1116,7 @@ body:has(.regbar) #accFab{display:none!important}
 .hsmid{font-family:var(--display);font-size:22px;background:var(--moon);color:var(--ink);border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:10px}
 .hsrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.hsrow button{background:#fff;color:var(--ink);border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-weight:800;font-size:14px;padding:10px 4px}
 .cback{background:none;border:0;font-weight:800;font-size:15px;color:#3b2f6e;padding:4px 0 10px}
+.sback{background:none;border:0;font-weight:800;font-size:15px;color:#3b2f6e;padding:2px 0 6px;width:100%;text-align:left}.sheet-h{flex-wrap:wrap}
 /* ===== LE TUE CASE NEL MONDO ===== */
 .mhouses{position:absolute;left:8px;right:8px;bottom:calc(56px + env(safe-area-inset-bottom,0px));z-index:7;background:rgba(243,233,210,.97);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:6px 8px}
 .mhhead{display:flex;justify-content:space-between;align-items:center}.mhhead b{font-size:14px}.mhhead button{background:none;border:0;font-size:16px;font-weight:900;padding:0 4px}
@@ -4258,7 +4259,7 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 /* bollettino del territorio nella pagina del gioco */
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611101852';
+const ZSH_BUILD='202611102050';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -4794,7 +4795,8 @@ const _fillOnlineG=fillOnline;fillOnline=async function(card,b){await _fillOnlin
 /* INVITI: link personale, chi entra col tuo link è collegato a te */
 (function(){try{const p=new URLSearchParams(location.search).get('invito');if(p&&/^[0-9a-f]{8}$/i.test(p)){localStorage.setItem('zsh_inv',p.toLowerCase());history.replaceState(null,'',location.pathname);}}catch(e){}})();
 const myCode=()=>S.user&&S.user.id?S.user.id.slice(0,8):null;
-const invLink=()=>location.origin+'/?invito='+myCode();
+const ZSH_SITO='https://safehousezombie.netlify.app';/* sempre il sito vero, anche da un'anteprima */
+const invLink=()=>ZSH_SITO+'/?invito='+myCode();
 /* messaggio d'invito con le istruzioni: aprire in Safari/Chrome, creare l'account, mettere l'app sulla Home */
 const invTxt=()=>`🧟 Ti invito su ZombieSafeHouse: scopri quanto resisterebbe casa tua a un’apocalisse zombie (e come renderla più sicura davvero).
 
@@ -7052,7 +7054,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611101852';
+const APPV='202611102050';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -7278,7 +7280,7 @@ async function zStatusSheet(){openSheet('🩺 Controlla il mio gioco','<p><span 
    ========================================================= */
 let BV_PROMPT=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();BV_PROMPT=e;const b=document.querySelector('#bvpage [data-bvinst]');if(b)b.hidden=false;});
 function bvOS(){const ua=navigator.userAgent||'';if(/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&'ontouchend' in document))return'ios';if(/Android/i.test(ua))return'android';return'pc';}
-function bvInvLink(){const c=localStorage.getItem('zsh_inv');return location.origin+'/'+(c?'?invito='+c:'');}
+function bvInvLink(){const c=localStorage.getItem('zsh_inv');return ZSH_SITO+'/'+(c?'?invito='+c:'');}
 async function bvWho(){const c=localStorage.getItem('zsh_inv');if(!c||typeof SB==='undefined'||!SB)return null;try{const{data}=await SB.rpc('world_inviter',{p_code:c});return data||null;}catch(e){return null;}}
 function bvSteps(os,where,logged){const acc=`<div class="bvst ${logged?'done':''}"><span>${logged?'✅':'1'}</span><div><b>Crea l’account</b><small>${logged?'Fatto: siete collegati.':'Serve per giocare con chi ti ha invitato. Fallo <b>qui</b>, prima di installare.'}</small>${logged?'':'<button class="btn" data-bvacc>Crea l’account</button>'}</div></div>`;
   if(where==='inapp')return`<div class="bvwarn">⚠️ Sei dentro <b>${/Instagram/i.test(navigator.userAgent)?'Instagram':/FBAN|FBAV/i.test(navigator.userAgent)?'Facebook':'WhatsApp'}</b>: qui l’app funziona a metà.</div>
@@ -7692,7 +7694,7 @@ function casasSheet(){const L=myHouses();const s=OR.s||{};
     ${L.map(row).join('')}
     ${L.length<2?'<p class="muted" style="font-size:13px;margin:10px 0 6px">Con i 🧱 Mattoni puoi comprare altre case libere sulla mappa del mondo.</p>':''}
     <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" data-csm>🌍 ${L.length<2?'Compra una casa':'Compra altre case'}</button><button class="btn ghost small" data-csv>📷 Aggiorna la valutazione</button></div>`,card=>{
-    card.querySelectorAll('[data-cs]').forEach(b=>b.onclick=()=>{const h=myHouses()[+b.dataset.cs];if(h)houseSheet(h);});
+    card.querySelectorAll('[data-cs]').forEach(b=>b.onclick=()=>{const h=myHouses()[+b.dataset.cs];if(h){window.SHEET_BACK={t:'‹ Le mie case',fn:casasSheet};houseSheet(h);}});
     card.querySelector('[data-csm]').onclick=()=>{closeSheet();S.mfHouses=true;go('mappa');};
     card.querySelector('[data-csv]').onclick=()=>{closeSheet();S.step=3;go('valuta');};});}
 /* nasconde il corpo appena la pagina base viene creata (dentro openSheet, prima che lo schermo si ridisegni) */
@@ -7953,7 +7955,14 @@ function zmItems(){const L=zmItemsBase();
   if(g)g[1]=g[1].filter(r=>!['g:difendi'].includes(r[2]));})();
   return L;}
 /* cosa fa ogni voce: Orda e fronte (p39) · Oggi (p34) · casa, regole, Mattoni (p32) · piano (p31) · assalti e notifiche (p29) · il resto (p28) */
-function zmDo(k,b){
+/* ogni voce del menu: finestra con "‹ Menu"; pagina con "‹ Torna al menu" in cima (Fase 5c) */
+function zmDo(k,b){const tab0=S.tab;const back={t:'‹ Menu',fn:()=>{closeSheet();zmOpen();}};window.SHEET_BACK=back;
+  const r=zmDoRun(k,b);
+  setTimeout(()=>{if(document.querySelector('#sheet.open'))return;if(window.SHEET_BACK===back)window.SHEET_BACK=null;
+    if(S.tab===tab0)return;const p=app.querySelector('.page')||app.firstElementChild;if(!p||app.querySelector('[data-zmback]'))return;
+    p.insertAdjacentHTML('afterbegin','<button class="cback" data-zmback>‹ Torna al menu</button>');app.querySelector('[data-zmback]').onclick=()=>zmOpen();},1300);
+  return r;}
+function zmDoRun(k,b){
   if(k==='g:difendi'||k==='g:oggi'||k==='g:impero'){zmClose();go('orda');setTimeout(()=>{const t=k==='g:difendi'?app.querySelector('.odplay'):app.querySelector('.fronte');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},400);return;}
   if(k==='oggi'){zmClose();oggiSheet();return;}
   if(k==='casa'){zmClose();go('casa');return;}if(k==='manual'){zmClose();openSheet('📚 Tutte le regole',rulesHTML());return;}if(k==='shop'){zmClose();shopSheet(0);return;}
@@ -8051,8 +8060,13 @@ async function pushCloud(){if(window.__noSave)return;return pushCloudBase.apply(
 function snapshot(){const d=snapshotBase();if(d&&d.S)d.S.pubOk=S.pubOk;if(d&&d.S)d.S.case=S.case||[];return d;}
 function restore(d){const r=restoreBase(d);try{if(d&&d.S&&d.S.pubOk!=null)S.pubOk=d.S.pubOk;}catch(e){}try{if(d&&d.S&&d.S.case)S.case=d.S.case;}catch(e){}return r;}
 /* finestre: base (p5) + pulizia (p45) + Mattoni al posto delle monete (p52); chiusura + pulizia (p45) + pagina intera (p53) */
-function openSheet(){const r=openSheetBase.apply(this,arguments);setTimeout(sheetClean,80);setTimeout(()=>coinText(),60);return r;}
-function closeSheet(){const r=closeSheetBase.apply(this,arguments);sheetClean();try{document.getElementById('sheet').classList.remove('hfull');}catch(e){}return r;}
+/* "indietro" (Fase 5c): chi apre una finestra da un elenco (menu ☰, Le mie case) mette prima window.SHEET_BACK={t,fn};
+   la finestra mostra il pulsante finché non viene chiusa */
+window.SHEET_BACK=null;
+function sheetBackPut(){try{const B=window.SHEET_BACK;const h=document.querySelector('#sheet .sheet-h');if(!B||!h||h.querySelector('.sback'))return;
+  h.insertAdjacentHTML('afterbegin',`<button class="sback" data-sback>${B.t}</button>`);h.querySelector('[data-sback]').onclick=()=>{const f=B.fn;window.SHEET_BACK=null;f();};}catch(e){}}
+function openSheet(){const r=openSheetBase.apply(this,arguments);sheetBackPut();setTimeout(sheetClean,80);setTimeout(()=>coinText(),60);return r;}
+function closeSheet(){window.SHEET_BACK=null;const r=closeSheetBase.apply(this,arguments);sheetClean();try{document.getElementById('sheet').classList.remove('hfull');}catch(e){}return r;}
 /* analisi della zona: base (p2) → territorio vero (p20) → tipo e piani della casa (p20) → profilo (p20) → trasloco (p20) → casa nel mondo (p21) */
 async function analyzeZone(address){let z=await analyzeZoneBase(address);
   z=await (async()=>{const base=z;if(!navigator.onLine)return base;try{const R=await terrFetch(address);return terrApply(base,R);}catch(e){console.warn('territorio vero',e);return base;}})();

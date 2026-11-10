@@ -149,7 +149,7 @@ function casasSheet(){const L=myHouses();const s=OR.s||{};
     ${L.map(row).join('')}
     ${L.length<2?'<p class="muted" style="font-size:13px;margin:10px 0 6px">Con i 🧱 Mattoni puoi comprare altre case libere sulla mappa del mondo.</p>':''}
     <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" data-csm>🌍 ${L.length<2?'Compra una casa':'Compra altre case'}</button><button class="btn ghost small" data-csv>📷 Aggiorna la valutazione</button></div>`,card=>{
-    card.querySelectorAll('[data-cs]').forEach(b=>b.onclick=()=>{const h=myHouses()[+b.dataset.cs];if(h)houseSheet(h);});
+    card.querySelectorAll('[data-cs]').forEach(b=>b.onclick=()=>{const h=myHouses()[+b.dataset.cs];if(h){window.SHEET_BACK={t:'‹ Le mie case',fn:casasSheet};houseSheet(h);}});
     card.querySelector('[data-csm]').onclick=()=>{closeSheet();S.mfHouses=true;go('mappa');};
     card.querySelector('[data-csv]').onclick=()=>{closeSheet();S.step=3;go('valuta');};});}
 /* nasconde il corpo appena la pagina base viene creata (dentro openSheet, prima che lo schermo si ridisegni) */
