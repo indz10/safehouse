@@ -79,10 +79,13 @@ const OT=[
  {tab:()=>{S.zv='mondo';go('mappa');},sel:'.lmap',t:'Questa è la <b>mappa vera</b>. La casetta rossa <b>TU</b> è casa tua: nel mondo unico è tua e nessuno può comprarla.'},
  {tab:null,sel:'.lmap',t:'Tocca una <b>casa qualsiasi</b>: se è libera la compri con i <b>🧱 Mattoni</b>. Se un giorno chi ci abita si iscrive, a te torna tutto, più un bonus.'},
  {tab:null,sel:'.lm-orda',t:'Con <b>🧟 Orda</b> guardi l’ultimo assalto sulla mappa: 🛡️ case che hanno tenuto, 💥 case sfondate. Anche quelle degli altri.'},
+ {tab:()=>go('orda'),sel:'.fronte',t:'Questo è il <b>fronte</b>: gli zombie che arrivano sulla tua zona, con le strade vere (in salita sono più lenti). Tocca uno zombie per vederlo.'},
  {tab:()=>{G.sub='q';go('orda');},sel:'.opan',t:'Ogni giorno alle <b>9</b> e alle <b>21</b> arriva l’<b>orda del mondo</b>, da sola. Qui vedi quando.'},
  {tab:null,sel:'.opan .ostep',t:'Prima: tocca <b>Prepara</b> (+15 difesa) e, se vuoi, <b>Fortifica</b>. Dopo: <b>guarda l’assalto</b> e <b>riscatta</b> i premi. Tutto qui.'},
  {tab:null,sel:'.wpan',t:'Qui ci sono i tuoi <b>Mattoni</b>, le tue case e gli <b>affitti</b> da riscuotere ogni giorno.'},
- {tab:null,sel:'.tmp',t:'Ogni giorno <b>3 missioni</b> sui posti veri della tua zona: premi in più.'}];
+ {tab:null,sel:'.tmp',t:'Ogni giorno <b>3 missioni</b> (preparare le case, guardare l’assalto, aiutare un alleato…): premi in 🧱 Mattoni e 💎 gemme.'},
+ {tab:()=>go('social'),sel:'.sseg',t:'In <b>👥 Superstiti</b> trovi la piazza, gli <b>alleati</b> (vi mandate rinforzi e scudi), i rivali e la classifica.'},
+ {tab:()=>go('home'),sel:'[data-hs=casa]',t:'Da <b>🏠 Le mie case</b> apri la tua casa ❤️ (fortificazioni, piano d’azione, valutazione) e quelle che compri.'}];
 function orTour(i){try{G.tourDone=1;}catch(e){}if(i===0)closeSheet();const st=OT[i];document.querySelectorAll('.otour').forEach(x=>x.remove());if(!st){toast('🧭 Giro finito: buona difesa!');return;}
   if(st.tab)st.tab();setTimeout(()=>{const el=[...document.querySelectorAll(st.sel)].find(e=>e.offsetParent!==null);if(!el){orTour(i+1);return;}
     el.scrollIntoView({block:'center'});setTimeout(()=>{const r=el.getBoundingClientRect();const o=document.createElement('div');o.className='otour';

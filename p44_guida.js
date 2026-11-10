@@ -43,11 +43,13 @@ function coSteps(){const s=OR.s||{},m=window.W&&W.m,L=[];const add=(id,ic,t,why,
   add('help','🆘','Chiedi aiuto agli alleati','+5 per ogni alleato che risponde (fino a +20).',!!s.asked,()=>coGoOrda('.opan'));
   const td=window.TB&&TB.d;if(td&&td.allies>0)add('shield','🛡️','Dai uno scudo a un alleato','20 💎: +5 alla sua difesa, e lui farà lo stesso con te.',Array.isArray(td.shields_out)&&td.shields_out.length>0,()=>{SOC.tab='squadra';go('social');});
   try{const ds=dailyState();add('daily','🎁','Riscuoti il premio del giorno','Ogni giorno di fila il premio cresce.',ds.claimed,()=>{go('orda');setTimeout(()=>dailySheet(),500);});}catch(e){}
-  try{const st=scudoSteps();const miss=st.find(x=>!x[2]);add('scudo','🏡',miss?`Casa vera: ${miss[1]}`:'Scudo della casa vera al massimo','Ogni livello di Scudo dà +2 di difesa a tutte le tue case.',!miss,()=>openScudo());}catch(e){}
-  if(m){const hs=myHouses();const up=hs.find(h=>!h.home&&h.level<5&&m.mattoni>=150*h.level);add('up','⬆️',up?`Potenzia ${up.label} (🧱 ${150*up.level})`:'Potenzia una casa','+12 di difesa e più affitti per livello.',!up,()=>{if(up){S.mfHouses=true;go('mappa');setTimeout(()=>mhFly(up,true),900);}else go('mappa');});
+  try{const st=scudoSteps();const miss=st.find(x=>!x[2]);add('scudo','🏡',miss?`Scudo ${st.filter(x=>x[2]).length}/5 · prossimo: ${miss[1].replace(/^Indice di casa/,'indice')}`:'Scudo della casa vera al massimo (5/5)','Ogni livello di Scudo dà +2 di difesa a tutte le tue case.',!miss,()=>openScudo());}catch(e){}
+  if(m){const hs=myHouses().filter(h=>!h.home);const low=hs.filter(h=>h.level<5);const up=low.find(h=>m.mattoni>=150*h.level)||low[0];
+    /* solo se hai case comprate: fatto quando sono tutte al livello 5 */
+    if(hs.length)add('up','⬆️',up?`Potenzia ${up.label}: livello ${up.level} → ${up.level+1} (🧱 ${150*up.level})`:'Case al livello massimo','+12 di difesa e più affitti per livello.',!up,()=>{if(up)houseSheet(up);});
     if(m.mattoni>=500)add('buy','🏠','Compra una casa nel mondo','Più case = più affitti e più premi a ogni orda.',false,()=>{S.mfHouses=true;go('mappa');});}
   try{const T=tmInit();if(T){const mm=T.list.find(x=>!x.cl);add('mis','🎯',mm?`Missione: ${String(mm.t).replace(/<[^>]+>/g,'')}`:'Missioni di oggi completate','Mattoni e gemme in premio.',!mm,()=>coGoOrda('.tmp'));}}catch(e){}
-  if(td&&td.allies===0)add('ally','🤝','Fatti un alleato','Invita un amico: 150 🧱 a te e alleanza automatica.',false,()=>inviteSheet());
+  if(td&&td.allies===0)add('ally','🤝','Fatti un alleato','Invita un amico: quando valuta la casa ti dà 🧱 150 e 💎 5, e diventate alleati.',false,()=>inviteSheet());
   return L;}
 function coGoOrda(sel){go('orda');setTimeout(()=>{const t=app.querySelector(sel);if(t){t.scrollIntoView({behavior:'smooth',block:'start'});t.classList.remove('flashme');void t.offsetWidth;t.classList.add('flashme');}},600);}
 function coHTML(compact){const L=coSteps();const todo=L.filter(x=>!x.done);const done=L.length-todo.length;const s=todo[0];
