@@ -36,6 +36,7 @@ PWA in un solo file `index.html`: valuta la sicurezza della casa vera e la trasf
 - Prove principali in un colpo: `./prove.sh` (build + t_ar3 `ERR2 []`, t_buttons `problemi: 0`, t_fronte_lento, t_account, t_casa_una `cambi visibili: 0`, t_orologio `timer permanenti all'avvio: 1`) → deve finire con `TUTTO OK`. Prove della zona toccata in aggiunta: `./prove.sh t_map.py t_case.py`.
 - Le prove trovano `app.html`, `sb_mock.js`, `ml_stub.js` nella loro cartella (variabile `D`): niente percorsi fissi.
 - Nel cloud di Claude Code serve Playwright per Python della stessa versione del Chromium preinstallato (`/opt/pw-browsers`); se la versione non coincide, lanciare Chromium con `executable_path`.
+- **Prove automatiche su GitHub** (Fase 8, `.github/workflows/prove.yml`): a ogni pull request girano da sole "App" (prove.sh + t_case/t_map/t_menu/t_reale + `dist/` ricostruita dai sorgenti) e "Database" (SQL e migrazioni senza errori, impronte aggiornate, formule uguali). Una PR va proposta ad Alessandro solo con entrambe ✅. Se si aggiunge una prova importante, metterla anche lì.
 - Le prove NON vedono il Supabase vero, l'iPhone vero e la rete lenta: per questo i difetti veri arrivano dalle foto di Alessandro. Prova sempre anche: rete lenta/bloccata (`t_fronte_lento.py`), telefono senza dati salvati (S.zone nullo), cambio account.
 
 ## Come si lavora (Claude Code nel web)

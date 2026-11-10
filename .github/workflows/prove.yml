@@ -1,0 +1,70 @@
+# ZombieSafeHouse · PROVE AUTOMATICHE (Fase 8)
+# A ogni pull request verso main (e a ogni modifica di main) GitHub fa da solo:
+#  1) "app":      build + prove principali (prove.sh: Playwright con server finto, schermo iPhone 13)
+#                 + controllo che dist/ nel commit sia stata ricostruita dai sorgenti
+#  2) "database": i file SQL e le migrazioni su un Postgres di prova + prova delle formule (app = server)
+# Il risultato compare nella pull request: ✅ tutto bene, ❌ qualcosa da guardare (clic su "Details").
+name: Prove
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: prove-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  app:
+    name: App (build e prove)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Playwright e Chromium
+        run: |
+          pip install playwright==1.64.1
+          python -m playwright install --with-deps chromium
+      - name: Build e prove principali
+        run: ./prove.sh t_case.py t_map.py t_menu.py t_reale.py
+      - name: dist/ aggiornata (ricostruita dai sorgenti del commit)
+        run: |
+          norm(){ sed -E 's/20[0-9]{10}/VERSIONE/g' "$1"; }
+          git show HEAD:dist/index.html > /tmp/dist_commit.html
+          if cmp -s <(norm /tmp/dist_commit.html) <(norm dist/index.html); then echo "dist/ aggiornata"; else
+            echo "::error::dist/index.html nel commit non corrisponde ai sorgenti: rilanciare ./build.sh e mettere dist/ nel commit"; exit 1; fi
+      - name: Schermate (se qualcosa è andato storto)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: schermate
+          path: |
+            y*.png
+            x*.png
+          if-no-files-found: ignore
+  database:
+    name: Database (SQL e formule)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: File SQL e migrazioni su un Postgres di prova
+        run: |
+          sudo env "PATH=$PATH" bash docs/strumenti/db_locale.sh /tmp/zshdb | tee /tmp/db.txt
+          grep -q "errori: 0" /tmp/db.txt || { echo "::error::un file SQL o una migrazione dà errore sul Postgres di prova"; exit 1; }
+      - name: Stato del database aggiornato nel commit
+        run: |
+          if git diff --quiet -- supabase/controllo/impronte_attese.txt; then echo "impronte uguali"; else
+            git diff -- supabase/controllo/impronte_attese.txt | head -40
+            echo "::error::supabase/controllo/impronte_attese.txt non è aggiornato: rilanciare docs/strumenti/db_locale.sh e mettere nel commit schema.sql e impronte"; exit 1; fi
+      - name: Formule uguali tra app e server
+        run: node docs/strumenti/prova_formule.js /tmp/zshdb
