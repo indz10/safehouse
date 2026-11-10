@@ -14,37 +14,12 @@ function topbar(){
   document.body.insertAdjacentHTML('afterbegin',`<header id="topbar" class="topbar">
      <button class="tb-logo" data-gohome aria-label="Vai alla home"><img alt="" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(logoSVG(64))}"><b>ZombieSafeHouse</b></button>
      <div class="ucount" id="ucount" aria-label="Utenti registrati e online">${statHTML()}</div>
-     <button class="tb-menu" id="menuBtn" aria-label="Apri il menu" aria-expanded="false"><span></span><span></span><span></span></button>
-   </header>
-   <div id="drawer" class="drawer" aria-hidden="true"><div class="dr-bg"></div><nav class="dr-card" aria-label="Menu"></nav></div>`);
+   </header>`);
   document.querySelector('[data-gohome]').onclick=()=>go('home');
-  tapOn($('#menuBtn'),()=>toggleMenu());
-  tapOn(document.querySelector('.dr-bg'),()=>toggleMenu(false));
-  /* un solo gestore per tutte le voci del menu (delega): funziona anche se il menu viene ridisegnato */
-  tapOn(document.querySelector('.dr-card'),e=>{const b=e.target.closest('button');if(!b)return;
-    if(b.dataset.mgo){toggleMenu(false);const k=b.dataset.mgo;setTimeout(()=>{if(b.dataset.cont){S.motivo='info';go('contatti');setTimeout(()=>{const f=$('#formTop');if(f)f.scrollIntoView({behavior:'smooth'});},120);}else go(k);},30);return;}
-    if(b.id==='loginBtn'){toggleMenu(false);setTimeout(()=>loginSheet(),30);return;}
-    if(b.id==='logout'){S.user=null;toast('Sei uscito');renderMenu();return;}
-    if(b.dataset.legal2){toggleMenu(false);openSheet('Privacy e termini','<p style="font-weight:400">Documenti in preparazione con il consulente privacy, pubblicati prima del lancio.</p>');}});
+  /* il vecchio menu a tendina (pulsante nascosto dallo stile) è stato tolto nella Fase 4e: il menu è ☰ (p28) */
 }
 function tapOn(el,fn){if(!el)return;let last=0;const h=e=>{const now=Date.now();if(now-last<450)return;last=now;if(e.type==='touchend')e.preventDefault();fn(e);};
   el.addEventListener('touchend',h,{passive:false});el.addEventListener('click',h);}
-function toggleMenu(force){const d=$('#drawer');const open=force!=null?force:!d.classList.contains('open');
-  if(open)renderMenu();d.classList.toggle('open',open);d.setAttribute('aria-hidden',!open);$('#menuBtn').setAttribute('aria-expanded',open);$('#menuBtn').classList.toggle('x',open);}
-function renderMenu(){
-  const u=S.user;const it=(k,ic,l,extra='')=>`<button class="mi ${S.tab===k?'on':''}" data-mgo="${k}"><span>${ic}</span>${l}${extra}</button>`;
-  $('.dr-card').innerHTML=`
-    <div class="dr-user">${u?`<span class="av" style="background:#d7263d">${esc(u.nick[0].toUpperCase())}</span><div><b>@${esc(u.nick)}</b><small>${esc(u.email)}</small></div><button class="btn ghost small" id="logout">Esci</button>`
-      :`<div><b>Non hai ancora fatto l’accesso</b><small>Salva valutazioni, quartiere e amici</small></div><button class="btn small" id="loginBtn">Accedi</button>`}</div>
-    <div class="dr-sec">App</div>
-    ${it('guida','❓','Come funziona')}${it('home','🏠','Home')}${it('valuta','📷','Valuta la casa')}${it('gioco','🧪','Simulazione')}${it('orda','🧟','Orda: il gioco')}${it('mappa','🗺️','Zone e vivere qui')}${it('radio','📻','Radio Operatore')}
-    <div class="dr-sec">Azienda</div>
-    ${it('sponsor','🤝','Sponsor e partner')}${it('contatti','🏢','Chi siamo')}
-    <button class="mi" data-mgo="contatti" data-cont="1"><span>✉️</span>Contatti</button>
-    <button class="mi" data-legal2="1"><span>📄</span>Privacy e termini</button>
-    <div class="dr-foot">ZombieSafeHouse è un marchio INDZ · ${statHTML()}</div>`;
-
-}
 function loginSheet(mode){
   mode=mode||'login';
   openSheet(mode==='login'?'Accedi':'Crea il tuo account',`

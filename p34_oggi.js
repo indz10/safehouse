@@ -45,6 +45,4 @@ function oggiTile(){try{document.querySelectorAll('.lpan button, .lpan .ltile, .
   if(em)em.outerHTML=tile;else{const w=document.createTreeWalker(t,NodeFilter.SHOW_TEXT);let x;while((x=w.nextNode())){if(x.nodeValue.includes('📅')){x.nodeValue=x.nodeValue.replace('📅','');x.parentNode.insertAdjacentHTML('afterbegin',tile);break;}}}});}catch(e){}}
 setInterval(()=>{if(S.tab==='home'||S.tab==='orda')oggiTile();},5000);
 /* nel menu */
-try{const _zmItemsOg=zmItems;zmItems=function(){const L=_zmItemsOg();const g=L.find(x=>x[0]==='Gioco');if(g)g[1].unshift(['📅','Oggi: ora, meteo e calendario','oggi']);return L;};
-  const _zmDoOg=zmDo;zmDo=function(k,b){if(k==='oggi'){zmClose();oggiSheet();return;}return _zmDoOg(k,b);};}catch(e){}
 </script>

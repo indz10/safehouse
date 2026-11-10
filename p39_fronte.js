@@ -85,6 +85,4 @@ setInterval(()=>{if(S.tab==='orda'&&FR.node&&FR.node.isConnected)frHeader();},30
 </script>
 <script>
 /* menu: "Difendi tu" porta al riquadro "Gioca la notte"; "Oggi" in cima al fronte */
-try{const _zmDoFr=zmDo;zmDo=function(k,b){if(k==='g:difendi'||k==='g:oggi'||k==='g:impero'){zmClose();go('orda');setTimeout(()=>{const t=k==='g:difendi'?app.querySelector('.odplay'):app.querySelector('.fronte');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},400);return;}return _zmDoFr(k,b);};}catch(e){}
-try{const _zmItemsFr=zmItems;zmItems=function(){const L=_zmItemsFr();const g=L.find(x=>x[0]==='Gioco');if(g)g[1]=g[1].map(r=>r[2]==='g:difendi'?['⚔️','Gioca la notte','g:difendi']:r);return L;};}catch(e){}
 </script>

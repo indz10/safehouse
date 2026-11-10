@@ -17,7 +17,6 @@ setInterval(()=>{try{if(typeof SB==='undefined'||!SB||SB.__tmw||!SB.rpc)return;c
   SB.rpc=async function(n,a){const r=await o(n,a);try{const ok=r&&!r.error&&!(r.data&&r.data.ok===false);if(ok){if(n==='world_prepare')tmSim('prep');else if(n==='world_raid_claim')tmSim('claim');else if(n==='world_send_help'||n==='world_shout')tmSim('help');}}catch(e){}return r;};SB.__tmw=1;}catch(e){}},1000);
 /* "Vai" delle missioni nuove */
 /* ---- testi e menu senza le notti ---- */
-try{const _zmItemsSim=zmItems;zmItems=function(){const L=_zmItemsSim();const g=L.find(x=>x[0]==='Gioco');if(g)g[1]=g[1].filter(r=>!['g:difendi'].includes(r[2]));return L;};}catch(e){}
 </script>
 <script>
 /* data, ora e meteo stanno nel fronte: il vecchio riquadro "📅 Oggi" non va più rimesso */

@@ -39,8 +39,6 @@ const _goReg=go;go=function(t){if(t!=='mappa')REG.active=false;return _goReg(t);
 /* ---- punti di accesso ben visibili ---- */
 /* mappa: i pulsanti della barra dell'orda aprono la regia */
 /* menu: due voci nuove */
-try{
-  const _zmDoReg=zmDo;zmDo=function(k,b){if(k==='a:last'||k==='a:sim'){zmClose();assalto(k.slice(2));return;}if(k==='push'){zmClose();pushSheet();return;}return _zmDoReg(k,b);};}catch(e){}
 
 /* ---------------- 🔔 NOTIFICHE PUSH ---------------- */
 const pushOk=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;

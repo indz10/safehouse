@@ -34,5 +34,4 @@ const _casaAllF=casaAll;casaAll=async function(){await _casaAllF();try{const H=m
 /* ---- 2) scheda della casa: fortificazioni consigliate ---- */
 /* ---- 3) versione dell'app nel menu ---- */
 function appVerTxt(){const v=String(APPV);return /^\d{12}$/.test(v)?`${v.slice(6,8)}/${v.slice(4,6)} ${v.slice(8,10)}:${v.slice(10,12)} (zsh-${v})`:v;}
-const _zmOpenF=zmOpen;zmOpen=function(){const r=_zmOpenF.apply(this,arguments);setTimeout(()=>{try{const v=document.querySelector('#zmenu .zmver');if(v)v.textContent=`ZombieSafeHouse · un marchio INDZ · versione ${appVerTxt()}`;}catch(e){}},30);return r;};
 </script>

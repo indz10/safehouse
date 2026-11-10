@@ -96,12 +96,9 @@ function orTour(i){try{G.tourDone=1;}catch(e){}if(i===0)closeSheet();const st=OT
 function orOffer(){if(!S.user||typeof G==='undefined'||G.tourDone||document.querySelector('#sheet.open'))return;G.tourDone=1;
   openSheet('🧭 Vuoi un giro guidato?',`<p style="font-weight:400">Un minuto per capire tutto: la mappa vera, le case da comprare, l’<b>orda del mondo</b> delle 9 e delle 21, i premi da riscattare.</p><div class="row" style="gap:8px;margin-top:12px"><button class="btn" data-oty>Sì, fammi vedere</button><button class="btn ghost small" data-otn2>No, grazie</button></div>`,c=>{c.querySelector('[data-oty]').onclick=()=>orTour(0);c.querySelector('[data-otn2]').onclick=closeSheet;});}
 /* menu */
-const _renderMenuOR=renderMenu;renderMenu=function(){_renderMenuOR();try{const ref=document.querySelector('.dr-user');if(!ref||document.querySelector('[data-mtour]'))return;
-  ref.insertAdjacentHTML('afterend','<button class="mi" data-mtour="1"><span>🧭</span>Giro guidato</button>');document.querySelector('[data-mtour]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}orTour(0);};}catch(e){}};
 /* aggiornamenti */
 setInterval(()=>{if(!document.hidden&&S.user){orLoad(Date.now()-OR.t>60000);document.querySelectorAll('.onext small').forEach(x=>{if(OR.s)x.textContent='tra '+orLeft(OR.s.next_at);});}},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user)orLoad(true);});
 setTimeout(()=>{if(S.user)orLoad(true);},3500);
 /* manuale */
-const _manualOR=manualHTML;manualHTML=function(){return _manualOR().replace('<details class="man"',`<details class="man" open><summary>🧟 L’orda del mondo (la cosa principale)</summary><div class="man-b"><p>Ogni giorno alle <b>9:00</b> e alle <b>21:00</b> un’orda attacca <b>tutte le case del mondo unico</b>, da sola. Ogni casa tiene o viene sfondata in base alla sua difesa: <b>45 + 12 per livello</b> (massimo 5), <b>+15 se hai premuto “Prepara”</b>, +5 per casa tua. La forza dell’orda cambia per ogni casa e ogni orda (da 40 a 99).</p><p><b>Prima</b>: Prepara e Fortifica. <b>Dopo</b>: guarda l’assalto sulla mappa (🛡️ tenute, 💥 sfondate) e <b>riscatta</b> prima dell’orda successiva: 🧱 8 + 4 × livello per ogni casa che tiene (2 per quelle sfondate), 🪙 30 per casa che tiene, 💎 2 se tengono tutte.</p><p>Le notti giocate a mano restano: sono “Difendi tu”, facoltative, con i loro premi.</p></div></details><details class="man"`);};
 </script>

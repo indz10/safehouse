@@ -11,7 +11,7 @@ function zSoundBtn(){try{const T=document.getElementById('topbar');if(!T)return;
   if(!b){const bell=document.getElementById('zbell');if(!bell)return;bell.insertAdjacentHTML('beforebegin','<button id="zsound" aria-label="Audio"></button>');b=document.getElementById('zsound');
     b.onclick=()=>{const on=zSoundOn();try{if(typeof G!=='undefined')G.mute=on;}catch(e){}try{if(on)musicOff();else musicOn();}catch(e){}try{saveLocal();}catch(e){}try{localStorage.setItem('zsh_mute',on?'1':'0');}catch(e){}zSoundBtn();toast(on?'🔇 Audio spento':'🔊 Audio acceso');};}
   const on=zSoundOn();b.textContent=on?'🔊':'🔇';b.classList.toggle('off',!on);}catch(e){}}
-const _zTopbarFx=zTopbar;zTopbar=function(){_zTopbarFx();zSoundBtn();};setTimeout(zSoundBtn,400);
+setTimeout(zSoundBtn,400);
 /* se l'audio era stato spento, resta spento alla riapertura */
 setTimeout(()=>{try{if(localStorage.getItem('zsh_mute')==='1'){if(typeof G!=='undefined')G.mute=true;try{musicOff();}catch(e){}zSoundBtn();}}catch(e){}},1200);
 /* ---- 2) "Acquista" più chiaro ---- */
