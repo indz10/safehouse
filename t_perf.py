@@ -1,25 +1,34 @@
 import os;D=os.path.dirname(os.path.abspath(__file__))  # cartella del repository
-import asyncio,sys
-sys.path.insert(0,D)
+# VELOCITÀ DI APERTURA (Fase 7c): peso dell'app e tempi di apertura con il processore rallentato 4 volte (come un telefono).
+# Uso: python3 t_perf.py [cartella con app.html]   → per confrontare due versioni lanciarla su entrambe le cartelle.
+# I caratteri di Google arrivano dopo 1,5 s (rete del telefono).
+# Stampa: peso, peso compresso (quello che scarica il telefono), tempo fino alla prima schermata, tempo di calcolo JS (mediana di 5).
+import asyncio,sys,gzip,statistics
 from playwright.async_api import async_playwright
+sys.path.insert(0,D)
 import t_terr
-async def run(p,path,noanim=False,css=''):
-    b=await p.chromium.launch();dev=p.devices['iPhone 13'];ctx=await b.new_context(**dev);pg=await ctx.new_page();pg.set_default_timeout(15000)
-    await pg.route('**/*',t_terr.route);await pg.add_init_script(path=D+'/sb_mock.js');await pg.add_init_script(path=D+'/ml_stub.js');await pg.add_init_script('window.__noHello=1')
-    if css: await pg.add_init_script("document.addEventListener('DOMContentLoaded',()=>{const st=document.createElement('style');st.textContent="+repr(css)+";document.head.appendChild(st);});")
-    if noanim: await pg.add_init_script("document.addEventListener('DOMContentLoaded',()=>{const st=document.createElement('style');st.textContent='*,*::before,*::after{animation:none!important;transition:none!important}';document.head.appendChild(st);});")
-    await pg.goto('file://'+path);await pg.wait_for_timeout(400)
-    await pg.evaluate("async()=>{SB=__mockSB;S.user={id:'me',nick:'ale'};S.pubOk=true;zSyncProfile.asked=1;localStorage.setItem('zsh_kit_me','1');S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');await rmFetch(S.zone.address||'A');S.answers={...SAMPLE};G.tourAsked=1;G.tourDone=1;G.howSeen=1;await wMine(true);await orLoad(true);await thrLoad(true);go('orda');}")
-    await pg.wait_for_timeout(800);await pg.evaluate("()=>{const v=document.querySelector('[data-type=vera]');if(v)v.click();}");await pg.wait_for_timeout(600);await pg.evaluate("()=>{closeSheet();renderHub();}");await pg.wait_for_timeout(6000)
-    cdp=await ctx.new_cdp_session(pg);await cdp.send('Performance.enable');m0={x['name']:x['value'] for x in (await cdp.send('Performance.getMetrics'))['metrics']}
-    await pg.wait_for_timeout(15000)
-    m1={x['name']:x['value'] for x in (await cdp.send('Performance.getMetrics'))['metrics']}
-    z=await pg.evaluate("()=>(FR.zs||[]).length")
-    await b.close()
-    return (m1['TaskDuration']-m0['TaskDuration'])/15*100, (m1['ScriptDuration']-m0['ScriptDuration'])/15*100, (m1['LayoutCount']-m0['LayoutCount'])/15, z
+A=sys.argv[1] if len(sys.argv)>1 else D
 async def main():
+    raw=open(os.path.join(A,'app.html'),'rb').read()
+    print('peso app:',round(len(raw)/1024),'KB | compresso (scaricato dal telefono):',round(len(gzip.compress(raw,9))/1024),'KB')
     async with async_playwright() as p:
-        for name,css in [('versione nuova finale','')]:
-            t,sc,lay,z=await run(p,D+'/app.html',False,css)
-            print(f'{name}: processore occupato {t:.1f}% · di cui codice {sc:.1f}% · ricalcoli pagina {lay:.0f}/s · zombie {z}')
+        b=await p.chromium.launch();R=[]
+        for i in range(5):
+            ctx=await b.new_context(**p.devices['iPhone 13']);pg=await ctx.new_page();cdp=await ctx.new_cdp_session(pg)
+            await cdp.send('Emulation.setCPUThrottlingRate',{'rate':4});await cdp.send('Performance.enable')
+            async def lenta(r):
+                # rete del telefono simulata: i caratteri di Google arrivano dopo 1,5 s
+                if 'fonts.googleapis' in r.request.url or 'fonts.gstatic' in r.request.url:
+                    await asyncio.sleep(1.5);return await r.fulfill(status=200,content_type='text/css',body='')
+                return await t_terr.route(r)
+            await pg.route('**/*',lenta);await pg.add_init_script(path=D+'/sb_mock.js');await pg.add_init_script(path=D+'/ml_stub.js');await pg.add_init_script('window.__noHello=1')
+            await pg.goto('file://'+A+'/app.html',wait_until='load')
+            await pg.wait_for_function("()=>document.querySelector('#app .hscene, #app .page')",timeout=20000)
+            t=await pg.evaluate("()=>{const n=performance.getEntriesByType('navigation')[0];const p=performance.getEntriesByName('first-contentful-paint')[0];return [Math.round(n.domContentLoadedEventEnd),Math.round(n.loadEventEnd),p?Math.round(p.startTime):null,Math.round(performance.now())]}")
+            m={x['name']:x['value'] for x in (await cdp.send('Performance.getMetrics'))['metrics']}
+            R.append((t[0],t[2] or 0,round(m.get('ScriptDuration',0)*1000)))
+            await ctx.close()
+        med=lambda k:round(statistics.median(r[k] for r in R))
+        print('pronta (DOMContentLoaded):',med(0),'ms | prima schermata (first paint):',med(1),'ms | calcolo JS:',med(2),'ms  (processore ×4 più lento, mediana di 5)')
+        await b.close()
 asyncio.run(main())
