@@ -166,6 +166,16 @@ p{line-height:1.45}
 .msg.typing{opacity:.7}
 .composer{position:sticky;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));background:var(--paper);padding:10px 0;display:flex;gap:8px}
 .composer input{flex:1}
+/* Radio Operatore (Fase 7a): pagina a misura di schermo, i messaggi scorrono dentro */
+.radiopg{display:flex;flex-direction:column;padding-bottom:6px;overflow:hidden}
+.radiopg .rphead{gap:10px;margin-bottom:8px;flex:none}.radiopg .rphead h2{font-size:24px;line-height:1.1}.radiopg .rphead p{font-size:13px}
+.radiopg .rpico{width:44px;height:44px;border:var(--line);background:var(--zom);display:grid;place-items:center;flex:none}
+.radiopg .chat{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 2px 8px}
+.radiopg .rpchips{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;flex:none;padding:6px 0 2px;-webkit-overflow-scrolling:touch}
+.radiopg .rpchips .chip{flex:none;white-space:nowrap;font-size:13px;min-height:34px;padding:6px 10px}
+.radiopg .composer{position:static;flex:none;padding:8px 0 0}
+.radiopg .cback{flex:none;padding:0 0 6px}
+body:has(.radiopg) #accFab{display:none}
 
 /* ---- varie ---- */
 .notice{border:2px dashed var(--ink);padding:10px;font-size:13px;font-weight:400;background:rgba(255,255,255,.6)}
@@ -1485,11 +1495,14 @@ body[data-tab=orda] #accFab{display:none!important}
    di sempre. zEvery(fn, ms, nome) ha gli stessi argomenti di setInterval(fn, ms).
    I timer "di una volta" dentro pagine e animazioni (ruota, musica, attese) restano setInterval.
    Un errore in un compito non ferma gli altri (come con setInterval).
+   Con l'app in sfondo l'orologio si ferma (Fase 7a).
    ========================================================= */
 const ZCLOCK={tick:250,h:null,t:[]};
 function zEvery(fn,ms,nome){const t={fn,ms:Math.max(ZCLOCK.tick,+ms||0),nome:nome||(fn&&fn.name)||'',next:Date.now()+(+ms||0)};ZCLOCK.t.push(t);
   if(!ZCLOCK.h)ZCLOCK.h=setInterval(zClockTick,ZCLOCK.tick);return t;}
-function zClockTick(){const now=Date.now();
+/* Fase 7a: con l'app in sfondo (telefono bloccato, altra app) i compiti non girano: meno batteria e niente richieste inutili.
+   Al ritorno in primo piano ripartono subito (quelli scaduti girano al primo giro dell'orologio). */
+function zClockTick(){if(document.hidden)return;const now=Date.now();
   for(const t of ZCLOCK.t){if(now<t.next-60)continue;   /* 60 ms di tolleranza: il compito da 1 s gira davvero ogni secondo */
     t.next+=t.ms;if(t.next<=now)t.next=now+t.ms;          /* cadenza fissa; dopo una pausa lunga riparte da adesso */
     try{t.fn();}catch(e){console.warn('orologio',t.nome,e);}}}
@@ -1689,16 +1702,28 @@ function simulateFindings(){
 }
 const CHAT_SYSTEM=`Sei "Radio Operatore", l'assistente dell'app ZombieSafeHouse: un gioco a fumetto horror che valuta quanto la casa dell'utente resisterebbe a un'apocalisse zombie, con consigli che migliorano anche la sicurezza reale.
 Rispondi in italiano, con tono ironico da fumetto ma chiaro, in massimo 5 frasi.
-Sai che: la valutazione combina indirizzo (zona e risorse vicine), foto analizzate dall'IA (porta, finestre, perimetro) e circa 28 domande in 6 capitoli (struttura, accessi, perimetro, risorse, comunicazioni, mobilità); l'indice va da 1 (fortezza) a 10 (buffet per zombie); nella sezione Gioco l'utente applica potenziamenti consigliati da IA, community e sponsor e vede la casa cambiare; le foto non vengono salvate e la mappa mostra solo livelli di zona aggregati, mai le case degli altri.
+Sai che: la valutazione combina indirizzo (zona e risorse vicine), foto analizzate dall'IA (porta, finestre, perimetro) e circa 28 domande in 6 capitoli (struttura, accessi, perimetro, risorse, comunicazioni, mobilità); l'indice va da 1 (fortezza) a 10 (buffet per zombie); il gioco è un mondo unico condiviso sulla mappa vera: ogni giorno alle 9 e alle 21 un'orda attacca tutte le case; prima si preparano le case (+15 di difesa) e si fortificano (fossato, barricate, sirena, fondamenta, fari, trappole, grate, recinto, cani, pompa: ognuna ferma un tipo di zombie), dopo si guarda l'assalto e si riscattano i premi in Mattoni; con i Mattoni si comprano e potenziano altre case libere (che rendono affitti); gli alleati si mandano rinforzi, scudi, regali e prestiti; meteo e pendenza veri cambiano la forza degli zombie; le foto non vengono salvate; la casa è sulla mappa nel punto giusto ma il nome compare solo a chi l'utente sceglie, e i superstiti sono mostrati in posizione approssimata (circa 200 m). Non esistono più monete né notti giocate a mano.
 Dai solo consigli difensivi e legali (porte, grate, scorte, luci, piani di emergenza, rete di vicini). Non dare mai indicazioni su come entrare in case altrui, armi o trappole pericolose.`;
 function fallbackChat(t){
+  /* Fase 7a: risposte automatiche aggiornate al gioco di oggi (servono quando l'IA non è attiva) */
   t=t.toLowerCase();
-  if(/foto|fotocamera|camera/.test(t))return'Inquadri porta, finestre basse e cancello: l’IA riconosce grate, tipo di porta e recinzione e compila le domande per te. Le foto restano sul telefono, non vengono salvate.';
-  if(/mappa|zona|indirizzo|google/.test(t))return'Dall’indirizzo ricavo il tipo di zona e le risorse vicine: supermercati, farmacie, ospedali, ferramenta. In questa anteprima i dati sono simulati; nella versione pubblicata arrivano da Google Maps.';
-  if(/gioco|potenziament|sponsor/.test(t))return'Nel Gioco applichi potenziamenti: quelli marcati IA sono i più efficaci per la tua casa, la community vota i suoi preferiti, gli sponsor propongono prodotti veri. La casa cambia a vista e l’indice scende.';
-  if(/indice|punteggio|voto/.test(t))return'L’indice va da 1 a 10: più è basso, più la casa resiste. Pesano di più accessi (25%), perimetro e risorse (20% ciascuno).';
-  if(/privacy|dati/.test(t))return'Le foto non vengono salvate e nessuno vede la tua casa: sulla mappa compaiono solo livelli di zona aggregati.';
-  return'Domanda ricevuta, ma il segnale è debole: in questa anteprima fuori da Claude rispondo solo su valutazione, foto, mappa, gioco, indice e privacy. Prova con una di queste parole.';
+  const R=[
+   [/notific|avvis|campanell/,'🔔 Le notifiche arrivano 30 minuti prima di ogni orda e quando succede qualcosa a te. Su iPhone funzionano solo se apri l’app dall’icona sulla schermata Home (Safari → Condividi → Aggiungi alla schermata Home), poi menu ☰ → Notifiche delle orde → Consenti.'],
+   [/foto|fotocamera|camera/,'📷 Fotografa porta, finestre basse e cancello: le foto aiutano a rispondere alle domande della valutazione. Restano sul telefono, non vengono salvate.'],
+   [/indice|punteggio casa|voto/,'🏠 L’indice della casa va da 1 a 10: più è basso, più la casa è sicura. Pesano di più gli accessi (porte e finestre), poi perimetro e scorte. Nel piano d’azione (Le mie case → ❤️ Casa tua) trovi cosa migliorare, prima le cose gratis.'],
+   [/porta|finestr|grat|serratur|allarm|luc|ladr|sicur/,'🔒 Le migliorie con più effetto: porta blindata o barra sulla porta sul retro, grate o vetri antisfondamento al piano terra, luci con sensore di movimento, niente scale o bidoni appoggiati ai muri. Il tuo piano d’azione le mette in ordine per la tua casa.'],
+   [/orda|zombi|attacc|assalt/,'🧟 Ogni giorno alle 9 e alle 21 un’orda attacca tutte le case del mondo. Prima tocca 🛡️ Prepara le case (+15 di difesa, gratis) e se puoi fortifica; dopo guarda l’assalto e 🎁 riscatta i premi. La % di tenere è nella pagina di ogni casa: tocca 🧮 Perché per il conto.'],
+   [/fortific|fossato|barricat|trappol|sirena|fari|cani|recint/,'🧱 Ogni fortificazione ferma un tipo di zombie: fossato i corridori, barricate casco, bruto e capo, sirena gli strilloni, fondamenta gli scavatori, fari le ombre; le trappole frenano i vaganti. Nella pagina della casa vedi chi arriva e provi le fortificazioni guardando la %.'],
+   [/meteo|pioggia|nebbia|luna|salita|discesa|pendenz/,'🌧️ Meteo e terreno sono veri: con la pioggia gli zombie sono più lenti, nebbia e buio aiutano le ombre, con la luna piena l’orda è più forte. Se la casa è in salita gli zombie arrivano più lenti, in discesa più veloci.'],
+   [/mattoni|soldi|guadagn|premi/,'🧱 I Mattoni si guadagnano riscattando le orde, con le missioni del giorno, gli affitti delle case comprate, aiutando gli alleati e invitando amici (150 a testa quando valutano la casa). I premi vari arrivano fino a 300 Mattoni al giorno.'],
+   [/compr|case|affitt|livell|potenz/,'🗺️ Sulla mappa tocca una casa libera e comprala con i Mattoni: rende affitti ogni giorno. Potenziarla dà +12 di difesa per livello. Le case abitate non si possono comprare. Le tue case sono in 🏠 Le mie case.'],
+   [/allea|amic|squadra|regal|prest|scud|rinforz|invit/,'🤝 Con gli alleati vi mandate rinforzi (+5 di difesa ciascuno), scudi (20 💎, +5) e regali o prestiti di Mattoni (tornano da soli dopo 3 giorni). Con 3 alleati pronti hai +5 di difesa di squadra. Invita amici dal menu ☰.'],
+   [/sponsor|negoz|attivit|sconto/,'⭐ Gli sponsor sono attività vere della zona: sulla mappa hanno il bollino giallo, offrono codici sconto e preventivi. Ogni codice usato in negozio ti dà 100 Mattoni. Se hai un’attività: menu ☰ → Sponsor e contatti.'],
+   [/privacy|dati|nome|visibil|posizion/,'🔒 Le foto non vengono salvate. La tua casa è sulla mappa nel punto giusto, ma il tuo nome compare solo se scegli “Tutti” o per alleati e coinquilini; sulla mappa dei superstiti la tua posizione è approssimata (circa 200 m).'],
+   [/trasloc|cambiat|nuova casa/,'🚚 Se hai cambiato casa: menu ☰ → Ho cambiato casa. Mattoni, gemme, livello e amici vengono con te; rifai la valutazione della casa nuova.'],
+   [/account|accedi|password|email|elimin/,'👤 Con l’account la tua casa entra nel mondo e i progressi sono salvati su tutti i dispositivi. Accedi dal menu ☰; da lì puoi anche uscire o eliminare l’account.']];
+  for(const[re,a]of R)if(re.test(t))return a;
+  return'📻 Risposta automatica: chiedimi della valutazione (indice, foto, porta e finestre), dell’orda, delle fortificazioni, dei Mattoni, delle case, degli alleati, delle notifiche o della privacy. Per altro: “✉️ Scrivi a una persona”.';
 }
 </script>
 <script>
@@ -2601,18 +2626,25 @@ function siege(){const sTo=(f,ms)=>setTimeout(()=>{if(!document.getElementById('
 
 /* ---------------- RADIO IA ---------------- */
 function renderRadio(){
-  app.innerHTML=`<div class="page">
-   <div class="row" style="gap:12px;margin-bottom:12px"><div style="width:58px;height:58px;border:var(--line);background:var(--zom);display:grid;place-items:center;flex:none">${ICON.radio.replace('<svg','<svg width="34" height="34" style="color:#140f1f"')}</div>
-     <div><h2 style="font-size:30px">Radio Operatore</h2><p class="muted" style="font-size:14px">Chatbot per info su app, valutazione e consigli</p></div></div>
+  /* Fase 7a: impaginazione da chat (messaggi che scorrono, domande pronte in una riga, casella sempre sopra la barra in basso) */
+  app.innerHTML=`<div class="page radiopg">
+   <div class="row rphead"><div class="rpico">${ICON.radio.replace('<svg','<svg width="26" height="26" style="color:#140f1f"')}</div>
+     <div><h2>Radio Operatore</h2><p class="muted">Chiedi della valutazione, della casa o del gioco</p></div></div>
    <div class="chat" id="chat">${S.chat.map(m=>`<div class="msg ${m.r==='me'?'me':'bot'} ${m.typing?'typing':''}">${esc(m.t)}</div>`).join('')}</div>
-   <div class="chips" style="margin:12px 0">${['Come funziona la foto?','Cosa vuol dire il mio indice?','Come entrano gli sponsor?','Che fine fanno i miei dati?'].map(t=>`<button class="chip" data-quick="${esc(t)}">${t}</button>`).join('')}<button class="chip" data-go="contatti">✉️ Scrivi a una persona</button></div>
+   <div class="rpchips">${['Come funziona la foto?','Cosa vuol dire il mio indice?','Come entrano gli sponsor?','Che fine fanno i miei dati?'].map(t=>`<button class="chip" data-quick="${esc(t)}">${t}</button>`).join('')}<button class="chip" data-go="contatti">✉️ Scrivi a una persona</button></div>
    <div class="composer"><input id="chatIn" class="field" placeholder="Scrivi alla radio" aria-label="Messaggio"><button class="btn small" id="send">Invia</button></div></div>`;
   bindGo();
   app.querySelectorAll('[data-quick]').forEach(b=>b.onclick=()=>{S.chat.push({r:'me',t:b.dataset.quick});sendChat();});
   $('#send').onclick=()=>{const t=$('#chatIn').value.trim();if(!t)return;S.chat.push({r:'me',t});sendChat();};
   $('#chatIn').onkeydown=e=>{if(e.key==='Enter')$('#send').click();};
-  const c=$('#chat');c.lastElementChild&&c.lastElementChild.scrollIntoView({block:'end'});
+  radioFit();const c=$('#chat');c.scrollTop=c.scrollHeight;
 }
+/* altezza della pagina = spazio tra la barra in alto e quella in basso (anche con la tastiera aperta) */
+function radioFit(){try{const p=app.querySelector('.radiopg');if(!p)return;const vh=(window.visualViewport&&visualViewport.height)||innerHeight;
+  const nav=document.getElementById('nav');const kb=window.visualViewport&&innerHeight-visualViewport.height>120;/* tastiera aperta: la barra in basso è coperta */
+  const navH=!kb&&nav?nav.getBoundingClientRect().height:0;const top=app.getBoundingClientRect().top+window.scrollY;
+  p.style.height=Math.max(320,vh-top-navH-6)+'px';window.scrollTo(0,0);}catch(e){}}
+try{if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(S.tab==='radio'){radioFit();const c=document.getElementById('chat');if(c)c.scrollTop=c.scrollHeight;}});addEventListener('resize',()=>{if(S.tab==='radio')radioFit();});}catch(e){}
 async function sendChat(fromElsewhere){
   S.chat.push({r:'bot',t:'…',typing:true});if(S.tab==='radio')renderRadio();
   const hist=S.chat.filter(m=>!m.typing).slice(-10).map(m=>({role:m.r==='me'?'user':'assistant',content:m.t}));
@@ -4259,7 +4291,7 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 /* bollettino del territorio nella pagina del gioco */
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611102312';
+const ZSH_BUILD='202611102342';
 /* Fase 5d: appena aperta (o riaperta dallo sfondo) l'app controlla subito la versione; se ce n'è una nuova
    nei primi 20 s mostra "Aggiorno l'app…" e si ricarica SUBITO (anche con una finestra aperta: è appena partita).
    Se arriva mentre stai giocando, aspetta che non ci siano finestre aperte (come prima). Mai due volte di fila per la stessa versione. */
@@ -7072,7 +7104,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611102312';
+const APPV='202611102342';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}

@@ -349,18 +349,25 @@ function siege(){const sTo=(f,ms)=>setTimeout(()=>{if(!document.getElementById('
 
 /* ---------------- RADIO IA ---------------- */
 function renderRadio(){
-  app.innerHTML=`<div class="page">
-   <div class="row" style="gap:12px;margin-bottom:12px"><div style="width:58px;height:58px;border:var(--line);background:var(--zom);display:grid;place-items:center;flex:none">${ICON.radio.replace('<svg','<svg width="34" height="34" style="color:#140f1f"')}</div>
-     <div><h2 style="font-size:30px">Radio Operatore</h2><p class="muted" style="font-size:14px">Chatbot per info su app, valutazione e consigli</p></div></div>
+  /* Fase 7a: impaginazione da chat (messaggi che scorrono, domande pronte in una riga, casella sempre sopra la barra in basso) */
+  app.innerHTML=`<div class="page radiopg">
+   <div class="row rphead"><div class="rpico">${ICON.radio.replace('<svg','<svg width="26" height="26" style="color:#140f1f"')}</div>
+     <div><h2>Radio Operatore</h2><p class="muted">Chiedi della valutazione, della casa o del gioco</p></div></div>
    <div class="chat" id="chat">${S.chat.map(m=>`<div class="msg ${m.r==='me'?'me':'bot'} ${m.typing?'typing':''}">${esc(m.t)}</div>`).join('')}</div>
-   <div class="chips" style="margin:12px 0">${['Come funziona la foto?','Cosa vuol dire il mio indice?','Come entrano gli sponsor?','Che fine fanno i miei dati?'].map(t=>`<button class="chip" data-quick="${esc(t)}">${t}</button>`).join('')}<button class="chip" data-go="contatti">✉️ Scrivi a una persona</button></div>
+   <div class="rpchips">${['Come funziona la foto?','Cosa vuol dire il mio indice?','Come entrano gli sponsor?','Che fine fanno i miei dati?'].map(t=>`<button class="chip" data-quick="${esc(t)}">${t}</button>`).join('')}<button class="chip" data-go="contatti">✉️ Scrivi a una persona</button></div>
    <div class="composer"><input id="chatIn" class="field" placeholder="Scrivi alla radio" aria-label="Messaggio"><button class="btn small" id="send">Invia</button></div></div>`;
   bindGo();
   app.querySelectorAll('[data-quick]').forEach(b=>b.onclick=()=>{S.chat.push({r:'me',t:b.dataset.quick});sendChat();});
   $('#send').onclick=()=>{const t=$('#chatIn').value.trim();if(!t)return;S.chat.push({r:'me',t});sendChat();};
   $('#chatIn').onkeydown=e=>{if(e.key==='Enter')$('#send').click();};
-  const c=$('#chat');c.lastElementChild&&c.lastElementChild.scrollIntoView({block:'end'});
+  radioFit();const c=$('#chat');c.scrollTop=c.scrollHeight;
 }
+/* altezza della pagina = spazio tra la barra in alto e quella in basso (anche con la tastiera aperta) */
+function radioFit(){try{const p=app.querySelector('.radiopg');if(!p)return;const vh=(window.visualViewport&&visualViewport.height)||innerHeight;
+  const nav=document.getElementById('nav');const kb=window.visualViewport&&innerHeight-visualViewport.height>120;/* tastiera aperta: la barra in basso è coperta */
+  const navH=!kb&&nav?nav.getBoundingClientRect().height:0;const top=app.getBoundingClientRect().top+window.scrollY;
+  p.style.height=Math.max(320,vh-top-navH-6)+'px';window.scrollTo(0,0);}catch(e){}}
+try{if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(S.tab==='radio'){radioFit();const c=document.getElementById('chat');if(c)c.scrollTop=c.scrollHeight;}});addEventListener('resize',()=>{if(S.tab==='radio')radioFit();});}catch(e){}
 async function sendChat(fromElsewhere){
   S.chat.push({r:'bot',t:'…',typing:true});if(S.tab==='radio')renderRadio();
   const hist=S.chat.filter(m=>!m.typing).slice(-10).map(m=>({role:m.r==='me'?'user':'assistant',content:m.t}));
