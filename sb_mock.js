@@ -11,6 +11,8 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_mine':return{data:{mattoni:M.wallet.mattoni,lifetime:M.wallet.lifetime,wlevel:lvl,next:100*lvl*lvl,max:2+Math.floor(lvl/2),radius_km:lvl,rate:Object.values(M.b).filter(b=>b.owner==='me').reduce((t,b)=>t+5+5*b.level,0),ready:12,home:{status:'pending'},houses:Object.entries(M.b).filter(([k,b])=>b.owner==='me').map(([k,b])=>({building_id:k,lat:b.lat,lon:b.lon,level:b.level,value:b.paid})),news:M.log.splice(0)},error:null};
   case'world_earn':return{data:{ok:true,got:10,mattoni:(M.wallet.mattoni+=10)},error:null};
   case'world_seen':return{data:null,error:null};
+  case'world_shape_get':{const S=window.__SHP=window.__SHP||{};const v=S[a.p_kind+'|'+a.p_k];return{data:v===undefined?null:{found:v!==null,val:v},error:null};}
+  case'world_shape_put':{const S=window.__SHP=window.__SHP||{};const key=a.p_kind+'|'+a.p_k;if(!(S[key]&&a.p_val==null))S[key]=a.p_val;return{data:{ok:true},error:null};}
   case'world_claim_home':return{data:{ok:true,status:'pending',msg:'Casa registrata: domani riapri l’app per confermarla'},error:null};
   case'world_view':return{data:Object.entries(M.b).map(([k,b])=>({building_id:k,lat:b.lat,lon:b.lon,status:st(k),nick:b.owner&&b.owner!=='me'?b.owner:null,level:b.level})),error:null};
   case'world_quote':{const s=st(a.p_bid);return{data:{status:s,price,can:s==='free'&&M.wallet.mattoni>=price,why:'',owner_nick:M.b[a.p_bid]&&M.b[a.p_bid].owner,level:(M.b[a.p_bid]||{}).level||1,value:(M.b[a.p_bid]||{}).paid||0,mattoni:M.wallet.mattoni,wlevel:lvl,owned:1,max:3,radius_km:3,dist_km:0.2,up_cost:150},error:null};}

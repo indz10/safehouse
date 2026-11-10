@@ -112,6 +112,8 @@ world_send_curse(uuid, text) bbdf70a979
 world_send_help(uuid) 2b987cb8df
 world_set_home(text, text) f3eb706e13
 world_set_realshield(integer) 9aae268eb7
+world_shape_get(text, text) 9835883569
+world_shape_put(text, text, jsonb) c184167164
 world_shout(uuid, integer) ab6a2241e6
 world_status_extra() b12cc9499a
 world_team_bonus() 902e1c195a
@@ -159,6 +161,7 @@ world_help_given 9935b169
 world_homes f606e040
 world_house_req e60b8c36
 world_log a7c8214e
+world_shapes 90c99d30
 world_shields 39ed43a6
 world_shouts 38a06241
 world_terrain b6c5b216

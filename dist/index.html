@@ -4291,7 +4291,7 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 /* bollettino del territorio nella pagina del gioco */
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611102342';
+const ZSH_BUILD='202611102352';
 /* Fase 5d: appena aperta (o riaperta dallo sfondo) l'app controlla subito la versione; se ce n'è una nuova
    nei primi 20 s mostra "Aggiorno l'app…" e si ricarica SUBITO (anche con una finestra aperta: è appena partita).
    Se arriva mentre stai giocando, aspetta che non ci siano finestre aperte (come prima). Mai due volte di fila per la stessa versione. */
@@ -6466,8 +6466,10 @@ const btFallback=seed=>{const keys=['villa','villa','bifam','schiera','condo','c
 async function bType(lat,lon,seed){const k='zsh_bt_'+lat.toFixed(4)+'_'+lon.toFixed(4);if(BT_MEM[k])return BT_MEM[k];try{const c=localStorage.getItem(k);if(c){BT_MEM[k]=c;return c;}
     const no=+localStorage.getItem(k+'_no')||0;if(no&&Date.now()-no<BT_NO_MS)return btFallback(seed);}catch(e){}
   if(BT_WAIT[k])return BT_WAIT[k];
-  return BT_WAIT[k]=(async()=>{let t=null,risposto=false;try{const els=await trOverpass(`[out:json][timeout:15];way(around:18,${lat},${lon})["building"];out tags 5;`,12000,5);risposto=true;if(els&&els.length){for(const e of els){t=btFromTags(e.tags);if(t)break;}}}catch(e){}
-    if(!t){t=btFallback(seed);if(risposto)try{localStorage.setItem(k+'_no',String(Date.now()));}catch(e){}}else{try{localStorage.setItem(k,t);}catch(e){}}BT_MEM[k]=t;
+  return BT_WAIT[k]=(async()=>{let t=null,risposto=false;const sk=k.replace('zsh_bt_','');const sv=await shpGet(sk,'bt');
+    if(sv){t=sv.found&&typeof sv.val==='string'?sv.val:btFallback(seed);if(sv.found)try{localStorage.setItem(k,t);}catch(e){}else try{localStorage.setItem(k+'_no',String(Date.now()));}catch(e){}BT_MEM[k]=t;delete BT_WAIT[k];return t;}
+    try{const els=await trOverpass(`[out:json][timeout:15];way(around:18,${lat},${lon})["building"];out tags 5;`,12000,5);risposto=true;if(els&&els.length){for(const e of els){t=btFromTags(e.tags);if(t)break;}}}catch(e){}
+    if(!t){t=btFallback(seed);if(risposto){shpPut(sk,'bt',null);try{localStorage.setItem(k+'_no',String(Date.now()));}catch(e){}}}else{shpPut(sk,'bt',t);try{localStorage.setItem(k,t);}catch(e){}}BT_MEM[k]=t;
     delete BT_WAIT[k];return t;})();}
 /* la casa vera: dal tipo scelto all'inizio, altrimenti dalla mappa */
 function homeBT(){const g=(typeof G!=='undefined'&&G.type)||'';if(['apt','residence','attico','loft','ringhiera'].includes(g))return'condo';if(g==='schiera')return'schiera';if(g==='bifamiliare')return'bifam';if(g==='casale')return'cascina';if(g==='villa')return'villa';return null;}
@@ -6500,22 +6502,30 @@ const RH={};const INKC='#140f1f';
 /* Fase 4a-4: una sola richiesta per casa anche se la chiedono pagina, barra "Le tue case" e legenda insieme;
    se OpenStreetMap risponde ma lì non c'è un edificio, il "non trovato" si ricorda 3 giorni */
 const BG_WAIT={},BG_NO_MS=3*86400000;
+/* Fase 7b: forme e tipi degli edifici salvati su Supabase per tutti (world_shapes). Ordine: memoria → telefono → server → OpenStreetMap.
+   Se il server non risponde entro 2,5 s si va avanti come prima. */
+async function shpGet(k,kind){try{if(!S.user||typeof SB==='undefined'||!SB||!SB.rpc)return null;
+  const r=await Promise.race([SB.rpc('world_shape_get',{p_k:k,p_kind:kind}),new Promise(ok=>setTimeout(()=>ok(null),2500))]);
+  return r&&!r.error&&r.data&&typeof r.data==='object'&&'found' in r.data?r.data:null;}catch(e){return null;}}
+function shpPut(k,kind,val){try{if(!S.user||typeof SB==='undefined'||!SB||!SB.rpc)return;SB.rpc('world_shape_put',{p_k:k,p_kind:kind,p_val:val==null?null:val}).then(()=>{},()=>{});}catch(e){}}
 async function bGeom(lat,lon){const k='zsh_bg2_'+lat.toFixed(5)+'_'+lon.toFixed(5);if(RH[k])return RH[k];try{const c=localStorage.getItem(k);if(c){RH[k]=JSON.parse(c);return RH[k];}
     const no=+localStorage.getItem(k+'_no')||0;if(no&&Date.now()-no<BG_NO_MS)return null;}catch(e){}
   if(BG_WAIT[k])return BG_WAIT[k];
   return BG_WAIT[k]=bGeomFetch(lat,lon,k).finally(()=>{delete BG_WAIT[k];});}
 async function bGeomFetch(lat,lon,k){
   const noBld=()=>{try{localStorage.setItem(k+'_no',String(Date.now()));}catch(e){}return null;};
+  const sk=k.replace('zsh_bg2_','');const sv=await shpGet(sk,'geo');
+  if(sv){if(sv.found&&sv.val&&sv.val.main){RH[k]=sv.val;try{localStorage.setItem(k,JSON.stringify(sv.val));}catch(e){}return sv.val;}if(!sv.found)return noBld();}
   let els=null;try{els=await trOverpass(`[out:json][timeout:20];(way(around:70,${lat},${lon})["building"];way(around:70,${lat},${lon})["leisure"="swimming_pool"];);out tags geom 60;`,15000,60);}catch(e){}
-  if(!els)return null;if(!els.length)return noBld();const kx=111320*Math.cos(lat*Math.PI/180),ky=110540;
+  if(!els)return null;if(!els.length){shpPut(sk,'geo',null);return noBld();}const kx=111320*Math.cos(lat*Math.PI/180),ky=110540;
   const POOLS=els.filter(e=>e.tags&&e.tags.leisure==='swimming_pool'&&e.geometry&&e.geometry.length>=4).map(e=>({p:e.geometry.map(g=>[Math.round((g.lon-lon)*kx*10)/10,Math.round((g.lat-lat)*ky*10)/10])}));
   const B=els.filter(e=>e.geometry&&e.geometry.length>=4&&!(e.tags&&e.tags.leisure)).map(e=>{let p=e.geometry.map(g=>[(g.lon-lon)*kx,(g.lat-lat)*ky]);if(p.length>1&&p[0][0]===p[p.length-1][0]&&p[0][1]===p[p.length-1][1])p.pop();
       if(p.length>40){const st=Math.ceil(p.length/40);p=p.filter((_,i)=>i%st===0);}const t=e.tags||{};return{p:p.map(q=>[Math.round(q[0]*10)/10,Math.round(q[1]*10)/10]),lv:+t['building:levels']||0,roof:t['roof:shape']||'',col:t['building:colour']||'',rcol:t['roof:colour']||'',b:t.building||'',mat:t['building:material']||''};});
-  if(!B.length)return noBld();
+  if(!B.length){shpPut(sk,'geo',null);return noBld();}
   const inside=(p)=>{let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const[xi,yi]=p[i],[xj,yj]=p[j];if((yi>0)!==(yj>0)&&0<(xj-xi)*(0-yi)/(yj-yi)+xi)c=!c;}return c;};
   const cen=p=>[p.reduce((s,q)=>s+q[0],0)/p.length,p.reduce((s,q)=>s+q[1],0)/p.length];
-  let mi=B.findIndex(b=>inside(b.p));if(mi<0){let bd=1e9;B.forEach((b,i)=>{const c=cen(b.p);const d=Math.hypot(c[0],c[1]);if(d<bd){bd=d;mi=i;}});if(bd>60)return noBld();}
-  const out={main:B[mi],near:B.filter((b,i)=>i!==mi&&Math.hypot(...cen(b.p))<55).slice(0,10),pools:POOLS.filter(q=>Math.hypot(...cen(q.p))<45).slice(0,3)};RH[k]=out;try{localStorage.setItem(k,JSON.stringify(out));}catch(e){}return out;}
+  let mi=B.findIndex(b=>inside(b.p));if(mi<0){let bd=1e9;B.forEach((b,i)=>{const c=cen(b.p);const d=Math.hypot(c[0],c[1]);if(d<bd){bd=d;mi=i;}});if(bd>60){shpPut(sk,'geo',null);return noBld();}}
+  const out={main:B[mi],near:B.filter((b,i)=>i!==mi&&Math.hypot(...cen(b.p))<55).slice(0,10),pools:POOLS.filter(q=>Math.hypot(...cen(q.p))<45).slice(0,3)};RH[k]=out;shpPut(sk,'geo',out);try{localStorage.setItem(k,JSON.stringify(out));}catch(e){}return out;}
 /* ---- disegno ---- */
 const PLASTER=['#efe0c4','#f2e6d0','#e9c9a0','#dcb48c','#f3ece2','#d6dcc8','#e8c4b4','#f0d9a8'];
 function shade(hex,f){try{const n=parseInt(hex.slice(1),16);const r=Math.round(((n>>16)&255)*f),g=Math.round(((n>>8)&255)*f),b=Math.round((n&255)*f);return'#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}catch(e){return hex;}}
@@ -7104,7 +7114,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611102342';
+const APPV='202611102352';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
