@@ -55,28 +55,7 @@ async function doDisp(uid,nick,k){const d=DISP.find(x=>x[0]===k);if(!d)return;
     if(r.ok&&d[5]==='gem'){G.gems-=d[4];try{saveLocal();}catch(e){}}toast((r.ok?d[1]+' ':'')+(r.msg||'Fatto'));if(typeof wMine==='function')wMine(true);}catch(e){toast(e.message||'Non riuscito');}}
 SOC.riv=null;
 async function rivLoad(){try{SOC.riv=await socRpc('world_rivals')||[];}catch(e){SOC.riv=[];SOC.err=e.message;}if(S.tab==='social'&&SOC.tab==='rivali')socPaint();}
-const _renderSocialRv=renderSocial;renderSocial=function(){_renderSocialRv();try{const seg=app.querySelector('.sseg');if(seg&&!seg.querySelector('[data-st=rivali]')){
-    const sq=seg.querySelector('[data-st=squadra]');(sq||seg.lastElementChild).insertAdjacentHTML('afterend','<button data-st="rivali">😈 Rivali</button>');seg.classList.remove('four');seg.classList.add('five');
-    const cl=seg.querySelector('[data-st=classifiche]');if(cl)cl.innerHTML='🏆 Classifica';
-    seg.querySelectorAll('[data-st]').forEach(b=>{b.classList.toggle('on',b.dataset.st===SOC.tab);b.onclick=()=>{SOC.tab=b.dataset.st;seg.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));socPaint();socFetchTab();};});}}catch(e){}};
-const _socPaintRv=socPaint;socPaint=function(){if(SOC.tab!=='rivali'){_socPaintRv();try{if(SOC.tab==='squadra'){const B=app.querySelector('#socBody');const h=[...B.querySelectorAll('.apan h4.ah')].find(x=>/Rivali/.test(x.textContent));
-      if(h&&!B.querySelector('.rivlink')){let n=h.nextElementSibling;while(n&&!(n.tagName==='H4'||n.matches('button[data-ainv]'))){const nx=n.nextElementSibling;n.remove();n=nx;}h.outerHTML='<button class="btn ghost small rivlink" data-gorv>😈 I rivali hanno una sezione tutta loro →</button>';const g=B.querySelector('[data-gorv]');if(g)g.onclick=()=>{SOC.tab='rivali';renderSocial();};}}}catch(e){}return;}
-  pzStop();const B=app.querySelector('#socBody');if(!B)return;if(!S.user){B.innerHTML='<div class="panel"><p>Accedi per vedere i rivali.</p><button class="btn" onclick="loginSheet()">Accedi</button></div>';return;}
-  const m=window.W&&W.m;const L=SOC.riv;
-  B.innerHTML=`<div class="panel rivhead"><b class="disp" style="font-size:22px">😈 Rivali</b><p style="font-weight:400;font-size:13.5px;margin:4px 0 6px">Qualche vicino ti sta antipatico? Fagli un dispetto prima della prossima orda. Ma attento: possono farlo anche a te.</p>
-    <div class="hwal"><span>💎 ${(typeof G!=='undefined'&&G.gems)||0} gemme</span><span>🧱 ${m?wNum(m.mattoni):'…'} Mattoni</span></div>
-    <details class="man" style="margin-top:6px"><summary>Regole</summary><div class="man-b"><p>• Niente dispetti agli alleati. • I giocatori 3 o più livelli sotto di te sono protetti. • Massimo 3 dispetti al giorno, uno per tipo per orda. • La vittima riceve una notifica e può difendersi chiedendo aiuto agli alleati (+5 per alleato). • Al massimo −25 di difesa per orda, qualunque cosa succeda.</p></div></details></div>
-   <div class="panel">${L==null?'<p class="muted"><span class="spin"></span> Cerco i rivali alla tua portata…</p>':L.length?L.map(r=>`<div class="rivc"><div class="rivn"><span class="sav">${esc((r.nick||'?')[0].toUpperCase())}</span><div>${socNick(r.user_id,r.nick)}<small>livello ${r.wlevel}${r.dist_km!=null?' · '+wNum(r.dist_km)+' km':''}</small></div></div>
-       <div class="rivb">${DISP.map(d=>`<button data-dv="${d[0]}" data-u="${r.user_id}" data-n="${esc(r.nick)}" ${d[0]==='orda'&&r.attacked?'disabled':''}><b>${d[1]}</b>${d[2]}<small>${d[5]==='gem'?'💎':'🧱'} ${d[4]}</small></button>`).join('')}</div></div>`).join(''):'<p class="muted">Nessun rivale alla tua portata: i giocatori molto più deboli sono protetti e gli alleati non si toccano.</p>'}</div>`;
-  B.querySelectorAll('[data-dv]').forEach(b=>b.onclick=async()=>{b.disabled=true;await doDisp(b.dataset.u,b.dataset.n,b.dataset.dv);rivLoad();});};
-const _socFetchRv=socFetchTab;socFetchTab=function(){if(SOC.tab==='rivali'){if(S.user){socLoad('per');rivLoad();}return;}return _socFetchRv();};
 /* scheda del giocatore: anche i dispetti */
-const _playerSheetRv=playerSheet;playerSheet=async function(uid){await _playerSheetRv(uid);try{const c=document.querySelector('#sheet.open .placts');if(!c||c.querySelector('[data-pdv]'))return;
-  const nick=(document.querySelector('#sheet.open .plhead .disp')||{}).textContent||'';if(/Siete alleati|Questo sei tu/.test(document.querySelector('#sheet.open').textContent))return;if(/protetto/.test(c.textContent))return;
-  c.insertAdjacentHTML('beforeend',`<div class="rivb">${DISP.slice(1).map(d=>`<button data-pdv="${d[0]}"><b>${d[1]}</b>${d[2]}<small>💎 ${d[4]}</small></button>`).join('')}</div>`);
-  c.querySelectorAll('[data-pdv]').forEach(b=>b.onclick=()=>doDisp(uid,nick.replace('@',''),b.dataset.pdv));}catch(e){}};
 /* bacheca: il dispetto ricevuto */
-const _socLineRv=socLine;socLine=function(f){if(f.kind!=='curse')return _socLineRv(f);const a=socNick(f.actor,f.actor_nick),t=f.target?socNick(f.target,f.target_nick):'';const d=DISP.find(x=>x[0]===f.info)||DISP[1];
-  const toMe=S.user&&f.target===S.user.id;return`<div class="sitem"><span class="sic">${d[1]}</span><div class="stx">${a} ha fatto un dispetto a ${t}: ${d[2].toLowerCase()} (${d[3]})<small>${socAgo(f.created_at)}</small></div>${toMe?'<button class="btn small" data-askh>🆘 Chiedi aiuto</button>':''}</div>`;};
 document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('[data-askh]');if(!b)return;b.disabled=true;try{const{data,error}=await SB.rpc('world_ask_help');if(error)throw error;toast('🆘 '+data.msg);}catch(x){toast(x.message||'Non riuscito');}});
 </script>

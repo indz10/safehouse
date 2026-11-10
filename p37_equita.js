@@ -23,23 +23,14 @@ const _renderHomeEq=renderHome;renderHome=function(){_renderHomeEq();eqPaint();i
 /* al collegamento: kit e stato */
 const _wMineEq=wMine;wMine=async function(){const r=await _wMineEq.apply(this,arguments);try{if(S.user){eqWelcome();eqLoad();}}catch(e){}return r;};
 /* 2) rivali con lo scudo: pulsanti spenti */
-const _socPaintEq=socPaint;socPaint=function(){_socPaintEq();try{if(SOC.tab==='rivali'&&Array.isArray(SOC.riv)){
-  app.querySelectorAll('.rivc').forEach((c,i)=>{const r=SOC.riv[i];if(!r||!r.shield)return;c.querySelectorAll('[data-dv]').forEach(b=>b.disabled=true);const n=c.querySelector('.rivn small');if(n&&!/scudo/.test(n.textContent))n.insertAdjacentHTML('beforeend',' · 🛡️ nuovo arrivato, protetto');});
-  eqPaint();if(!EQ.s)eqLoad();}}catch(e){}
-  /* 4) leghe nelle classifiche */
-  try{if(SOC.tab!=='classifiche')return;const seg=app.querySelector('#socBody .schips');if(!seg||seg.querySelector('[data-rs=lega]'))return;
-    seg.insertAdjacentHTML('afterbegin',`<button data-rs="lega" class="${SOC.rs==='lega'?'on':''}">🏅 La mia lega</button>`);
-    seg.querySelector('[data-rs=lega]').onclick=()=>{SOC.rs='lega';socPaint();eqRank();};
-    if(SOC.rs==='lega'){seg.querySelectorAll('[data-rs]').forEach(b=>b.classList.toggle('on',b.dataset.rs==='lega'));eqRankPaint();}}catch(e){}};
 EQ.rank={};
 async function eqRank(){const p=SOC.rp||'settimana';try{const{data,error}=await SB.rpc('world_rank_lega',{p_period:p});if(error)throw error;EQ.rank[p]=data||[];}catch(e){EQ.rank[p]={err:e.message};}if(S.tab==='social'&&SOC.tab==='classifiche'&&SOC.rs==='lega')eqRankPaint();}
-function eqRankPaint(){const B=app.querySelector('#socBody');if(!B)return;const p=SOC.rp||'settimana';const L=EQ.rank[p];const seg=B.querySelector('.schips');const box=seg&&seg.nextElementSibling;if(!box)return;
+function eqRankPaintBase(){const B=app.querySelector('#socBody');if(!B)return;const p=SOC.rp||'settimana';const L=EQ.rank[p];const seg=B.querySelector('.schips');const box=seg&&seg.nextElementSibling;if(!box)return;
   const lg=EQ.s&&EQ.s.league||'';const head=`<p class="muted" style="font-size:12.5px;margin:0 0 6px">🏅 Lega <b>${esc(lg)}</b>: Bronzo 1–5 · Argento 6–12 · Oro 13–20 · Diamante 21+. Giochi solo contro chi ha il tuo livello.</p>`;
   if(L==null){box.innerHTML=head+'<p class="muted"><span class="spin"></span> Carico la tua lega…</p>';if(!EQ._rq){EQ._rq=1;eqRank().finally(()=>EQ._rq=0);}return;}
   if(L.err){box.innerHTML=head+`<p class="muted">Classifica della lega non disponibile (${esc(L.err)}).</p>`;return;}
   box.innerHTML=head+(L.length?L.map(r=>`<div class="srank ${r.me?'me':''}"><span class="rpos">${r.pos<=3?['🥇','🥈','🥉'][r.pos-1]:r.pos}</span><div class="stx">${socNick(r.user_id,r.nick)}<small>livello ${r.wlevel}${r.comune?' · '+esc(r.comune):''}</small></div><b>🧱 ${wNum(r.punti)}</b></div>`).join(''):'<p class="muted">Ancora nessuno nella tua lega questa settimana: puoi essere il primo!</p>');}
 /* 3) spinta e 5) prezzo progressivo spiegati nella scheda casa e nel preventivo */
 /* 6) padrino: nell'invito si spiega il premio */
-try{const _inviteSheetEq=inviteSheet;inviteSheet=function(){const r=_inviteSheetEq.apply(this,arguments);[0,300,900].forEach(t=>setTimeout(eqPad,t));return r;};}catch(e){}
 setInterval(()=>{if(S.user&&document.visibilityState==='visible')eqLoad();},5*60*1000);
 </script>

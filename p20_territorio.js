@@ -776,7 +776,7 @@ const invTxt=()=>`🧟 Ti invito su ZombieSafeHouse: scopri quanto resisterebbe 
 4) iPhone: Condividi → Aggiungi alla schermata Home (Android: menu ⋮ → Installa app)`;
 const _zSyncInv=zSyncProfile;zSyncProfile=async function(force){await _zSyncInv(force);try{const inv=localStorage.getItem('zsh_inv');if(!inv||!S.user||inv===myCode()||localStorage.getItem('zsh_inv_ok'))return;
   const{error}=await SB.from('profili_pubblici').update({invitato_da:inv}).eq('user_id',S.user.id);if(!error)localStorage.setItem('zsh_inv_ok','1');}catch(e){}};
-async function inviteSheet(){if(!S.user){toast('Accedi per avere il tuo link di invito');return;}let L=[];try{const{data}=await SB.rpc('miei_invitati');L=data||[];}catch(e){}
+async function inviteSheetBase(){if(!S.user){toast('Accedi per avere il tuo link di invito');return;}let L=[];try{const{data}=await SB.rpc('miei_invitati');L=data||[];}catch(e){}
   G.invCl=G.invCl||[];const ready=L.filter(x=>x.valutato&&!G.invCl.includes(x.nick));
   openSheet('📨 Invita amici e vicini',`<p style="font-weight:400;margin-bottom:10px">Chi entra col tuo link e valuta la sua casa ti fa guadagnare <b>💎 5</b>. Se abita entro 1,5 km diventa uno dei tuoi <b>👥 Vicini veri</b>: nella battaglia la tua abilità diventa più forte.</p>
    <div class="invl"><input readonly value="${esc(invLink())}"><button class="btn small" data-invcp>Copia</button></div>

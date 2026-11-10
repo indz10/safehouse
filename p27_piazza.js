@@ -43,15 +43,6 @@ function pzActions(m){openSheet('💬 Messaggio',`<div class="pzm ${m.mine?'mine
       toast(r.msg||'Fatto');closeSheet();pzLoad(true);}catch(e){toast(e.message||'Non riuscito');b.disabled=false;}});});}
 /* la piazza è la prima voce di Superstiti */
 SOC.tab='piazza';
-const _renderSocialPz=renderSocial;renderSocial=function(){_renderSocialPz();try{const seg=app.querySelector('.sseg');if(seg&&!seg.querySelector('[data-st=piazza]')){
-    seg.insertAdjacentHTML('afterbegin','<button data-st="piazza">💬 Piazza</button>');seg.classList.add('four');
-    seg.querySelectorAll('[data-st]').forEach(b=>{b.classList.toggle('on',b.dataset.st===SOC.tab);b.onclick=()=>{SOC.tab=b.dataset.st;seg.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));socPaint();socFetchTab();};});}
-  if(!S.user){const h=app.querySelector('.shead');if(h&&!app.querySelector('.nolog'))h.insertAdjacentHTML('afterend',`<div class="panel nolog"><b>🔒 Non sei collegato in questa app</b>${pzSafariNote()}<button class="btn" onclick="loginSheet()">Accedi</button></div>`);}}catch(e){}socPaint();};
-const _socPaintPz=socPaint;socPaint=function(){if(SOC.tab!=='piazza'){pzStop();return _socPaintPz();}const B=app.querySelector('#socBody');if(!B)return;
-  const n=(SOC.pend||[]).length+(SOC.per||[]).filter(f=>Date.now()-new Date(f.created_at).getTime()<86400000).length;
-  const fresh=!B.querySelector('.pzwrap');if(fresh){B.innerHTML=pzHTML();pzBind();if(S.user)pzStart();}
-  let nb=B.querySelector('.pznews');if(n&&S.user){if(!nb){B.insertAdjacentHTML('afterbegin','<button class="pznews" data-pznews></button>');nb=B.querySelector('.pznews');nb.onclick=()=>{SOC.tab='bacheca';renderSocial();};}nb.textContent=`📬 Hai ${n} ${n===1?'novità':'novità'} per te${(SOC.pend||[]).length?' · '+SOC.pend.length+(SOC.pend.length===1?' proposta':' proposte')+' di alleanza':''} →`;}else if(nb)nb.remove();};
-const _socFetchPz=socFetchTab;socFetchTab=function(){if(SOC.tab==='piazza'){if(S.user)socLoad('per');return;}return _socFetchPz();};
 /* ---------------- accesso chiaro e avatar sempre aggiornato ---------------- */
 const _onLoginPz=onLogin;onLogin=async function(u,fresh){const r=await _onLoginPz(u,fresh);try{renderNav();if(S.tab==='social')renderSocial();}catch(e){}return r;};
 setInterval(()=>{try{const b=document.getElementById('ioBtn');if(!b)return;const want=S.user?((S.user.nick||(S.user.email||'?').split('@')[0])[0]||'?').toUpperCase():'👤';if(b.textContent!==want){b.textContent=want;b.classList.toggle('nolog',!S.user);}}catch(e){}},2000);

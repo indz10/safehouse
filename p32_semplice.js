@@ -13,8 +13,6 @@ function opanExtra(){const o=app.querySelector('.opan');if(!o||o.querySelector('
   const w=o.querySelector('[data-owatch]');if(w)w.onclick=e=>{e.stopPropagation();assalto('last');};
   o.querySelectorAll('[data-opx]').forEach(b=>b.onclick=()=>{const k=b.dataset.opx;if(k==='mondo')go('mappa');else assalto(k);});try{pushRow();}catch(e){}}
 /* ---- SUPERSTITI: la Squadra contiene alleati, richieste d'aiuto, rivali, regali e prestiti ---- */
-const _socPaintS1=socPaint;socPaint=function(){_socPaintS1();try{if(SOC.tab!=='squadra'||!S.user)return;const B=app.querySelector('#socBody');if(!B||B.querySelector('.apan'))return;
-  const h=alHTML();if(h){B.insertAdjacentHTML('beforeend',h);alBind();alLoad();}}catch(e){console.warn('squadra',e);}};
 /* ---- MONDO: in basso solo le tue case; i filtri si spostano nel menu ⋯ ---- */
 const _mfMoreS1=mfMore;mfMore=function(){_mfMoreS1();try{const c=document.querySelector('#sheet.open .mfmenu');if(!c||c.parentNode.querySelector('.mftog'))return;
   c.insertAdjacentHTML('beforebegin',`<h4 style="margin:0 0 6px">Mostra sulla mappa</h4><div class="mftog">${MF.map(([k,i,l])=>`<button data-mft="${k}" class="${S.mf[k]?'on':''}">${i} ${l}<i class="zsw ${S.mf[k]?'on':''}"><em></em></i></button>`).join('')}</div><h4 style="margin:12px 0 6px">Altro</h4>`);

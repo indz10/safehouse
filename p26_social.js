@@ -9,7 +9,7 @@ window.SOC={feed:{},rank:{},allies:[],pend:[],per:[],t:{},tab:'bacheca',scope:'z
 const socAgo=t=>{const s=Math.max(1,Math.round((Date.now()-new Date(t))/1000));return s<60?'ora':s<3600?Math.round(s/60)+' min fa':s<86400?Math.round(s/3600)+' h fa':Math.round(s/86400)+' g fa';};
 async function socRpc(fn,args){if(typeof SB==='undefined'||!SB||!S.user)throw new Error('Accedi per entrare tra i superstiti');const{data,error}=await SB.rpc(fn,args||{});if(error)throw error;return data;}
 function socNick(id,nick){return`<b class="snick" data-pl="${esc(id||'')}">@${esc(nick||'superstite')}</b>`;}
-function socLine(f){const a=socNick(f.actor,f.actor_nick),t=f.target?socNick(f.target,f.target_nick):'';const where=f.comune?` <span class="scom">· ${esc(f.comune)}</span>`:'';
+function socLineBase(f){const a=socNick(f.actor,f.actor_nick),t=f.target?socNick(f.target,f.target_nick):'';const where=f.comune?` <span class="scom">· ${esc(f.comune)}</span>`:'';
   const K={join:['🏠',`${a} è entrato nel mondo${where}`],buy:['🔑',`${a} ha comprato una casa${f.info==='npc'?' da un superstite simulato':''}${where}`],ask:['🆘',`${a} chiede aiuto per la prossima orda${where}`],
     help:['🛡️',`${a} ha mandato rinforzi a ${t}`],attack:['🧟',`${a} ha mandato un’orda contro ${t}`],gift:['🎁',`${a} ha ${f.info==='prestito'?'prestato Mattoni':'fatto un regalo'} a ${t}`],
     ally:['🤝',`${a} e ${t} sono alleati`],ally_req:['🤝',`${a} propone un’alleanza a ${t}`],shout:['💬',`${a} → ${t}: «${esc((SHOUTS[+f.info]||'').replace(/^\S+\s/,''))}»`]};
@@ -26,15 +26,15 @@ function socBadge(){try{const seen=+(localStorage.getItem('zsh_soc_seen')||0);co
   const b=document.querySelector('#nav [data-tab=social]');if(!b)return;let d=b.querySelector('.nbadge');if(n>0){if(!d){b.insertAdjacentHTML('beforeend','<i class="nbadge"></i>');d=b.querySelector('.nbadge');}d.textContent=n>9?'9+':n;}else if(d)d.remove();}catch(e){}}
 setInterval(()=>{if(S.user&&document.visibilityState==='visible')socLoad('per');},60000);
 /* ---------------- la scheda ---------------- */
-function renderSocial(){app.innerHTML=`<div class="page dots soc">
+function renderSocialBase(){app.innerHTML=`<div class="page dots soc">
   <div class="panel night shead"><div><b class="disp" style="font-size:28px;color:var(--moon)">👥 Superstiti</b><small>${typeof STATS!=='undefined'&&STATS.reg?`${STATS.reg} nel mondo · 🟢 ${STATS.on||0} online ora`:'Il mondo gioca insieme'}</small></div><button class="btn small" data-sinv>📨 Invita</button></div>
   <div class="oseg2 sseg">${[['bacheca','📰 Bacheca'],['squadra','🤝 Squadra'],['classifiche','🏆 Classifiche']].map(([k,l])=>`<button data-st="${k}" class="${SOC.tab===k?'on':''}">${l}</button>`).join('')}</div>
   <div id="socBody"></div></div>`;
   app.querySelector('[data-sinv]').onclick=()=>{if(!S.user)return loginSheet();inviteSheet();};
   app.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{SOC.tab=b.dataset.st;app.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));socPaint();socFetchTab();});
   try{localStorage.setItem('zsh_soc_seen',Date.now());}catch(e){}socPaint();socFetchTab();setTimeout(socBadge,200);}
-function socFetchTab(){if(!S.user)return;socLoad('per');if(SOC.tab==='bacheca')socLoad('feed');if(SOC.tab==='squadra')socLoad('allies');if(SOC.tab==='classifiche')socLoad('rank');}
-function socPaint(){const B=app.querySelector('#socBody');if(!B)return;
+function socFetchTabBase(){if(!S.user)return;socLoad('per');if(SOC.tab==='bacheca')socLoad('feed');if(SOC.tab==='squadra')socLoad('allies');if(SOC.tab==='classifiche')socLoad('rank');}
+function socPaintBase(){const B=app.querySelector('#socBody');if(!B)return;
   if(!S.user){B.innerHTML=`<div class="panel"><p style="font-weight:400">Accedi per vedere chi difende il mondo con te, allearti, salutare e scalare le classifiche.</p><button class="btn" onclick="loginSheet()">Accedi o registrati</button></div>`;return;}
   const per=(SOC.per||[]).slice(0,6),pend=SOC.pend||[];
   const perHTML=(pend.length||per.length)?`<div class="panel sper"><b class="disp" style="font-size:20px">📬 Per te</b>
@@ -59,7 +59,7 @@ function socPaint(){const B=app.querySelector('#socBody');if(!B)return;
   const sm=B.querySelector('[data-smap]');if(sm)sm.onclick=()=>{S.mf=S.mf||{};S.mf.all=true;go('mappa');};}
 /* ---------------- scheda del giocatore (da ovunque) ---------------- */
 document.addEventListener('click',e=>{const n=e.target.closest&&e.target.closest('[data-pl]');if(!n||!n.dataset.pl)return;e.preventDefault();e.stopPropagation();playerSheet(n.dataset.pl);},true);
-async function playerSheet(uid){if(!S.user){loginSheet();return;}openSheet('👤 Superstite','<p><span class="spin"></span> Carico…</p>',()=>{});let p;
+async function playerSheetBase(uid){if(!S.user){loginSheet();return;}openSheet('👤 Superstite','<p><span class="spin"></span> Carico…</p>',()=>{});let p;
   try{p=await socRpc('world_player',{p_user:uid});}catch(e){openSheet('👤 Superstite',`<p class="notice">${esc(e.message)}</p>`);return;}
   const allyBtn=p.me?'':p.ally==='ok'?'<span class="rok2">🤝 Siete alleati</span>':p.ally==='out'?'<span class="muted">Proposta inviata: aspetta che accetti</span>':p.ally==='in'?'<button class="btn" data-pa="yes">✅ Accetta l’alleanza</button>':'<button class="btn" data-pa="req">🤝 Proponi alleanza</button>';
   openSheet('👤 Superstite',`<div class="plhead"><span class="sav big">${esc((p.nick||'?')[0].toUpperCase())}</span><div><b class="disp" style="font-size:26px">@${esc(p.nick)}</b><small>Livello mondo ${p.wlevel} · ${p.houses} ${p.houses===1?'casa comprata':'case comprate'}${p.comune?' · '+esc(p.comune):''}</small></div></div>
