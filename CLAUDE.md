@@ -10,7 +10,7 @@ PWA in un solo file `index.html`: valuta la sicurezza della casa vera e la trasf
 
 ## Struttura dei sorgenti
 - Moduli `p1_head.html` (CSS), `p2_data.js` … `p61_notte.js`: ogni file è un `<script>`.
-- `build.sh` (funziona da qualsiasi cartella) li concatena nell'ordine scritto lì → `app.html` → `dist/index.html` + `dist/sw.js` (versione = data/ora della build, `zsh-AAAAMMGGhhmm`).
+- `build.sh` (funziona da qualsiasi cartella) li concatena nell'ordine scritto lì → `app.html` → `dist/index.html` + `dist/sw.js` (versione = data/ora della build, `zsh-AAAAMMGGhhmm`). Dalla Fase 7c `app.html` e `dist/index.html` sono **compressi** (`minifica.js` con esbuild, installato la prima volta in `.strumenti/`; i nomi globali restano uguali); se esbuild non c'è la build va avanti senza comprimere. Per leggere il codice usare i moduli `p*.js`. Stile: nuove regole solo per classi usate; `docs/strumenti/css_morto.js` trova quelle morte. Velocità: `t_perf.py [cartella]`.
 - `check_syntax.js` e `check_css.py` bloccano la build in caso di errori.
 - Molti moduli **avvolgono** funzioni dei moduli precedenti (`const _x=f; f=function(){…}`): l'ordine in `build.sh` conta.
 - Scheda Orda: la disegna `p63_orda.js` (`renderOrda`/`renderHub`) con i suoi 6 riquadri. Il **vecchio gioco a carte/notti è stato tolto** (Fasi 3a–3b-2): restano solo `p5_game.js` ridotto (finestre `openSheet`/`closeSheet`, stato `G`, `sfx`, tipi di zombie `ZT`, `startGame`, tabelle usate da p15/p20/p21), `p5b_luck` (ruota, gratta, barattolo), `p5c_daily` (premio del giorno), `p5d_viatico`, `p5j_giorno` (`busy`, `dayInit`, `EXPS` ancora usati), `p5z_tenuti.js` (pezzi salvati dai moduli tolti) e `p4b_tavole` ("Simula la notte" nella vecchia pagina Gioco: da decidere in Fase 4).

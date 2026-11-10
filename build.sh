@@ -12,6 +12,14 @@ const fs=require('fs');const s=fs.readFileSync('app.html','utf8');
 const parts=s.split('<script>').slice(1).map(p=>p.split('</script>')[0]);
 try{new Function(parts.join('\n'));console.log('JS ok '+s.length)}catch(e){console.log('ERRORE',e.message);process.exit(1)}" || { echo "STOP: errore nel JS unito"; exit 1; }
 
+# Fase 7c: app compressa (spazi e commenti tolti) con esbuild; se non si può installare, resta com'è
+if [ ! -d .strumenti/node_modules/esbuild ]; then npm install --silent --no-save --no-audit --no-fund --prefix .strumenti esbuild@0.24.0 >/dev/null 2>&1 || true; fi
+node minifica.js app.html
+node -e "
+const fs=require('fs');const s=fs.readFileSync('app.html','utf8');
+const parts=s.split('<script>').slice(1).map(p=>p.split('</script>')[0]);
+try{new Function(parts.join('\n'));}catch(e){console.log('ERRORE dopo la compressione',e.message);process.exit(1)}" || { echo "STOP: errore nel JS compresso"; exit 1; }
+
 # versione: data e ora della build, uguale in index.html e sw.js
 B=$(TZ=Europe/Rome date +%Y%m%d%H%M)  # ora italiana
 sed -i "s/__BUILD__/$B/g" app.html
