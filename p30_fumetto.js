@@ -80,15 +80,6 @@ function fumetto(h,res,ctx,onEnd){const old=document.getElementById('fumetto');i
 function fuRes(h,mode){if(mode==='sim'){const r=regSimRows().find(x=>Math.abs(x.lat-h.lat)<.0003&&Math.abs(x.lon-h.lon)<.0004)||{held:true,sim:{pw:0,atk:0}};return{held:r.held,sim:r.sim};}
   const real=(OR.s&&OR.s.houses||[]).find(x=>Math.abs(x.lat-h.lat)<.0003&&Math.abs(x.lon-h.lon)<.0004);return real?{held:!!real.held,real:true}:{held:true,none:true};}
 /* l'assalto parte dal fumetto, poi (se vuoi) la mappa */
-const _assaltoFu=assalto;assalto=async function(mode,i){REG.mode=mode||'last';REG.H=regHouses();REG.i=Math.max(0,Math.min(i||0,REG.H.length-1));if(!OR.s&&S.user){try{await orLoad(true);}catch(e){}}
-  const show=()=>{const h=REG.H[REG.i];if(!h){toast('Valuta la tua casa per vedere gli assalti');return;}const r=fuRes(h,REG.mode);
-    if(r.none&&REG.mode!=='sim'){toast('Questa casa non c’era ancora durante l’ultima orda: ecco la simulazione');REG.mode='sim';return show();}
-    const s=OR.s||{};const ctx={sim:REG.mode==='sim',time:REG.mode==='sim'?(s.next_at?orTime(s.next_at):'21:00'):(s.prev_at?orTime(s.prev_at):''),where:(S.zone&&S.zone.address||'').split(',').slice(-1)[0].trim(),
-      prep:REG.mode==='sim'?!!s.prepared:!!s.prev_prepared,i:REG.i,n:REG.H.length,
-      reward:REG.mode==='sim'?`Simulazione: difesa ${r.sim.pw} contro ${r.sim.atk}. Prepara le case per stare tranquillo.`:`Premi da riscattare: 🧱 ${s.mattoni||0}`,
-      advice:REG.mode==='sim'?`Simulazione: difesa ${r.sim.pw} contro ${r.sim.atk}. Prepara le case (+15) o potenziala (+12 per livello).`:'Prepara le case (+15) e chiedi aiuto agli alleati prima della prossima orda.'};
-    fumetto(h,r,ctx,how=>{if(how==='next'){REG.i=(REG.i+1)%REG.H.length;show();}else if(how==='map'){_assaltoFu(REG.mode,REG.i);}});};
-  show();};
 /* sulla mappa: zombie disegnati al posto delle faccine */
 (function(){const css=document.createElement('style');const svg=encodeURIComponent(zArt(0,{lean:4}).replace(/class="zart[^"]*"/,'xmlns="http://www.w3.org/2000/svg"'));
   css.textContent=`.lm-z{width:30px;height:56px;font-size:0!important;background:url("data:image/svg+xml,${svg}") center bottom/contain no-repeat;animation:zwalk .5s ease-in-out infinite alternate;filter:drop-shadow(0 0 4px rgba(255,225,77,.5))}

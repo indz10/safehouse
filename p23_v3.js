@@ -43,10 +43,6 @@ function wDrawNpc(lm){try{const map=lm.map;(lm._npc||[]).forEach(x=>x.remove());
       lm._npc.push(new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([q.lon,q.lat]).addTo(map));}}}catch(e){}}
 const _wDrawMapN=wDrawMap;wDrawMap=async function(lm,force){await _wDrawMapN(lm,force);try{const b=lm.map.getBounds();lm._wrows=(lm._w||[]).length?lm._wrows:lm._wrows;}catch(e){}setTimeout(()=>wDrawNpc(lm),250);};
 /* l'assalto colpisce anche i simulati della zona (esito uguale per tutti) */
-const _orViewN=orView;orView=async function(lm){const rows=await _orViewN(lm);try{const map=lm.map;if(map.getZoom()<14.5)return rows;const fs=map.queryRenderedFeatures({layers:['bld']});const add=[];const seen=new Set(rows.map(r=>r.building_id));
-    for(const f of fs){const g=f.geometry;const polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];for(const pl of polys){const q=pl[0]&&wGidRing(pl[0]);if(!q||seen.has(q.bid))continue;seen.add(q.bid);
-      if(isNpc(q.bid)&&add.length<8)add.push({building_id:q.bid,lat:q.lat,lon:q.lon,held:parseInt(md5hex(((OR.s&&OR.s.prev_id)||'x')+q.bid).slice(0,2),16)%60<34,kind:'npc',mine:false});}}
-    return rows.concat(add);}catch(e){return rows;}};
 /* ---- ALLEATI E RIVALI (tutto il mondo) ---- */
 window.AL={help:[],riv:[],t:0};
 async function alLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return;if(!force&&Date.now()-AL.t<60000)return;AL.t=Date.now();
@@ -65,10 +61,6 @@ function alBind(){const p=app.querySelector('.apan');if(!p)return;const h=p.quer
   const iv=p.querySelector('[data-ainv]');if(iv)iv.onclick=()=>inviteSheet();}
 function alRefresh(){try{const p=app.querySelector('.apan');if(p){const n=document.createElement('div');n.innerHTML=alHTML();const np=n.firstElementChild;if(!np)return;np.dataset.grp=p.dataset.grp||'q';p.replaceWith(np);alBind();}}catch(e){}}
 /* premi dell'orda: anche le taglie, e raddoppio monete con le gemme */
-const _orPanelV3=orPanelHTML;orPanelHTML=function(){let h=_orPanelV3();const s=OR.s||{};
-  if(s.bounty)h=h.replace('Riscatta: 🧱',`🎯 taglie incluse · Riscatta: 🧱`);
-  if(s.next_bonus)h=h.replace('Prossima orda',`<span class="rbon">${s.next_bonus>0?'+':''}${s.next_bonus} difesa da aiuti/orde</span> Prossima orda`);
-  return h;};
 /* ---- BOTTEGA: gemme, pass, e cosa si fa con le gemme ---- */
 function shopHTML(){return`<div class="panel spanx"><b class="disp" style="font-size:22px">💎 Bottega</b>
   <p class="rtxt2">Gemme e Pass si compreranno con un tocco quando l’app sarà su App Store e Google Play. Oggi le gemme si guadagnano giocando.</p>

@@ -70,22 +70,6 @@ async function mfZona(){openSheet('ℹ️ Vivere qui','<p><span class="spin"></s
 
 /* ---------------- 🧟 ORDA: Oggi · Impero · Difendi tu ---------------- */
 G.ss=G.ss||'oggi';
-function ssOf(el){if(!el||!el.matches)return null;
-  if(el.matches('.oseg2'))return'top';
-  if(el.querySelector&&el.querySelector('[data-sub]'))return'x';
-  if(el.matches('.spanx'))return'x';
-  if(el.matches('.opan,.lpan,.tmp,.daily')||(el.querySelector&&el.querySelector('#dClaim')))return'oggi';
-  if(el.dataset&&el.dataset.grp==='nascosto')return'x';
-  if(el.dataset&&el.dataset.grp==='amici')return'oggi';
-  if(el.matches('.wpan,.apan'))return'impero';
-  return'difendi';}
-function ssApply(){const pg=app.querySelector('.page');if(!pg)return;const cur=G.ss||'oggi';
-  [...pg.children].forEach(el=>{const k=ssOf(el);if(k==='top')return;if(k==='x'){el.hidden=true;return;}el.hidden=(k!==cur);});
-  pg.querySelectorAll('.oseg2 button').forEach(b=>b.classList.toggle('on',b.dataset.ss===cur));}
-/* i pannelli che si ridisegnano da soli tornano nella sezione giusta */
-['orRefresh','alRefresh','wRefresh','ayRefresh'].forEach(n=>{try{const f=window[n];if(typeof f!=='function')return;window[n]=function(){const r=f.apply(this,arguments);try{if(S.tab==='orda')ssApply();}catch(e){}return r;};}catch(e){}});
-/* i pulsanti "premio del giorno / ruota / gratta" portano in Oggi */
-document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.lpan button');if(!b)return;G.ss='oggi';setTimeout(()=>{try{ssApply();}catch(x){}},60);},true);
 
 /* ---------------- 👤 IO ---------------- */
 function renderIo(){const u=S.user;const m=window.W&&W.m;const nick=u?(u.nick||(u.email||'').split('@')[0]):'';

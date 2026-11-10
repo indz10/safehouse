@@ -14,12 +14,7 @@ function regHouses(){const H=[];const m=window.W&&W.m;
 function regSimRows(){const s=OR.s||{};const lvl=s.wlevel||((window.W&&W.m&&W.m.wlevel)||1);const bon=s.next_bonus!=null?s.next_bonus:(s.prepared?15:0);
   return REG.H.map(h=>{const atk=30+Math.floor(Math.random()*60)+4*Math.min(Math.max(lvl,1),30);const pw=45+12*Math.max(h.lv,1)+bon+(h.home?5:0);
     return{building_id:h.bid||('home'+h.lat),lat:h.lat,lon:h.lon,held:pw>=atk,kind:h.home?'home':'owned',mine:true,sim:{atk,pw}};});}
-const _orViewReg=orView;orView=async function(lm){if(REG.mode==='sim'&&REG.active){const rows=regSimRows();
-    try{const map=lm.map;const fs=map.queryRenderedFeatures({layers:['bld']});const seen=new Set();let n=0;for(const f of fs){const g=f.geometry;const polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];
-      for(const pl of polys){if(n>=6)break;const q=pl[0]&&wGidRing(pl[0]);if(!q||seen.has(q.bid))continue;seen.add(q.bid);if(isNpc(q.bid)){n++;rows.push({building_id:q.bid,lat:q.lat,lon:q.lon,held:Math.random()<.55,kind:'npc',mine:false});}}}}catch(e){}
-    REG.lastRows=rows;return rows;}
-  const r=await _orViewReg(lm);REG.lastRows=r;return r;};
-async function assalto(mode,i){REG.mode=mode||'last';REG.H=regHouses();REG.i=Math.max(0,Math.min(i||0,REG.H.length-1));REG.active=true;
+async function assaltoMappa(mode,i){REG.mode=mode||'last';REG.H=regHouses();REG.i=Math.max(0,Math.min(i||0,REG.H.length-1));REG.active=true;
   if(!OR.s&&S.user){try{await orLoad(true);}catch(e){}}
   if(S.tab!=='mappa')go('mappa');let n=0;const wait=()=>new Promise(r=>{const t=setInterval(()=>{const lm=window.__mf;n++;if((lm&&lm.map&&document.body.contains(lm.map.getContainer()))||n>50){clearInterval(t);r(lm);}},200);});
   const lm=await wait();if(!lm||!lm.map){toast('Mappa non pronta: riprova');return;}regBar(lm);regGo(lm);}
@@ -42,7 +37,6 @@ function regText(lm,t){const b=document.querySelector('.regbar');if(!b)return;b.
 /* uscendo dalla mappa la regia si spegne */
 const _goReg=go;go=function(t){if(t!=='mappa')REG.active=false;return _goReg(t);};
 /* ---- punti di accesso ben visibili ---- */
-try{const _ssOfReg=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.acard'))return'oggi';return _ssOfReg(el);};}catch(e){}
 /* mappa: i pulsanti della barra dell'orda aprono la regia */
 const _renderMappaReg=renderMappa;renderMappa=function(){_renderMappaReg();try{const r=app.querySelector('[data-mfraid]');if(r){r.textContent='🎬 Assalti';r.onclick=e=>{e.stopPropagation();assalto('last');};}}catch(e){}};
 /* menu: due voci nuove */

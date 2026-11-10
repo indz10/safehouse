@@ -18,7 +18,7 @@ const FZ={ /* tipi: icona, variante disegno, scala, testi */
  boss:{ic:'👑',v:3,sc:1.7, sp:'Il Bruto della Sagra: arriva con le orde grandi (livello mondo 8+).'}};
 window.FR={node:null,lm:null,paths:[],zs:[],raf:0,t0:0,last:0,key:'',wx:null,gold:false};
 /* composizione dell'orda in base al livello del mondo */
-function frComp(wl){const n=Math.min(28,8+2*wl);const L=[];const add=(k,c)=>{for(let i=0;i<c;i++)L.push(k);};
+function frCompBase(wl){const n=Math.min(28,8+2*wl);const L=[];const add=(k,c)=>{for(let i=0;i<c;i++)L.push(k);};
   add('runner',wl>=2?Math.round(n*.15):0);add('casco',wl>=3?Math.round(n*.12):0);add('strillone',Math.max(1,Math.round(n*.08)));add('scavatore',wl>=4?Math.round(n*.08):0);
   add('brute',wl>=5?Math.max(1,Math.round(n*.06)):0);add('boss',wl>=8?1:0);add('oro',1);while(L.length<n)L.push('walker');return L;}
 /* strade vere → percorsi verso casa (Dijkstra sul grafo delle strade OSM) */
@@ -40,13 +40,13 @@ function frPaths(R,m){const els=((m&&m.els)||[]).filter(e=>e.tags&&e.tags.highwa
     const climb=seg.reduce((s,x)=>s+Math.max(0,x.g*x.d),0),drop=seg.reduce((s,x)=>s+Math.max(0,-x.g*x.d),0);return{p,seg,L,climb,drop};});}
 const frCol=g=>g>.025?'#ff9f1c':g<-.025?'#d7263d':'#5bd16a';
 /* meteo all'ora dell'orda */
-function frWx(){try{return oggiAt(OGGI.d,oggiNext());}catch(e){return null;}}
+function frWxBase(){try{return oggiAt(OGGI.d,oggiNext());}catch(e){return null;}}
 function frWf(w){return !w?1:w.ev==='pioggia'?.8:w.ev==='luna'?1.2:w.ev==='blackout'?.9:1;}
 /* lo zombie disegnato (stile fumetto) */
 function frZel(k,i){const t=FZ[k];const el=document.createElement('div');el.className='frz frz-'+k;el.style.setProperty('--sc',t.sc);el.style.setProperty('--bd',(i%7)*.07+'s');
   el.innerHTML=`<div class="frzb">${zArt(t.v+(k==='oro'?0:i),{lean:3})}</div>${k!=='walker'?`<i class="frzi">${t.ic}</i>`:''}`;
   el.addEventListener('click',e=>{e.stopPropagation();frZSheet(k);});return el;}
-function frZSheet(k){const z=ZT[k]||{},t=FZ[k];const wx=FR.wx;const bar=(v,m)=>`<span class="frbar"><i style="width:${Math.min(100,v/m*100)}%"></i></span>`;
+function frZSheetBase(k){const z=ZT[k]||{},t=FZ[k];const wx=FR.wx;const bar=(v,m)=>`<span class="frbar"><i style="width:${Math.min(100,v/m*100)}%"></i></span>`;
   if(k==='oro'&&!FR.gold){const sid=(OR.s&&OR.s.next_at)||'x';const kk='zsh_gold_'+sid;let got=false;try{got=!!localStorage.getItem(kk);}catch(e){}
     if(!got){try{localStorage.setItem(kk,'1');}catch(e){}giveMattoni(5,'Zombie d’oro');try{sfx('coin');}catch(e){}toast('💰 Preso lo zombie d’oro!');FR.gold=true;}}
   openSheet(`${t.ic} ${z.name||k}`,`<div class="frzs"><div class="frzart">${zArt(t.v,{lean:0})}</div><div><p style="font-weight:400;margin:0 0 8px">${t.sp}</p>
@@ -59,7 +59,7 @@ function frNode(){if(FR.node)return FR.node;const d=document.createElement('div'
    <div class="frinfo"><div class="frchips" data-frchips></div><div class="frleg" data-frleg></div>
    <p class="muted" style="font-size:11.5px;margin:6px 0 0">Strade: <b style="color:#2f9e44">verde</b> piano · <b style="color:#e8590c">arancio</b> salita verso casa (zombie più lenti) · <b style="color:#d7263d">rosso</b> discesa (più veloci). Tocca uno zombie per vederlo. L’esito dell’orda del mondo lo decide il server con livello, preparazione e aiuti; meteo e salite cambiano la marcia qui e nelle notti che giochi.</p></div>`;
   d.querySelector('[data-frcal]').onclick=e=>{e.stopPropagation();oggiSheet();};FR.node=d;return d;}
-function frHeader(){try{const d=FR.node;const nx=oggiNext();const n=new Date();FR.wx=frWx();const w=FR.wx;const s=OR.s||{};
+function frHeaderBase(){try{const d=FR.node;const nx=oggiNext();const n=new Date();FR.wx=frWx();const w=FR.wx;const s=OR.s||{};
   d.querySelector('[data-frnext]').innerHTML=`Orda delle <b>${String(nx.getHours()).padStart(2,'0')}:00</b> · tra ${orLeft(nx)}`;d.querySelector('[data-frday]').textContent=`${GG[n.getDay()].slice(0,3)} ${n.getDate()} ${MM[n.getMonth()].slice(0,3)}`;const mo=d.querySelector('[data-frmon]'),dd=d.querySelector('[data-frdd]');if(mo)mo.textContent=MMs[n.getMonth()];if(dd)dd.textContent=n.getDate();
   const fx=d.querySelector('.frfx'),wb=d.querySelector('.frwx');fx.className='frfx'+(w?' fx-'+w.ev:'');d.querySelector('.frmapw').classList.toggle('dark',!!(w&&w.ev==='blackout'));
   wb.innerHTML=w?`${w.ic} ${w.t}°C · ${esc(w.eff.split(':')[0].replace(/^[^\s]+\s/,''))}`:'meteo…';
@@ -78,28 +78,6 @@ function frStop(){cancelAnimationFrame(FR.raf);FR.raf=0;}
 function frR(){try{if(S.zone&&S.zone.real&&S.zone.real.lat!=null)return S.zone.real;const H=typeof myHouses==='function'?myHouses():[];const h=H.find(x=>x.home)||H[0];return h&&h.lat!=null?{lat:h.lat,lon:h.lon}:null;}catch(e){return null;}}
 /* ---------- SCHEDA ORDA UNICA ---------- */
 window.ORDA_ONE=true;
-try{const _ssApplyFr=ssApply;ssApply=function(){if(!(ORDA_ONE&&S.tab==='orda'))return _ssApplyFr();const pg=app.querySelector('.page');if(!pg)return;[...pg.children].forEach(el=>{const g=ssOf(el);el.hidden=(g==='x')||el.dataset.ohide==='1';});};}catch(e){}
-function frFold(cls,title,els){if(!els.length)return null;const d=document.createElement('details');d.className='fold ofold '+cls;G.ofo=G.ofo||{};d.open=!!G.ofo[cls];
-  d.innerHTML=`<summary>${title}</summary>`;const b=document.createElement('div');b.className='ofb';els.forEach(e=>b.appendChild(e));d.appendChild(b);d.addEventListener('toggle',()=>{G.ofo[cls]=d.open;});return d;}
-function ordaUnify(){if(!ORDA_ONE||S.tab!=='orda'||G.view!=='hub')return;const pg=app.querySelector('.page');if(!pg||pg.dataset.one)return;
-  if(!pg.querySelector('.opan'))return;pg.dataset.one='1';const kids=[...pg.children];const B={main:[],play:[],camp:[],tools:[],friends:[],hide:[]};let mode='camp';
-  kids.forEach(el=>{const tx=(el.textContent||'').trim();
-    if(el.matches('.oseg2,.otabs,.odyou'))return el.remove();
-    if(el.matches('.ocal'))return B.hide.push(el);
-    if(ssOf(el)==='x')return;
-    if(el.matches('.opan,.lpan,.tmp'))return B.main.push(el);
-    if(el.matches('.scudo,.diffseg,#fight')||(el.matches('.row.spread')&&/^Livello/.test(tx)&&/casa/i.test(tx)))return B.play.push(el);
-    if(el.tagName==='H3'){if(/Attrezzi|La tua casa|Le tue propriet/.test(tx))mode='tools';else if(/Crediti Casa Vera/.test(tx))mode='friends';else if(/Bottega/.test(tx))mode='shop';else if(/Il quartiere/.test(tx))mode='camp';}
-    else if(el.matches('details.fold')&&/Amici e quartieri condivisi/.test(tx))return B.friends.push(el);
-    else if(el.matches('.duelc'))return B.friends.push(el);
-    else if(el.matches('details.howto')&&/case e inquilini/.test(tx))return B.tools.push(el);
-    if(el.matches('.row.spread')&&/Record/.test(tx))return B.camp.push(el);
-    if(mode==='shop'){if(/Cambia gemme/.test(tx))return B.tools.push(el);return B.hide.push(el);}
-    B[mode].push(el);});
-  B.hide.forEach(e=>{e.hidden=true;e.dataset.ohide='1';});
-  const fr=frNode();const play=document.createElement('div');play.className='panel odplay';play.innerHTML='<b class="disp" style="font-size:22px">⚔️ Gioca la notte</b><p style="font-weight:400;font-size:12.5px;margin:2px 0 8px">Difendi tu il quartiere vero: salite, meteo e zombie sono quelli del fronte qui sopra.</p>';B.play.forEach(e=>play.appendChild(e));
-  const order=[fr,...B.main.filter(e=>e.matches('.opan')),play,...B.main.filter(e=>!e.matches('.opan')),frFold('of-camp','🌙 Campagna, quartiere e bestiario',B.camp),frFold('of-tools','🛠️ Attrezzi, casa e proprietà',B.tools),frFold('of-friends','👥 Amici e sfide',B.friends)].filter(Boolean);
-  order.forEach(e=>pg.appendChild(e));B.hide.forEach(e=>pg.appendChild(e));setTimeout(frMount,30);}
 /* i pulsanti che portano a un riquadro dentro una fisarmonica: la apro */
 (function(){const o=Element.prototype.scrollIntoView;Element.prototype.scrollIntoView=function(a){try{let d=this.closest&&this.closest('details');while(d){d.open=true;d=d.parentElement&&d.parentElement.closest('details');}}catch(e){}return o.call(this,a);};})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.tab==='orda'&&FR.lm)frLoop();});

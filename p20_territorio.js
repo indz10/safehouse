@@ -625,7 +625,7 @@ function tmGen(){const R=S.zone&&S.zone.real;if(!R)return null;const r=rng(hash(
     if(pub.length&&(r()<.5||!cand.length)){const f=pick(pub.slice(0,4));L.push({k:'poi',id:f.name,ic:'🏥',t:`Controlla orari e contatti di <b>${esc(f.name)}</b> (${dist(f.d)}): ti servono il giorno dell’emergenza`,go:'poi',ll:[f.lat,f.lon],kk:f.k,d:f.d,rw:{c:50,g:1}});}
     else if(cand.length){const f=pick(cand.slice(0,4));L.push({k:'biz',id:f.name,ic:'🔧',t:`Scopri <b>${esc(f.name)}</b> (${dist(f.d)}): può diventare il presidio sponsor della zona`,go:'biz',ll:[f.lat,f.lon],d:f.d,f,rw:{c:50,g:1}});}}
   L.forEach(m=>{m.goal=m.goal||1;m.prog=0;m.done=false;m.cl=false;});return{day:tmDay(),addr:S.zone.address,list:L,chest:false};}
-function tmInit(){if(typeof G==='undefined'||!G.type)return null;if(!G.tm||G.tm.day!==tmDay()||G.tm.addr!==(S.zone&&S.zone.address))G.tm=tmGen();return G.tm;}
+function tmInitBase(){if(typeof G==='undefined'||!G.type)return null;if(!G.tm||G.tm.day!==tmDay()||G.tm.addr!==(S.zone&&S.zone.address))G.tm=tmGen();return G.tm;}
 function tmEvent(k,id,ok){const T=G&&G.tm;if(!T||T.day!==tmDay())return;let hit=false;
   T.list.forEach(m=>{if(m.done)return;let p=false;
     if(m.k===k&&(m.id===id||k==='win'))p=true;if(k==='win'&&m.k==='def'&&G.q&&G.q[m.id]>=1)p=true;if(k==='evwin'&&m.k==='ev'&&m.id===id)p=true;if(k==='win'&&m.k==='win')p=true;
@@ -643,7 +643,7 @@ function tmHTML(){const T=tmInit();if(!T)return'';const done=T.list.filter(m=>m.
    ${T.list.map((m,i)=>`<div class="tm ${m.cl?'cl':m.done?'ok':''}"><span class="tmi">${m.cl?'✅':m.ic}</span><div class="tmt"><span>${m.t}</span>${m.goal>1?`<div class="vbar"><span style="width:${m.prog/m.goal*100}%"></span></div>`:''}<small>Premio: 🪙 ${m.rw.c}${m.rw.g?` · 💎 ${m.rw.g}`:''}</small></div>
      ${m.cl?'':m.done?`<button class="btn small" data-tmc="${i}">Riscatta</button>`:`<button class="btn small ghost" data-tmg="${i}">Vai</button>`}</div>`).join('')}
    ${done===T.list.length&&!T.chest?`<button class="btn wide alt" data-tmx>🎁 Apri lo scrigno: tutte fatte! (💎 10)</button>`:T.chest?'<p class="muted" style="font-size:12.5px;margin-top:6px">Scrigno aperto. Domani nuove missioni.</p>':`<p class="muted" style="font-size:12.5px;margin-top:6px">Completale tutte e 3 per lo scrigno: 💎 10.</p>`}</div>`;}
-function tmBind(){const p=app.querySelector('.tmp');if(!p)return;const T=G.tm;
+function tmBindBase(){const p=app.querySelector('.tmp');if(!p)return;const T=G.tm;
   p.querySelectorAll('[data-tmc]').forEach(b=>b.onclick=()=>{const m=T.list[+b.dataset.tmc];if(!m||!m.done||m.cl)return;m.cl=true;G.coins+=m.rw.c;G.gems+=m.rw.g||0;sfx('coin');vibe();toast(`+🪙 ${m.rw.c}${m.rw.g?` +💎 ${m.rw.g}`:''}`);renderHub();});
   const x=p.querySelector('[data-tmx]');if(x)x.onclick=()=>{T.chest=true;G.gems+=10;sfx('win');toast('🎁 Scrigno delle missioni: +💎 10');renderHub();};
   p.querySelectorAll('[data-tmg]').forEach(b=>b.onclick=()=>{const m=T.list[+b.dataset.tmg];if(!m)return;

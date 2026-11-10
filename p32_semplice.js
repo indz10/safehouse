@@ -7,13 +7,11 @@
 /* ---- HOME: solo "Vai al mondo" e "La mia casa" (Orda e Superstiti sono già nella barra) ---- */
 const _renderHomeS1=renderHome;renderHome=function(){_renderHomeS1();try{const r=app.querySelector('.hsrow');if(r)r.remove();}catch(e){}};
 /* ---- ORDA: due sezioni. "Impero" sparisce: le case sono nel Mondo, gli alleati in Superstiti ---- */
-try{const _ssOfS1=ssOf;ssOf=function(el){if(el&&el.matches&&el.matches('.wpan,.apan,.acard'))return'x';return _ssOfS1(el);};}catch(e){}
 /* l'orda in UN solo riquadro: conto alla rovescia, prepara, riscatta + assalti, simulazione, notifiche */
 function opanExtra(){const o=app.querySelector('.opan');if(!o||o.querySelector('.opx'))return;
   o.insertAdjacentHTML('beforeend',`<div class="opx"><div class="rrow"><button class="btn ghost small" data-opx="sim">🔮 Simula la prossima</button><button class="btn ghost small" data-opx="mondo">🌍 Le mie case</button></div><div id="pushRow"></div></div>`);
   const w=o.querySelector('[data-owatch]');if(w)w.onclick=e=>{e.stopPropagation();assalto('last');};
   o.querySelectorAll('[data-opx]').forEach(b=>b.onclick=()=>{const k=b.dataset.opx;if(k==='mondo')go('mappa');else assalto(k);});try{pushRow();}catch(e){}}
-try{const _orRefreshS1=orRefresh;orRefresh=function(){const r=_orRefreshS1.apply(this,arguments);try{if(S.tab==='orda')opanExtra();}catch(e){}return r;};}catch(e){}
 /* ---- SUPERSTITI: la Squadra contiene alleati, richieste d'aiuto, rivali, regali e prestiti ---- */
 const _socPaintS1=socPaint;socPaint=function(){_socPaintS1();try{if(SOC.tab!=='squadra'||!S.user)return;const B=app.querySelector('#socBody');if(!B||B.querySelector('.apan'))return;
   const h=alHTML();if(h){B.insertAdjacentHTML('beforeend',h);alBind();alLoad();}}catch(e){console.warn('squadra',e);}};
