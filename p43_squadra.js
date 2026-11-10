@@ -12,14 +12,14 @@ ayInbox=async function(){if(!S.user||typeof SB==='undefined'||!SB||typeof G==='u
   const got=[];for(const g of data){const r=await SB.rpc('world_gift_claim',{p_id:g.id});if(r.data&&r.data.ok){gAdd(g.kind,g.amount);got.push(`${(GK[g.kind]||['🎁'])[0]} ${g.amount} da @${g.nick}`);}}
   if(got.length){try{saveLocal();sfx('coin');}catch(e){}toast('🎁 Regali ricevuti: '+got.join(' · '));}}catch(e){}};
 /* finestra dei doni */
-aySheet=function(uid,nick){let kind='mattoni',loan=true;const order=['mattoni','gemme','monete','giri','biglietti'];
+aySheet=function(uid,nick){let kind='mattoni',loan=true;const order=['mattoni','gemme','giri','biglietti'];
   const draw=card=>{card.querySelector('.ayk').innerHTML=order.map(k=>`<button class="chip ${k===kind?'on':''}" data-k="${k}">${GK[k][0]} ${GK[k][1]}<small> (${wNum(gHave(k))})</small></button>`).join('');
     card.querySelector('.aym').innerHTML=kind==='mattoni'?`<button class="chip ${loan?'on':''}" data-m="1">🤝 Presta (torna fra 3 giorni)</button><button class="chip ${!loan?'on':''}" data-m="0">🎁 Regala</button>`:`<span class="muted" style="font-size:12.5px">Si può solo regalare. Massimo oggi: ${GLIM[kind]||10}.</span>`;
     const n=card.querySelector('#ayN');if(n&&(kind==='giri'||kind==='biglietti'))n.value=1;
     card.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{kind=b.dataset.k;if(kind!=='mattoni')loan=false;draw(card);});card.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{loan=b.dataset.m==='1';draw(card);});};
   openSheet('🎁 A @'+esc(nick),`<p style="font-weight:400">Cosa vuoi dare?</p><div class="ayk chips" style="margin:6px 0"></div><div class="aym" style="margin:6px 0"></div>
    <label class="disp" style="font-size:16px">Quantità</label><input id="ayN" type="number" inputmode="numeric" min="1" value="50" class="field">
-   <p class="muted" style="font-size:12px;margin:6px 0">Limiti al giorno: 300 Mattoni, 20 gemme, 300 monete, 1 giro di ruota, 1 biglietto.</p>
+   <p class="muted" style="font-size:12px;margin:6px 0">Limiti al giorno: 300 Mattoni, 20 gemme, 1 giro di ruota, 1 biglietto.</p>
    <button class="btn wide" data-ayok>Conferma</button>`,card=>{draw(card);card.querySelector('[data-ayok]').onclick=async()=>{const n=Math.floor(+card.querySelector('#ayN').value||0);if(n<1){toast('Scrivi una quantità');return;}
      if(gHave(kind)<n){toast('Non ne hai abbastanza');return;}const btn=card.querySelector('[data-ayok]');btn.disabled=true;
      try{const{data,error}=await SB.rpc('world_give',{p_to:uid,p_kind:kind,p_amount:n,p_loan:kind==='mattoni'&&loan});if(error)throw error;

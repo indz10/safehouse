@@ -17,7 +17,7 @@ function oggiAt(d,when){if(!d||!d.hourly)return null;const p=n=>String(n).padSta
   if(c>=95||g>=60){ev='blackout';eff='⚡ Blackout: salta la corrente, si vede solo vicino alla luce.';}
   else if(c===45||c===48||(vis!=null&&vis<1000)){ev='nebbia';eff='🌫️ Nebbia: gli zombie spuntano all’ultimo momento.';}
   else if((c>=51&&c<=67)||(c>=80&&c<=82)||pr>=.2){ev='pioggia';eff='🌧️ Pioggia: zombie più lenti (ma le zone basse si allagano).';}
-  else if(m.full&&when.getHours()>=18){ev='luna';eff='🌕 Luna piena: orda più veloce, ma monete doppie.';}
+  else if(m.full&&when.getHours()>=18){ev='luna';eff='🌕 Luna piena: orda più veloce.';}
   return{c,ic:wIcon(c),name:wName(c),t:Math.round(t),pr,ev,eff,moon:m};}
 function oggiNext(){const s=OR&&OR.s;return s&&s.next_at?new Date(s.next_at):vNextSlot();}
 zEvery(()=>{const n=new Date();document.querySelectorAll('[data-clock]').forEach(e=>{e.textContent=n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});});},1000);
@@ -30,7 +30,7 @@ async function oggiSheet(){openSheet('📅 Oggi','<p><span class="spin"></span> 
      <small>${GG[n.getDay()]} ${n.getDate()} ${MM[n.getMonth()]} ${n.getFullYear()}</small>${daily?`<small>${wIcon(daily.weather_code[0])} ${wName(daily.weather_code[0])} · ${Math.round(daily.temperature_2m_min[0])}–${Math.round(daily.temperature_2m_max[0])}°C · pioggia ${daily.precipitation_probability_max[0]||0}%</small>`:''}
      <small>${m.ic} ${m.n}${sun?` · tramonto ${sun.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`:''}</small></div></div>
     <h4 class="hh">🧟 Le prossime orde e il meteo</h4>${rows}
-    <p class="muted" style="font-size:12px;margin:6px 0 0">Il meteo vero cambia le notti che giochi tu (Difendi tu). L’esito dell’orda del mondo dipende da livello, preparazione e aiuti.</p>
+    <p class="muted" style="font-size:12px;margin:6px 0 0">Il meteo vero cambia l’assalto che vedi sul fronte. L’esito dell’orda del mondo dipende da livello, preparazione e aiuti.</p>
     <h4 class="hh">📅 Sincronizza con il calendario</h4>
     <div class="ocals"><button class="btn" data-oc="google">🗓️ Google Calendar · tutte le orde</button><button class="btn alt" data-oc="apple">🍎 Calendario iPhone · tutte le orde</button><button class="btn ghost" data-oc="next">➕ Solo la prossima orda (Google)</button></div>
     <p class="muted" style="font-size:12px;margin-top:6px">“Tutte le orde” ti abbona una volta: le orde delle 9:00 e delle 21:00 compaiono ogni giorno nel tuo calendario.</p>`,c=>{

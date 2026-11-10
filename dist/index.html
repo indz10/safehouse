@@ -3423,7 +3423,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
   openSheet('🗺️ La tua zona vera, a fumetto',rmBox('rmV')+'<p class="muted" style="font-size:12px;margin-top:6px">La tua casa è evidenziata solo per te. Gli altri edifici sono sagome senza dati.</p>',card=>rmMount(card.querySelector('#rmV'),addr));},true);
 
 /* Il mio quartiere vero: valutazione reale dentro la community reale */
-const RMISS=[['torcia','Controlla torcia e batterie di scorta','+1 giro di ruota','spin'],['acqua','Prepara 3 litri d’acqua a persona','+5 💎','gems'],['contatti','Salva i numeri utili (vicini, emergenze)','+150 🪙','coins'],['preventivo','Chiedi un preventivo a uno sponsor per il tuo punto debole','+40 Crediti Casa Vera','ccv']];
+const RMISS=[['torcia','Controlla torcia e batterie di scorta','+1 giro di ruota','spin'],['acqua','Prepara 3 litri d’acqua a persona','+5 💎','gems'],['contatti','Salva i numeri utili (vicini, emergenze)','+30 🧱','coins'],['preventivo','Chiedi un preventivo a uno sponsor per il tuo punto debole','+40 Crediti Casa Vera','ccv']];
 function myRealHood(){if(!S.zone||!S.result)return`<div class="panel moon"><b class="disp" style="font-size:22px">Entra nel tuo quartiere vero</b><p style="font-weight:400;margin:4px 0 8px">Valuta la tua casa: entri nella community della tua zona, vedi come sta il quartiere e ricevi le offerte degli sponsor vicini.</p><button class="btn small" data-go="valuta">Valuta la mia casa</button></div>`;
   const z=S.zone,c=commSummary(z),idx=S.result.idx;const pct=Math.max(5,Math.min(95,Math.round(50+(c.avg-idx)*15)));S.rmiss=S.rmiss||{};
   return`<div class="panel myhood"><div class="row spread"><b class="disp" style="font-size:24px">🏘️ Il mio quartiere vero</b><span class="tag ia">${esc(z.address.split(',').slice(-1)[0]||'')}</span></div>
@@ -4258,7 +4258,7 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 /* bollettino del territorio nella pagina del gioco */
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611101736';
+const ZSH_BUILD='202611101802';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -4297,15 +4297,15 @@ function bzCard(b,pub){const tel=(b.tel||'').replace(/[^\d+]/g,'');const web=b.w
      <small>📍 ${dist(b.d||0)} da casa tua · 🚶 ${walk} min a piedi</small></div>${b.cand?'<span class="bzc-badge">POSTO<br>LIBERO</span>':''}</div>
    ${pub?'':`<div class="bzc-rate">${rvLine(key,5,4)}${rvBtn(key,b.name,5,4)}</div>`}
    <div class="bzc-act"><a href="${nav}" target="_blank" rel="noopener"><span>🧭</span>Portami lì</a>${tel?`<a href="tel:${tel}"><span>📞</span>Chiama</a>`:''}${web?`<a href="${esc(web)}" target="_blank" rel="noopener"><span>🌐</span>Sito</a>`:''}</div>
-   ${pub?`<p class="bzc-note">${b.zfx||'Nel gioco i servizi vicini rinforzano la tua casa e il quartiere.'}</p>`:b.cand?`<div class="bzc-free"><b>📌 Può diventare il presidio sponsor della zona</b>
-     <ul><li>⭐ Bollino giallo col nome, visibile a tutto il quartiere</li><li>🎟️ Offerta con codice personale da mostrare in cassa</li><li>📩 Richieste di preventivo da chi abita qui</li><li>🛡️ Nel gioco: presidio che dà +5% barricata ai vicini</li></ul>
+   ${pub?`<p class="bzc-note">${b.zfx||'I servizi vicini fanno salire la Vivibilità della tua zona.'}</p>`:b.cand?`<div class="bzc-free"><b>📌 Può diventare il presidio sponsor della zona</b>
+     <ul><li>⭐ Bollino giallo col nome, visibile a tutto il quartiere</li><li>🎟️ Offerta con codice personale da mostrare in cassa</li><li>📩 Richieste di preventivo da chi abita qui</li><li>🛡️ Nel gioco: presidio sponsor sulla mappa, visto da tutti i superstiti della zona</li></ul>
      <button class="btn wide" data-claim>Diventa sponsor</button></div>`:`<button class="bzc-own" data-claim>È la tua attività? Mettiti in evidenza →</button>`}
    <div data-admin></div></div>`;}
 function bizSheetBase(b,z){openSheet(b.cand?'📌 Posto sponsor libero':'🛍️ Attività della zona',bzCard(b,false),card=>{
   const c=card.querySelector('[data-claim]');if(c)c.onclick=()=>{closeSheet();S.motivo=b.cand?'sponsor':'negozio';S.motivoBiz=b.name;go('contatti');};
   zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+b.name+'” dalla mappa per tutti?'))zHide(b.name,b.ll);};}});});}
 function lmPoiBase(name,cat,d,ll,pub){const ic={Farmacia:'💊',Ospedale:'🏥',Clinica:'🏥','Forze dell’ordine':'🚓','Vigili del fuoco':'🚒',Municipio:'🏛️',Fontanella:'💧'}[cat]||'📍';
-  const fx={Farmacia:'Nel gioco: farmacia entro 800 m = resistenza casa +5%.',Ospedale:'Nel gioco: ospedale entro 1,5 km = resistenza casa +10%.',Clinica:'Nel gioco: presidio sanitario vicino = più resistenza.','Forze dell’ordine':'Nel gioco: forze dell’ordine entro 2 km = barricata +10%.','Vigili del fuoco':'Nel gioco: vigili del fuoco entro 3 km = barricata +5%.'}[cat];
+  const fx={Farmacia:'Più è vicina, più sale la Vivibilità della tua zona (Sanità e farmacie).',Ospedale:'Più è vicino, più sale la Vivibilità della tua zona (Sanità e farmacie).',Clinica:'Un presidio sanitario vicino fa salire la Vivibilità della tua zona.','Forze dell’ordine':'Più sono vicine, più sale la Vivibilità della tua zona (Servizi di emergenza).','Vigili del fuoco':'Più sono vicini, più sale la Vivibilità della tua zona (Servizi di emergenza).'}[cat];
   const b={i:name,ic,name,cat,d,ll,zfx:fx};openSheet(pub?'🛡️ Servizio della zona':'🛍️ Attività della zona',bzCard(b,pub),card=>{
     zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+name+'” dalla mappa per tutti?'))zHide(name,ll);};}});});}
 </script>
@@ -4579,7 +4579,7 @@ function realNightCond(){const w=ZW.d;if(!w)return undefined;const m=moonInfo();
   if(c>=95||(w.wind_gusts_10m||0)>=60)return{ev:'blackout',why:`${wIcon(c)} ${c>=95?'Temporale':'Vento forte'} sulla tua zona: salta la corrente, si vede solo vicino alla luce`};
   if(c===45||c===48||(w.visibility!=null&&w.visibility<1000))return{ev:'nebbia',why:'🌫️ Nebbia vera stanotte: gli zombie spuntano all’ultimo'};
   if((c>=51&&c<=67)||(c>=80&&c<=82)||(w.precipitation||0)>=.2)return{ev:'pioggia',why:`🌧️ Piove davvero (${String(w.precipitation||0).replace('.',',')} mm): zombie più lenti${S.zone.real.pos==='bassa'?', ma la tua zona bassa si allaga':''}`};
-  if(m.full)return{ev:'luna',why:'🌕 Luna piena vera: orda più veloce, ma monete doppie'};
+  if(m.full)return{ev:'luna',why:'🌕 Luna piena vera: orda più veloce'};
   return{ev:null,why:`${wIcon(c)} Notte tranquilla: ${wName(c)}, ${Math.round(w.temperature_2m)}°C, ${m.ic} ${m.n}`};}
 /* zona bassa + pioggia vera: la barricata soffre di più */
 /* nel pannello "Il territorio decide la notte" */
@@ -4604,9 +4604,9 @@ function movePlan(){const out={lots:0,q:0,h:0,nl:0,nq:0,nh:0};const sum=(a,n)=>(
   out.tot=out.lots+out.q+out.h;out.cool=!!(typeof G!=='undefined'&&G.lastMove&&Date.now()-G.lastMove<30*864e5);if(out.cool)out.tot=0;return out;}
 function moveSheet(){const P=movePlan();const g=typeof G!=='undefined'&&G.type;const old=S.zone&&S.zone.address;
   openSheet('🚚 Ho cambiato casa',`<p style="font-weight:400;margin-bottom:10px">${old?`Lasci <b>${esc(old)}</b>. `:''}Valuti la casa nuova e il gioco si sposta nel quartiere nuovo.</p>
-   <div class="mvcol"><div class="mv ok"><b>🎒 Viene con te</b><ul><li>Monete, gemme, livello e medaglie</li><li>Attrezzi anti-zombie, materiali e kit</li><li>Crediti Casa Vera e codici sconto già ottenuti</li><li>Amici e classifica</li><li>Le tue scorte, kit medico, radio e mezzo</li></ul></div>
-   <div class="mv ko"><b>🏚️ Resta nella casa vecchia</b><ul><li>${g?`${P.nl} ${P.nl===1?'edificio':'edifici'} del quartiere${P.nl?` → rimborso 70%: 🪙 ${P.lots}`:''}`:'Edifici del quartiere'}</li><li>${g?`${P.nq} ${P.nq===1?'punto fortificato':'punti fortificati'}${P.nq?` → rimborso 50%: 🪙 ${P.q}`:''}`:'Punti fortificati'}</li><li>${g?`Potenziamenti della casa${P.nh?` → rimborso 50%: 🪙 ${P.h}`:''}`:'Potenziamenti della casa'}</li><li>Valutazione, Scudo e missioni della casa vecchia (rifai tutto sulla nuova)</li></ul></div></div>
-   ${g?`<div class="mvtot">${P.cool?'Bonus trasloco già usato negli ultimi 30 giorni: questa volta nessun rimborso.':`🎁 Bonus trasloco: <b>🪙 ${P.tot}</b>`}</div>`:''}
+   <div class="mvcol"><div class="mv ok"><b>🎒 Viene con te</b><ul><li>Mattoni, gemme, livello e medaglie</li><li>Crediti Casa Vera e codici sconto già ottenuti</li><li>Amici e classifica</li><li>Le tue scorte, kit medico, radio e mezzo</li></ul></div>
+   <div class="mv ko"><b>🏚️ Resta nella casa vecchia</b><ul><li>Valutazione, Scudo e missioni della casa vecchia (rifai tutto sulla nuova)</li></ul></div></div>
+   ${g&&P.tot>=5?`<div class="mvtot">🎁 Bonus trasloco: <b>🧱 ${Math.floor(P.tot/5)}</b></div>`:''}
    <p class="muted" style="font-size:12.5px;margin:8px 0">La casa vecchia resta salvata nella tua cronologia. Sulla mappa della community la tua posizione si sposta quando valuti la casa nuova.</p>
    <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" data-mvok>🚚 Sì, mi sono trasferito</button><button class="btn ghost small" data-close2>Annulla</button></div>`,card=>{
     card.querySelector('[data-close2]').onclick=closeSheet;card.querySelector('[data-mvok]').onclick=()=>{doMove(P);};});}
@@ -4619,7 +4619,7 @@ function doMove(P){try{
     if(typeof ccvInit==='function'){ccvInit();if(P.tot)G.ccv.log.unshift({t:'Trasloco: rimborso in monete',c:0});}}
   HQ.map=null;try{hqApply(false);}catch(e){}ZW.d=null;
   try{saveLocal();if(typeof pushCloud==='function')pushCloud();}catch(e){}zSyncProfile(true);
-  closeSheet();toast(P.tot?`🚚 Trasloco fatto: +🪙 ${P.tot}. Ora valuta la casa nuova`:'🚚 Trasloco fatto: ora valuta la casa nuova');go('valuta');}
+  closeSheet();toast('🚚 Trasloco fatto: ora valuta la casa nuova');go('valuta');}
   catch(e){console.warn('trasloco',e);toast('Trasloco non riuscito: riprova');}}
 /* pulsante in Valuta (quando c'è già una casa) e nel menu */
 const _vZonaMv=vZona;vZona=function(){_vZonaMv();try{if(!S.zone||document.getElementById('mvBtn'))return;const g=document.getElementById('geoBtn');const row=g&&g.parentElement;
@@ -4653,7 +4653,7 @@ function tmEvent(k,id,ok){const T=G&&G.tm;if(!T||T.day!==tmDay())return;let hit=
   T.list.forEach(m=>{if(m.done)return;let p=false;
     if(m.k===k&&(m.id===id||k==='win'))p=true;if(k==='win'&&m.k==='def'&&G.q&&G.q[m.id]>=1)p=true;if(k==='evwin'&&m.k==='ev'&&m.id===id)p=true;if(k==='win'&&m.k==='win')p=true;
     if(m.k==='exp'&&k==='exp'&&m.id===id&&!ok)p=false;
-    if(p){m.prog=Math.min(m.goal,m.prog+1);if(m.prog>=m.goal){m.done=true;m.cl=true;hit=true;G.coins+=m.rw.c;G.gems+=m.rw.g||0;setTimeout(()=>toast(`🎯 Missione completata: +🪙 ${m.rw.c}${m.rw.g?' +💎 '+m.rw.g:''}`),1600);try{sfx('coin');}catch(e){}}}});
+    if(p){m.prog=Math.min(m.goal,m.prog+1);if(m.prog>=m.goal){m.done=true;m.cl=true;hit=true;G.coins+=m.rw.c;G.gems+=m.rw.g||0;setTimeout(()=>toast(`🎯 Missione completata: +🧱 ${Math.max(1,Math.floor(m.rw.c/5))}${m.rw.g?' +💎 '+m.rw.g:''}`),1600);try{sfx('coin');}catch(e){}}}});
   if(hit)try{saveLocal();}catch(e){}}
 window.onExpDone=(id,ok)=>tmEvent('exp',id,ok);
 window.onWaveEnd=(win,L,ev,coop)=>{if(!win||coop)return;tmEvent('win','x');if(ev)tmEvent('evwin',ev);};
@@ -4665,7 +4665,7 @@ function tmHTML(){const T=tmInit();if(!T)return'';const done=T.list.filter(m=>m.
      ${m.cl?'':m.done?`<button class="btn small" data-tmc="${i}">Riscatta</button>`:`<button class="btn small ghost" data-tmg="${i}">Vai</button>`}</div>`).join('')}
    ${done===T.list.length&&!T.chest?`<button class="btn wide alt" data-tmx>🎁 Apri lo scrigno: tutte fatte! (💎 10)</button>`:T.chest?'<p class="muted" style="font-size:12.5px;margin-top:6px">Scrigno aperto. Domani nuove missioni.</p>':`<p class="muted" style="font-size:12.5px;margin-top:6px">Completale tutte e 3 per lo scrigno: 💎 10.</p>`}</div>`;}
 function tmBindBase(){const p=app.querySelector('.tmp');if(!p)return;const T=G.tm;
-  p.querySelectorAll('[data-tmc]').forEach(b=>b.onclick=()=>{const m=T.list[+b.dataset.tmc];if(!m||!m.done||m.cl)return;m.cl=true;G.coins+=m.rw.c;G.gems+=m.rw.g||0;sfx('coin');vibe();toast(`+🪙 ${m.rw.c}${m.rw.g?` +💎 ${m.rw.g}`:''}`);renderHub();});
+  p.querySelectorAll('[data-tmc]').forEach(b=>b.onclick=()=>{const m=T.list[+b.dataset.tmc];if(!m||!m.done||m.cl)return;m.cl=true;G.coins+=m.rw.c;G.gems+=m.rw.g||0;sfx('coin');vibe();toast(`+🧱 ${Math.max(1,Math.floor(m.rw.c/5))}${m.rw.g?` +💎 ${m.rw.g}`:''}`);renderHub();});
   const x=p.querySelector('[data-tmx]');if(x)x.onclick=()=>{T.chest=true;G.gems+=10;sfx('win');toast('🎁 Scrigno delle missioni: +💎 10');renderHub();};
   p.querySelectorAll('[data-tmg]').forEach(b=>b.onclick=()=>{const m=T.list[+b.dataset.tmg];if(!m)return;
     if(m.go==='day'){const d=app.querySelector('.dayp');if(d){const f=d.closest('details');if(f)f.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}}
@@ -4806,7 +4806,7 @@ const _zSyncInv=zSyncProfile;zSyncProfile=async function(force){await _zSyncInv(
   const{error}=await SB.from('profili_pubblici').update({invitato_da:inv}).eq('user_id',S.user.id);if(!error)localStorage.setItem('zsh_inv_ok','1');}catch(e){}};
 async function inviteSheetBase(){if(!S.user){toast('Accedi per avere il tuo link di invito');return;}let L=[];try{const{data}=await SB.rpc('miei_invitati');L=data||[];}catch(e){}
   G.invCl=G.invCl||[];const ready=L.filter(x=>x.valutato&&!G.invCl.includes(x.nick));
-  openSheet('📨 Invita amici e vicini',`<p style="font-weight:400;margin-bottom:10px">Chi entra col tuo link e valuta la sua casa ti fa guadagnare <b>💎 5</b>. Se abita entro 1,5 km diventa uno dei tuoi <b>👥 Vicini veri</b>: nella battaglia la tua abilità diventa più forte.</p>
+  openSheet('📨 Invita amici e vicini',`<p style="font-weight:400;margin-bottom:10px">Chi entra col tuo link e valuta la sua casa ti fa guadagnare <b>💎 5</b>. Se abita entro 1,5 km diventa uno dei tuoi <b>👥 Vicini veri</b>: potete aiutarvi contro l’orda del quartiere.</p>
    <div class="invl"><input readonly value="${esc(invLink())}"><button class="btn small" data-invcp>Copia</button></div>
    <div class="row" style="gap:8px;margin:10px 0;flex-wrap:wrap"><button class="btn" data-invsh>📤 Condividi il link</button><a class="btn ghost small" href="https://wa.me/?text=${encodeURIComponent(invTxt())}" target="_blank" rel="noopener">WhatsApp</a></div>
    <h3 style="margin-top:6px">I tuoi invitati (${L.length})</h3>${L.length?L.map(x=>`<div class="tm ${x.valutato?'ok':''}"><span class="tmi">${x.valutato?'✅':'⏳'}</span><div class="tmt"><span><b>@${esc(x.nick)}</b></span><small>${x.valutato?(G.invCl.includes(x.nick)?'Premio già ritirato':'Ha valutato la casa: premio pronto'):'Registrato, deve ancora valutare la casa'}</small></div></div>`).join(''):'<p class="muted">Ancora nessuno: condividi il link!</p>'}
@@ -4833,7 +4833,7 @@ vZona=function(){
   /* trasloco in corso: schermata "La tua nuova casa" */
   if(S.moving&&!S.zone){_vZonaHome();try{const h=document.querySelector('#vv h2');if(h)h.textContent='Dove si trova la casa nuova?';
       const old=S.case&&S.case[0];const p=h&&h.nextElementSibling;
-      if(p)p.outerHTML=`<div class="mvnew"><b>🚚 Trasloco${old?` da ${esc(old.address)}`:''}</b><span>Monete, gemme, livello, attrezzi, crediti e amici sono già con te. Trova la casa nuova: il gioco si sposta nel nuovo quartiere vero.</span></div>`;
+      if(p)p.outerHTML=`<div class="mvnew"><b>🚚 Trasloco${old?` da ${esc(old.address)}`:''}</b><span>Mattoni, gemme, livello, crediti e amici sono già con te. Trova la casa nuova: il gioco si sposta nel nuovo quartiere vero.</span></div>`;
       const mv=document.getElementById('mvBtn');if(mv)mv.remove();
       if(!document.getElementById('mvUndo'))document.getElementById('vv').insertAdjacentHTML('beforeend','<p style="margin-top:14px"><button class="btn ghost small" id="mvUndo">Annulla: non ho traslocato</button></p>');
       const u=document.getElementById('mvUndo');if(u)u.onclick=()=>{const o=S.case&&S.case[0];if(!o){toast('Scrivi l’indirizzo della casa');return;}const f=document.getElementById('addr');if(f)f.value=o.address;S.moving=0;toast('Riscrivi o conferma il vecchio indirizzo e premi Analizza');};}catch(e){}return;}
@@ -5245,7 +5245,7 @@ function orPanelHTML(){const s=OR.s;
   if(!s||!s.next_at)return`<div class="panel opan"><b class="disp opt">🧟 L’orda del mondo</b><p class="osub"><span class="spin"></span> Controllo quando arriva… (serve il blocco SQL “orda del mondo” su Supabase)</p></div>`;
   const live=orLive(),ch=orChance();const nH=s.total||0;
   const last=nH?`<div class="olast ${s.held===s.total?'ok':''}"><b>Ultima orda · ore ${orTime(s.prev_at)}</b><span>${s.held===s.total?'🛡️ Tutte le tue case hanno tenuto!':`🛡️ ${s.held} ${s.held===1?'tenuta':'tenute'} · 💥 ${s.total-s.held} ${s.total-s.held===1?'sfondata':'sfondate'}`}</span>
-     ${s.claimed?'<small>✅ Premi riscattati</small>':`<button class="btn" data-ocl>🎁 ${s.bounty?'🎯 taglie incluse · ':''}Riscatta: 🧱 ${s.mattoni} + 🪙 ${30*s.held}${s.held===s.total?' + 💎 2':''}</button>`}</div>`:'';
+     ${s.claimed?'<small>✅ Premi riscattati</small>':`<button class="btn" data-ocl>🎁 ${s.bounty?'🎯 taglie incluse · ':''}Riscatta: 🧱 ${s.mattoni+6*s.held}${s.held===s.total?' + 💎 2':''}</button>`}</div>`:'';
   return`<div class="panel opan ${live?'live':''}"><div class="row spread"><b class="disp opt">🧟 L’orda del mondo</b>${live?'<span class="olive">● IN CORSO</span>':''}</div>
    <div class="onext"><span>${s.next_bonus?`<span class="rbon">${s.next_bonus>0?'+':''}${s.next_bonus} difesa da aiuti/orde</span> `:''}Prossima orda</span><b>${orTime(s.next_at)}</b><small>tra ${orLeft(s.next_at)}</small></div>
    <div class="ostep"><div class="${s.prepared?'done':''}"><i>1</i><b>Prepara</b>${s.prepared?'<small>✅ Case pronte (+15 difesa)</small>':'<button class="btn small" data-oprep>🛡️ Prepara le case</button>'}</div>
@@ -5256,7 +5256,7 @@ function orPanelHTML(){const s=OR.s;
 function orBind(root){const p=(root||document).querySelector('.opan');if(!p)return;
   const pr=p.querySelector('[data-oprep]');if(pr)pr.onclick=async()=>{pr.disabled=true;try{const{data}=await SB.rpc('world_prepare');toast(data&&data.ok?'🛡️ Case preparate: +15 difesa per la prossima orda':'Non riuscito');}catch(e){toast('Non riuscito');}orLoad(true);};
   const cl=p.querySelector('[data-ocl]');if(cl)cl.onclick=async()=>{cl.disabled=true;try{const{data}=await SB.rpc('world_raid_claim');
-      if(data&&data.ok){if(typeof G!=='undefined'&&G.type){G.coins+=30*data.held;if(data.held===data.total)G.gems+=2;G.spins=(G.spins||0)+1;}try{saveLocal();sfx('coin');vibe();}catch(e){}toast(`🎁 +🧱 ${data.mattoni} · +🪙 ${30*data.held}${data.held===data.total?' · +💎 2':''} · +1 giro di ruota 🎡`);if(typeof wMine==='function')wMine(true);}
+      if(data&&data.ok){if(typeof G!=='undefined'&&G.type){G.coins+=30*data.held;if(data.held===data.total)G.gems+=2;G.spins=(G.spins||0)+1;}try{saveLocal();sfx('coin');vibe();}catch(e){}toast(`🎁 +🧱 ${data.mattoni+6*data.held}${data.held===data.total?' · +💎 2':''} · +1 giro di ruota 🎡`);if(typeof wMine==='function')wMine(true);}
       else toast(data&&data.msg||'Non riuscito');}catch(e){toast('Non riuscito');}orLoad(true);};
   const f=p.querySelector('[data-ofort]');if(f)f.onclick=()=>orFortify();
   const wa=p.querySelector('[data-owatch]');if(wa)wa.onclick=()=>orWatch();
@@ -5305,8 +5305,7 @@ const OT=[
  {tab:()=>{G.sub='q';go('orda');},sel:'.opan',t:'Ogni giorno alle <b>9</b> e alle <b>21</b> arriva l’<b>orda del mondo</b>, da sola. Qui vedi quando.'},
  {tab:null,sel:'.opan .ostep',t:'Prima: tocca <b>Prepara</b> (+15 difesa) e, se vuoi, <b>Fortifica</b>. Dopo: <b>guarda l’assalto</b> e <b>riscatta</b> i premi. Tutto qui.'},
  {tab:null,sel:'.wpan',t:'Qui ci sono i tuoi <b>Mattoni</b>, le tue case e gli <b>affitti</b> da riscuotere ogni giorno.'},
- {tab:null,sel:'.tmp',t:'Ogni giorno <b>3 missioni</b> sui posti veri della tua zona: premi in più.'},
- {tab:null,sel:'.odyou',t:'E se vuoi giocare di più: <b>Difendi tu</b> la casa nelle notti, con carte e abilità. È facoltativo.'}];
+ {tab:null,sel:'.tmp',t:'Ogni giorno <b>3 missioni</b> sui posti veri della tua zona: premi in più.'}];
 function orTour(i){try{G.tourDone=1;}catch(e){}if(i===0)closeSheet();const st=OT[i];document.querySelectorAll('.otour').forEach(x=>x.remove());if(!st){toast('🧭 Giro finito: buona difesa!');return;}
   if(st.tab)st.tab();setTimeout(()=>{const el=[...document.querySelectorAll(st.sel)].find(e=>e.offsetParent!==null);if(!el){orTour(i+1);return;}
     el.scrollIntoView({block:'center'});setTimeout(()=>{const r=el.getBoundingClientRect();const o=document.createElement('div');o.className='otour';
@@ -5390,7 +5389,7 @@ function shopHTML(){return`<div class="panel spanx"><b class="disp" style="font-
   <div class="shopg">${[['💎 80','0,99 €'],['💎 450','4,99 €'],['💎 1.000','9,99 €']].map(([a,b])=>`<div><b>${a}</b><small>${b}</small><button class="btn small ghost" disabled>Presto</button></div>`).join('')}</div>
   <div class="passx"><b>⭐ Pass del Superstite · 4,99 €/mese</b><small>Case preparate in automatico a ogni orda · +20% affitti · 1 casa in più · premi doppi nelle missioni</small><button class="btn small ghost" disabled>Presto</button></div>
   <h4 class="ah">Cosa fai con le gemme, già oggi</h4><div class="shopu">
-   <div><b>💰 10 💎 → 🪙 250</b><small>cambio in Potenzia</small></div><div><b>🔧 20 💎</b><small>ripara tutto durante una notte</small></div><div><b>✨ 5 💎</b><small>raddoppia le monete dell’ultima orda</small><button class="btn small" data-dbl ${G.gems>=5&&OR.s&&OR.s.claimed&&window.__dbl!==OR.s.prev_id?'':'disabled'}>Raddoppia</button></div></div></div>`;}
+   <div><b>🛡️ 20 💎</b><small>scudo per un alleato alla prossima orda</small></div><div><b>✨ 5 💎</b><small>raddoppia il premio difesa dell’ultima orda</small><button class="btn small" data-dbl ${G.gems>=5&&OR.s&&OR.s.claimed&&window.__dbl!==OR.s.prev_id?'':'disabled'}>Raddoppia</button></div></div></div>`;}
 
 /* ---- PAGINA CASA, rifatta e pulita ---- */
 function vNextSlot(){const n=new Date();for(const d of[0,1])for(const h of[9,21]){const t=new Date(n.getFullYear(),n.getMonth(),n.getDate()+d,h,0,0);if(t>n)return t;}return n;}
@@ -5540,7 +5539,7 @@ function renderIo(){const u=S.user;const m=window.W&&W.m;const nick=u?(u.nick||(
   const row=(k,i,l,extra='')=>`<button class="iorow" data-io="${k}"><span>${i}</span><b>${l}</b>${extra}<i>›</i></button>`;
   app.innerHTML=`<div class="page dots">
    ${u?`<div class="panel night iohead"><div class="ioav">${esc((nick||'?')[0].toUpperCase())}</div><div><b class="disp" style="font-size:24px;color:var(--moon)">@${esc(nick)}</b>
-     <small>Livello mondo ${m?m.wlevel:'…'} · 🧱 ${m?wNum(m.mattoni):'…'} · 💎 ${(typeof G!=='undefined'&&G.gems)||0} · 🪙 ${(typeof G!=='undefined'&&G.coins)||0}</small></div></div>`
+     <small>Livello mondo ${m?m.wlevel:'…'} · 🧱 ${m?wNum(m.mattoni):'…'} · 💎 ${(typeof G!=='undefined'&&G.gems)||0}</small></div></div>`
      :`<div class="panel night"><b class="disp" style="font-size:24px;color:var(--moon)">👤 Entra nel mondo</b><p style="color:#fff;font-weight:400">Con l’account la tua casa è tua nel mondo vero, salvi i progressi su tutti i dispositivi e giochi con gli alleati.</p><button class="btn" data-io="login">Accedi o registrati</button></div>`}
    ${u?`<div class="panel"><b class="disp" style="font-size:20px">📨 Invita qualcuno</b><p style="font-weight:400;font-size:13.5px;margin:4px 0 8px">Vicino di casa o amico in Australia: chi entra con il tuo link e valuta la casa ti dà 💎 5 e diventa tuo alleato.</p><button class="btn" data-io="invita">📤 Invita</button></div>`:''}
    ${typeof shopHTML==='function'?shopHTML():''}
@@ -5563,7 +5562,7 @@ function renderIo(){const u=S.user;const m=window.W&&W.m;const nick=u?(u.nick||(
     try{if(typeof zIsAdmin==='function'&&await zIsAdmin())h+='<a class="iorow" href="admin.html" target="_blank"><span>🛠️</span><b>Pannello admin INDZ</b><i>›</i></a>';}catch(e){}
     try{const{data}=await SB.from('sponsor_users').select('sponsor_id').eq('user_id',u.id).limit(1);if(data&&data.length)h+='<a class="iorow" href="negozio.html" target="_blank"><span>🏪</span><b>Pannello del mio negozio</b><i>›</i></a>';}catch(e){}
     if(h&&S.tab==='io')box.innerHTML=`<div class="panel iolist">${h}</div>`;}catch(e){}})();
-  try{const d=app.querySelector('[data-dbl]');if(d)d.onclick=()=>{const s=OR.s;if(!s||G.gems<5||window.__dbl===s.prev_id)return;const c=30*(s.held||0)+10*((s.total||0)-(s.held||0));G.gems-=5;G.coins+=c;window.__dbl=s.prev_id;toast(`✨ Monete raddoppiate: +🪙 ${c}`);renderIo();};}catch(e){}}
+  try{const d=app.querySelector('[data-dbl]');if(d)d.onclick=()=>{const s=OR.s;if(!s||G.gems<5||window.__dbl===s.prev_id)return;const c=30*(s.held||0)+10*((s.total||0)-(s.held||0));G.gems-=5;G.coins+=c;window.__dbl=s.prev_id;toast(`✨ Premio raddoppiato: +🧱 ${Math.max(1,Math.floor(c/5))}`);renderIo();};}catch(e){}}
 
 /* la barra dell'orda in cima solo in Valuta (in Mappa c'è già quella sulla mappa) */
 try{const _opb=orPutBanner;orPutBanner=function(){if(S.tab!=='valuta')return;return _opb();};}catch(e){}
@@ -6085,7 +6084,7 @@ function oggiAt(d,when){if(!d||!d.hourly)return null;const p=n=>String(n).padSta
   if(c>=95||g>=60){ev='blackout';eff='⚡ Blackout: salta la corrente, si vede solo vicino alla luce.';}
   else if(c===45||c===48||(vis!=null&&vis<1000)){ev='nebbia';eff='🌫️ Nebbia: gli zombie spuntano all’ultimo momento.';}
   else if((c>=51&&c<=67)||(c>=80&&c<=82)||pr>=.2){ev='pioggia';eff='🌧️ Pioggia: zombie più lenti (ma le zone basse si allagano).';}
-  else if(m.full&&when.getHours()>=18){ev='luna';eff='🌕 Luna piena: orda più veloce, ma monete doppie.';}
+  else if(m.full&&when.getHours()>=18){ev='luna';eff='🌕 Luna piena: orda più veloce.';}
   return{c,ic:wIcon(c),name:wName(c),t:Math.round(t),pr,ev,eff,moon:m};}
 function oggiNext(){const s=OR&&OR.s;return s&&s.next_at?new Date(s.next_at):vNextSlot();}
 zEvery(()=>{const n=new Date();document.querySelectorAll('[data-clock]').forEach(e=>{e.textContent=n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});});},1000);
@@ -6098,7 +6097,7 @@ async function oggiSheet(){openSheet('📅 Oggi','<p><span class="spin"></span> 
      <small>${GG[n.getDay()]} ${n.getDate()} ${MM[n.getMonth()]} ${n.getFullYear()}</small>${daily?`<small>${wIcon(daily.weather_code[0])} ${wName(daily.weather_code[0])} · ${Math.round(daily.temperature_2m_min[0])}–${Math.round(daily.temperature_2m_max[0])}°C · pioggia ${daily.precipitation_probability_max[0]||0}%</small>`:''}
      <small>${m.ic} ${m.n}${sun?` · tramonto ${sun.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`:''}</small></div></div>
     <h4 class="hh">🧟 Le prossime orde e il meteo</h4>${rows}
-    <p class="muted" style="font-size:12px;margin:6px 0 0">Il meteo vero cambia le notti che giochi tu (Difendi tu). L’esito dell’orda del mondo dipende da livello, preparazione e aiuti.</p>
+    <p class="muted" style="font-size:12px;margin:6px 0 0">Il meteo vero cambia l’assalto che vedi sul fronte. L’esito dell’orda del mondo dipende da livello, preparazione e aiuti.</p>
     <h4 class="hh">📅 Sincronizza con il calendario</h4>
     <div class="ocals"><button class="btn" data-oc="google">🗓️ Google Calendar · tutte le orde</button><button class="btn alt" data-oc="apple">🍎 Calendario iPhone · tutte le orde</button><button class="btn ghost" data-oc="next">➕ Solo la prossima orda (Google)</button></div>
     <p class="muted" style="font-size:12px;margin-top:6px">“Tutte le orde” ti abbona una volta: le orde delle 9:00 e delle 21:00 compaiono ogni giorno nel tuo calendario.</p>`,c=>{
@@ -6615,14 +6614,14 @@ ayInbox=async function(){if(!S.user||typeof SB==='undefined'||!SB||typeof G==='u
   const got=[];for(const g of data){const r=await SB.rpc('world_gift_claim',{p_id:g.id});if(r.data&&r.data.ok){gAdd(g.kind,g.amount);got.push(`${(GK[g.kind]||['🎁'])[0]} ${g.amount} da @${g.nick}`);}}
   if(got.length){try{saveLocal();sfx('coin');}catch(e){}toast('🎁 Regali ricevuti: '+got.join(' · '));}}catch(e){}};
 /* finestra dei doni */
-aySheet=function(uid,nick){let kind='mattoni',loan=true;const order=['mattoni','gemme','monete','giri','biglietti'];
+aySheet=function(uid,nick){let kind='mattoni',loan=true;const order=['mattoni','gemme','giri','biglietti'];
   const draw=card=>{card.querySelector('.ayk').innerHTML=order.map(k=>`<button class="chip ${k===kind?'on':''}" data-k="${k}">${GK[k][0]} ${GK[k][1]}<small> (${wNum(gHave(k))})</small></button>`).join('');
     card.querySelector('.aym').innerHTML=kind==='mattoni'?`<button class="chip ${loan?'on':''}" data-m="1">🤝 Presta (torna fra 3 giorni)</button><button class="chip ${!loan?'on':''}" data-m="0">🎁 Regala</button>`:`<span class="muted" style="font-size:12.5px">Si può solo regalare. Massimo oggi: ${GLIM[kind]||10}.</span>`;
     const n=card.querySelector('#ayN');if(n&&(kind==='giri'||kind==='biglietti'))n.value=1;
     card.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{kind=b.dataset.k;if(kind!=='mattoni')loan=false;draw(card);});card.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{loan=b.dataset.m==='1';draw(card);});};
   openSheet('🎁 A @'+esc(nick),`<p style="font-weight:400">Cosa vuoi dare?</p><div class="ayk chips" style="margin:6px 0"></div><div class="aym" style="margin:6px 0"></div>
    <label class="disp" style="font-size:16px">Quantità</label><input id="ayN" type="number" inputmode="numeric" min="1" value="50" class="field">
-   <p class="muted" style="font-size:12px;margin:6px 0">Limiti al giorno: 300 Mattoni, 20 gemme, 300 monete, 1 giro di ruota, 1 biglietto.</p>
+   <p class="muted" style="font-size:12px;margin:6px 0">Limiti al giorno: 300 Mattoni, 20 gemme, 1 giro di ruota, 1 biglietto.</p>
    <button class="btn wide" data-ayok>Conferma</button>`,card=>{draw(card);card.querySelector('[data-ayok]').onclick=async()=>{const n=Math.floor(+card.querySelector('#ayN').value||0);if(n<1){toast('Scrivi una quantità');return;}
      if(gHave(kind)<n){toast('Non ne hai abbastanza');return;}const btn=card.querySelector('[data-ayok]');btn.disabled=true;
      try{const{data,error}=await SB.rpc('world_give',{p_to:uid,p_kind:kind,p_amount:n,p_loan:kind==='mattoni'&&loan});if(error)throw error;
@@ -6697,7 +6696,7 @@ function coSteps(){const s=OR.s||{},m=window.W&&W.m,L=[];const add=(id,ic,t,why,
   try{const st=scudoSteps();const miss=st.find(x=>!x[2]);add('scudo','🏡',miss?`Casa vera: ${miss[1]}`:'Scudo della casa vera al massimo','Ogni livello di Scudo dà +2 di difesa a tutte le tue case.',!miss,()=>openScudo());}catch(e){}
   if(m){const hs=myHouses();const up=hs.find(h=>!h.home&&h.level<5&&m.mattoni>=150*h.level);add('up','⬆️',up?`Potenzia ${up.label} (🧱 ${150*up.level})`:'Potenzia una casa','+12 di difesa e più affitti per livello.',!up,()=>{if(up){S.mfHouses=true;go('mappa');setTimeout(()=>mhFly(up,true),900);}else go('mappa');});
     if(m.mattoni>=500)add('buy','🏠','Compra una casa nel mondo','Più case = più affitti e più premi a ogni orda.',false,()=>{S.mfHouses=true;go('mappa');});}
-  try{const T=tmInit();if(T){const mm=T.list.find(x=>!x.cl);add('mis','🎯',mm?`Missione: ${String(mm.t).replace(/<[^>]+>/g,'')}`:'Missioni di oggi completate','Monete e gemme in premio.',!mm,()=>coGoOrda('.tmp'));}}catch(e){}
+  try{const T=tmInit();if(T){const mm=T.list.find(x=>!x.cl);add('mis','🎯',mm?`Missione: ${String(mm.t).replace(/<[^>]+>/g,'')}`:'Missioni di oggi completate','Mattoni e gemme in premio.',!mm,()=>coGoOrda('.tmp'));}}catch(e){}
   if(td&&td.allies===0)add('ally','🤝','Fatti un alleato','Invita un amico: 150 🧱 a te e alleanza automatica.',false,()=>inviteSheet());
   return L;}
 function coGoOrda(sel){go('orda');setTimeout(()=>{const t=app.querySelector(sel);if(t){t.scrollIntoView({behavior:'smooth',block:'start'});t.classList.remove('flashme');void t.offsetWidth;t.classList.add('flashme');}},600);}
@@ -7053,7 +7052,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611101736';
+const APPV='202611101802';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -7825,7 +7824,7 @@ function socPaint(){
     if(SOC.rs==='lega'){seg.querySelectorAll('[data-rs]').forEach(b=>b.classList.toggle('on',b.dataset.rs==='lega'));eqRankPaint();}}catch(e){}})();  /* Rivali: chi ha lo scudo è protetto (p37) */
   (()=>{try{if(SOC.tab!=='squadra'||!S.user)return;const B=app.querySelector('#socBody');if(!B)return;
   if(!B.querySelector('.tbpan'))B.insertAdjacentHTML('afterbegin',`<div class="panel tbpan"><b class="disp" style="font-size:22px">🛡️ Bonus di squadra</b><p style="font-weight:400;font-size:12.5px;margin:2px 0 8px">Per la prossima orda. Gli alleati e i coinquilini non possono mandarsi orde né dispetti.</p><div class="tbbox">${tbHTML()}</div>
-    <details class="man"><summary>Come funzionano le alleanze</summary><div class="man-b"><p>• <b>Rinforzi</b>: +5 per ogni alleato che ti aiuta (max +20), gratis.<br>• <b>Scudo</b>: 20 💎, +5 a un alleato (max 2 scudi).<br>• <b>Difesa di squadra</b>: se almeno 3 tuoi alleati preparano le case, +5 a te.<br>• <b>Coinquilini</b>: chi abita nel tuo stesso edificio è alleato automatico; +3 per ognuno che prepara le case (max +9).<br>• <b>Doni</b>: Mattoni (anche in prestito), gemme, monete, giri di ruota, biglietti.</p></div></details></div>`);
+    <details class="man"><summary>Come funzionano le alleanze</summary><div class="man-b"><p>• <b>Rinforzi</b>: +5 per ogni alleato che ti aiuta (max +20), gratis.<br>• <b>Scudo</b>: 20 💎, +5 a un alleato (max 2 scudi).<br>• <b>Difesa di squadra</b>: se almeno 3 tuoi alleati preparano le case, +5 a te.<br>• <b>Coinquilini</b>: chi abita nel tuo stesso edificio è alleato automatico; +3 per ognuno che prepara le case (max +9).<br>• <b>Doni</b>: Mattoni (anche in prestito), gemme, giri di ruota, biglietti.</p></div></details></div>`);
   try{ayRefresh();}catch(e){}try{ayLoad();}catch(e){}tbDecorate();
   tbLoad();}catch(e){}})();  /* Squadra: bonus di squadra (p43) */
   (()=>{try{if(SOC.tab!=='squadra'||!S.user)return;const B=app.querySelector('#socBody');if(!B||B.querySelector('.afpan'))return;
@@ -7951,7 +7950,7 @@ function manualHTML(){let h=manualHTMLBase();
   h=h.replace('<details class="man"',`<details class="man" open><summary>🧟 L’orda del mondo (la cosa principale)</summary><div class="man-b"><p>Ogni giorno alle <b>9:00</b> e alle <b>21:00</b> un’orda attacca <b>tutte le case del mondo unico</b>, da sola. Ogni casa tiene o viene sfondata in base alla sua difesa: <b>45 + 12 per livello</b> (massimo 5), <b>+15 se hai premuto “Prepara”</b>, +5 per casa tua. La forza dell’orda cambia per ogni casa e ogni orda (da 40 a 99).</p><p><b>Prima</b>: Prepara e Fortifica. <b>Dopo</b>: guarda l’assalto sulla mappa (🛡️ tenute, 💥 sfondate) e <b>riscatta</b> prima dell’orda successiva: 🧱 8 + 4 × livello per ogni casa che tiene (2 per quelle sfondate), 🪙 30 per casa che tiene, 💎 2 se tengono tutte.</p><p>Le notti giocate a mano restano: sono “Difendi tu”, facoltative, con i loro premi.</p></div></details><details class="man"`);
   h=h.replace('<details class="man"',`<details class="man"><summary>🤝 Alleati, rivali e simulati</summary><div class="man-b"><p><b>Chiedi aiuto</b> per la prossima orda: chiunque nel mondo può mandarti rinforzi (+5 di difesa ciascuno, fino a +20) e chi aiuta guadagna Mattoni. <b>Manda un’orda</b> a un rivale: costa 30 Mattoni, gli toglie 8 di difesa e, se la sua casa cade, prendi una taglia di 25 Mattoni. Chi è molto più debole di te (3 livelli sotto) è protetto.</p><p>L’orda è <b>su misura</b>: cresce con il tuo livello, così chi arriva dopo può crescere. Le case si comprano <b>ovunque</b>: il prezzo sale con la distanza da casa tua.</p><p>🤖 Circa una casa su sei è di un <b>superstite simulato</b>, un personaggio del gioco: si può comprare (+30%).</p></div></details><details class="man"`);
   h=h.replace('<details class="man"',`<details class="man"><summary>🎁 Regali, prestiti e fortuna</summary><div class="man-b"><p><b>Alleati</b> sono i giocatori con cui vi siete aiutati negli ultimi 30 giorni e chi hai invitato (o chi ti ha invitato). Agli alleati puoi <b>prestare Mattoni</b> (tornano da soli dopo 3 giorni) o <b>regalare</b> Mattoni, monete, gemme e materiali. Limiti al giorno: 300 Mattoni, 1.000 monete, 20 gemme, 10 per materiale; gli account nuovi possono regalare dopo 3 giorni.</p><p><b>Ruota, gratta e vinci, premio del giorno e barattolo</b> sono in alto nel gioco: giri e biglietti si guadagnano riscattando l’orda, vincendo notti e aiutando gli alleati.</p></div></details><details class="man"`);
-  h=h.replace(/o <b>regalare<\/b> Mattoni, monete, gemme e materiali\. Limiti al giorno: 300 Mattoni, 1\.000 monete, 20 gemme, 10 per materiale/,'o <b>regalare</b> Mattoni, monete e materiali (le gemme no). Limiti al giorno: 300 Mattoni, 300 monete, 10 per materiale');
+  h=h.replace(/o <b>regalare<\/b> Mattoni, monete, gemme e materiali\. Limiti al giorno: 300 Mattoni, 1\.000 monete, 20 gemme, 10 per materiale/,'o <b>regalare</b> Mattoni, gemme, giri di ruota e biglietti. Limiti al giorno: 300 Mattoni, 20 gemme, 1 giro di ruota, 1 biglietto');
   return h;}
 </script>
 <script>
