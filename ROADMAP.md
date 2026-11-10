@@ -88,6 +88,8 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 **Controllo:** Alessandro esegue i blocchi indicati; l'app funziona come prima.
 
 ## Fase 7 — Velocità e peso
+- Piano a passi: **7a** Radio Operatore rifatta + orologio fermo in sfondo · **7b** forme degli edifici salvate su Supabase per tutti (casa 1 generica, case lente) · **7c** peso e apertura (caricare a pezzi, `t_perf.py` prima/dopo).
+- **7a fatta:** Radio Operatore a misura di schermo (prima casella e domande finivano sotto la barra in basso, "Aiuto" sopra "Invia"); risposte automatiche aggiornate al gioco di oggi (servono finché manca `ANTHROPIC_API_KEY` su Supabase: l'IA non è mai stata attiva, decisione sul pagamento rimandata); istruzioni per l'IA aggiornate; orologio unico fermo con l'app in sfondo.
 - Con l'orologio unico (4f-2) si può, in un posto solo, fermare o rallentare i compiti periodici quando l'app è in background (oggi solo alcuni lo fanno da sé).
 - Obiettivo: app pubblicata sotto 700 KB, prima schermata in meno di 2 s sul telefono.
 - Caricare a pezzi le parti pesanti (fumetto, disegni, classifica, piazza).
@@ -125,8 +127,8 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 3 | fatta: 3a (#4), 3b-1 (#5), 3b-2 (#6), 3c (#7), 3d (#8) | #4–#8 | app pubblicata da 1.336 KB a 1.037 KB (−22 %): 3a codice morto; 3b-1 Orda pulita (p63); 3b-2 tolti 7 moduli del vecchio gioco, p5_game da 145 a 15 KB, circa 30 strati che li avvolgevano e 34 funzioni rimaste orfane. 3c: "Come si gioca" e istruzioni riscritte per il gioco di oggi. Restano p4b e p5j_giorno (Fase 4) |
 | 4 | fatta: 4a–4f-2 (#9–#18) | #9–#18 | 4f-2: un solo timer di sistema al posto di 28 (p1z_orologio.js, zEvery), tolto un contatore sponsor doppio. 4f-1: navigazione go (base + 8 strati), accesso, salvataggi, finestre e analisi della zona definiti una volta in p68. 4e: menu ☰ (zmDo base + 5 strati), barre e istruzioni (manualHTML base + 5) definiti una volta in p67; tolto il vecchio menu a tendina di p10. 4d: socPaint (base + 10 strati) e altre 11 funzioni dei Superstiti definite una volta in p66. 4c: liveMap (base + 9 strati) e altre 6 funzioni della mappa definite una volta in p65. 4b: 14 funzioni dell'Orda definite una volta in p63 (prima base + 1–3 strati), tolte le catene morte del vecchio hub. 4a: houseSheet unica in p64_casa.js, la pagina compare una volta sola già completa; "La mia casa" dalla homepage aspetta i dati invece di aprire la pagina vecchia |
 | 5 | fatta: 5a–5e (#19–#23) | #19–#23 | 5e: premio inviti uguale ovunque, prossimo passo e giro guidato aggiornati. 5d: "Aggiorno l'app…" e ricarica anche quando l'app torna dallo sfondo. 5c: pulsanti ‹ Menu e ‹ Le mie case, link d'invito al sito vero. 5b: elenco Le mie case, piano e valutazione nella pagina della casa vera. 5a: via monete, notti, battaglia e "Difendi tu" dai testi ancora visibili; premi mostrati in 🧱 |
-| 6 | 6a–6c fatte (#24, #25; migrazioni 001 e 002 eseguite); 6d (funzioni Edge) in attesa di Merge | #24, #25, Fase 6d — Funzioni Edge | 6d: funzioni Edge con istruzioni, controllo notifiche. 6c: una sola % di tenere, migrazione 002, docs/FORMULE.md. 6b: migrazione 001 (7 funzioni mancanti, 3 tolte). 6a: schema.sql ricostruito, inventario, controllo di sola lettura |
-| 7 | da fare | | |
+| 6 | fatta: 6a–6d (#24–#26; migrazioni 001 e 002 eseguite) | #24–#26 | 6d: funzioni Edge con istruzioni, controllo notifiche. 6c: una sola % di tenere, migrazione 002, docs/FORMULE.md. 6b: migrazione 001 (7 funzioni mancanti, 3 tolte). 6a: schema.sql ricostruito, inventario, controllo di sola lettura |
+| 7 | 7a (Radio, orologio in sfondo) in attesa di Merge | Fase 7a — Radio Operatore e app in sfondo | |
 | 8 | da fare | | |
 | 9 | da fare | | |
 | 10 | da fare | | |

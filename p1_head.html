@@ -166,6 +166,16 @@ p{line-height:1.45}
 .msg.typing{opacity:.7}
 .composer{position:sticky;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));background:var(--paper);padding:10px 0;display:flex;gap:8px}
 .composer input{flex:1}
+/* Radio Operatore (Fase 7a): pagina a misura di schermo, i messaggi scorrono dentro */
+.radiopg{display:flex;flex-direction:column;padding-bottom:6px;overflow:hidden}
+.radiopg .rphead{gap:10px;margin-bottom:8px;flex:none}.radiopg .rphead h2{font-size:24px;line-height:1.1}.radiopg .rphead p{font-size:13px}
+.radiopg .rpico{width:44px;height:44px;border:var(--line);background:var(--zom);display:grid;place-items:center;flex:none}
+.radiopg .chat{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 2px 8px}
+.radiopg .rpchips{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;flex:none;padding:6px 0 2px;-webkit-overflow-scrolling:touch}
+.radiopg .rpchips .chip{flex:none;white-space:nowrap;font-size:13px;min-height:34px;padding:6px 10px}
+.radiopg .composer{position:static;flex:none;padding:8px 0 0}
+.radiopg .cback{flex:none;padding:0 0 6px}
+body:has(.radiopg) #accFab{display:none}
 
 /* ---- varie ---- */
 .notice{border:2px dashed var(--ink);padding:10px;font-size:13px;font-weight:400;background:rgba(255,255,255,.6)}
