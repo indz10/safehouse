@@ -68,7 +68,7 @@ function shopHTML(){return`<div class="panel spanx"><b class="disp" style="font-
 
 /* ---- PAGINA CASA, rifatta e pulita ---- */
 function vNextSlot(){const n=new Date();for(const d of[0,1])for(const h of[9,21]){const t=new Date(n.getFullYear(),n.getMonth(),n.getDate()+d,h,0,0);if(t>n)return t;}return n;}
-setInterval(()=>{document.querySelectorAll('[data-oleft]').forEach(e=>{e.textContent=orLeft((OR.s&&OR.s.next_at)||vNextSlot());});},20000);
+zEvery(()=>{document.querySelectorAll('[data-oleft]').forEach(e=>{e.textContent=orLeft((OR.s&&OR.s.next_at)||vNextSlot());});},20000);
 renderHome=function(){const z=S.zone,Rr=S.result,m=W&&W.m,s=OR.s;const next=(s&&s.next_at)||vNextSlot();
   const hero=`<section class="hero2">${heroSVG()}<div class="h2t"><h1>Zombie<span>Safe House</span></h1></div><div class="boom sfx">GRRRAAH!</div></section>`;
   const sp=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&SPONSORS[k]);const near=z&&z.real?sp.map(([k,g])=>({k,d:trM(z.real.lat,z.real.lon,g.lat,g.lon)})).sort((a,b)=>a.d-b.d).slice(0,3):sp.slice(0,3).map(([k])=>({k,d:null}));

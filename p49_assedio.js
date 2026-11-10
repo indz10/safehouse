@@ -72,7 +72,7 @@ function fxDraw(){(window.__zlms||[]).forEach(lm=>{try{if(!lm||!lm.map)return;(l
     el.title=[...new Set(g.k)].map(k=>(FXI[k]||['',''])[1]).join(', ');el.addEventListener('click',e=>{e.stopPropagation();playerSheet(g.uid);});
     lm._fx.push(new maplibregl.Marker({element:el}).setLngLat([g.lon,g.lat]).addTo(lm.map));});}catch(e){}});}
 ['doDisp','allyShield','alHelp'].forEach(n=>{try{const f=window[n];if(typeof f!=='function')return;window[n]=async function(){const r=await f.apply(this,arguments);setTimeout(()=>fxLoad(true),700);return r;};}catch(e){}});
-setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='mappa'||S.tab==='orda'))fxLoad();},60000);
+zEvery(()=>{if(document.visibilityState==='visible'&&(S.tab==='mappa'||S.tab==='orda'))fxLoad();},60000);
 /* ---- 4) MESSAGGI DIRETTI ---- */
 window.DM={with:null,nick:'',t:0,timer:0};
 async function dmSheet(uid,nick){DM.with=uid;DM.nick=nick||'';const draw=async()=>{let L=[];try{const{data,error}=await SB.rpc('world_dm_list',{p_with:uid});if(error)throw error;L=(data||[]).slice().reverse();}catch(e){return openSheet('💬 Messaggi',`<p class="muted">Messaggi non disponibili (${esc(e.message||'')}). Esegui il file assedio.sql su Supabase.</p>`);}

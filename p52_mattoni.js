@@ -17,7 +17,7 @@ async function matFlush(){if(!S.user)return;let q=[];try{q=JSON.parse(localStora
 function coinSweep(){try{if(typeof G==='undefined'||!G)return;const k='zsh_coinbase';let base=+(localStorage.getItem(k)||NaN);
   if(isNaN(base)){/* prima volta: converto le monete che avevi */const old=Math.max(0,G.coins||0);localStorage.setItem(k,'0');G.coins=0;try{saveLocal();}catch(e){}if(old>=5)giveMattoni(Math.min(300,Math.floor(old/5)),'Monete convertite');return;}
   const c=G.coins||0;if(c>0){G.coins=0;try{saveLocal();}catch(e){}if(c>=5)giveMattoni(Math.floor(c/5),'Premi');}}catch(e){}}
-setInterval(coinSweep,10000);
+zEvery(coinSweep,10000);
 /* testi: dove c'erano monete ora ci sono Mattoni */
 function coinText(root){try{(root||app).querySelectorAll('.tmp, .lpan, .daily, #sheet.open .sheet-b').forEach(el=>{const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;const L=[];while((n=w.nextNode()))if(/🪙/.test(n.nodeValue))L.push(n);
   L.forEach(n=>{n.nodeValue=n.nodeValue.replace(/🪙\s*(\d+)/g,(m,v)=>'🧱 '+Math.max(1,Math.floor(+v/5))).replace(/(\d+)\s*🪙/g,(m,v)=>Math.max(1,Math.floor(+v/5))+' 🧱').replace(/🪙/g,'🧱').replace(/\bmonete\b/g,'Mattoni');});});}catch(e){}}

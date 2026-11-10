@@ -24,7 +24,7 @@ async function socLoad(what,force){const key=what+(what==='feed'?SOC.scope:what=
 /* numerino rosso sulla scheda: novità per te dall'ultima visita */
 function socBadge(){try{const seen=+(localStorage.getItem('zsh_soc_seen')||0);const n=(SOC.per||[]).filter(f=>new Date(f.created_at).getTime()>seen).length+(SOC.pend||[]).length;
   const b=document.querySelector('#nav [data-tab=social]');if(!b)return;let d=b.querySelector('.nbadge');if(n>0){if(!d){b.insertAdjacentHTML('beforeend','<i class="nbadge"></i>');d=b.querySelector('.nbadge');}d.textContent=n>9?'9+':n;}else if(d)d.remove();}catch(e){}}
-setInterval(()=>{if(S.user&&document.visibilityState==='visible')socLoad('per');},60000);
+zEvery(()=>{if(S.user&&document.visibilityState==='visible')socLoad('per');},60000);
 /* ---------------- la scheda ---------------- */
 function renderSocialBase(){app.innerHTML=`<div class="page dots soc">
   <div class="panel night shead"><div><b class="disp" style="font-size:28px;color:var(--moon)">👥 Superstiti</b><small>${typeof STATS!=='undefined'&&STATS.reg?`${STATS.reg} nel mondo · 🟢 ${STATS.on||0} online ora`:'Il mondo gioca insieme'}</small></div><button class="btn small" data-sinv>📨 Invita</button></div>
@@ -105,7 +105,7 @@ function spDraw(lm){if(!lm||!lm.map)return;(lm._sp2||[]).forEach(x=>x.remove());
     lm._sp2.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([g.lon,g.lat]).addTo(lm.map));});}
 /* 3) elenco degli sponsor per distanza, con "portami lì" */
 /* i dati degli sponsor arrivati dopo: ridisegno senza ricaricare la pagina */
-(function(){let last='';setInterval(()=>{try{const sig=Object.entries(window.SP_GEO||{}).map(([k,g])=>k+(g&&g.lat)).join('|');if(sig!==last){last=sig;(window.__zlms||[]).forEach(lm=>spDraw(lm));}}catch(e){}},3000);})();
+(function(){let last='';zEvery(()=>{try{const sig=Object.entries(window.SP_GEO||{}).map(([k,g])=>k+(g&&g.lat)).join('|');if(sig!==last){last=sig;(window.__zlms||[]).forEach(lm=>spDraw(lm));}}catch(e){}},3000);})();
 /* nella Mappa: pulsante "⭐ Sponsor" con l'elenco, accanto a "⋯" */
 /* i giocatori sulla mappa (filtro 🤝): toccandoli si apre la loro scheda */
 document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('.lm-usr');if(!m)return;const id=m.dataset.uid;if(id&&S.user){e.stopPropagation();playerSheet(id);}},true);

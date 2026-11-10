@@ -48,7 +48,7 @@ function zTopbarBase(){try{const T=document.getElementById('topbar');if(!T)retur
   const n=(()=>{try{const seen=+(localStorage.getItem('zsh_soc_seen')||0);return(SOC.per||[]).filter(f=>new Date(f.created_at).getTime()>seen).length+(SOC.pend||[]).length;}catch(e){return 0;}})();
   const bb=document.getElementById('zbell');let d=bb.querySelector('.nbadge');if(n>0){if(!d){bb.insertAdjacentHTML('beforeend','<i class="nbadge"></i>');d=bb.querySelector('.nbadge');}d.textContent=n>9?'9+':n;}else if(d)d.remove();}catch(e){}}
 ioBtn=function(){zTopbar();};
-setInterval(zTopbarBase,3000);setTimeout(zTopbarBase,200);  /* come prima: la versione di p28 (Fase 4e: zTopbar ora è in p67) */
+zEvery(zTopbarBase,3000);setTimeout(zTopbarBase,200);  /* come prima: la versione di p28 (Fase 4e: zTopbar ora è in p67) */
 /* musica: niente più pulsante volante, sta nel menu */
 setTimeout(()=>{try{const f=document.querySelector('.musicfab');if(f)f.style.display='none';}catch(e){}},300);
 /* tasto indietro del telefono / gesto: chiude prima il menu */

@@ -81,7 +81,7 @@ window.ORDA_ONE=true;
 /* i pulsanti che portano a un riquadro dentro una fisarmonica: la apro */
 (function(){const o=Element.prototype.scrollIntoView;Element.prototype.scrollIntoView=function(a){try{let d=this.closest&&this.closest('details');while(d){d.open=true;d=d.parentElement&&d.parentElement.closest('details');}}catch(e){}return o.call(this,a);};})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.tab==='orda'&&FR.lm)frLoop();});
-setInterval(()=>{if(S.tab==='orda'&&FR.node&&FR.node.isConnected)frHeader();},30000);
+zEvery(()=>{if(S.tab==='orda'&&FR.node&&FR.node.isConnected)frHeader();},30000);
 </script>
 <script>
 /* menu: "Difendi tu" porta al riquadro "Gioca la notte"; "Oggi" in cima al fronte */

@@ -62,7 +62,7 @@ function coPut(){try{if(S.tab==='home'){const h=app.querySelector('.hsbtns');if(
   if(S.tab==='orda'){const pg=app.querySelector('.page');if(pg){const o=pg.querySelector(':scope > .coach');const n=document.createElement('div');n.innerHTML=coHTML(false);const el=n.firstElementChild;if(o)o.replaceWith(el);else pg.prepend(el);coBind(el);}}}catch(e){}}
 const _renderHomeCo=renderHome;renderHome=function(){_renderHomeCo();coPut();};
 /* aggiornamenti */
-setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='home'||S.tab==='orda'))coPut();},30000);
+zEvery(()=>{if(document.visibilityState==='visible'&&(S.tab==='home'||S.tab==='orda'))coPut();},30000);
 </script>
 <script>
 </script>

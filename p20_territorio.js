@@ -473,7 +473,7 @@ async function zSyncProfile(force){try{const sb=typeof SB!=='undefined'&&SB;if(!
 /* numeri veri in alto: utenti registrati e online negli ultimi 5 minuti */
 async function zStats(){try{const sb=await waitSB(4000);if(!sb)return;const{data,error}=await sb.rpc('zsh_stats');if(error||!data)return;
   STATS.reg=data.utenti||0;STATS.on=data.online||0;tickStats();}catch(e){}}
-zStats();setInterval(()=>{if(!document.hidden)zStats();},60*1000);
+zStats();zEvery(()=>{if(!document.hidden)zStats();},60*1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){zSyncProfile();zStats();}});
 function zAskPublic(){if(document.querySelector('#sheet.open'))return setTimeout(zAskPublic,4000);
   openSheet('👥 Vuoi comparire sulla mappa?',`<p style="font-weight:400;margin-bottom:10px">Gli altri superstiti vedranno il tuo <b>nickname @${esc(S.user.nick)}</b>, l'<b>indice della casa</b> e il livello nel gioco, in una <b>posizione approssimata di circa 200 metri</b>. Mai l'indirizzo, mai i punti deboli della casa.</p>
@@ -491,7 +491,7 @@ function zDrawUsers(lm){if(!lm||!lm.map)return;(lm._usr||[]).forEach(x=>x.remove
       <p class="muted" style="font-size:13px">Per privacy non vedi l'indirizzo né i punti deboli della sua casa.</p></div>`);});
     lm._usr.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([u.lon_r,u.lat_r]).addTo(lm.map));});}
 /* quando ci si collega o si valuta la casa */
-zLoadUsers();setInterval(()=>{if(!document.hidden)zSyncProfile();},3*60*1000);setInterval(()=>{if(!document.hidden)zLoadUsers();},5*60*1000);
+zLoadUsers();zEvery(()=>{if(!document.hidden)zSyncProfile();},3*60*1000);zEvery(()=>{if(!document.hidden)zLoadUsers();},5*60*1000);
 /* menu: cambiare idea */
 window.zTogglePublic=()=>{S.pubOk=!S.pubOk;zSyncProfile(true);toast(S.pubOk?'👥 Ora sei visibile sulla mappa':'Ora sei invisibile sulla mappa');try{saveLocal();}catch(e){}};
 /* aree community calcolate sugli utenti veri (un'area si colora solo con almeno K_MIN persone) */

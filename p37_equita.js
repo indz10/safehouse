@@ -31,5 +31,5 @@ function eqRankPaintBase(){const B=app.querySelector('#socBody');if(!B)return;co
   box.innerHTML=head+(L.length?L.map(r=>`<div class="srank ${r.me?'me':''}"><span class="rpos">${r.pos<=3?['🥇','🥈','🥉'][r.pos-1]:r.pos}</span><div class="stx">${socNick(r.user_id,r.nick)}<small>livello ${r.wlevel}${r.comune?' · '+esc(r.comune):''}</small></div><b>🧱 ${wNum(r.punti)}</b></div>`).join(''):'<p class="muted">Ancora nessuno nella tua lega questa settimana: puoi essere il primo!</p>');}
 /* 3) spinta e 5) prezzo progressivo spiegati nella scheda casa e nel preventivo */
 /* 6) padrino: nell'invito si spiega il premio */
-setInterval(()=>{if(S.user&&document.visibilityState==='visible')eqLoad();},5*60*1000);
+zEvery(()=>{if(S.user&&document.visibilityState==='visible')eqLoad();},5*60*1000);
 </script>

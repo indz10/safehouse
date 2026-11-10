@@ -15,5 +15,5 @@ function zIsNight(lat,lon,d){try{d=d||new Date();if(lat==null){const H=typeof my
 /* scelta manuale: se tocchi 🌙/☀️ quella mappa non cambia più da sola */
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.lm-mode');if(b&&e.isTrusted){const box=b.closest('.lmap');if(box)box.dataset.manual='1';}},true);
 /* con l'app aperta: al tramonto e all'alba le mappe cambiano da sole */
-setInterval(()=>{try{if(document.hidden)return;const want=zIsNight();document.querySelectorAll('.lmap').forEach(box=>{if(box.dataset.manual)return;const now=box.classList.contains('night');if(now!==want){const b=box.querySelector('.lm-mode');if(b)b.click();}});}catch(e){}},60000);
+zEvery(()=>{try{if(document.hidden)return;const want=zIsNight();document.querySelectorAll('.lmap').forEach(box=>{if(box.dataset.manual)return;const now=box.classList.contains('night');if(now!==want){const b=box.querySelector('.lm-mode');if(b)b.click();}});}catch(e){}},60000);
 </script>
