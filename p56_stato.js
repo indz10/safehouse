@@ -15,8 +15,7 @@ async function zUpdateNow(){try{toast('Aggiorno l’app…');}catch(e){}try{cons
 function zBanner(id,html,onBind){if(document.getElementById(id))return;document.body.insertAdjacentHTML('beforeend',`<div id="${id}" class="zbanner">${html}<button class="zbx" aria-label="Chiudi">✕</button></div>`);
   const b=document.getElementById(id);b.querySelector('.zbx').onclick=()=>b.remove();if(onBind)onBind(b);}
 async function zCheckVersion(){const L=await zLatest();if(!L||!/^\d{12}$/.test(String(APPV)))return;
-  /* appena aperta: si aggiorna da sola (una volta per versione, niente cicli) */
-  if(+L>+APPV&&performance.now()<20000){try{const k='zsh_upd_'+L;if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');zUpdateNow();return;}}catch(e){}}
+  /* l'aggiornamento automatico (anche quando l'app torna dallo sfondo) lo fa autoUpdate in p20 (Fase 5d); qui solo l'avviso */
   if(+L>+APPV)zBanner('zbver',`🆕 <b>C’è una versione nuova</b> dell’app<button class="btn small" data-zup>Aggiorna</button>`,b=>b.querySelector('[data-zup]').onclick=zUpdateNow);}
 setTimeout(zCheckVersion,4000);zEvery(()=>{if(document.visibilityState==='visible')zCheckVersion();},10*60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(zCheckVersion,800);});
