@@ -213,15 +213,25 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
 const ZSH_BUILD='__BUILD__';
+/* Fase 5d: appena aperta (o riaperta dallo sfondo) l'app controlla subito la versione; se ce n'è una nuova
+   nei primi 20 s mostra "Aggiorno l'app…" e si ricarica SUBITO (anche con una finestra aperta: è appena partita).
+   Se arriva mentre stai giocando, aspetta che non ci siano finestre aperte (come prima). Mai due volte di fila per la stessa versione. */
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
-  const had=!!navigator.serviceWorker.controller;let reloading=false;
-  const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
-  const reload=why=>{if(reloading)return;const go2=()=>{if(!safe()){setTimeout(go2,4000);return;}reloading=true;try{if(typeof saveLocal==='function')saveLocal();}catch(e){}try{sessionStorage.setItem('zsh_upd',why||'1');}catch(e){}location.reload();};go2();};
+  const had=!!navigator.serviceWorker.controller;let reloading=false;let woke=Date.now();
+  const fresh=()=>Date.now()-woke<20000;
+  const safe=()=>fresh()||!document.querySelector('#sheet.open');
+  const veil=()=>{try{if(document.getElementById('zupd'))return;const d=document.createElement('div');d.id='zupd';
+    d.style.cssText='position:fixed;inset:0;z-index:99999;background:#140f1f;color:#f3e9d2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font:800 22px system-ui,sans-serif;text-align:center;padding:20px';
+    d.innerHTML='<span class="spin"></span><span>✨ Aggiorno l’app…</span><small style="font-weight:500;font-size:14px;opacity:.8">un attimo, arriva la versione nuova</small>';document.body.appendChild(d);}catch(e){}};
+  const reload=why=>{if(reloading)return;const go2=()=>{if(!safe()){setTimeout(go2,4000);return;}reloading=true;veil();try{if(typeof saveLocal==='function')saveLocal();}catch(e){}try{sessionStorage.setItem('zsh_upd',why||'1');}catch(e){}setTimeout(()=>location.reload(),300);};go2();};
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{
     const check=()=>{reg.update().catch(()=>{});
       fetch('sw.js?c='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/zsh-(\d{8,})/);if(!m||!/^\d+$/.test(ZSH_BUILD))return;
-        if(+m[1]>+ZSH_BUILD){let tried='';try{tried=sessionStorage.getItem('zsh_try')||'';}catch(e){}if(tried===m[1])return;try{sessionStorage.setItem('zsh_try',m[1]);}catch(e){}reload('v');}}).catch(()=>{});};
-    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')check();});window.addEventListener('focus',check);setInterval(check,20*60*1000);setTimeout(check,4000);}).catch(()=>{});
+        if(+m[1]>+ZSH_BUILD){/* stessa versione già tentata da poco (il sito non l'ha ancora data a tutti): non insisto */
+          let tr={};try{tr=JSON.parse(sessionStorage.getItem('zsh_try')||'{}');}catch(e){}if(tr.v===m[1]&&Date.now()-(tr.t||0)<120000)return;
+          try{sessionStorage.setItem('zsh_try',JSON.stringify({v:m[1],t:Date.now()}));}catch(e){}reload('v');}}).catch(()=>{});};
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){woke=Date.now();check();}});
+    window.addEventListener('pageshow',()=>{woke=Date.now();check();});window.addEventListener('focus',check);zEvery(check,20*60*1000,'aggiornamento');setTimeout(check,600);}).catch(()=>{});
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had)reload('sw');});
   try{if(sessionStorage.getItem('zsh_upd')){sessionStorage.removeItem('zsh_upd');setTimeout(()=>toast('✨ App aggiornata all’ultima versione'),1500);}}catch(e){}})();
 </script>
