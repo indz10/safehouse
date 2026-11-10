@@ -251,15 +251,15 @@ function bzCard(b,pub){const tel=(b.tel||'').replace(/[^\d+]/g,'');const web=b.w
      <small>📍 ${dist(b.d||0)} da casa tua · 🚶 ${walk} min a piedi</small></div>${b.cand?'<span class="bzc-badge">POSTO<br>LIBERO</span>':''}</div>
    ${pub?'':`<div class="bzc-rate">${rvLine(key,5,4)}${rvBtn(key,b.name,5,4)}</div>`}
    <div class="bzc-act"><a href="${nav}" target="_blank" rel="noopener"><span>🧭</span>Portami lì</a>${tel?`<a href="tel:${tel}"><span>📞</span>Chiama</a>`:''}${web?`<a href="${esc(web)}" target="_blank" rel="noopener"><span>🌐</span>Sito</a>`:''}</div>
-   ${pub?`<p class="bzc-note">${b.zfx||'Nel gioco i servizi vicini rinforzano la tua casa e il quartiere.'}</p>`:b.cand?`<div class="bzc-free"><b>📌 Può diventare il presidio sponsor della zona</b>
-     <ul><li>⭐ Bollino giallo col nome, visibile a tutto il quartiere</li><li>🎟️ Offerta con codice personale da mostrare in cassa</li><li>📩 Richieste di preventivo da chi abita qui</li><li>🛡️ Nel gioco: presidio che dà +5% barricata ai vicini</li></ul>
+   ${pub?`<p class="bzc-note">${b.zfx||'I servizi vicini fanno salire la Vivibilità della tua zona.'}</p>`:b.cand?`<div class="bzc-free"><b>📌 Può diventare il presidio sponsor della zona</b>
+     <ul><li>⭐ Bollino giallo col nome, visibile a tutto il quartiere</li><li>🎟️ Offerta con codice personale da mostrare in cassa</li><li>📩 Richieste di preventivo da chi abita qui</li><li>🛡️ Nel gioco: presidio sponsor sulla mappa, visto da tutti i superstiti della zona</li></ul>
      <button class="btn wide" data-claim>Diventa sponsor</button></div>`:`<button class="bzc-own" data-claim>È la tua attività? Mettiti in evidenza →</button>`}
    <div data-admin></div></div>`;}
 function bizSheetBase(b,z){openSheet(b.cand?'📌 Posto sponsor libero':'🛍️ Attività della zona',bzCard(b,false),card=>{
   const c=card.querySelector('[data-claim]');if(c)c.onclick=()=>{closeSheet();S.motivo=b.cand?'sponsor':'negozio';S.motivoBiz=b.name;go('contatti');};
   zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+b.name+'” dalla mappa per tutti?'))zHide(b.name,b.ll);};}});});}
 function lmPoiBase(name,cat,d,ll,pub){const ic={Farmacia:'💊',Ospedale:'🏥',Clinica:'🏥','Forze dell’ordine':'🚓','Vigili del fuoco':'🚒',Municipio:'🏛️',Fontanella:'💧'}[cat]||'📍';
-  const fx={Farmacia:'Nel gioco: farmacia entro 800 m = resistenza casa +5%.',Ospedale:'Nel gioco: ospedale entro 1,5 km = resistenza casa +10%.',Clinica:'Nel gioco: presidio sanitario vicino = più resistenza.','Forze dell’ordine':'Nel gioco: forze dell’ordine entro 2 km = barricata +10%.','Vigili del fuoco':'Nel gioco: vigili del fuoco entro 3 km = barricata +5%.'}[cat];
+  const fx={Farmacia:'Più è vicina, più sale la Vivibilità della tua zona (Sanità e farmacie).',Ospedale:'Più è vicino, più sale la Vivibilità della tua zona (Sanità e farmacie).',Clinica:'Un presidio sanitario vicino fa salire la Vivibilità della tua zona.','Forze dell’ordine':'Più sono vicine, più sale la Vivibilità della tua zona (Servizi di emergenza).','Vigili del fuoco':'Più sono vicini, più sale la Vivibilità della tua zona (Servizi di emergenza).'}[cat];
   const b={i:name,ic,name,cat,d,ll,zfx:fx};openSheet(pub?'🛡️ Servizio della zona':'🛍️ Attività della zona',bzCard(b,pub),card=>{
     zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+name+'” dalla mappa per tutti?'))zHide(name,ll);};}});});}
 </script>
@@ -533,7 +533,7 @@ function realNightCond(){const w=ZW.d;if(!w)return undefined;const m=moonInfo();
   if(c>=95||(w.wind_gusts_10m||0)>=60)return{ev:'blackout',why:`${wIcon(c)} ${c>=95?'Temporale':'Vento forte'} sulla tua zona: salta la corrente, si vede solo vicino alla luce`};
   if(c===45||c===48||(w.visibility!=null&&w.visibility<1000))return{ev:'nebbia',why:'🌫️ Nebbia vera stanotte: gli zombie spuntano all’ultimo'};
   if((c>=51&&c<=67)||(c>=80&&c<=82)||(w.precipitation||0)>=.2)return{ev:'pioggia',why:`🌧️ Piove davvero (${String(w.precipitation||0).replace('.',',')} mm): zombie più lenti${S.zone.real.pos==='bassa'?', ma la tua zona bassa si allaga':''}`};
-  if(m.full)return{ev:'luna',why:'🌕 Luna piena vera: orda più veloce, ma monete doppie'};
+  if(m.full)return{ev:'luna',why:'🌕 Luna piena vera: orda più veloce'};
   return{ev:null,why:`${wIcon(c)} Notte tranquilla: ${wName(c)}, ${Math.round(w.temperature_2m)}°C, ${m.ic} ${m.n}`};}
 /* zona bassa + pioggia vera: la barricata soffre di più */
 /* nel pannello "Il territorio decide la notte" */
@@ -558,9 +558,9 @@ function movePlan(){const out={lots:0,q:0,h:0,nl:0,nq:0,nh:0};const sum=(a,n)=>(
   out.tot=out.lots+out.q+out.h;out.cool=!!(typeof G!=='undefined'&&G.lastMove&&Date.now()-G.lastMove<30*864e5);if(out.cool)out.tot=0;return out;}
 function moveSheet(){const P=movePlan();const g=typeof G!=='undefined'&&G.type;const old=S.zone&&S.zone.address;
   openSheet('🚚 Ho cambiato casa',`<p style="font-weight:400;margin-bottom:10px">${old?`Lasci <b>${esc(old)}</b>. `:''}Valuti la casa nuova e il gioco si sposta nel quartiere nuovo.</p>
-   <div class="mvcol"><div class="mv ok"><b>🎒 Viene con te</b><ul><li>Monete, gemme, livello e medaglie</li><li>Attrezzi anti-zombie, materiali e kit</li><li>Crediti Casa Vera e codici sconto già ottenuti</li><li>Amici e classifica</li><li>Le tue scorte, kit medico, radio e mezzo</li></ul></div>
-   <div class="mv ko"><b>🏚️ Resta nella casa vecchia</b><ul><li>${g?`${P.nl} ${P.nl===1?'edificio':'edifici'} del quartiere${P.nl?` → rimborso 70%: 🪙 ${P.lots}`:''}`:'Edifici del quartiere'}</li><li>${g?`${P.nq} ${P.nq===1?'punto fortificato':'punti fortificati'}${P.nq?` → rimborso 50%: 🪙 ${P.q}`:''}`:'Punti fortificati'}</li><li>${g?`Potenziamenti della casa${P.nh?` → rimborso 50%: 🪙 ${P.h}`:''}`:'Potenziamenti della casa'}</li><li>Valutazione, Scudo e missioni della casa vecchia (rifai tutto sulla nuova)</li></ul></div></div>
-   ${g?`<div class="mvtot">${P.cool?'Bonus trasloco già usato negli ultimi 30 giorni: questa volta nessun rimborso.':`🎁 Bonus trasloco: <b>🪙 ${P.tot}</b>`}</div>`:''}
+   <div class="mvcol"><div class="mv ok"><b>🎒 Viene con te</b><ul><li>Mattoni, gemme, livello e medaglie</li><li>Crediti Casa Vera e codici sconto già ottenuti</li><li>Amici e classifica</li><li>Le tue scorte, kit medico, radio e mezzo</li></ul></div>
+   <div class="mv ko"><b>🏚️ Resta nella casa vecchia</b><ul><li>Valutazione, Scudo e missioni della casa vecchia (rifai tutto sulla nuova)</li></ul></div></div>
+   ${g&&P.tot>=5?`<div class="mvtot">🎁 Bonus trasloco: <b>🧱 ${Math.floor(P.tot/5)}</b></div>`:''}
    <p class="muted" style="font-size:12.5px;margin:8px 0">La casa vecchia resta salvata nella tua cronologia. Sulla mappa della community la tua posizione si sposta quando valuti la casa nuova.</p>
    <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" data-mvok>🚚 Sì, mi sono trasferito</button><button class="btn ghost small" data-close2>Annulla</button></div>`,card=>{
     card.querySelector('[data-close2]').onclick=closeSheet;card.querySelector('[data-mvok]').onclick=()=>{doMove(P);};});}
@@ -573,7 +573,7 @@ function doMove(P){try{
     if(typeof ccvInit==='function'){ccvInit();if(P.tot)G.ccv.log.unshift({t:'Trasloco: rimborso in monete',c:0});}}
   HQ.map=null;try{hqApply(false);}catch(e){}ZW.d=null;
   try{saveLocal();if(typeof pushCloud==='function')pushCloud();}catch(e){}zSyncProfile(true);
-  closeSheet();toast(P.tot?`🚚 Trasloco fatto: +🪙 ${P.tot}. Ora valuta la casa nuova`:'🚚 Trasloco fatto: ora valuta la casa nuova');go('valuta');}
+  closeSheet();toast('🚚 Trasloco fatto: ora valuta la casa nuova');go('valuta');}
   catch(e){console.warn('trasloco',e);toast('Trasloco non riuscito: riprova');}}
 /* pulsante in Valuta (quando c'è già una casa) e nel menu */
 const _vZonaMv=vZona;vZona=function(){_vZonaMv();try{if(!S.zone||document.getElementById('mvBtn'))return;const g=document.getElementById('geoBtn');const row=g&&g.parentElement;
@@ -607,7 +607,7 @@ function tmEvent(k,id,ok){const T=G&&G.tm;if(!T||T.day!==tmDay())return;let hit=
   T.list.forEach(m=>{if(m.done)return;let p=false;
     if(m.k===k&&(m.id===id||k==='win'))p=true;if(k==='win'&&m.k==='def'&&G.q&&G.q[m.id]>=1)p=true;if(k==='evwin'&&m.k==='ev'&&m.id===id)p=true;if(k==='win'&&m.k==='win')p=true;
     if(m.k==='exp'&&k==='exp'&&m.id===id&&!ok)p=false;
-    if(p){m.prog=Math.min(m.goal,m.prog+1);if(m.prog>=m.goal){m.done=true;m.cl=true;hit=true;G.coins+=m.rw.c;G.gems+=m.rw.g||0;setTimeout(()=>toast(`🎯 Missione completata: +🪙 ${m.rw.c}${m.rw.g?' +💎 '+m.rw.g:''}`),1600);try{sfx('coin');}catch(e){}}}});
+    if(p){m.prog=Math.min(m.goal,m.prog+1);if(m.prog>=m.goal){m.done=true;m.cl=true;hit=true;G.coins+=m.rw.c;G.gems+=m.rw.g||0;setTimeout(()=>toast(`🎯 Missione completata: +🧱 ${Math.max(1,Math.floor(m.rw.c/5))}${m.rw.g?' +💎 '+m.rw.g:''}`),1600);try{sfx('coin');}catch(e){}}}});
   if(hit)try{saveLocal();}catch(e){}}
 window.onExpDone=(id,ok)=>tmEvent('exp',id,ok);
 window.onWaveEnd=(win,L,ev,coop)=>{if(!win||coop)return;tmEvent('win','x');if(ev)tmEvent('evwin',ev);};
@@ -619,7 +619,7 @@ function tmHTML(){const T=tmInit();if(!T)return'';const done=T.list.filter(m=>m.
      ${m.cl?'':m.done?`<button class="btn small" data-tmc="${i}">Riscatta</button>`:`<button class="btn small ghost" data-tmg="${i}">Vai</button>`}</div>`).join('')}
    ${done===T.list.length&&!T.chest?`<button class="btn wide alt" data-tmx>🎁 Apri lo scrigno: tutte fatte! (💎 10)</button>`:T.chest?'<p class="muted" style="font-size:12.5px;margin-top:6px">Scrigno aperto. Domani nuove missioni.</p>':`<p class="muted" style="font-size:12.5px;margin-top:6px">Completale tutte e 3 per lo scrigno: 💎 10.</p>`}</div>`;}
 function tmBindBase(){const p=app.querySelector('.tmp');if(!p)return;const T=G.tm;
-  p.querySelectorAll('[data-tmc]').forEach(b=>b.onclick=()=>{const m=T.list[+b.dataset.tmc];if(!m||!m.done||m.cl)return;m.cl=true;G.coins+=m.rw.c;G.gems+=m.rw.g||0;sfx('coin');vibe();toast(`+🪙 ${m.rw.c}${m.rw.g?` +💎 ${m.rw.g}`:''}`);renderHub();});
+  p.querySelectorAll('[data-tmc]').forEach(b=>b.onclick=()=>{const m=T.list[+b.dataset.tmc];if(!m||!m.done||m.cl)return;m.cl=true;G.coins+=m.rw.c;G.gems+=m.rw.g||0;sfx('coin');vibe();toast(`+🧱 ${Math.max(1,Math.floor(m.rw.c/5))}${m.rw.g?` +💎 ${m.rw.g}`:''}`);renderHub();});
   const x=p.querySelector('[data-tmx]');if(x)x.onclick=()=>{T.chest=true;G.gems+=10;sfx('win');toast('🎁 Scrigno delle missioni: +💎 10');renderHub();};
   p.querySelectorAll('[data-tmg]').forEach(b=>b.onclick=()=>{const m=T.list[+b.dataset.tmg];if(!m)return;
     if(m.go==='day'){const d=app.querySelector('.dayp');if(d){const f=d.closest('details');if(f)f.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}}
@@ -760,7 +760,7 @@ const _zSyncInv=zSyncProfile;zSyncProfile=async function(force){await _zSyncInv(
   const{error}=await SB.from('profili_pubblici').update({invitato_da:inv}).eq('user_id',S.user.id);if(!error)localStorage.setItem('zsh_inv_ok','1');}catch(e){}};
 async function inviteSheetBase(){if(!S.user){toast('Accedi per avere il tuo link di invito');return;}let L=[];try{const{data}=await SB.rpc('miei_invitati');L=data||[];}catch(e){}
   G.invCl=G.invCl||[];const ready=L.filter(x=>x.valutato&&!G.invCl.includes(x.nick));
-  openSheet('📨 Invita amici e vicini',`<p style="font-weight:400;margin-bottom:10px">Chi entra col tuo link e valuta la sua casa ti fa guadagnare <b>💎 5</b>. Se abita entro 1,5 km diventa uno dei tuoi <b>👥 Vicini veri</b>: nella battaglia la tua abilità diventa più forte.</p>
+  openSheet('📨 Invita amici e vicini',`<p style="font-weight:400;margin-bottom:10px">Chi entra col tuo link e valuta la sua casa ti fa guadagnare <b>💎 5</b>. Se abita entro 1,5 km diventa uno dei tuoi <b>👥 Vicini veri</b>: potete aiutarvi contro l’orda del quartiere.</p>
    <div class="invl"><input readonly value="${esc(invLink())}"><button class="btn small" data-invcp>Copia</button></div>
    <div class="row" style="gap:8px;margin:10px 0;flex-wrap:wrap"><button class="btn" data-invsh>📤 Condividi il link</button><a class="btn ghost small" href="https://wa.me/?text=${encodeURIComponent(invTxt())}" target="_blank" rel="noopener">WhatsApp</a></div>
    <h3 style="margin-top:6px">I tuoi invitati (${L.length})</h3>${L.length?L.map(x=>`<div class="tm ${x.valutato?'ok':''}"><span class="tmi">${x.valutato?'✅':'⏳'}</span><div class="tmt"><span><b>@${esc(x.nick)}</b></span><small>${x.valutato?(G.invCl.includes(x.nick)?'Premio già ritirato':'Ha valutato la casa: premio pronto'):'Registrato, deve ancora valutare la casa'}</small></div></div>`).join(''):'<p class="muted">Ancora nessuno: condividi il link!</p>'}
@@ -787,7 +787,7 @@ vZona=function(){
   /* trasloco in corso: schermata "La tua nuova casa" */
   if(S.moving&&!S.zone){_vZonaHome();try{const h=document.querySelector('#vv h2');if(h)h.textContent='Dove si trova la casa nuova?';
       const old=S.case&&S.case[0];const p=h&&h.nextElementSibling;
-      if(p)p.outerHTML=`<div class="mvnew"><b>🚚 Trasloco${old?` da ${esc(old.address)}`:''}</b><span>Monete, gemme, livello, attrezzi, crediti e amici sono già con te. Trova la casa nuova: il gioco si sposta nel nuovo quartiere vero.</span></div>`;
+      if(p)p.outerHTML=`<div class="mvnew"><b>🚚 Trasloco${old?` da ${esc(old.address)}`:''}</b><span>Mattoni, gemme, livello, crediti e amici sono già con te. Trova la casa nuova: il gioco si sposta nel nuovo quartiere vero.</span></div>`;
       const mv=document.getElementById('mvBtn');if(mv)mv.remove();
       if(!document.getElementById('mvUndo'))document.getElementById('vv').insertAdjacentHTML('beforeend','<p style="margin-top:14px"><button class="btn ghost small" id="mvUndo">Annulla: non ho traslocato</button></p>');
       const u=document.getElementById('mvUndo');if(u)u.onclick=()=>{const o=S.case&&S.case[0];if(!o){toast('Scrivi l’indirizzo della casa');return;}const f=document.getElementById('addr');if(f)f.value=o.address;S.moving=0;toast('Riscrivi o conferma il vecchio indirizzo e premi Analizza');};}catch(e){}return;}

@@ -64,7 +64,7 @@ function shopHTML(){return`<div class="panel spanx"><b class="disp" style="font-
   <div class="shopg">${[['💎 80','0,99 €'],['💎 450','4,99 €'],['💎 1.000','9,99 €']].map(([a,b])=>`<div><b>${a}</b><small>${b}</small><button class="btn small ghost" disabled>Presto</button></div>`).join('')}</div>
   <div class="passx"><b>⭐ Pass del Superstite · 4,99 €/mese</b><small>Case preparate in automatico a ogni orda · +20% affitti · 1 casa in più · premi doppi nelle missioni</small><button class="btn small ghost" disabled>Presto</button></div>
   <h4 class="ah">Cosa fai con le gemme, già oggi</h4><div class="shopu">
-   <div><b>💰 10 💎 → 🪙 250</b><small>cambio in Potenzia</small></div><div><b>🔧 20 💎</b><small>ripara tutto durante una notte</small></div><div><b>✨ 5 💎</b><small>raddoppia le monete dell’ultima orda</small><button class="btn small" data-dbl ${G.gems>=5&&OR.s&&OR.s.claimed&&window.__dbl!==OR.s.prev_id?'':'disabled'}>Raddoppia</button></div></div></div>`;}
+   <div><b>🛡️ 20 💎</b><small>scudo per un alleato alla prossima orda</small></div><div><b>✨ 5 💎</b><small>raddoppia il premio difesa dell’ultima orda</small><button class="btn small" data-dbl ${G.gems>=5&&OR.s&&OR.s.claimed&&window.__dbl!==OR.s.prev_id?'':'disabled'}>Raddoppia</button></div></div></div>`;}
 
 /* ---- PAGINA CASA, rifatta e pulita ---- */
 function vNextSlot(){const n=new Date();for(const d of[0,1])for(const h of[9,21]){const t=new Date(n.getFullYear(),n.getMonth(),n.getDate()+d,h,0,0);if(t>n)return t;}return n;}

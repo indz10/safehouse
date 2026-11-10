@@ -74,7 +74,7 @@ function renderIo(){const u=S.user;const m=window.W&&W.m;const nick=u?(u.nick||(
   const row=(k,i,l,extra='')=>`<button class="iorow" data-io="${k}"><span>${i}</span><b>${l}</b>${extra}<i>›</i></button>`;
   app.innerHTML=`<div class="page dots">
    ${u?`<div class="panel night iohead"><div class="ioav">${esc((nick||'?')[0].toUpperCase())}</div><div><b class="disp" style="font-size:24px;color:var(--moon)">@${esc(nick)}</b>
-     <small>Livello mondo ${m?m.wlevel:'…'} · 🧱 ${m?wNum(m.mattoni):'…'} · 💎 ${(typeof G!=='undefined'&&G.gems)||0} · 🪙 ${(typeof G!=='undefined'&&G.coins)||0}</small></div></div>`
+     <small>Livello mondo ${m?m.wlevel:'…'} · 🧱 ${m?wNum(m.mattoni):'…'} · 💎 ${(typeof G!=='undefined'&&G.gems)||0}</small></div></div>`
      :`<div class="panel night"><b class="disp" style="font-size:24px;color:var(--moon)">👤 Entra nel mondo</b><p style="color:#fff;font-weight:400">Con l’account la tua casa è tua nel mondo vero, salvi i progressi su tutti i dispositivi e giochi con gli alleati.</p><button class="btn" data-io="login">Accedi o registrati</button></div>`}
    ${u?`<div class="panel"><b class="disp" style="font-size:20px">📨 Invita qualcuno</b><p style="font-weight:400;font-size:13.5px;margin:4px 0 8px">Vicino di casa o amico in Australia: chi entra con il tuo link e valuta la casa ti dà 💎 5 e diventa tuo alleato.</p><button class="btn" data-io="invita">📤 Invita</button></div>`:''}
    ${typeof shopHTML==='function'?shopHTML():''}
@@ -97,7 +97,7 @@ function renderIo(){const u=S.user;const m=window.W&&W.m;const nick=u?(u.nick||(
     try{if(typeof zIsAdmin==='function'&&await zIsAdmin())h+='<a class="iorow" href="admin.html" target="_blank"><span>🛠️</span><b>Pannello admin INDZ</b><i>›</i></a>';}catch(e){}
     try{const{data}=await SB.from('sponsor_users').select('sponsor_id').eq('user_id',u.id).limit(1);if(data&&data.length)h+='<a class="iorow" href="negozio.html" target="_blank"><span>🏪</span><b>Pannello del mio negozio</b><i>›</i></a>';}catch(e){}
     if(h&&S.tab==='io')box.innerHTML=`<div class="panel iolist">${h}</div>`;}catch(e){}})();
-  try{const d=app.querySelector('[data-dbl]');if(d)d.onclick=()=>{const s=OR.s;if(!s||G.gems<5||window.__dbl===s.prev_id)return;const c=30*(s.held||0)+10*((s.total||0)-(s.held||0));G.gems-=5;G.coins+=c;window.__dbl=s.prev_id;toast(`✨ Monete raddoppiate: +🪙 ${c}`);renderIo();};}catch(e){}}
+  try{const d=app.querySelector('[data-dbl]');if(d)d.onclick=()=>{const s=OR.s;if(!s||G.gems<5||window.__dbl===s.prev_id)return;const c=30*(s.held||0)+10*((s.total||0)-(s.held||0));G.gems-=5;G.coins+=c;window.__dbl=s.prev_id;toast(`✨ Premio raddoppiato: +🧱 ${Math.max(1,Math.floor(c/5))}`);renderIo();};}catch(e){}}
 
 /* la barra dell'orda in cima solo in Valuta (in Mappa c'è già quella sulla mappa) */
 try{const _opb=orPutBanner;orPutBanner=function(){if(S.tab!=='valuta')return;return _opb();};}catch(e){}

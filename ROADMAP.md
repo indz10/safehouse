@@ -61,8 +61,9 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 
 ## Fase 5 — Chiarezza per chi usa l'app
 - **Richiesta di Alessandro (4e):** dal menu ☰, dopo aver aperto una voce, poter tornare al menu (oggi si chiude e bisogna riaprirlo con ☰).
-- **Da sistemare (visto in 4d):** la finestra "📨 Invita amici" dice ancora "nella battaglia la tua abilità…" (vecchio gioco); testo in `inviteSheetBase` (p20).
-- **Da sistemare (visto in 4c):** la scheda dei servizi (farmacia, ospedale, vigili…) dice ancora "Nel gioco: … resistenza casa +5%": è un bonus del vecchio gioco che non esiste più (testo in `lmPoiBase`, p20).
+- Piano a passi: **5a** testi del vecchio gioco (monete, notti, battaglia, "Difendi tu") · **5b** una sola pagina "La mia casa" · **5c** tornare al menu ☰ dopo una voce · **5d** aggiornamento all'apertura · **5e** stessi nomi ovunque, guida e "Il tuo prossimo passo".
+- **5a fatta:** Invita amici, servizi della mappa (farmacia…: ora "Vivibilità"), Ho cambiato casa, Oggi e luna piena, regali agli alleati (niente più monete tra i doni), premi dell'orda e delle missioni in 🧱, bottega e pagina Io senza monete, giro guidato senza il passo "Difendi tu", istruzioni sui regali.
+- **5d (visto dopo 4f-2):** alla prima apertura dopo un aggiornamento l'app mostra la versione vecchia; chiudendo e riaprendo è giusta. Da fare: quando il nuovo sw.js è pronto, scritta "Aggiorno l'app…" e ricarica automatica (una volta sola).
 - Ogni schermata risponde a: dove sono, cosa vedo, cosa posso fare ora.
 - Una sola pagina per casa: togliere i doppioni in La mia casa.
 - Testi brevi, stessi nomi ovunque (Mattoni, gemme, fortificazioni, livello, Punteggio Superstite).
@@ -114,8 +115,8 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 1 | fatta | #1, #2 | sorgenti alla radice, netlify.toml → dist/ (con controllo che dist/ sia completa), build.sh e prove senza percorsi fissi, prove.sh |
 | 2 | fatta | #3 | docs/MAPPA_CODICE.md, strumenti in docs/strumenti/ |
 | 3 | fatta: 3a (#4), 3b-1 (#5), 3b-2 (#6), 3c (#7), 3d (#8) | #4–#8 | app pubblicata da 1.336 KB a 1.037 KB (−22 %): 3a codice morto; 3b-1 Orda pulita (p63); 3b-2 tolti 7 moduli del vecchio gioco, p5_game da 145 a 15 KB, circa 30 strati che li avvolgevano e 34 funzioni rimaste orfane. 3c: "Come si gioca" e istruzioni riscritte per il gioco di oggi. Restano p4b e p5j_giorno (Fase 4) |
-| 4 | 4a–4f-1 fatte (#9–#17); 4f-2 (orologio unico) in attesa di Merge | #9–#17, Fase 4f-2 — Orologio unico | 4f-2: un solo timer di sistema al posto di 28 (p1z_orologio.js, zEvery), tolto un contatore sponsor doppio. 4f-1: navigazione go (base + 8 strati), accesso, salvataggi, finestre e analisi della zona definiti una volta in p68. 4e: menu ☰ (zmDo base + 5 strati), barre e istruzioni (manualHTML base + 5) definiti una volta in p67; tolto il vecchio menu a tendina di p10. 4d: socPaint (base + 10 strati) e altre 11 funzioni dei Superstiti definite una volta in p66. 4c: liveMap (base + 9 strati) e altre 6 funzioni della mappa definite una volta in p65. 4b: 14 funzioni dell'Orda definite una volta in p63 (prima base + 1–3 strati), tolte le catene morte del vecchio hub. 4a: houseSheet unica in p64_casa.js, la pagina compare una volta sola già completa; "La mia casa" dalla homepage aspetta i dati invece di aprire la pagina vecchia |
-| 5 | da fare | | |
+| 4 | fatta: 4a–4f-2 (#9–#18) | #9–#18 | 4f-2: un solo timer di sistema al posto di 28 (p1z_orologio.js, zEvery), tolto un contatore sponsor doppio. 4f-1: navigazione go (base + 8 strati), accesso, salvataggi, finestre e analisi della zona definiti una volta in p68. 4e: menu ☰ (zmDo base + 5 strati), barre e istruzioni (manualHTML base + 5) definiti una volta in p67; tolto il vecchio menu a tendina di p10. 4d: socPaint (base + 10 strati) e altre 11 funzioni dei Superstiti definite una volta in p66. 4c: liveMap (base + 9 strati) e altre 6 funzioni della mappa definite una volta in p65. 4b: 14 funzioni dell'Orda definite una volta in p63 (prima base + 1–3 strati), tolte le catene morte del vecchio hub. 4a: houseSheet unica in p64_casa.js, la pagina compare una volta sola già completa; "La mia casa" dalla homepage aspetta i dati invece di aprire la pagina vecchia |
+| 5 | 5a (testi del vecchio gioco) in attesa di Merge | Fase 5a — Testi del vecchio gioco | 5a: via monete, notti, battaglia e "Difendi tu" dai testi ancora visibili; premi mostrati in 🧱 |
 | 6 | da fare | | |
 | 7 | da fare | | |
 | 8 | da fare | | |
