@@ -18,12 +18,9 @@ function coinSweep(){try{if(typeof G==='undefined'||!G)return;const k='zsh_coinb
   if(isNaN(base)){/* prima volta: converto le monete che avevi */const old=Math.max(0,G.coins||0);localStorage.setItem(k,'0');G.coins=0;try{saveLocal();}catch(e){}if(old>=5)giveMattoni(Math.min(300,Math.floor(old/5)),'Monete convertite');return;}
   const c=G.coins||0;if(c>0){G.coins=0;try{saveLocal();}catch(e){}if(c>=5)giveMattoni(Math.floor(c/5),'Premi');}}catch(e){}}
 setInterval(coinSweep,10000);
-const _wMineMt=wMine;wMine=async function(){const r=await _wMineMt.apply(this,arguments);try{if(S.user&&!wMine.__fl){wMine.__fl=1;setTimeout(()=>{matFlush();coinSweep();},500);}}catch(e){}return r;};
 /* testi: dove c'erano monete ora ci sono Mattoni */
 function coinText(root){try{(root||app).querySelectorAll('.tmp, .lpan, .daily, #sheet.open .sheet-b').forEach(el=>{const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;const L=[];while((n=w.nextNode()))if(/🪙/.test(n.nodeValue))L.push(n);
   L.forEach(n=>{n.nodeValue=n.nodeValue.replace(/🪙\s*(\d+)/g,(m,v)=>'🧱 '+Math.max(1,Math.floor(+v/5))).replace(/(\d+)\s*🪙/g,(m,v)=>Math.max(1,Math.floor(+v/5))+' 🧱').replace(/🪙/g,'🧱').replace(/\bmonete\b/g,'Mattoni');});});}catch(e){}}
 /* i testi si sistemano quando si apre una scheda o si cambia pagina (non più ogni secondo) */
-try{const _osCt=openSheet;openSheet=function(){const r=_osCt.apply(this,arguments);setTimeout(()=>coinText(),60);return r;};}catch(e){}
-try{const _goCt=go;go=function(){const r=_goCt.apply(this,arguments);setTimeout(()=>coinText(),400);return r;};}catch(e){}
 /* il portafoglio nel menu senza monete */
 </script>

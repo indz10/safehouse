@@ -21,7 +21,6 @@ function eqPaint(){try{const h=app.querySelector('.hschips');if(h){h.querySelect
     if(t){if(!x){r.insertAdjacentHTML('beforeend','<p class="eqriv"></p>');x=r.querySelector('.eqriv');}x.innerHTML=t;}else if(x)x.remove();}}catch(e){}}
 const _renderHomeEq=renderHome;renderHome=function(){_renderHomeEq();eqPaint();if(S.user){eqLoad();}};
 /* al collegamento: kit e stato */
-const _wMineEq=wMine;wMine=async function(){const r=await _wMineEq.apply(this,arguments);try{if(S.user){eqWelcome();eqLoad();}}catch(e){}return r;};
 /* 2) rivali con lo scudo: pulsanti spenti */
 EQ.rank={};
 async function eqRank(){const p=SOC.rp||'settimana';try{const{data,error}=await SB.rpc('world_rank_lega',{p_period:p});if(error)throw error;EQ.rank[p]=data||[];}catch(e){EQ.rank[p]={err:e.message};}if(S.tab==='social'&&SOC.tab==='classifiche'&&SOC.rs==='lega')eqRankPaint();}

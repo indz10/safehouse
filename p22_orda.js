@@ -58,7 +58,6 @@ function orBannerHTML(){const s=OR.s;if(!S.user||!s||!s.next_at)return'<div clas
 function orBindBanner(){const b=document.querySelector('.obanner');if(!b)return;const c=b.querySelector('[data-bcl]');if(c)c.onclick=()=>{G.sub='q';go('orda');setTimeout(()=>{const x=document.querySelector('[data-ocl]');if(x)x.scrollIntoView({behavior:'smooth',block:'center'});},400);};
   const p=b.querySelector('[data-bpr]');if(p)p.onclick=async()=>{p.disabled=true;try{await SB.rpc('world_prepare');toast('🛡️ Case preparate: +15 difesa');}catch(e){}orLoad(true);};}
 function orPutBanner(){try{if(!S.user||!OR.s||app.querySelector('.obanner')||!['mappa','valuta'].includes(S.tab)||(S.tab==='orda'&&G.view==='battle'))return;const h=document.createElement('div');h.innerHTML=orBannerHTML();app.insertBefore(h.firstElementChild,app.firstChild);orBindBanner();}catch(e){}}
-const _goOR=go;go=function(tab){_goOR(tab);orPutBanner();};
 /* ---- nel gioco: l'orda del mondo in cima, le notti a mano ("Difendi tu") sotto ---- */
 /* ---- l'assalto sulla mappa vera (visto da tutti) ---- */
 async function orViewBase(lm){if(!lm||!lm.map||typeof SB==='undefined'||!SB)return[];const b=lm.map.getBounds();

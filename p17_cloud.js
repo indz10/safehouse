@@ -14,23 +14,23 @@ let SB=null;const SAVE_KEY='zsh_v2_salvataggio';const SNAP={b:null,at:0};
     }catch(e){console.warn('Supabase non disponibile',e);SB=null;}};
   s.onerror=()=>{SB=null;};document.head.appendChild(s);})();
 /* ---------- salvataggio: cosa si salva ---------- */
-function snapshot(){const s={zone:S.zone||null,answers:S.answers||null,result:S.result||null,game:S.game?{base:S.game.base||null,applied:[...(S.game.applied||[])]}:null,
+function snapshotBase(){const s={zone:S.zone||null,answers:S.answers||null,result:S.result||null,game:S.game?{base:S.game.base||null,applied:[...(S.game.applied||[])]}:null,
    rmiss:S.rmiss||{},coupons:S.coupons||{},couponUsed:!!S.couponUsed,acc:S.acc||{},qtog:S.qtog||{},finali:S.finali||{},leads:S.leads||0,geo:S.geo||null,pubOk:S.pubOk,case:S.case||[]};
   let g=null;try{if(typeof G!=='undefined'&&G.type){g={};Object.keys(G).forEach(k=>{if(['run','sel','pickT','view','replay'].includes(k))return;g[k]=G[k];});}}catch(e){}
   const body=JSON.stringify({S:s,G:g});if(body!==SNAP.b){SNAP.b=body;SNAP.at=Date.now();}
   return{v:1,at:SNAP.at||Date.now(),S:s,G:g};}
 /* quanto è "pieno" un salvataggio: serve per non sostituire dati veri con una partita vuota */
 function saveWeight(d){if(!d||!d.S)return 0;const s=d.S;return(s.zone?4:0)+(s.result?3:0)+Object.keys(s.answers||{}).length/10+(d.G&&d.G.type?3:0)+((d.G&&d.G.level)||0)/10;}
-function restore(d){if(!d||d.v!==1)return false;const s=d.S||{};
+function restoreBase(d){if(!d||d.v!==1)return false;const s=d.S||{};
   ['zone','answers','result','rmiss','coupons','couponUsed','acc','qtog','finali','leads','geo','pubOk','case'].forEach(k=>{if(s[k]!=null)S[k]=s[k];});
   if(s.game){S.game=S.game||{};S.game.base=s.game.base;S.game.applied=new Set(s.game.applied||[]);}
   if(d.G&&typeof G!=='undefined'){Object.assign(G,d.G);G.run=null;G.view='hub';G.sel=null;}
   if(S.acc&&S.acc.big)document.body.classList.add('bigtxt');return true;}
-function saveLocal(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(snapshot()));}catch(e){}}
+function saveLocalBase(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(snapshot()));}catch(e){}}
 function loadLocal(){try{const t=localStorage.getItem(SAVE_KEY);return t?JSON.parse(t):null;}catch(e){return null;}}
 /* ---------- cloud ---------- */
 let pushT=null;
-async function pushCloud(){if(!SB||!S.user||!S.user.id)return;const d=snapshot();if(saveWeight(d)<1)return;if(SNAP.pushed&&d.at<=SNAP.pushed)return;
+async function pushCloudBase(){if(!SB||!S.user||!S.user.id)return;const d=snapshot();if(saveWeight(d)<1)return;if(SNAP.pushed&&d.at<=SNAP.pushed)return;
   try{const{data:c}=await SB.from('salvataggi').select('dati').eq('user_id',S.user.id).maybeSingle();
     /* se un altro dispositivo ha salvato dopo di me, prendo il suo invece di sovrascriverlo */
     if(c&&c.dati&&c.dati.at>d.at&&saveWeight(c.dati)>=1){applyCloud(c.dati);return;}
@@ -44,7 +44,7 @@ async function syncCloud(){if(!SB||!S.user||!S.user.id||document.hidden)return;
   try{const{data}=await SB.from('salvataggi').select('dati').eq('user_id',S.user.id).maybeSingle();const c=data&&data.dati;
     const mine=snapshot();if(c&&c.at>mine.at&&saveWeight(c)>=1)applyCloud(c);else if(mine.at>(SNAP.pushed||0))pushCloud();}catch(e){}}
 async function pullCloud(){if(!SB||!S.user||!S.user.id)return null;try{const{data}=await SB.from('salvataggi').select('dati,updated_at').eq('user_id',S.user.id).maybeSingle();return data?data.dati:null;}catch(e){return null;}}
-async function onLogin(u,fresh){S.user={id:u.id,email:u.email,nick:(u.user_metadata&&u.user_metadata.nick)||u.email.split('@')[0]};
+async function onLoginBase(u,fresh){S.user={id:u.id,email:u.email,nick:(u.user_metadata&&u.user_metadata.nick)||u.email.split('@')[0]};
   const cloud=await pullCloud(),local=loadLocal();const wc=saveWeight(cloud),wl=saveWeight(local);
   const useCloud=cloud&&(!local||wl<1&&wc>=1||(wc>=1&&cloud.at>=local.at));
   if(useCloud){restore(cloud);snapshot();SNAP.at=cloud.at||SNAP.at;SNAP.pushed=SNAP.at;saveLocal();try{if(typeof trSetupVera==='function')trSetupVera();}catch(e){}if(fresh||wl<1)toast('Dati recuperati dal tuo account');try{go(S.tab||'home');}catch(e){}}
@@ -55,7 +55,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){saveLocal(
 window.addEventListener('focus',()=>syncCloud());window.addEventListener('pagehide',()=>{saveLocal();pushCloud();});
 setInterval(()=>{if(S.user&&S.user.id)syncCloud();},20000);
 /* al primo avvio: riprende da dove eri rimasto */
-(function(){const d=loadLocal();if(d){try{restore(d);snapshot();SNAP.at=d.at||SNAP.at;}catch(e){}}})();
+(function(){const d=loadLocal();if(d){try{restoreBase(d);snapshotBase();/* all'avvio, come prima: le versioni di p17 (Fase 4f-1) */SNAP.at=d.at||SNAP.at;}catch(e){}}})();
 /* ---------- login vero ---------- */
 const TRAD=m=>/Invalid login/i.test(m)?'Email o password non corretti.':/already registered|already exists/i.test(m)?'Questa email è già registrata: prova ad accedere.':/at least|weak/i.test(m)?'La password è troppo corta.':/valid email|invalid email/i.test(m)?'Controlla l’email.':/confirm/i.test(m)?'Conferma l’email dal messaggio che ti abbiamo mandato, poi accedi.':/fetch|network/i.test(m)?'Connessione assente: riprova tra poco.':m;
 const _loginSheet=loginSheet;

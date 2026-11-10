@@ -62,7 +62,6 @@ async function casaTop(){const pg=app.querySelector('.page');if(!pg||pg.querySel
   gal.innerHTML=`<b class="disp" style="font-size:22px">🗺️ Le tue case nel mondo (${L.length})</b><div class="mgrid">${L.map((h,i)=>`<button class="mgc" data-mg="${i}"><div class="mgart" data-mga="${i}">${houseArt('villa',h.level,h.bid,{k:'g'+i})}</div><b>${h.label}</b><small><span data-mgt="${i}">…</span> · liv. ${h.level} · ${kmTxt(h.km)}</small></button>`).join('')}</div>`;
   box.after(gal);gal.querySelectorAll('[data-mg]').forEach(b=>b.onclick=()=>{const h=L[+b.dataset.mg];S.mfHouses=true;go('mappa');setTimeout(()=>mhFly(h,true),900);});
   L.forEach(async(h,i)=>{const t=await bType(h.lat,h.lon,h.bid);const a=gal.querySelector(`[data-mga="${i}"]`),tt=gal.querySelector(`[data-mgt="${i}"]`);if(a)a.innerHTML=houseArt(t,h.level,h.bid,{k:'g'+i});if(tt)tt.textContent=BT[t][1];});}
-const _goCase=go;go=function(tab){const r=_goCase(tab);if(tab==='casa')setTimeout(casaTop,30);return r;};
 /* ---------- nella scheda di ogni casa: il suo disegno ---------- */
 /* ---------- nella barra "Le tue case" del mondo: miniature ---------- */
 </script>

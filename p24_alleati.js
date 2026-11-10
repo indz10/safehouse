@@ -11,7 +11,6 @@ const GK={mattoni:['🧱','Mattoni'],monete:['🪙','Monete'],cibo:['🥫','Cibo
 async function ayLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return;if(!force&&Date.now()-AY.t<60000)return;AY.t=Date.now();
   try{const a=await SB.rpc('world_allies');if(!a.error)AY.list=a.data||[];const l=await SB.rpc('world_loans');if(!l.error)AY.loans=l.data||[];}catch(e){}ayRefresh();}
 /* regali ricevuti: monete, gemme, materiali entrano nella partita */
-const _wMineAY=wMine;wMine=async function(silent){await _wMineAY(silent);ayInbox();};
 function ayHTML(){if(!S.user)return'';const L=AY.list,LO=AY.loans;
   return`<div class="ayb"><h4 class="ah">🤝 I tuoi alleati (${L.length})</h4>
    ${L.length?L.map(a=>`<div class="arow"><div><b>@${esc(a.nick)}</b><small>livello ${a.wlevel}${a.dist_km!=null?' · '+wNum(a.dist_km)+' km':''}</small></div><button class="btn small" data-agive="${a.user_id}" data-anick="${esc(a.nick)}">🎁 Regala / Presta</button></div>`).join(''):'<p class="muted" style="font-size:12.5px">Diventate alleati aiutandovi in un’orda o invitandovi: poi potete regalarvi e prestarvi Mattoni, e regalarvi monete e materiali (le gemme no).</p>'}

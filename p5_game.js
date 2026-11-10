@@ -127,13 +127,13 @@ function tenOf(b){if(!b||b.kind!=='house'||!b.ten)return null;
   if(b.ten.f){const f=G.friends.find(x=>x.id===b.ten.f);if(!f)return null;return{type:'friend',f,role:f.role,lv:fLv(f)};}
   return{type:'npc',role:b.ten.n,lv:b.lv};}
 function houseOfFriend(fid){return Object.entries(G.lots).find(([,b])=>b.kind==='house'&&b.ten&&b.ten.f===fid);}
-function openSheet(title,body,bind){
+function openSheetBase(title,body,bind){
   let sh=document.getElementById('sheet');
   if(!sh){sh=document.createElement('div');sh.id='sheet';sh.className='sheet';sh.innerHTML='<div class="sheet-bg"></div><div class="sheet-card" role="dialog" aria-modal="true"></div>';document.body.appendChild(sh);sh.querySelector('.sheet-bg').onclick=closeSheet;}
   sh.querySelector('.sheet-card').innerHTML=`<div class="row spread sheet-h"><h3>${title}</h3><button class="btn ghost small" data-close aria-label="Chiudi">✕</button></div><div class="sheet-b">${body}</div>`;
   sh.classList.add('open');sh.querySelector('[data-close]').onclick=closeSheet;if(bind)bind(sh.querySelector('.sheet-card'));
 }
-function closeSheet(){const sh=document.getElementById('sheet');if(sh)sh.classList.remove('open');}
+function closeSheetBase(){const sh=document.getElementById('sheet');if(sh)sh.classList.remove('open');}
 
 /* ---------- battaglia: assedio di tutto il quartiere ---------- */
 const HOME_POS={centro:[134,168],periferia:[196,286],campagna:[330,580],fiume:[128,566],montagna:[204,-50]};

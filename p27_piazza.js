@@ -44,7 +44,6 @@ function pzActions(m){openSheet('💬 Messaggio',`<div class="pzm ${m.mine?'mine
 /* la piazza è la prima voce di Superstiti */
 SOC.tab='piazza';
 /* ---------------- accesso chiaro e avatar sempre aggiornato ---------------- */
-const _onLoginPz=onLogin;onLogin=async function(u,fresh){const r=await _onLoginPz(u,fresh);try{renderNav();if(S.tab==='social')renderSocial();}catch(e){}return r;};
 setInterval(()=>{try{const b=document.getElementById('ioBtn');if(!b)return;const want=S.user?((S.user.nick||(S.user.email||'?').split('@')[0])[0]||'?').toUpperCase():'👤';if(b.textContent!==want){b.textContent=want;b.classList.toggle('nolog',!S.user);}}catch(e){}},2000);
 /* in Casa, se non sei collegato, lo vedi subito */
 const _renderHomePz=renderHome;renderHome=function(){_renderHomePz();try{if(S.user||!S.result||app.querySelector('.nolog'))return;const c=app.querySelector('.hcard');if(c)c.insertAdjacentHTML('beforebegin',`<div class="panel nolog"><b>🔒 Non sei collegato in questa app</b><p style="font-weight:400;margin:4px 0">Accedi per salvare i progressi, avere la tua casa nel mondo e giocare con gli altri.</p>${pzSafariNote()}<button class="btn" onclick="loginSheet()">Accedi</button></div>`);}catch(e){}};

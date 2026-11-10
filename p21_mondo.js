@@ -13,7 +13,7 @@ window.W={on:false,m:null,busy:false};
 window.HQW={blocked:new Set(),st:new Map(),t:0,key:''};
 const wNum=n=>Number(n||0).toLocaleString('it-IT');
 async function wRpc(fn,args){if(typeof SB==='undefined'||!SB||!S.user)throw new Error('Accedi per entrare nel mondo unico');const{data,error}=await SB.rpc(fn,args||{});if(error)throw error;return data;}
-async function wMine(silent){if(typeof SB==='undefined'||!SB||!S.user||W.busy)return;W.busy=true;
+async function wMineBase(silent){if(typeof SB==='undefined'||!SB||!S.user||W.busy)return;W.busy=true;
   try{let d;try{d=await wRpc('world_mine2');}catch(x){d=await wRpc('world_mine');}if(!d)return;W.on=true;W.m=d;
     const news=(d.news||[]).filter(n=>n.delta>0);if(news.length&&!silent){const tot=news.reduce((a,n)=>a+n.delta,0);const big=news.find(n=>/abitante|esclus|inattiv|Bonus/.test(n.reason));
       setTimeout(()=>toast(big?`🏠 ${big.reason}: +🧱 ${wNum(big.delta)}`:`🧱 +${wNum(tot)} Mattoni`),1200);}
@@ -123,8 +123,6 @@ document.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest
 const _oweW=window.onWaveEnd;window.onWaveEnd=function(win,L,ev,coop){try{if(_oweW)_oweW(win,L,ev,coop);}catch(e){}if(win&&!coop&&S.user)wEarn('notte');};
 const _tmEventW=tmEvent;tmEvent=function(k,id,ok){const T=G&&G.tm;const before=T?T.list.filter(m=>m.done).length:0;_tmEventW(k,id,ok);const after=T?T.list.filter(m=>m.done).length:0;for(let i=before;i<after;i++)if(S.user)wEarn('missione');};
 /* all'accesso: riepilogo, accesso del giorno, verifiche (valutazione, codici, inviti), conferma casa */
-const _onLoginW=onLogin;onLogin=async function(u,fresh){const r=await _onLoginW(u,fresh);setTimeout(async()=>{await wMine();await wEarn('login');await wEarn('verifica');wClaim(false);},1500);return r;};
-const _azW=analyzeZone;analyzeZone=async function(a){const z=await _azW(a);setTimeout(()=>{if(S.user)wClaim(true);},1200);return z;};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user)wMine(true);});
 /* la scheda "La tua casa" mostra lo stato nel mondo unico */
 const _vZonaWorld=vZona;vZona=function(){_vZonaWorld();try{const t=document.querySelector('.myhome .mh-top>div:last-child');if(t&&!t.querySelector('.mhw'))t.insertAdjacentHTML('beforeend',`<small class="mhw" style="display:block;margin-top:4px" id="wHome">${wHomeLine()}</small>`);}catch(e){}};

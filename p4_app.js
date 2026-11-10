@@ -8,7 +8,7 @@ const fmtI=v=>v.toFixed(1).replace('.',',');
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600);}
 function vibe(){try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}}
 
-function go(tab){window.__last='apre '+tab;document.body.classList.remove('inbattle');if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab=tab;renderNav();window.scrollTo(0,0);if(tab!=='orda')setMusic('app');closeSheet&&closeSheet();({sponsor:renderSponsor,contatti:renderContatti,home:renderHome,valuta:renderValuta,gioco:renderGioco,orda:()=>{G.view=G.view==='battle'?'hub':G.view;renderOrda();},mappa:renderMappa,radio:renderRadio,guida:renderGuida})[tab]();}
+function goBase(tab){window.__last='apre '+tab;document.body.classList.remove('inbattle');if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab=tab;renderNav();window.scrollTo(0,0);if(tab!=='orda')setMusic('app');closeSheet&&closeSheet();({sponsor:renderSponsor,contatti:renderContatti,home:renderHome,valuta:renderValuta,gioco:renderGioco,orda:()=>{G.view=G.view==='battle'?'hub':G.view;renderOrda();},mappa:renderMappa,radio:renderRadio,guida:renderGuida})[tab]();}
 
 /* ---------------- HOME ---------------- */
 function bindGo(){app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{vibe();if(b.dataset.step)S.step=+b.dataset.step;if(b.dataset.mot2)S.motivo=b.dataset.mot2;else if(b.dataset.go==='contatti')S.motivo='info';go(b.dataset.go);});}
