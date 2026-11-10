@@ -3234,37 +3234,12 @@ function topbar(){
   document.body.insertAdjacentHTML('afterbegin',`<header id="topbar" class="topbar">
      <button class="tb-logo" data-gohome aria-label="Vai alla home"><img alt="" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(logoSVG(64))}"><b>ZombieSafeHouse</b></button>
      <div class="ucount" id="ucount" aria-label="Utenti registrati e online">${statHTML()}</div>
-     <button class="tb-menu" id="menuBtn" aria-label="Apri il menu" aria-expanded="false"><span></span><span></span><span></span></button>
-   </header>
-   <div id="drawer" class="drawer" aria-hidden="true"><div class="dr-bg"></div><nav class="dr-card" aria-label="Menu"></nav></div>`);
+   </header>`);
   document.querySelector('[data-gohome]').onclick=()=>go('home');
-  tapOn($('#menuBtn'),()=>toggleMenu());
-  tapOn(document.querySelector('.dr-bg'),()=>toggleMenu(false));
-  /* un solo gestore per tutte le voci del menu (delega): funziona anche se il menu viene ridisegnato */
-  tapOn(document.querySelector('.dr-card'),e=>{const b=e.target.closest('button');if(!b)return;
-    if(b.dataset.mgo){toggleMenu(false);const k=b.dataset.mgo;setTimeout(()=>{if(b.dataset.cont){S.motivo='info';go('contatti');setTimeout(()=>{const f=$('#formTop');if(f)f.scrollIntoView({behavior:'smooth'});},120);}else go(k);},30);return;}
-    if(b.id==='loginBtn'){toggleMenu(false);setTimeout(()=>loginSheet(),30);return;}
-    if(b.id==='logout'){S.user=null;toast('Sei uscito');renderMenu();return;}
-    if(b.dataset.legal2){toggleMenu(false);openSheet('Privacy e termini','<p style="font-weight:400">Documenti in preparazione con il consulente privacy, pubblicati prima del lancio.</p>');}});
+  /* il vecchio menu a tendina (pulsante nascosto dallo stile) è stato tolto nella Fase 4e: il menu è ☰ (p28) */
 }
 function tapOn(el,fn){if(!el)return;let last=0;const h=e=>{const now=Date.now();if(now-last<450)return;last=now;if(e.type==='touchend')e.preventDefault();fn(e);};
   el.addEventListener('touchend',h,{passive:false});el.addEventListener('click',h);}
-function toggleMenu(force){const d=$('#drawer');const open=force!=null?force:!d.classList.contains('open');
-  if(open)renderMenu();d.classList.toggle('open',open);d.setAttribute('aria-hidden',!open);$('#menuBtn').setAttribute('aria-expanded',open);$('#menuBtn').classList.toggle('x',open);}
-function renderMenu(){
-  const u=S.user;const it=(k,ic,l,extra='')=>`<button class="mi ${S.tab===k?'on':''}" data-mgo="${k}"><span>${ic}</span>${l}${extra}</button>`;
-  $('.dr-card').innerHTML=`
-    <div class="dr-user">${u?`<span class="av" style="background:#d7263d">${esc(u.nick[0].toUpperCase())}</span><div><b>@${esc(u.nick)}</b><small>${esc(u.email)}</small></div><button class="btn ghost small" id="logout">Esci</button>`
-      :`<div><b>Non hai ancora fatto l’accesso</b><small>Salva valutazioni, quartiere e amici</small></div><button class="btn small" id="loginBtn">Accedi</button>`}</div>
-    <div class="dr-sec">App</div>
-    ${it('guida','❓','Come funziona')}${it('home','🏠','Home')}${it('valuta','📷','Valuta la casa')}${it('gioco','🧪','Simulazione')}${it('orda','🧟','Orda: il gioco')}${it('mappa','🗺️','Zone e vivere qui')}${it('radio','📻','Radio Operatore')}
-    <div class="dr-sec">Azienda</div>
-    ${it('sponsor','🤝','Sponsor e partner')}${it('contatti','🏢','Chi siamo')}
-    <button class="mi" data-mgo="contatti" data-cont="1"><span>✉️</span>Contatti</button>
-    <button class="mi" data-legal2="1"><span>📄</span>Privacy e termini</button>
-    <div class="dr-foot">ZombieSafeHouse è un marchio INDZ · ${statHTML()}</div>`;
-
-}
 function loginSheet(mode){
   mode=mode||'login';
   openSheet(mode==='login'?'Accedi':'Crea il tuo account',`
@@ -4269,7 +4244,7 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 /* bollettino del territorio nella pagina del gioco */
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611101140';
+const ZSH_BUILD='202611101234';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -4579,9 +4554,6 @@ window.ZHID=[...new Set([...(window.ZHID||[]),...window.ZMYHID])];
 const _bzCardR=bzCard;bzCard=function(b,pub){return _bzCardR(b,pub).replace('<div data-admin></div>',`<button class="bzc-rep" data-rep>⚠️ Ha chiuso o non esiste più? Segnalalo</button><div data-admin></div>`);};
 </script>
 <script>
-const _renderMenuZ=renderMenu;renderMenu=function(){_renderMenuZ();try{if(!S.user)return;const u=document.querySelector('.dr-user');if(!u||document.querySelector('[data-pubt]'))return;
-  u.insertAdjacentHTML('afterend',`<button class="mi" data-pubt="1"><span>👥</span>Sulla mappa della community: <b style="margin-left:4px">${S.pubOk?'visibile':'invisibile'}</b></button>`);
-  document.querySelector('[data-pubt]').onclick=e=>{e.stopPropagation();zTogglePublic();renderMenu();};}catch(e){}};
 </script>
 <script>
 /* =========================================================
@@ -4646,8 +4618,6 @@ function doMove(P){try{
 /* pulsante in Valuta (quando c'è già una casa) e nel menu */
 const _vZonaMv=vZona;vZona=function(){_vZonaMv();try{if(!S.zone||document.getElementById('mvBtn'))return;const g=document.getElementById('geoBtn');const row=g&&g.parentElement;
   if(row)row.insertAdjacentHTML('afterend','<button class="btn ghost small" id="mvBtn" style="margin-top:8px">🚚 Ho cambiato casa</button>');const b=document.getElementById('mvBtn');if(b)b.onclick=moveSheet;}catch(e){}};
-const _renderMenuMv=renderMenu;renderMenu=function(){_renderMenuMv();try{if(!S.zone||document.querySelector('[data-move]'))return;const ref=document.querySelector('[data-pubt]')||document.querySelector('.dr-user');
-  if(ref){ref.insertAdjacentHTML('afterend','<button class="mi" data-move="1"><span>🚚</span>Ho cambiato casa</button>');document.querySelector('[data-move]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}moveSheet();};}}catch(e){}};
 /* cronologia delle case salvata con i progressi */
 const _snapMv=snapshot;snapshot=function(){const d=_snapMv();if(d&&d.S)d.S.case=S.case||[];return d;};
 const _restMv=restore;restore=function(d){const r=_restMv(d);try{if(d&&d.S&&d.S.case)S.case=d.S.case;}catch(e){}return r;};
@@ -4848,11 +4818,6 @@ function deleteSheet(){openSheet('🗑 Elimina il mio account',`<p style="font-w
      try{const{error}=await SB.rpc('delete_my_account');if(error)throw error;await SB.auth.signOut().catch(()=>{});}catch(e){toast('Non riuscito: '+(e.message||'riprova'));return;}
      try{Object.keys(localStorage).filter(k=>k.startsWith('zsh')).forEach(k=>localStorage.removeItem(k));}catch(e){}closeSheet();toast('Account eliminato');setTimeout(()=>location.reload(),1200);};});}
 /* voci di menu */
-const _renderMenuI=renderMenu;renderMenu=function(){_renderMenuI();try{const ref=document.querySelector('.dr-user');if(!ref||!S.user||document.querySelector('[data-inv]'))return;
-  ref.insertAdjacentHTML('afterend','<button class="mi" data-inv="1"><span>📨</span>Invita amici e vicini</button>');
-  const last=[...document.querySelectorAll('#drawer .mi')].pop();(last||ref).insertAdjacentHTML('afterend','<button class="mi" data-delacc="1" style="color:#d7263d"><span>🗑</span>Elimina il mio account</button><a class="mi" href="privacy.html" target="_blank"><span>🔒</span>Privacy</a><a class="mi" href="termini.html" target="_blank"><span>📄</span>Termini d’uso</a>');
-  document.querySelector('[data-inv]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}inviteSheet();};
-  document.querySelector('[data-delacc]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}deleteSheet();};}catch(e){}};
 </script>
 <script>
 /* =========================================================
@@ -4944,7 +4909,7 @@ window.rulesSheet=()=>openRules(0);
    MANUALE COMPLETO DEL GIOCO (capitoli apribili)
    I numeri arrivano dai dati del gioco: restano sempre giusti.
    ========================================================= */
-function manualHTML(){const sec=(id,t,body,open)=>`<details class="man" ${open?'open':''} id="man-${id}"><summary>${t}</summary><div class="man-b">${body}</div></details>`;
+function manualHTMLBase(){const sec=(id,t,body,open)=>`<details class="man" ${open?'open':''} id="man-${id}"><summary>${t}</summary><div class="man-b">${body}</div></details>`;
   const tab=(rows,cols)=>`<div class="mtab">${rows.map(r=>`<div>${r.map((c,i)=>i===0?`<span>${c}</span>`:i===1?`<b>${c}</b>`:`<small>${c}</small>`).join('')}</div>`).join('')}</div>`;
   /* Fase 3c: tolti i capitoli del vecchio gioco a carte/notti; le tabelle vengono dai dati dell'app (ZSP, ZDEF, EVN di p47) */
   const ZS=typeof ZSP!=='undefined'?ZSP:{},ZD=typeof ZDEF!=='undefined'?ZDEF:{},EV=typeof EVN!=='undefined'?EVN:{};
@@ -5114,9 +5079,6 @@ const _hqBackC=hqBack;hqBack=function(m){let s=_hqBackC(m);try{let pins='';(wind
 document.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest('[data-rcus]');if(!g)return;const c=(window.ZCUSTOM||[])[+g.dataset.rcus];if(!c)return;const C=CUST_CAT[c.cat]||CUST_CAT.negozi;
   const R=S.zone&&S.zone.real;const d=R?Math.round(trM(R.lat,R.lon,c.lat,c.lon)):0;if(['salute','servizi','scuola','verde','sport'].includes(C[0]))lmPoi(c.name,C[1],d,[c.lat,c.lon],true);else bizSheet({i:'c'+c.id,ic:C[2],name:c.name,cat:C[1],d,ll:[c.lat,c.lon],tel:c.phone||'',web:c.website||'',cand:c.cat==='casa'},S.zone);});
 /* pannello admin e negozio raggiungibili dal menu (admin solo per chi è amministratore) */
-const _renderMenuA=renderMenu;renderMenu=function(){_renderMenuA();try{if(!S.user||document.querySelector('[data-admlink]'))return;const ref=document.querySelector('.dr-user');if(!ref)return;
-  zIsAdmin().then(ok=>{if(!ok||document.querySelector('[data-admlink]'))return;ref.insertAdjacentHTML('afterend','<a class="mi" data-admlink="1" href="admin.html" target="_blank"><span>🛠️</span>Pannello admin INDZ</a>');});
-  (async()=>{try{const{data}=await SB.from('sponsor_users').select('sponsor_id').eq('user_id',S.user.id).limit(1);if(data&&data.length&&!document.querySelector('[data-neglink]'))ref.insertAdjacentHTML('afterend','<a class="mi" data-neglink="1" href="negozio.html" target="_blank"><span>🏪</span>Pannello del mio negozio</a>');}catch(e){}})();}catch(e){}};
 </script>
 <script>
 /* 3) su iPhone il tocco sui pulsanti dei premi arriva sempre (anche quando il "click" si perde) */
@@ -5256,7 +5218,6 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user)wM
 /* la scheda "La tua casa" mostra lo stato nel mondo unico */
 const _vZonaWorld=vZona;vZona=function(){_vZonaWorld();try{const t=document.querySelector('.myhome .mh-top>div:last-child');if(t&&!t.querySelector('.mhw'))t.insertAdjacentHTML('beforeend',`<small class="mhw" style="display:block;margin-top:4px" id="wHome">${wHomeLine()}</small>`);}catch(e){}};
 /* manuale: capitolo del mondo unico */
-const _manualW=manualHTML;manualHTML=function(){return _manualW().replace('<details class="man"',`<details class="man"><summary>🌍 Il mondo unico</summary><div class="man-b"><p>Tutti gli utenti registrati giocano nello <b>stesso mondo vero</b>. La tua casa è tua (si conferma in due giorni). Con i <b>🧱 Mattoni</b> compri le case libere vere: prima vicino a casa, poi, salendo di livello, sempre più lontano, fino al mondo intero.</p><p>Ogni casa rende <b>affitti</b> ogni giorno e si può potenziare fino al livello 5. Se l’abitante vero si iscrive, la casa passa a lui e tu ricevi indietro tutto il valore più un bonus (25%, 75% se l’avevi invitato tu).</p><p><b>Mattoni</b>: notti vinte, missioni, accesso del giorno, casa valutata, codici usati in negozio, amici invitati, affitti. Ogni giorno c’è un tetto. Le case di chi non gioca da 30 giorni tornano libere (rimborso 50%).</p><p>Nel quartiere del gioco gli edifici veri comprati nel mondo sono tuoi edifici da difendere; quelli di altri giocatori o abitati sono segnati e non si comprano.</p></div></details><details class="man"`);};
 setTimeout(()=>{if(S.user&&!W.m)wMine(true);},4000);
 </script>
 <script>
@@ -5357,14 +5318,11 @@ function orTour(i){try{G.tourDone=1;}catch(e){}if(i===0)closeSheet();const st=OT
 function orOffer(){if(!S.user||typeof G==='undefined'||G.tourDone||document.querySelector('#sheet.open'))return;G.tourDone=1;
   openSheet('🧭 Vuoi un giro guidato?',`<p style="font-weight:400">Un minuto per capire tutto: la mappa vera, le case da comprare, l’<b>orda del mondo</b> delle 9 e delle 21, i premi da riscattare.</p><div class="row" style="gap:8px;margin-top:12px"><button class="btn" data-oty>Sì, fammi vedere</button><button class="btn ghost small" data-otn2>No, grazie</button></div>`,c=>{c.querySelector('[data-oty]').onclick=()=>orTour(0);c.querySelector('[data-otn2]').onclick=closeSheet;});}
 /* menu */
-const _renderMenuOR=renderMenu;renderMenu=function(){_renderMenuOR();try{const ref=document.querySelector('.dr-user');if(!ref||document.querySelector('[data-mtour]'))return;
-  ref.insertAdjacentHTML('afterend','<button class="mi" data-mtour="1"><span>🧭</span>Giro guidato</button>');document.querySelector('[data-mtour]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}orTour(0);};}catch(e){}};
 /* aggiornamenti */
 setInterval(()=>{if(!document.hidden&&S.user){orLoad(Date.now()-OR.t>60000);document.querySelectorAll('.onext small').forEach(x=>{if(OR.s)x.textContent='tra '+orLeft(OR.s.next_at);});}},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user)orLoad(true);});
 setTimeout(()=>{if(S.user)orLoad(true);},3500);
 /* manuale */
-const _manualOR=manualHTML;manualHTML=function(){return _manualOR().replace('<details class="man"',`<details class="man" open><summary>🧟 L’orda del mondo (la cosa principale)</summary><div class="man-b"><p>Ogni giorno alle <b>9:00</b> e alle <b>21:00</b> un’orda attacca <b>tutte le case del mondo unico</b>, da sola. Ogni casa tiene o viene sfondata in base alla sua difesa: <b>45 + 12 per livello</b> (massimo 5), <b>+15 se hai premuto “Prepara”</b>, +5 per casa tua. La forza dell’orda cambia per ogni casa e ogni orda (da 40 a 99).</p><p><b>Prima</b>: Prepara e Fortifica. <b>Dopo</b>: guarda l’assalto sulla mappa (🛡️ tenute, 💥 sfondate) e <b>riscatta</b> prima dell’orda successiva: 🧱 8 + 4 × livello per ogni casa che tiene (2 per quelle sfondate), 🪙 30 per casa che tiene, 💎 2 se tengono tutte.</p><p>Le notti giocate a mano restano: sono “Difendi tu”, facoltative, con i loro premi.</p></div></details><details class="man"`);};
 </script>
 <script>
 /* =========================================================
@@ -5469,7 +5427,6 @@ renderHome=function(){const z=S.zone,Rr=S.result,m=W&&W.m,s=OR.s;const next=(s&&
 function homeFoot(){return`<footer class="foot"><div class="disp" style="font-size:24px;color:var(--moon)">ZombieSafeHouse</div><p>La casa sicura, raccontata con un fumetto. Un marchio INDZ, nato in provincia di Mantova.</p>
   <div class="row wrap" style="gap:8px;margin-top:10px"><button class="btn small alt" data-go="contatti">Chi siamo e contatti</button><button class="btn small ghost" data-go="contatti" data-mot2="sponsor">Diventa sponsor</button></div><small>© 2026 INDZ</small></footer>`;}
 /* manuale */
-const _manualV3=manualHTML;manualHTML=function(){return _manualV3().replace('<details class="man"',`<details class="man"><summary>🤝 Alleati, rivali e simulati</summary><div class="man-b"><p><b>Chiedi aiuto</b> per la prossima orda: chiunque nel mondo può mandarti rinforzi (+5 di difesa ciascuno, fino a +20) e chi aiuta guadagna Mattoni. <b>Manda un’orda</b> a un rivale: costa 30 Mattoni, gli toglie 8 di difesa e, se la sua casa cade, prendi una taglia di 25 Mattoni. Chi è molto più debole di te (3 livelli sotto) è protetto.</p><p>L’orda è <b>su misura</b>: cresce con il tuo livello, così chi arriva dopo può crescere. Le case si comprano <b>ovunque</b>: il prezzo sale con la distanza da casa tua.</p><p>🤖 Circa una casa su sei è di un <b>superstite simulato</b>, un personaggio del gioco: si può comprare (+30%).</p></div></details><details class="man"`);};
 </script>
 <script>
 /* la sezione con gli amici simulati non compare più (la fortuna resta) */
@@ -5507,7 +5464,6 @@ function luckTopHTML(){try{luckInit();}catch(e){}const ds=(typeof dailyState==='
     <button data-lt="jar"><span>🫙</span><b>Barattolo</b><small>${Math.min(tot,goal)}/${goal}</small></button></div>
    <p class="muted" style="font-size:12px;margin:8px 0 0">Giri e biglietti si guadagnano riscattando l’orda, vincendo notti e aiutando gli alleati.</p></div>`;}
 /* manuale */
-const _manualAY=manualHTML;manualHTML=function(){return _manualAY().replace('<details class="man"',`<details class="man"><summary>🎁 Regali, prestiti e fortuna</summary><div class="man-b"><p><b>Alleati</b> sono i giocatori con cui vi siete aiutati negli ultimi 30 giorni e chi hai invitato (o chi ti ha invitato). Agli alleati puoi <b>prestare Mattoni</b> (tornano da soli dopo 3 giorni) o <b>regalare</b> Mattoni, monete, gemme e materiali. Limiti al giorno: 300 Mattoni, 1.000 monete, 20 gemme, 10 per materiale; gli account nuovi possono regalare dopo 3 giorni.</p><p><b>Ruota, gratta e vinci, premio del giorno e barattolo</b> sono in alto nel gioco: giri e biglietti si guadagnano riscattando l’orda, vincendo notti e aiutando gli alleati.</p></div></details><details class="man"`);};
 </script>
 <script>
 /* =========================================================
@@ -5697,9 +5653,9 @@ async function playerSheetBase(uid){if(!S.user){loginSheet();return;}openSheet('
 /* ---------------- barra: 👥 Superstiti al posto di Io; Io sull'avatar in alto ---------------- */
 ICON.social='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="8.5" cy="8" r="3.3"/><circle cx="16.5" cy="9" r="2.7"/><path d="M2.5 20c0-3.6 2.7-6 6-6s6 2.4 6 6M14 14.6c3.4-.4 7 1.4 7 5"/></svg>';
 NAV_ACT.social='social';NAV_ACT.io='io';
-renderNav=function(){try{document.body.dataset.tab=S.tab;}catch(e){}const items=[['home','Casa'],['mappa','Mappa'],['orda','Orda'],['social','Superstiti']];const act=NAV_ACT[S.tab]||S.tab;
+function renderNavBase(){try{document.body.dataset.tab=S.tab;}catch(e){}const items=[['home','Casa'],['mappa','Mappa'],['orda','Orda'],['social','Superstiti']];const act=NAV_ACT[S.tab]||S.tab;
   $('#nav').innerHTML=items.map(([k,l])=>`<button class="${act===k?'on':''}" data-tab="${k}" aria-label="${l}">${ICON[k]}<span>${l}</span></button>`).join('');
-  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{try{vibe();}catch(e){}go(b.dataset.tab);});socBadge();ioBtn();};
+  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{try{vibe();}catch(e){}go(b.dataset.tab);});socBadge();ioBtn();}
 const _goSoc=go;go=function(tab){if(tab!=='social')return _goSoc(tab);window.__last='apre superstiti';document.body.classList.remove('inbattle');
   if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab='social';renderNav();window.scrollTo(0,0);try{setMusic('app');}catch(e){}try{closeSheet();}catch(e){}renderSocial();};
 /* in Casa: le novità dei superstiti, per entrarci ogni giorno */
@@ -5807,7 +5763,7 @@ function zmHTML(){const u=S.user,m=window.W&&W.m;const nk=u?(u.nick||(u.email||'
   const sec=zmItems().map(([t,L])=>`<div class="zmsec"><h5>${t}</h5>${L.map(it=>it[0]==='toggle'?(it[3]==null?'':`<button class="zmrow" data-zm="${it[2]}"><span>${it[2]==='vis'?'👥':it[2]==='snd'?'🔊':'🎵'}</span><b>${it[1]}</b><i class="zsw ${it[3]?'on':''}"><em></em></i></button>`)
       :`<button class="zmrow" data-zm="${it[2]}"><span>${it[0]}</span><b>${it[1]}</b><i>›</i></button>`).join('')}</div>`).join('');
   return`<div class="zmback" data-zmclose></div><aside class="zmpanel" role="dialog" aria-label="Menu"><div class="zmtop"><b class="disp">Menu</b><button class="zmx" data-zmclose aria-label="Chiudi">✕</button></div>${head}<div class="zmquick">${quick}</div>${sec}<p class="zmver">ZombieSafeHouse · un marchio INDZ · v${(window.ZV||'').toString().slice(-6)||'—'}</p></aside>`;}
-function zmOpen(){zmClose(true);document.body.insertAdjacentHTML('beforeend',`<div id="zmenu">${zmHTML()}</div>`);requestAnimationFrame(()=>document.getElementById('zmenu').classList.add('open'));
+function zmOpenBase(){zmClose(true);document.body.insertAdjacentHTML('beforeend',`<div id="zmenu">${zmHTML()}</div>`);requestAnimationFrame(()=>document.getElementById('zmenu').classList.add('open'));
   const M=document.getElementById('zmenu');M.querySelectorAll('[data-zmclose]').forEach(b=>b.onclick=()=>zmClose());
   M.querySelectorAll('[data-zm]').forEach(b=>b.onclick=()=>zmDo(b.dataset.zm,b));
   /* scorri a destra per chiudere */
@@ -5817,7 +5773,7 @@ function zmOpen(){zmClose(true);document.body.insertAdjacentHTML('beforeend',`<d
 function zmRefresh(){const M=document.getElementById('zmenu');if(!M)return;const sc=M.querySelector('.zmpanel').scrollTop;M.innerHTML=zmHTML();M.classList.add('open');M.querySelector('.zmpanel').scrollTop=sc;
   M.querySelectorAll('[data-zmclose]').forEach(b=>b.onclick=()=>zmClose());M.querySelectorAll('[data-zm]').forEach(b=>b.onclick=()=>zmDo(b.dataset.zm,b));}
 function zmClose(now){const M=document.getElementById('zmenu');if(!M)return;if(now){M.remove();return;}M.classList.remove('open');setTimeout(()=>M.remove(),220);}
-function zmDo(k,b){try{
+function zmDoBase(k,b){try{
   if(k==='vis'){try{zTogglePublic();}catch(e){S.pubOk=!S.pubOk;}setTimeout(zmRefresh,150);return;}
   if(k==='snd'){if(typeof G!=='undefined')G.mute=!G.mute;try{saveLocal();}catch(e){}zmRefresh();return;}
   if(k==='mus'){try{if(AUD.on&&AUD.started)musicOff();else musicOn();}catch(e){}setTimeout(zmRefresh,120);return;}
@@ -5836,7 +5792,7 @@ function zmDo(k,b){try{
   if(k==='del'){try{deleteSheet();}catch(e){location.href='elimina-account.html';}return;}
   }catch(e){toast('Non disponibile ora');}}
 /* ---------------- barra in alto rinnovata ---------------- */
-function zTopbar(){try{const T=document.getElementById('topbar');if(!T)return;
+function zTopbarBase(){try{const T=document.getElementById('topbar');if(!T)return;
   if(!T.querySelector('.tbname')){const lg=T.querySelector('.tb-logo');if(lg)lg.insertAdjacentHTML('afterend','<b class="tbname">Zombie<span>SafeHouse</span></b>');}
   if(!document.getElementById('zbell')){T.insertAdjacentHTML('beforeend','<button id="zbell" aria-label="Novità">🔔</button><button id="zmenuBtn" aria-label="Apri il menu"><i></i><i></i><i></i></button>');
     document.getElementById('zmenuBtn').onclick=zmOpen;document.getElementById('zbell').onclick=()=>{SOC.tab='bacheca';go('social');};}
@@ -5844,8 +5800,7 @@ function zTopbar(){try{const T=document.getElementById('topbar');if(!T)return;
   const n=(()=>{try{const seen=+(localStorage.getItem('zsh_soc_seen')||0);return(SOC.per||[]).filter(f=>new Date(f.created_at).getTime()>seen).length+(SOC.pend||[]).length;}catch(e){return 0;}})();
   const bb=document.getElementById('zbell');let d=bb.querySelector('.nbadge');if(n>0){if(!d){bb.insertAdjacentHTML('beforeend','<i class="nbadge"></i>');d=bb.querySelector('.nbadge');}d.textContent=n>9?'9+':n;}else if(d)d.remove();}catch(e){}}
 ioBtn=function(){zTopbar();};
-const _renderNavZm=renderNav;renderNav=function(){_renderNavZm();zTopbar();};
-setInterval(zTopbar,3000);setTimeout(zTopbar,200);
+setInterval(zTopbarBase,3000);setTimeout(zTopbarBase,200);  /* come prima: la versione di p28 (Fase 4e: zTopbar ora è in p67) */
 /* musica: niente più pulsante volante, sta nel menu */
 setTimeout(()=>{try{const f=document.querySelector('.musicfab');if(f)f.style.display='none';}catch(e){}},300);
 /* tasto indietro del telefono / gesto: chiude prima il menu */
@@ -5892,8 +5847,6 @@ const _goReg=go;go=function(t){if(t!=='mappa')REG.active=false;return _goReg(t);
 /* ---- punti di accesso ben visibili ---- */
 /* mappa: i pulsanti della barra dell'orda aprono la regia */
 /* menu: due voci nuove */
-try{
-  const _zmDoReg=zmDo;zmDo=function(k,b){if(k==='a:last'||k==='a:sim'){zmClose();assalto(k.slice(2));return;}if(k==='push'){zmClose();pushSheet();return;}return _zmDoReg(k,b);};}catch(e){}
 
 /* ---------------- 🔔 NOTIFICHE PUSH ---------------- */
 const pushOk=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
@@ -6065,7 +6018,6 @@ function shopSheet(miss){openSheet('🛒 Bottega',`${miss?`<p class="notice">Ti 
   <div class="row" style="gap:8px;margin-top:8px"><button class="btn small" data-sg="orda">🧟 Vai a guadagnarli</button><button class="btn small ghost" data-sg="inv">📨 Invita (+150 🧱)</button></div>`,c=>{
   c.querySelector('[data-sg=orda]').onclick=()=>{closeSheet();G.ss='oggi';go('orda');};c.querySelector('[data-sg=inv]').onclick=()=>{closeSheet();if(!S.user)return loginSheet();inviteSheet();};});}
 /* il menu porta anche a "La mia casa" */
-try{const _zmDoM2=zmDo;zmDo=function(k,b){if(k==='home'&&b&&/Piano/.test(b.textContent)){zmClose();go('casa');return;}return _zmDoM2(k,b);};}catch(e){}
 </script>
 <script>
 /* =========================================================
@@ -6089,7 +6041,7 @@ const _mfMoreS1=mfMore;mfMore=function(){_mfMoreS1();try{const c=document.queryS
 /* ---- LA MIA CASA: solo la casa (orda, scorciatoie e novità stanno nelle loro schede) ---- */
 /* (nascosti via stile: .rmini, .qact, .hsoc dentro "La mia casa") */
 /* ---- MENU: corto, senza doppioni della barra in basso ---- */
-zmItems=function(){const u=S.user;const adm=!!window.__zmAdmin,shop=!!window.__zmShop;
+function zmItemsBase(){const u=S.user;const adm=!!window.__zmAdmin,shop=!!window.__zmShop;
   return[
    ['La mia casa',[['🏠','La mia casa (indice e piano)','casa'],['📷','Valuta o aggiorna la casa','valuta'],['🚚','Ho cambiato casa','move']]],
    ['Gioco',[['🎬','Guarda gli assalti','a:last'],['🔮','Simula la prossima orda','a:sim'],['⚔️','Difendi tu (notti)','g:difendi'],['💎','Bottega','shop']]],
@@ -6097,12 +6049,10 @@ zmItems=function(){const u=S.user;const adm=!!window.__zmAdmin,shop=!!window.__z
    ['Aiuto',[['🧭','Giro guidato','tour'],['📖','Come si gioca','rules'],['📚','Tutte le regole','manual'],['📻','Radio Operatore','radio'],['⭐','Sponsor e contatti','sponsor']]],
    ['Account',[...(u?[['👤','Il mio profilo','io']]:[]),['🔔','Notifiche delle orde','push'],['toggle','Visibile sulla mappa','vis',u?!!S.pubOk:null],['toggle','Suoni','snd',!(typeof G!=='undefined'&&G.mute)],['toggle','Musica','mus',!!(window.AUD&&AUD.on&&AUD.started)],
      ['🔒','Privacy','url:privacy.html'],['📄','Termini','url:termini.html'],...(adm?[['🛠️','Pannello admin INDZ','url:admin.html']]:[]),...(shop?[['🏪','Pannello del mio negozio','url:negozio.html']]:[]),
-     ...(u?[['🚪','Esci','logout'],['🗑','Elimina il mio account','del']]:[])]]];};
-const _zmDoS1=zmDo;zmDo=function(k,b){if(k==='casa'){zmClose();go('casa');return;}if(k==='manual'){zmClose();openSheet('📚 Tutte le regole',rulesHTML());return;}if(k==='shop'){zmClose();shopSheet(0);return;}return _zmDoS1(k,b);};
+     ...(u?[['🚪','Esci','logout'],['🗑','Elimina il mio account','del']]:[])]]];}
 /* ---- il giro guidato segue la nuova struttura ---- */
 try{if(typeof OT!=='undefined'&&Array.isArray(OT)){for(let i=OT.length-1;i>=0;i--){const st=OT[i];if(st&&st.sel&&/wpan|apan/.test(st.sel))OT.splice(i,1);}}}catch(e){}
 /* ---- manuale: testo dei regali allineato alle regole vere ---- */
-const _manualS1=manualHTML;manualHTML=function(){return _manualS1().replace(/o <b>regalare<\/b> Mattoni, monete, gemme e materiali\. Limiti al giorno: 300 Mattoni, 1\.000 monete, 20 gemme, 10 per materiale/,'o <b>regalare</b> Mattoni, monete e materiali (le gemme no). Limiti al giorno: 300 Mattoni, 300 monete, 10 per materiale');};
 </script>
 <script>
 /* =========================================================
@@ -6117,7 +6067,7 @@ function zSoundBtn(){try{const T=document.getElementById('topbar');if(!T)return;
   if(!b){const bell=document.getElementById('zbell');if(!bell)return;bell.insertAdjacentHTML('beforebegin','<button id="zsound" aria-label="Audio"></button>');b=document.getElementById('zsound');
     b.onclick=()=>{const on=zSoundOn();try{if(typeof G!=='undefined')G.mute=on;}catch(e){}try{if(on)musicOff();else musicOn();}catch(e){}try{saveLocal();}catch(e){}try{localStorage.setItem('zsh_mute',on?'1':'0');}catch(e){}zSoundBtn();toast(on?'🔇 Audio spento':'🔊 Audio acceso');};}
   const on=zSoundOn();b.textContent=on?'🔊':'🔇';b.classList.toggle('off',!on);}catch(e){}}
-const _zTopbarFx=zTopbar;zTopbar=function(){_zTopbarFx();zSoundBtn();};setTimeout(zSoundBtn,400);
+setTimeout(zSoundBtn,400);
 /* se l'audio era stato spento, resta spento alla riapertura */
 setTimeout(()=>{try{if(localStorage.getItem('zsh_mute')==='1'){if(typeof G!=='undefined')G.mute=true;try{musicOff();}catch(e){}zSoundBtn();}}catch(e){}},1200);
 /* ---- 2) "Acquista" più chiaro ---- */
@@ -6173,8 +6123,6 @@ function oggiTile(){try{document.querySelectorAll('.lpan button, .lpan .ltile, .
   if(em)em.outerHTML=tile;else{const w=document.createTreeWalker(t,NodeFilter.SHOW_TEXT);let x;while((x=w.nextNode())){if(x.nodeValue.includes('📅')){x.nodeValue=x.nodeValue.replace('📅','');x.parentNode.insertAdjacentHTML('afterbegin',tile);break;}}}});}catch(e){}}
 setInterval(()=>{if(S.tab==='home'||S.tab==='orda')oggiTile();},5000);
 /* nel menu */
-try{const _zmItemsOg=zmItems;zmItems=function(){const L=_zmItemsOg();const g=L.find(x=>x[0]==='Gioco');if(g)g[1].unshift(['📅','Oggi: ora, meteo e calendario','oggi']);return L;};
-  const _zmDoOg=zmDo;zmDo=function(k,b){if(k==='oggi'){zmClose();oggiSheet();return;}return _zmDoOg(k,b);};}catch(e){}
 </script>
 <script>
 /* =========================================================
@@ -6413,8 +6361,6 @@ setInterval(()=>{if(S.tab==='orda'&&FR.node&&FR.node.isConnected)frHeader();},30
 </script>
 <script>
 /* menu: "Difendi tu" porta al riquadro "Gioca la notte"; "Oggi" in cima al fronte */
-try{const _zmDoFr=zmDo;zmDo=function(k,b){if(k==='g:difendi'||k==='g:oggi'||k==='g:impero'){zmClose();go('orda');setTimeout(()=>{const t=k==='g:difendi'?app.querySelector('.odplay'):app.querySelector('.fronte');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},400);return;}return _zmDoFr(k,b);};}catch(e){}
-try{const _zmItemsFr=zmItems;zmItems=function(){const L=_zmItemsFr();const g=L.find(x=>x[0]==='Gioco');if(g)g[1]=g[1].map(r=>r[2]==='g:difendi'?['⚔️','Gioca la notte','g:difendi']:r);return L;};}catch(e){}
 </script>
 <script>
 /* =========================================================
@@ -6435,7 +6381,6 @@ setInterval(()=>{try{if(typeof SB==='undefined'||!SB||SB.__tmw||!SB.rpc)return;c
   SB.rpc=async function(n,a){const r=await o(n,a);try{const ok=r&&!r.error&&!(r.data&&r.data.ok===false);if(ok){if(n==='world_prepare')tmSim('prep');else if(n==='world_raid_claim')tmSim('claim');else if(n==='world_send_help'||n==='world_shout')tmSim('help');}}catch(e){}return r;};SB.__tmw=1;}catch(e){}},1000);
 /* "Vai" delle missioni nuove */
 /* ---- testi e menu senza le notti ---- */
-try{const _zmItemsSim=zmItems;zmItems=function(){const L=_zmItemsSim();const g=L.find(x=>x[0]==='Gioco');if(g)g[1]=g[1].filter(r=>!['g:difendi'].includes(r[2]));return L;};}catch(e){}
 </script>
 <script>
 /* data, ora e meteo stanno nel fronte: il vecchio riquadro "📅 Oggi" non va più rimesso */
@@ -7123,7 +7068,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611101140';
+const APPV='202611101234';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -7152,7 +7097,6 @@ const _casaAllF=casaAll;casaAll=async function(){await _casaAllF();try{const H=m
 /* ---- 2) scheda della casa: fortificazioni consigliate ---- */
 /* ---- 3) versione dell'app nel menu ---- */
 function appVerTxt(){const v=String(APPV);return /^\d{12}$/.test(v)?`${v.slice(6,8)}/${v.slice(4,6)} ${v.slice(8,10)}:${v.slice(10,12)} (zsh-${v})`:v;}
-const _zmOpenF=zmOpen;zmOpen=function(){const r=_zmOpenF.apply(this,arguments);setTimeout(()=>{try{const v=document.querySelector('#zmenu .zmver');if(v)v.textContent=`ZombieSafeHouse · un marchio INDZ · versione ${appVerTxt()}`;}catch(e){}},30);return r;};
 </script>
 <script>
 /* =========================================================
@@ -7201,7 +7145,6 @@ function coinText(root){try{(root||app).querySelectorAll('.tmp, .lpan, .daily, #
 try{const _osCt=openSheet;openSheet=function(){const r=_osCt.apply(this,arguments);setTimeout(()=>coinText(),60);return r;};}catch(e){}
 try{const _goCt=go;go=function(){const r=_goCt.apply(this,arguments);setTimeout(()=>coinText(),400);return r;};}catch(e){}
 /* il portafoglio nel menu senza monete */
-try{const _zmCt=zmOpen;zmOpen=function(){const r=_zmCt.apply(this,arguments);setTimeout(()=>{try{document.querySelectorAll('#zmenu .zmwal span').forEach(s=>{if(/🪙/.test(s.textContent))s.remove();});}catch(e){}},40);return r;};}catch(e){}
 </script>
 <script>
 /* =========================================================
@@ -7348,8 +7291,6 @@ async function zStatusSheet(){openSheet('🩺 Controlla il mio gioco','<p><span 
     card.querySelectorAll('[data-zsa]').forEach(b=>b.onclick=()=>{const a=b.dataset.zsa;if(a==='upd')zUpdateNow();else if(a==='login'){closeSheet();try{loginSheet();}catch(e){zmOpen();}}else{closeSheet();S.step=1;go('valuta');}});
     card.querySelector('[data-zshare]').onclick=()=>{if(navigator.share)navigator.share({text:txt}).catch(()=>{});else{try{navigator.clipboard.writeText(txt);toast('Copiato: incollalo nel messaggio');}catch(e){}}};});}
 /* nel menu, sopra la versione */
-const _zmOpenSt=zmOpen;zmOpen=function(){const r=_zmOpenSt.apply(this,arguments);setTimeout(()=>{try{const v=document.querySelector('#zmenu .zmver');if(v&&!document.querySelector('#zmenu [data-zstat]')){v.insertAdjacentHTML('beforebegin','<button class="zmrow zstbtn" data-zstat><span>🩺</span><b>Controlla il mio gioco</b><i>›</i></button>');
-  document.querySelector('#zmenu [data-zstat]').onclick=()=>{try{zmClose();}catch(e){}zStatusSheet();};}}catch(e){}},40);return r;};
 </script>
 <script>
 /* =========================================================
@@ -7991,6 +7932,51 @@ function thrView(T){const h=thrViewBase(T);
 async function allySheet(uid){window.__azT=[];window.__azU=uid;const r=await allySheetBase(uid);return r;}
 /* inviti (p20) + nota del Padrino (p37/p45) */
 function inviteSheet(){const r=inviteSheetBase.apply(this,arguments);[0,300,900].forEach(t=>setTimeout(eqPad,t));return r;}
+</script>
+<script>
+/* =========================================================
+   MENU ☰, BARRA IN ALTO, ISTRUZIONI — UNA FUNZIONE PER OGNI COSA (Fase 4e)
+   Prima: zmDo = base (p28) + 5 strati; zmItems = base (p32) + 3; zmOpen = base (p28) + 3;
+   manualHTML = base (p20) + 5; zTopbar, renderNav = base + 1. Ora la base si chiama …Base
+   nel modulo di origine e UNA funzione fa, nello stesso ordine, quello che facevano gli strati.
+   Tolto anche il vecchio menu a tendina di p10 (il suo pulsante era nascosto dallo stile).
+   ========================================================= */
+/* voci del menu: base (p32) + "Oggi" (p34) + "Gioca la notte" (p39) poi tolta con l'Orda simulata (p40) */
+function zmItems(){const L=zmItemsBase();
+  (()=>{const g=L.find(x=>x[0]==='Gioco');
+  if(g)g[1].unshift(['📅','Oggi: ora, meteo e calendario','oggi']);})();
+  (()=>{const g=L.find(x=>x[0]==='Gioco');
+  if(g)g[1]=g[1].map(r=>r[2]==='g:difendi'?['⚔️','Gioca la notte','g:difendi']:r);})();
+  (()=>{const g=L.find(x=>x[0]==='Gioco');
+  if(g)g[1]=g[1].filter(r=>!['g:difendi'].includes(r[2]));})();
+  return L;}
+/* cosa fa ogni voce: Orda e fronte (p39) · Oggi (p34) · casa, regole, Mattoni (p32) · piano (p31) · assalti e notifiche (p29) · il resto (p28) */
+function zmDo(k,b){
+  if(k==='g:difendi'||k==='g:oggi'||k==='g:impero'){zmClose();go('orda');setTimeout(()=>{const t=k==='g:difendi'?app.querySelector('.odplay'):app.querySelector('.fronte');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},400);return;}
+  if(k==='oggi'){zmClose();oggiSheet();return;}
+  if(k==='casa'){zmClose();go('casa');return;}if(k==='manual'){zmClose();openSheet('📚 Tutte le regole',rulesHTML());return;}if(k==='shop'){zmClose();shopSheet(0);return;}
+  if(k==='home'&&b&&/Piano/.test(b.textContent)){zmClose();go('casa');return;}
+  if(k==='a:last'||k==='a:sim'){zmClose();assalto(k.slice(2));return;}if(k==='push'){zmClose();pushSheet();return;}
+  return zmDoBase(k,b);}
+/* apertura del menu: base (p28) + versione (p50) + niente monete (p52) + "Controlla il mio gioco" (p56) */
+function zmOpen(){const r=zmOpenBase.apply(this,arguments);
+  (()=>{setTimeout(()=>{try{const v=document.querySelector('#zmenu .zmver');if(v)v.textContent=`ZombieSafeHouse · un marchio INDZ · versione ${appVerTxt()}`;}catch(e){}},30);})();
+  (()=>{setTimeout(()=>{try{document.querySelectorAll('#zmenu .zmwal span').forEach(s=>{if(/🪙/.test(s.textContent))s.remove();});}catch(e){}},40);})();
+  (()=>{setTimeout(()=>{try{const v=document.querySelector('#zmenu .zmver');if(v&&!document.querySelector('#zmenu [data-zstat]')){v.insertAdjacentHTML('beforebegin','<button class="zmrow zstbtn" data-zstat><span>🩺</span><b>Controlla il mio gioco</b><i>›</i></button>');
+  document.querySelector('#zmenu [data-zstat]').onclick=()=>{try{zmClose();}catch(e){}zStatusSheet();};}}catch(e){}},40);})();
+  return r;}
+/* barra in alto: logo, 🔔, ☰ (p28) + pulsante audio (p33) */
+function zTopbar(){zTopbarBase();zSoundBtn();}
+/* barra in basso (p26) + barra in alto (p28) */
+function renderNav(){renderNavBase();zTopbar();}
+/* istruzioni: base (p20) + capitoli mondo unico (p21), orda del mondo (p22), alleati e rivali (p23), regali (p24) + testo di p32 */
+function manualHTML(){let h=manualHTMLBase();
+  h=h.replace('<details class="man"',`<details class="man"><summary>🌍 Il mondo unico</summary><div class="man-b"><p>Tutti gli utenti registrati giocano nello <b>stesso mondo vero</b>. La tua casa è tua (si conferma in due giorni). Con i <b>🧱 Mattoni</b> compri le case libere vere: prima vicino a casa, poi, salendo di livello, sempre più lontano, fino al mondo intero.</p><p>Ogni casa rende <b>affitti</b> ogni giorno e si può potenziare fino al livello 5. Se l’abitante vero si iscrive, la casa passa a lui e tu ricevi indietro tutto il valore più un bonus (25%, 75% se l’avevi invitato tu).</p><p><b>Mattoni</b>: notti vinte, missioni, accesso del giorno, casa valutata, codici usati in negozio, amici invitati, affitti. Ogni giorno c’è un tetto. Le case di chi non gioca da 30 giorni tornano libere (rimborso 50%).</p><p>Nel quartiere del gioco gli edifici veri comprati nel mondo sono tuoi edifici da difendere; quelli di altri giocatori o abitati sono segnati e non si comprano.</p></div></details><details class="man"`);
+  h=h.replace('<details class="man"',`<details class="man" open><summary>🧟 L’orda del mondo (la cosa principale)</summary><div class="man-b"><p>Ogni giorno alle <b>9:00</b> e alle <b>21:00</b> un’orda attacca <b>tutte le case del mondo unico</b>, da sola. Ogni casa tiene o viene sfondata in base alla sua difesa: <b>45 + 12 per livello</b> (massimo 5), <b>+15 se hai premuto “Prepara”</b>, +5 per casa tua. La forza dell’orda cambia per ogni casa e ogni orda (da 40 a 99).</p><p><b>Prima</b>: Prepara e Fortifica. <b>Dopo</b>: guarda l’assalto sulla mappa (🛡️ tenute, 💥 sfondate) e <b>riscatta</b> prima dell’orda successiva: 🧱 8 + 4 × livello per ogni casa che tiene (2 per quelle sfondate), 🪙 30 per casa che tiene, 💎 2 se tengono tutte.</p><p>Le notti giocate a mano restano: sono “Difendi tu”, facoltative, con i loro premi.</p></div></details><details class="man"`);
+  h=h.replace('<details class="man"',`<details class="man"><summary>🤝 Alleati, rivali e simulati</summary><div class="man-b"><p><b>Chiedi aiuto</b> per la prossima orda: chiunque nel mondo può mandarti rinforzi (+5 di difesa ciascuno, fino a +20) e chi aiuta guadagna Mattoni. <b>Manda un’orda</b> a un rivale: costa 30 Mattoni, gli toglie 8 di difesa e, se la sua casa cade, prendi una taglia di 25 Mattoni. Chi è molto più debole di te (3 livelli sotto) è protetto.</p><p>L’orda è <b>su misura</b>: cresce con il tuo livello, così chi arriva dopo può crescere. Le case si comprano <b>ovunque</b>: il prezzo sale con la distanza da casa tua.</p><p>🤖 Circa una casa su sei è di un <b>superstite simulato</b>, un personaggio del gioco: si può comprare (+30%).</p></div></details><details class="man"`);
+  h=h.replace('<details class="man"',`<details class="man"><summary>🎁 Regali, prestiti e fortuna</summary><div class="man-b"><p><b>Alleati</b> sono i giocatori con cui vi siete aiutati negli ultimi 30 giorni e chi hai invitato (o chi ti ha invitato). Agli alleati puoi <b>prestare Mattoni</b> (tornano da soli dopo 3 giorni) o <b>regalare</b> Mattoni, monete, gemme e materiali. Limiti al giorno: 300 Mattoni, 1.000 monete, 20 gemme, 10 per materiale; gli account nuovi possono regalare dopo 3 giorni.</p><p><b>Ruota, gratta e vinci, premio del giorno e barattolo</b> sono in alto nel gioco: giri e biglietti si guadagnano riscattando l’orda, vincendo notti e aiutando gli alleati.</p></div></details><details class="man"`);
+  h=h.replace(/o <b>regalare<\/b> Mattoni, monete, gemme e materiali\. Limiti al giorno: 300 Mattoni, 1\.000 monete, 20 gemme, 10 per materiale/,'o <b>regalare</b> Mattoni, monete e materiali (le gemme no). Limiti al giorno: 300 Mattoni, 300 monete, 10 per materiale');
+  return h;}
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */

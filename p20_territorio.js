@@ -525,9 +525,6 @@ window.ZHID=[...new Set([...(window.ZHID||[]),...window.ZMYHID])];
 const _bzCardR=bzCard;bzCard=function(b,pub){return _bzCardR(b,pub).replace('<div data-admin></div>',`<button class="bzc-rep" data-rep>⚠️ Ha chiuso o non esiste più? Segnalalo</button><div data-admin></div>`);};
 </script>
 <script>
-const _renderMenuZ=renderMenu;renderMenu=function(){_renderMenuZ();try{if(!S.user)return;const u=document.querySelector('.dr-user');if(!u||document.querySelector('[data-pubt]'))return;
-  u.insertAdjacentHTML('afterend',`<button class="mi" data-pubt="1"><span>👥</span>Sulla mappa della community: <b style="margin-left:4px">${S.pubOk?'visibile':'invisibile'}</b></button>`);
-  document.querySelector('[data-pubt]').onclick=e=>{e.stopPropagation();zTogglePublic();renderMenu();};}catch(e){}};
 </script>
 <script>
 /* =========================================================
@@ -592,8 +589,6 @@ function doMove(P){try{
 /* pulsante in Valuta (quando c'è già una casa) e nel menu */
 const _vZonaMv=vZona;vZona=function(){_vZonaMv();try{if(!S.zone||document.getElementById('mvBtn'))return;const g=document.getElementById('geoBtn');const row=g&&g.parentElement;
   if(row)row.insertAdjacentHTML('afterend','<button class="btn ghost small" id="mvBtn" style="margin-top:8px">🚚 Ho cambiato casa</button>');const b=document.getElementById('mvBtn');if(b)b.onclick=moveSheet;}catch(e){}};
-const _renderMenuMv=renderMenu;renderMenu=function(){_renderMenuMv();try{if(!S.zone||document.querySelector('[data-move]'))return;const ref=document.querySelector('[data-pubt]')||document.querySelector('.dr-user');
-  if(ref){ref.insertAdjacentHTML('afterend','<button class="mi" data-move="1"><span>🚚</span>Ho cambiato casa</button>');document.querySelector('[data-move]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}moveSheet();};}}catch(e){}};
 /* cronologia delle case salvata con i progressi */
 const _snapMv=snapshot;snapshot=function(){const d=_snapMv();if(d&&d.S)d.S.case=S.case||[];return d;};
 const _restMv=restore;restore=function(d){const r=_restMv(d);try{if(d&&d.S&&d.S.case)S.case=d.S.case;}catch(e){}return r;};
@@ -794,11 +789,6 @@ function deleteSheet(){openSheet('🗑 Elimina il mio account',`<p style="font-w
      try{const{error}=await SB.rpc('delete_my_account');if(error)throw error;await SB.auth.signOut().catch(()=>{});}catch(e){toast('Non riuscito: '+(e.message||'riprova'));return;}
      try{Object.keys(localStorage).filter(k=>k.startsWith('zsh')).forEach(k=>localStorage.removeItem(k));}catch(e){}closeSheet();toast('Account eliminato');setTimeout(()=>location.reload(),1200);};});}
 /* voci di menu */
-const _renderMenuI=renderMenu;renderMenu=function(){_renderMenuI();try{const ref=document.querySelector('.dr-user');if(!ref||!S.user||document.querySelector('[data-inv]'))return;
-  ref.insertAdjacentHTML('afterend','<button class="mi" data-inv="1"><span>📨</span>Invita amici e vicini</button>');
-  const last=[...document.querySelectorAll('#drawer .mi')].pop();(last||ref).insertAdjacentHTML('afterend','<button class="mi" data-delacc="1" style="color:#d7263d"><span>🗑</span>Elimina il mio account</button><a class="mi" href="privacy.html" target="_blank"><span>🔒</span>Privacy</a><a class="mi" href="termini.html" target="_blank"><span>📄</span>Termini d’uso</a>');
-  document.querySelector('[data-inv]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}inviteSheet();};
-  document.querySelector('[data-delacc]').onclick=e=>{e.stopPropagation();try{toggleMenu(false);}catch(x){}deleteSheet();};}catch(e){}};
 </script>
 <script>
 /* =========================================================
@@ -890,7 +880,7 @@ window.rulesSheet=()=>openRules(0);
    MANUALE COMPLETO DEL GIOCO (capitoli apribili)
    I numeri arrivano dai dati del gioco: restano sempre giusti.
    ========================================================= */
-function manualHTML(){const sec=(id,t,body,open)=>`<details class="man" ${open?'open':''} id="man-${id}"><summary>${t}</summary><div class="man-b">${body}</div></details>`;
+function manualHTMLBase(){const sec=(id,t,body,open)=>`<details class="man" ${open?'open':''} id="man-${id}"><summary>${t}</summary><div class="man-b">${body}</div></details>`;
   const tab=(rows,cols)=>`<div class="mtab">${rows.map(r=>`<div>${r.map((c,i)=>i===0?`<span>${c}</span>`:i===1?`<b>${c}</b>`:`<small>${c}</small>`).join('')}</div>`).join('')}</div>`;
   /* Fase 3c: tolti i capitoli del vecchio gioco a carte/notti; le tabelle vengono dai dati dell'app (ZSP, ZDEF, EVN di p47) */
   const ZS=typeof ZSP!=='undefined'?ZSP:{},ZD=typeof ZDEF!=='undefined'?ZDEF:{},EV=typeof EVN!=='undefined'?EVN:{};
@@ -1060,9 +1050,6 @@ const _hqBackC=hqBack;hqBack=function(m){let s=_hqBackC(m);try{let pins='';(wind
 document.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest('[data-rcus]');if(!g)return;const c=(window.ZCUSTOM||[])[+g.dataset.rcus];if(!c)return;const C=CUST_CAT[c.cat]||CUST_CAT.negozi;
   const R=S.zone&&S.zone.real;const d=R?Math.round(trM(R.lat,R.lon,c.lat,c.lon)):0;if(['salute','servizi','scuola','verde','sport'].includes(C[0]))lmPoi(c.name,C[1],d,[c.lat,c.lon],true);else bizSheet({i:'c'+c.id,ic:C[2],name:c.name,cat:C[1],d,ll:[c.lat,c.lon],tel:c.phone||'',web:c.website||'',cand:c.cat==='casa'},S.zone);});
 /* pannello admin e negozio raggiungibili dal menu (admin solo per chi è amministratore) */
-const _renderMenuA=renderMenu;renderMenu=function(){_renderMenuA();try{if(!S.user||document.querySelector('[data-admlink]'))return;const ref=document.querySelector('.dr-user');if(!ref)return;
-  zIsAdmin().then(ok=>{if(!ok||document.querySelector('[data-admlink]'))return;ref.insertAdjacentHTML('afterend','<a class="mi" data-admlink="1" href="admin.html" target="_blank"><span>🛠️</span>Pannello admin INDZ</a>');});
-  (async()=>{try{const{data}=await SB.from('sponsor_users').select('sponsor_id').eq('user_id',S.user.id).limit(1);if(data&&data.length&&!document.querySelector('[data-neglink]'))ref.insertAdjacentHTML('afterend','<a class="mi" data-neglink="1" href="negozio.html" target="_blank"><span>🏪</span>Pannello del mio negozio</a>');}catch(e){}})();}catch(e){}};
 </script>
 <script>
 /* 3) su iPhone il tocco sui pulsanti dei premi arriva sempre (anche quando il "click" si perde) */

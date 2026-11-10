@@ -11,7 +11,7 @@ function zmHTML(){const u=S.user,m=window.W&&W.m;const nk=u?(u.nick||(u.email||'
   const sec=zmItems().map(([t,L])=>`<div class="zmsec"><h5>${t}</h5>${L.map(it=>it[0]==='toggle'?(it[3]==null?'':`<button class="zmrow" data-zm="${it[2]}"><span>${it[2]==='vis'?'👥':it[2]==='snd'?'🔊':'🎵'}</span><b>${it[1]}</b><i class="zsw ${it[3]?'on':''}"><em></em></i></button>`)
       :`<button class="zmrow" data-zm="${it[2]}"><span>${it[0]}</span><b>${it[1]}</b><i>›</i></button>`).join('')}</div>`).join('');
   return`<div class="zmback" data-zmclose></div><aside class="zmpanel" role="dialog" aria-label="Menu"><div class="zmtop"><b class="disp">Menu</b><button class="zmx" data-zmclose aria-label="Chiudi">✕</button></div>${head}<div class="zmquick">${quick}</div>${sec}<p class="zmver">ZombieSafeHouse · un marchio INDZ · v${(window.ZV||'').toString().slice(-6)||'—'}</p></aside>`;}
-function zmOpen(){zmClose(true);document.body.insertAdjacentHTML('beforeend',`<div id="zmenu">${zmHTML()}</div>`);requestAnimationFrame(()=>document.getElementById('zmenu').classList.add('open'));
+function zmOpenBase(){zmClose(true);document.body.insertAdjacentHTML('beforeend',`<div id="zmenu">${zmHTML()}</div>`);requestAnimationFrame(()=>document.getElementById('zmenu').classList.add('open'));
   const M=document.getElementById('zmenu');M.querySelectorAll('[data-zmclose]').forEach(b=>b.onclick=()=>zmClose());
   M.querySelectorAll('[data-zm]').forEach(b=>b.onclick=()=>zmDo(b.dataset.zm,b));
   /* scorri a destra per chiudere */
@@ -21,7 +21,7 @@ function zmOpen(){zmClose(true);document.body.insertAdjacentHTML('beforeend',`<d
 function zmRefresh(){const M=document.getElementById('zmenu');if(!M)return;const sc=M.querySelector('.zmpanel').scrollTop;M.innerHTML=zmHTML();M.classList.add('open');M.querySelector('.zmpanel').scrollTop=sc;
   M.querySelectorAll('[data-zmclose]').forEach(b=>b.onclick=()=>zmClose());M.querySelectorAll('[data-zm]').forEach(b=>b.onclick=()=>zmDo(b.dataset.zm,b));}
 function zmClose(now){const M=document.getElementById('zmenu');if(!M)return;if(now){M.remove();return;}M.classList.remove('open');setTimeout(()=>M.remove(),220);}
-function zmDo(k,b){try{
+function zmDoBase(k,b){try{
   if(k==='vis'){try{zTogglePublic();}catch(e){S.pubOk=!S.pubOk;}setTimeout(zmRefresh,150);return;}
   if(k==='snd'){if(typeof G!=='undefined')G.mute=!G.mute;try{saveLocal();}catch(e){}zmRefresh();return;}
   if(k==='mus'){try{if(AUD.on&&AUD.started)musicOff();else musicOn();}catch(e){}setTimeout(zmRefresh,120);return;}
@@ -40,7 +40,7 @@ function zmDo(k,b){try{
   if(k==='del'){try{deleteSheet();}catch(e){location.href='elimina-account.html';}return;}
   }catch(e){toast('Non disponibile ora');}}
 /* ---------------- barra in alto rinnovata ---------------- */
-function zTopbar(){try{const T=document.getElementById('topbar');if(!T)return;
+function zTopbarBase(){try{const T=document.getElementById('topbar');if(!T)return;
   if(!T.querySelector('.tbname')){const lg=T.querySelector('.tb-logo');if(lg)lg.insertAdjacentHTML('afterend','<b class="tbname">Zombie<span>SafeHouse</span></b>');}
   if(!document.getElementById('zbell')){T.insertAdjacentHTML('beforeend','<button id="zbell" aria-label="Novità">🔔</button><button id="zmenuBtn" aria-label="Apri il menu"><i></i><i></i><i></i></button>');
     document.getElementById('zmenuBtn').onclick=zmOpen;document.getElementById('zbell').onclick=()=>{SOC.tab='bacheca';go('social');};}
@@ -48,8 +48,7 @@ function zTopbar(){try{const T=document.getElementById('topbar');if(!T)return;
   const n=(()=>{try{const seen=+(localStorage.getItem('zsh_soc_seen')||0);return(SOC.per||[]).filter(f=>new Date(f.created_at).getTime()>seen).length+(SOC.pend||[]).length;}catch(e){return 0;}})();
   const bb=document.getElementById('zbell');let d=bb.querySelector('.nbadge');if(n>0){if(!d){bb.insertAdjacentHTML('beforeend','<i class="nbadge"></i>');d=bb.querySelector('.nbadge');}d.textContent=n>9?'9+':n;}else if(d)d.remove();}catch(e){}}
 ioBtn=function(){zTopbar();};
-const _renderNavZm=renderNav;renderNav=function(){_renderNavZm();zTopbar();};
-setInterval(zTopbar,3000);setTimeout(zTopbar,200);
+setInterval(zTopbarBase,3000);setTimeout(zTopbarBase,200);  /* come prima: la versione di p28 (Fase 4e: zTopbar ora è in p67) */
 /* musica: niente più pulsante volante, sta nel menu */
 setTimeout(()=>{try{const f=document.querySelector('.musicfab');if(f)f.style.display='none';}catch(e){}},300);
 /* tasto indietro del telefono / gesto: chiude prima il menu */

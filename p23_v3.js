@@ -101,7 +101,6 @@ renderHome=function(){const z=S.zone,Rr=S.result,m=W&&W.m,s=OR.s;const next=(s&&
 function homeFoot(){return`<footer class="foot"><div class="disp" style="font-size:24px;color:var(--moon)">ZombieSafeHouse</div><p>La casa sicura, raccontata con un fumetto. Un marchio INDZ, nato in provincia di Mantova.</p>
   <div class="row wrap" style="gap:8px;margin-top:10px"><button class="btn small alt" data-go="contatti">Chi siamo e contatti</button><button class="btn small ghost" data-go="contatti" data-mot2="sponsor">Diventa sponsor</button></div><small>© 2026 INDZ</small></footer>`;}
 /* manuale */
-const _manualV3=manualHTML;manualHTML=function(){return _manualV3().replace('<details class="man"',`<details class="man"><summary>🤝 Alleati, rivali e simulati</summary><div class="man-b"><p><b>Chiedi aiuto</b> per la prossima orda: chiunque nel mondo può mandarti rinforzi (+5 di difesa ciascuno, fino a +20) e chi aiuta guadagna Mattoni. <b>Manda un’orda</b> a un rivale: costa 30 Mattoni, gli toglie 8 di difesa e, se la sua casa cade, prendi una taglia di 25 Mattoni. Chi è molto più debole di te (3 livelli sotto) è protetto.</p><p>L’orda è <b>su misura</b>: cresce con il tuo livello, così chi arriva dopo può crescere. Le case si comprano <b>ovunque</b>: il prezzo sale con la distanza da casa tua.</p><p>🤖 Circa una casa su sei è di un <b>superstite simulato</b>, un personaggio del gioco: si può comprare (+30%).</p></div></details><details class="man"`);};
 </script>
 <script>
 /* la sezione con gli amici simulati non compare più (la fortuna resta) */

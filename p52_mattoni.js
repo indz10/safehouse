@@ -26,5 +26,4 @@ function coinText(root){try{(root||app).querySelectorAll('.tmp, .lpan, .daily, #
 try{const _osCt=openSheet;openSheet=function(){const r=_osCt.apply(this,arguments);setTimeout(()=>coinText(),60);return r;};}catch(e){}
 try{const _goCt=go;go=function(){const r=_goCt.apply(this,arguments);setTimeout(()=>coinText(),400);return r;};}catch(e){}
 /* il portafoglio nel menu senza monete */
-try{const _zmCt=zmOpen;zmOpen=function(){const r=_zmCt.apply(this,arguments);setTimeout(()=>{try{document.querySelectorAll('#zmenu .zmwal span').forEach(s=>{if(/🪙/.test(s.textContent))s.remove();});}catch(e){}},40);return r;};}catch(e){}
 </script>

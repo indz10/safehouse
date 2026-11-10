@@ -50,5 +50,4 @@ function shopSheet(miss){openSheet('🛒 Bottega',`${miss?`<p class="notice">Ti 
   <div class="row" style="gap:8px;margin-top:8px"><button class="btn small" data-sg="orda">🧟 Vai a guadagnarli</button><button class="btn small ghost" data-sg="inv">📨 Invita (+150 🧱)</button></div>`,c=>{
   c.querySelector('[data-sg=orda]').onclick=()=>{closeSheet();G.ss='oggi';go('orda');};c.querySelector('[data-sg=inv]').onclick=()=>{closeSheet();if(!S.user)return loginSheet();inviteSheet();};});}
 /* il menu porta anche a "La mia casa" */
-try{const _zmDoM2=zmDo;zmDo=function(k,b){if(k==='home'&&b&&/Piano/.test(b.textContent)){zmClose();go('casa');return;}return _zmDoM2(k,b);};}catch(e){}
 </script>

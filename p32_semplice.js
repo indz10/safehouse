@@ -20,7 +20,7 @@ const _mfMoreS1=mfMore;mfMore=function(){_mfMoreS1();try{const c=document.queryS
 /* ---- LA MIA CASA: solo la casa (orda, scorciatoie e novità stanno nelle loro schede) ---- */
 /* (nascosti via stile: .rmini, .qact, .hsoc dentro "La mia casa") */
 /* ---- MENU: corto, senza doppioni della barra in basso ---- */
-zmItems=function(){const u=S.user;const adm=!!window.__zmAdmin,shop=!!window.__zmShop;
+function zmItemsBase(){const u=S.user;const adm=!!window.__zmAdmin,shop=!!window.__zmShop;
   return[
    ['La mia casa',[['🏠','La mia casa (indice e piano)','casa'],['📷','Valuta o aggiorna la casa','valuta'],['🚚','Ho cambiato casa','move']]],
    ['Gioco',[['🎬','Guarda gli assalti','a:last'],['🔮','Simula la prossima orda','a:sim'],['⚔️','Difendi tu (notti)','g:difendi'],['💎','Bottega','shop']]],
@@ -28,10 +28,8 @@ zmItems=function(){const u=S.user;const adm=!!window.__zmAdmin,shop=!!window.__z
    ['Aiuto',[['🧭','Giro guidato','tour'],['📖','Come si gioca','rules'],['📚','Tutte le regole','manual'],['📻','Radio Operatore','radio'],['⭐','Sponsor e contatti','sponsor']]],
    ['Account',[...(u?[['👤','Il mio profilo','io']]:[]),['🔔','Notifiche delle orde','push'],['toggle','Visibile sulla mappa','vis',u?!!S.pubOk:null],['toggle','Suoni','snd',!(typeof G!=='undefined'&&G.mute)],['toggle','Musica','mus',!!(window.AUD&&AUD.on&&AUD.started)],
      ['🔒','Privacy','url:privacy.html'],['📄','Termini','url:termini.html'],...(adm?[['🛠️','Pannello admin INDZ','url:admin.html']]:[]),...(shop?[['🏪','Pannello del mio negozio','url:negozio.html']]:[]),
-     ...(u?[['🚪','Esci','logout'],['🗑','Elimina il mio account','del']]:[])]]];};
-const _zmDoS1=zmDo;zmDo=function(k,b){if(k==='casa'){zmClose();go('casa');return;}if(k==='manual'){zmClose();openSheet('📚 Tutte le regole',rulesHTML());return;}if(k==='shop'){zmClose();shopSheet(0);return;}return _zmDoS1(k,b);};
+     ...(u?[['🚪','Esci','logout'],['🗑','Elimina il mio account','del']]:[])]]];}
 /* ---- il giro guidato segue la nuova struttura ---- */
 try{if(typeof OT!=='undefined'&&Array.isArray(OT)){for(let i=OT.length-1;i>=0;i--){const st=OT[i];if(st&&st.sel&&/wpan|apan/.test(st.sel))OT.splice(i,1);}}}catch(e){}
 /* ---- manuale: testo dei regali allineato alle regole vere ---- */
-const _manualS1=manualHTML;manualHTML=function(){return _manualS1().replace(/o <b>regalare<\/b> Mattoni, monete, gemme e materiali\. Limiti al giorno: 300 Mattoni, 1\.000 monete, 20 gemme, 10 per materiale/,'o <b>regalare</b> Mattoni, monete e materiali (le gemme no). Limiti al giorno: 300 Mattoni, 300 monete, 10 per materiale');};
 </script>

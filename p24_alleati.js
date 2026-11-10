@@ -31,5 +31,4 @@ function luckTopHTML(){try{luckInit();}catch(e){}const ds=(typeof dailyState==='
     <button data-lt="jar"><span>🫙</span><b>Barattolo</b><small>${Math.min(tot,goal)}/${goal}</small></button></div>
    <p class="muted" style="font-size:12px;margin:8px 0 0">Giri e biglietti si guadagnano riscattando l’orda, vincendo notti e aiutando gli alleati.</p></div>`;}
 /* manuale */
-const _manualAY=manualHTML;manualHTML=function(){return _manualAY().replace('<details class="man"',`<details class="man"><summary>🎁 Regali, prestiti e fortuna</summary><div class="man-b"><p><b>Alleati</b> sono i giocatori con cui vi siete aiutati negli ultimi 30 giorni e chi hai invitato (o chi ti ha invitato). Agli alleati puoi <b>prestare Mattoni</b> (tornano da soli dopo 3 giorni) o <b>regalare</b> Mattoni, monete, gemme e materiali. Limiti al giorno: 300 Mattoni, 1.000 monete, 20 gemme, 10 per materiale; gli account nuovi possono regalare dopo 3 giorni.</p><p><b>Ruota, gratta e vinci, premio del giorno e barattolo</b> sono in alto nel gioco: giri e biglietti si guadagnano riscattando l’orda, vincendo notti e aiutando gli alleati.</p></div></details><details class="man"`);};
 </script>

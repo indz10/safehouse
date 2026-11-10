@@ -47,6 +47,4 @@ async function zStatusSheet(){openSheet('🩺 Controlla il mio gioco','<p><span 
     card.querySelectorAll('[data-zsa]').forEach(b=>b.onclick=()=>{const a=b.dataset.zsa;if(a==='upd')zUpdateNow();else if(a==='login'){closeSheet();try{loginSheet();}catch(e){zmOpen();}}else{closeSheet();S.step=1;go('valuta');}});
     card.querySelector('[data-zshare]').onclick=()=>{if(navigator.share)navigator.share({text:txt}).catch(()=>{});else{try{navigator.clipboard.writeText(txt);toast('Copiato: incollalo nel messaggio');}catch(e){}}};});}
 /* nel menu, sopra la versione */
-const _zmOpenSt=zmOpen;zmOpen=function(){const r=_zmOpenSt.apply(this,arguments);setTimeout(()=>{try{const v=document.querySelector('#zmenu .zmver');if(v&&!document.querySelector('#zmenu [data-zstat]')){v.insertAdjacentHTML('beforebegin','<button class="zmrow zstbtn" data-zstat><span>🩺</span><b>Controlla il mio gioco</b><i>›</i></button>');
-  document.querySelector('#zmenu [data-zstat]').onclick=()=>{try{zmClose();}catch(e){}zStatusSheet();};}}catch(e){}},40);return r;};
 </script>
