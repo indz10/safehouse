@@ -39,7 +39,6 @@ async function casaAll(){const pg=app.querySelector('.page');if(!pg||pg.dataset.
     drawHouse(card.querySelector('[data-mca]'),h,hOpts(h,T)).then(g=>{if(g){const d=card.querySelector('[data-mcd]');if(d)d.textContent=' · '+realDesc(g);}});
     card.querySelector('[data-mcs]').onclick=()=>houseSheet(h);card.querySelector('[data-mcm]').onclick=()=>{S.mfHouses=true;go('mappa');setTimeout(()=>mhFly(h,true),900);};
     const d=card.querySelector('.mcdia');d.addEventListener('toggle',async()=>{if(d.open)d.querySelector('[data-mcdl]').innerHTML=diaryHTML(await diaryLoad(h.bid));});});}
-const _goAs=go;go=function(tab){const r=_goAs(tab);if(tab==='casa')setTimeout(()=>{casaTop().then(()=>setTimeout(casaAll,200)).catch(()=>casaAll());},60);return r;};
 /* nella scheda casa: anche lì difese e meteo disegnati */
 const _drawHouseAs=drawHouse;drawHouse=async function(el,h,o={}){if(o.defs==null||o.ev==null){const T=typeof thrOf==='function'?thrOf(h):null;if(T)o=Object.assign({defs:T.defs||{},ev:T.ev},o);}return _drawHouseAs(el,h,o);};
 /* il diario si scrive anche dall'app (potenziamenti, preparazione) */

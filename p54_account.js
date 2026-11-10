@@ -8,12 +8,7 @@
    ========================================================= */
 const OWN_K='zsh_owner';
 /* durante il cambio di account e l'uscita non si salva più niente sul telefono */
-const _saveLocalAc=saveLocal;saveLocal=function(){if(window.__noSave)return;return _saveLocalAc.apply(this,arguments);};
-try{const _pushAc=pushCloud;pushCloud=async function(){if(window.__noSave)return;return _pushAc.apply(this,arguments);};}catch(e){}
 function zWipeLocal(){window.__noSave=true;try{const keep=/^(zsh_snd|zsh_music|zsh_mute|zsh_rm2_|zsh_att_|zsh_spg_|zsh_inv$|zsh_bv_done)/;Object.keys(localStorage).forEach(k=>{if(/^zsh/.test(k)&&!keep.test(k))localStorage.removeItem(k);});}catch(e){}}
-const _onLoginAc=onLogin;onLogin=async function(u,fresh){try{const prev=localStorage.getItem(OWN_K);
-  if(prev&&u&&prev!==u.id){zWipeLocal();localStorage.setItem(OWN_K,u.id);sessionStorage.setItem('zsh_switched','1');location.reload();return;}
-  if(u)localStorage.setItem(OWN_K,u.id);}catch(e){}return _onLoginAc.apply(this,arguments);};
 (function(){try{if(sessionStorage.getItem('zsh_switched')){sessionStorage.removeItem('zsh_switched');setTimeout(()=>{try{toast('🔄 Account cambiato: dati del telefono separati');}catch(e){}},1500);}}catch(e){}})();
 const _zLogoutAc=zLogout;zLogout=async function(){try{if(typeof pushCloud==='function')await Promise.race([pushCloud(),new Promise(r=>setTimeout(r,1500))]);}catch(e){}zWipeLocal();return _zLogoutAc.apply(this,arguments);};
 /* ---- chi vive nella mia casa ---- */

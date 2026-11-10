@@ -81,8 +81,6 @@ NAV_ACT.social='social';NAV_ACT.io='io';
 function renderNavBase(){try{document.body.dataset.tab=S.tab;}catch(e){}const items=[['home','Casa'],['mappa','Mappa'],['orda','Orda'],['social','Superstiti']];const act=NAV_ACT[S.tab]||S.tab;
   $('#nav').innerHTML=items.map(([k,l])=>`<button class="${act===k?'on':''}" data-tab="${k}" aria-label="${l}">${ICON[k]}<span>${l}</span></button>`).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{try{vibe();}catch(e){}go(b.dataset.tab);});socBadge();ioBtn();}
-const _goSoc=go;go=function(tab){if(tab!=='social')return _goSoc(tab);window.__last='apre superstiti';document.body.classList.remove('inbattle');
-  if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab='social';renderNav();window.scrollTo(0,0);try{setMusic('app');}catch(e){}try{closeSheet();}catch(e){}renderSocial();};
 /* in Casa: le novità dei superstiti, per entrarci ogni giorno */
 const _renderHomeSoc=renderHome;renderHome=function(){_renderHomeSoc();try{if(!S.user||!S.result||app.querySelector('.hsoc'))return;const after=app.querySelector('.hval')||app.querySelector('.hcard');if(!after)return;
   const L=(SOC.feed.zona||SOC.feed.mondo||[]).slice(0,3);

@@ -171,9 +171,6 @@ function terrApply(z,R){if(!R.ov)return{...z,real:R};const res=[],k=Math.cos(R.l
   /* il livello zona non dipende più dai superstiti simulati: servizi e mobilità veri + valore neutro */
   const level=Math.round((resRisk*.35+mobRisk*.35+5*.3)*10)/10;
   return{...z,type:R.type,resources:res,resRisk,mobRisk,level,real:R};}
-const _azReal=analyzeZone;
-analyzeZone=async function(address){const base=await _azReal(address);if(!navigator.onLine)return base;
-  try{const R=await terrFetch(address);return terrApply(base,R);}catch(e){console.warn('territorio vero',e);return base;}};
 function terrSummary(R){if(!R)return'';const bits=[];
   if(R.home!=null)bits.push(`⛰ <b>${R.home} m</b> s.l.m.`);
   if(R.pos)bits.push({altura:'🏔 casa <b>in altura</b>',bassa:'💧 casa <b>in zona bassa</b>',pendio:`📐 <b>pendio ${String(R.slope).replace('.',',')}%</b>`,piano:'➖ <b>pianura</b>'}[R.pos]);
@@ -310,10 +307,6 @@ function trHouseCard(H){if(!H||!H.poly||H.poly.length<3)return'';const xs=H.poly
    <div><b class="disp">🏠 La tua casa vera</b><span>${KIND_N[H.kind]||'Edificio'}${H.att?` · attaccata a ${H.att} ${H.att===1?'casa':'case'}`:''}</span><span>≈ ${H.len} × ${H.wid} m · ${H.area} m² a terra</span><span>${H.levels} ${H.levels===1?'piano':'piani'} · tetto ${roofN}</span><small class="muted">La simulazione e il gioco la disegnano così.</small></div></div>`;}
 const _terrSummaryH=terrSummary;terrSummary=function(R){const h=_terrSummaryH(R);if(!R||!R.house)return h;return h.replace('<div class="terrchips">',trHouseCard(R.house)+'<div class="terrchips">');};
 /* valutazione: tipo di casa e piani compilati dalla mappa */
-const _azHouse=analyzeZone;
-analyzeZone=async function(address){const z=await _azHouse(address);try{const H=z&&z.real&&z.real.house;if(H&&S.answers){S.aiFilled=S.aiFilled||{};
-    const t={villa:'villa',bifamiliare:'bifam',schiera:'schiera',casale:'cascina'}[H.kind];if(t&&!S.answers.tipo){S.answers.tipo=t;S.aiFilled.tipo=true;}
-    if(H.kind!=='apt'&&!S.answers.piani){S.answers.piani=H.levels>=3?'3':String(H.levels);S.aiFilled.piani=true;}}}catch(e){}return z;};
 /* gioco: "La tua casa vera" come casa da difendere */
 function trSetupVera(){try{const R=S.zone&&S.zone.real,H=R&&R.house;if(!H)return;const base={apt:'apt',schiera:'schiera',bifamiliare:'bifamiliare',casale:'casale',villa:'villa'}[H.kind]||'villa';
   const B=HTYPES[base]||HTYPES.villa;const zone={centro:'centro',periferia:'periferia',campagna:'campagna',lago:'fiume',montagna:'montagna'}[R.type||S.zone.type]||B.zone;
@@ -488,8 +481,6 @@ function zAskPublic(){if(document.querySelector('#sheet.open'))return setTimeout
    <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" data-pub="1">✅ Sì, mostrami</button><button class="btn ghost small" data-pub="0">No grazie</button></div>`,card=>{
    card.querySelectorAll('[data-pub]').forEach(b=>b.onclick=()=>{S.pubOk=b.dataset.pub==='1';closeSheet();toast(S.pubOk?'👥 Sei sulla mappa della community':'Ok, resti invisibile');zSyncProfile(true);try{saveLocal();}catch(e){}});});}
 /* l'impostazione si salva con i progressi */
-const _snapZ=snapshot;snapshot=function(){const d=_snapZ();if(d&&d.S)d.S.pubOk=S.pubOk;return d;};
-const _restZ=restore;restore=function(d){const r=_restZ(d);try{if(d&&d.S&&d.S.pubOk!=null)S.pubOk=d.S.pubOk;}catch(e){}return r;};
 /* segnaposto degli utenti sulla mappa vera */
 function zDrawUsers(lm){if(!lm||!lm.map)return;(lm._usr||[]).forEach(x=>x.remove());lm._usr=[];const me=S.user&&S.user.id;const now=Date.now();
   window.ZUSERS.forEach(u=>{if(u.user_id===me)return;const on=u.seen_at&&now-new Date(u.seen_at).getTime()<6*60*1000;
@@ -500,8 +491,6 @@ function zDrawUsers(lm){if(!lm||!lm.map)return;(lm._usr||[]).forEach(x=>x.remove
       <p class="muted" style="font-size:13px">Per privacy non vedi l'indirizzo né i punti deboli della sua casa.</p></div>`);});
     lm._usr.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([u.lon_r,u.lat_r]).addTo(lm.map));});}
 /* quando ci si collega o si valuta la casa */
-const _onLoginZ=onLogin;onLogin=async function(u,fresh){const r=await _onLoginZ(u,fresh);window.ZADMIN=null;zSyncProfile();zLoadUsers();return r;};
-const _azZ=analyzeZone;analyzeZone=async function(a){const z=await _azZ(a);setTimeout(()=>zSyncProfile(true),500);return z;};
 zLoadUsers();setInterval(()=>{if(!document.hidden)zSyncProfile();},3*60*1000);setInterval(()=>{if(!document.hidden)zLoadUsers();},5*60*1000);
 /* menu: cambiare idea */
 window.zTogglePublic=()=>{S.pubOk=!S.pubOk;zSyncProfile(true);toast(S.pubOk?'👥 Ora sei visibile sulla mappa':'Ora sei invisibile sulla mappa');try{saveLocal();}catch(e){}};
@@ -590,8 +579,6 @@ function doMove(P){try{
 const _vZonaMv=vZona;vZona=function(){_vZonaMv();try{if(!S.zone||document.getElementById('mvBtn'))return;const g=document.getElementById('geoBtn');const row=g&&g.parentElement;
   if(row)row.insertAdjacentHTML('afterend','<button class="btn ghost small" id="mvBtn" style="margin-top:8px">🚚 Ho cambiato casa</button>');const b=document.getElementById('mvBtn');if(b)b.onclick=moveSheet;}catch(e){}};
 /* cronologia delle case salvata con i progressi */
-const _snapMv=snapshot;snapshot=function(){const d=_snapMv();if(d&&d.S)d.S.case=S.case||[];return d;};
-const _restMv=restore;restore=function(d){const r=_restMv(d);try{if(d&&d.S&&d.S.case)S.case=d.S.case;}catch(e){}return r;};
 </script>
 <script>
 /* =========================================================
@@ -827,7 +814,6 @@ vZona=function(){
     try{rmMount(document.getElementById('rmH'),z.address);}catch(e){}return;}
   _vZonaHome();};
 /* dopo l'analisi della casa nuova il trasloco è finito */
-const _azMove=analyzeZone;analyzeZone=async function(a){const z=await _azMove(a);if(S.moving)setTimeout(()=>{S.moving=0;},0);return z;};
 /* il trasloco porta alla schermata dedicata */
 const _doMoveH=doMove;doMove=function(P){S.moving=Date.now();_doMoveH(P);};
 </script>

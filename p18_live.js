@@ -14,7 +14,7 @@ const slugify=s=>(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]
       SP_CAT[k]=r.category;const o=(of||[]).find(x=>x.sponsor_id===r.id);SP_OFF[k]=o?o.title:'Offerta per chi usa l’app';
       SP_LINK[k]={web:r.website||'',ig:r.instagram||'',fb:r.facebook||'',tel:r.phone||'',wa:(r.whatsapp||'').replace(/\D/g,'')};
       SP_GEO[k]={lat:r.lat,lon:r.lon,id:r.id,offer:o?o.id:null};});
-    if(typeof go==='function'&&S.tab)try{go(S.tab);}catch(e){}
+    if(typeof goBase==='function'&&S.tab)try{goBase(S.tab);}catch(e){}/* all'avvio, come prima: la navigazione di p4 (Fase 4f-1) */
   }catch(e){console.warn('sponsor',e);}})();
 /* registrazioni nel database (contano per le statistiche dello sponsor) */
 window.dbEvent=async(k,kind)=>{try{const g=SP_GEO[k];if(!g||!SB)return;await SB.from('sponsor_events').insert({sponsor_id:g.id,kind});}catch(e){}};

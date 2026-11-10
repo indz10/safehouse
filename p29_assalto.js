@@ -35,7 +35,6 @@ function regBar(lm){const box=lm.map.getContainer().closest('.mapfull')||lm.map.
     if(k==='prev')REG.i=(REG.i-1+REG.H.length)%REG.H.length;if(k==='next')REG.i=(REG.i+1)%REG.H.length;regGo(lm);});}
 function regText(lm,t){const b=document.querySelector('.regbar');if(!b)return;b.querySelector('.regtx').textContent=t;const n=b.querySelector('.regn');if(n)n.textContent=`${REG.i+1}/${REG.H.length}`;}
 /* uscendo dalla mappa la regia si spegne */
-const _goReg=go;go=function(t){if(t!=='mappa')REG.active=false;return _goReg(t);};
 /* ---- punti di accesso ben visibili ---- */
 /* mappa: i pulsanti della barra dell'orda aprono la regia */
 /* menu: due voci nuove */

@@ -1617,7 +1617,7 @@ function hash(str){let h=2166136261;for(const ch of str.toLowerCase())h=Math.imu
 function rng(seed){let s=seed||1;return()=>{s=Math.imul(s^(s>>>15),2246822507)^Math.imul(s^(s>>>13),3266489909);return((s^=s>>>16)>>>0)/4294967296;};}
 const POI_KINDS=[['super','Supermercato'],['farm','Farmacia'],['osp','Ospedale'],['ferr','Ferramenta'],['dist','Distributore'],['acqua','Fontana o fiume'],['cc','Carabinieri'],['vvf','Vigili del fuoco'],['racc','Area di raccolta']];
 const NICKS=['bunkerboy','nebbia','lagosafe','attico','maglia_nera','zia_pina','orto_forte','ilfabbro','luna_rossa','vedetta','cascinaz','mister_grate','ultimolume','padellona','sirena','topo_cantina','barricata','ninja_vespa'];
-async function analyzeZone(address){
+async function analyzeZoneBase(address){
   if(CONFIG.GOOGLE_MAPS_API_KEY){
     /* PRODUZIONE: funzione server con Geocoding + Places -> {type,pois:[{kind,name,dist,lat,lng}]}
        e utenti dal database Supabase (solo profili pubblici, posizione arrotondata). */
@@ -2242,7 +2242,7 @@ const fmtI=v=>v.toFixed(1).replace('.',',');
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600);}
 function vibe(){try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}}
 
-function go(tab){window.__last='apre '+tab;document.body.classList.remove('inbattle');if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab=tab;renderNav();window.scrollTo(0,0);if(tab!=='orda')setMusic('app');closeSheet&&closeSheet();({sponsor:renderSponsor,contatti:renderContatti,home:renderHome,valuta:renderValuta,gioco:renderGioco,orda:()=>{G.view=G.view==='battle'?'hub':G.view;renderOrda();},mappa:renderMappa,radio:renderRadio,guida:renderGuida})[tab]();}
+function goBase(tab){window.__last='apre '+tab;document.body.classList.remove('inbattle');if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab=tab;renderNav();window.scrollTo(0,0);if(tab!=='orda')setMusic('app');closeSheet&&closeSheet();({sponsor:renderSponsor,contatti:renderContatti,home:renderHome,valuta:renderValuta,gioco:renderGioco,orda:()=>{G.view=G.view==='battle'?'hub':G.view;renderOrda();},mappa:renderMappa,radio:renderRadio,guida:renderGuida})[tab]();}
 
 /* ---------------- HOME ---------------- */
 function bindGo(){app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{vibe();if(b.dataset.step)S.step=+b.dataset.step;if(b.dataset.mot2)S.motivo=b.dataset.mot2;else if(b.dataset.go==='contatti')S.motivo='info';go(b.dataset.go);});}
@@ -2805,13 +2805,13 @@ function tenOf(b){if(!b||b.kind!=='house'||!b.ten)return null;
   if(b.ten.f){const f=G.friends.find(x=>x.id===b.ten.f);if(!f)return null;return{type:'friend',f,role:f.role,lv:fLv(f)};}
   return{type:'npc',role:b.ten.n,lv:b.lv};}
 function houseOfFriend(fid){return Object.entries(G.lots).find(([,b])=>b.kind==='house'&&b.ten&&b.ten.f===fid);}
-function openSheet(title,body,bind){
+function openSheetBase(title,body,bind){
   let sh=document.getElementById('sheet');
   if(!sh){sh=document.createElement('div');sh.id='sheet';sh.className='sheet';sh.innerHTML='<div class="sheet-bg"></div><div class="sheet-card" role="dialog" aria-modal="true"></div>';document.body.appendChild(sh);sh.querySelector('.sheet-bg').onclick=closeSheet;}
   sh.querySelector('.sheet-card').innerHTML=`<div class="row spread sheet-h"><h3>${title}</h3><button class="btn ghost small" data-close aria-label="Chiudi">✕</button></div><div class="sheet-b">${body}</div>`;
   sh.classList.add('open');sh.querySelector('[data-close]').onclick=closeSheet;if(bind)bind(sh.querySelector('.sheet-card'));
 }
-function closeSheet(){const sh=document.getElementById('sheet');if(sh)sh.classList.remove('open');}
+function closeSheetBase(){const sh=document.getElementById('sheet');if(sh)sh.classList.remove('open');}
 
 /* ---------- battaglia: assedio di tutto il quartiere ---------- */
 const HOME_POS={centro:[134,168],periferia:[196,286],campagna:[330,580],fiume:[128,566],montagna:[204,-50]};
@@ -3717,23 +3717,23 @@ let SB=null;const SAVE_KEY='zsh_v2_salvataggio';const SNAP={b:null,at:0};
     }catch(e){console.warn('Supabase non disponibile',e);SB=null;}};
   s.onerror=()=>{SB=null;};document.head.appendChild(s);})();
 /* ---------- salvataggio: cosa si salva ---------- */
-function snapshot(){const s={zone:S.zone||null,answers:S.answers||null,result:S.result||null,game:S.game?{base:S.game.base||null,applied:[...(S.game.applied||[])]}:null,
+function snapshotBase(){const s={zone:S.zone||null,answers:S.answers||null,result:S.result||null,game:S.game?{base:S.game.base||null,applied:[...(S.game.applied||[])]}:null,
    rmiss:S.rmiss||{},coupons:S.coupons||{},couponUsed:!!S.couponUsed,acc:S.acc||{},qtog:S.qtog||{},finali:S.finali||{},leads:S.leads||0,geo:S.geo||null,pubOk:S.pubOk,case:S.case||[]};
   let g=null;try{if(typeof G!=='undefined'&&G.type){g={};Object.keys(G).forEach(k=>{if(['run','sel','pickT','view','replay'].includes(k))return;g[k]=G[k];});}}catch(e){}
   const body=JSON.stringify({S:s,G:g});if(body!==SNAP.b){SNAP.b=body;SNAP.at=Date.now();}
   return{v:1,at:SNAP.at||Date.now(),S:s,G:g};}
 /* quanto è "pieno" un salvataggio: serve per non sostituire dati veri con una partita vuota */
 function saveWeight(d){if(!d||!d.S)return 0;const s=d.S;return(s.zone?4:0)+(s.result?3:0)+Object.keys(s.answers||{}).length/10+(d.G&&d.G.type?3:0)+((d.G&&d.G.level)||0)/10;}
-function restore(d){if(!d||d.v!==1)return false;const s=d.S||{};
+function restoreBase(d){if(!d||d.v!==1)return false;const s=d.S||{};
   ['zone','answers','result','rmiss','coupons','couponUsed','acc','qtog','finali','leads','geo','pubOk','case'].forEach(k=>{if(s[k]!=null)S[k]=s[k];});
   if(s.game){S.game=S.game||{};S.game.base=s.game.base;S.game.applied=new Set(s.game.applied||[]);}
   if(d.G&&typeof G!=='undefined'){Object.assign(G,d.G);G.run=null;G.view='hub';G.sel=null;}
   if(S.acc&&S.acc.big)document.body.classList.add('bigtxt');return true;}
-function saveLocal(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(snapshot()));}catch(e){}}
+function saveLocalBase(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(snapshot()));}catch(e){}}
 function loadLocal(){try{const t=localStorage.getItem(SAVE_KEY);return t?JSON.parse(t):null;}catch(e){return null;}}
 /* ---------- cloud ---------- */
 let pushT=null;
-async function pushCloud(){if(!SB||!S.user||!S.user.id)return;const d=snapshot();if(saveWeight(d)<1)return;if(SNAP.pushed&&d.at<=SNAP.pushed)return;
+async function pushCloudBase(){if(!SB||!S.user||!S.user.id)return;const d=snapshot();if(saveWeight(d)<1)return;if(SNAP.pushed&&d.at<=SNAP.pushed)return;
   try{const{data:c}=await SB.from('salvataggi').select('dati').eq('user_id',S.user.id).maybeSingle();
     /* se un altro dispositivo ha salvato dopo di me, prendo il suo invece di sovrascriverlo */
     if(c&&c.dati&&c.dati.at>d.at&&saveWeight(c.dati)>=1){applyCloud(c.dati);return;}
@@ -3747,7 +3747,7 @@ async function syncCloud(){if(!SB||!S.user||!S.user.id||document.hidden)return;
   try{const{data}=await SB.from('salvataggi').select('dati').eq('user_id',S.user.id).maybeSingle();const c=data&&data.dati;
     const mine=snapshot();if(c&&c.at>mine.at&&saveWeight(c)>=1)applyCloud(c);else if(mine.at>(SNAP.pushed||0))pushCloud();}catch(e){}}
 async function pullCloud(){if(!SB||!S.user||!S.user.id)return null;try{const{data}=await SB.from('salvataggi').select('dati,updated_at').eq('user_id',S.user.id).maybeSingle();return data?data.dati:null;}catch(e){return null;}}
-async function onLogin(u,fresh){S.user={id:u.id,email:u.email,nick:(u.user_metadata&&u.user_metadata.nick)||u.email.split('@')[0]};
+async function onLoginBase(u,fresh){S.user={id:u.id,email:u.email,nick:(u.user_metadata&&u.user_metadata.nick)||u.email.split('@')[0]};
   const cloud=await pullCloud(),local=loadLocal();const wc=saveWeight(cloud),wl=saveWeight(local);
   const useCloud=cloud&&(!local||wl<1&&wc>=1||(wc>=1&&cloud.at>=local.at));
   if(useCloud){restore(cloud);snapshot();SNAP.at=cloud.at||SNAP.at;SNAP.pushed=SNAP.at;saveLocal();try{if(typeof trSetupVera==='function')trSetupVera();}catch(e){}if(fresh||wl<1)toast('Dati recuperati dal tuo account');try{go(S.tab||'home');}catch(e){}}
@@ -3758,7 +3758,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){saveLocal(
 window.addEventListener('focus',()=>syncCloud());window.addEventListener('pagehide',()=>{saveLocal();pushCloud();});
 setInterval(()=>{if(S.user&&S.user.id)syncCloud();},20000);
 /* al primo avvio: riprende da dove eri rimasto */
-(function(){const d=loadLocal();if(d){try{restore(d);snapshot();SNAP.at=d.at||SNAP.at;}catch(e){}}})();
+(function(){const d=loadLocal();if(d){try{restoreBase(d);snapshotBase();/* all'avvio, come prima: le versioni di p17 (Fase 4f-1) */SNAP.at=d.at||SNAP.at;}catch(e){}}})();
 /* ---------- login vero ---------- */
 const TRAD=m=>/Invalid login/i.test(m)?'Email o password non corretti.':/already registered|already exists/i.test(m)?'Questa email è già registrata: prova ad accedere.':/at least|weak/i.test(m)?'La password è troppo corta.':/valid email|invalid email/i.test(m)?'Controlla l’email.':/confirm/i.test(m)?'Conferma l’email dal messaggio che ti abbiamo mandato, poi accedi.':/fetch|network/i.test(m)?'Connessione assente: riprova tra poco.':m;
 const _loginSheet=loginSheet;
@@ -3799,7 +3799,7 @@ const slugify=s=>(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]
       SP_CAT[k]=r.category;const o=(of||[]).find(x=>x.sponsor_id===r.id);SP_OFF[k]=o?o.title:'Offerta per chi usa l’app';
       SP_LINK[k]={web:r.website||'',ig:r.instagram||'',fb:r.facebook||'',tel:r.phone||'',wa:(r.whatsapp||'').replace(/\D/g,'')};
       SP_GEO[k]={lat:r.lat,lon:r.lon,id:r.id,offer:o?o.id:null};});
-    if(typeof go==='function'&&S.tab)try{go(S.tab);}catch(e){}
+    if(typeof goBase==='function'&&S.tab)try{goBase(S.tab);}catch(e){}/* all'avvio, come prima: la navigazione di p4 (Fase 4f-1) */
   }catch(e){console.warn('sponsor',e);}})();
 /* registrazioni nel database (contano per le statistiche dello sponsor) */
 window.dbEvent=async(k,kind)=>{try{const g=SP_GEO[k];if(!g||!SB)return;await SB.from('sponsor_events').insert({sponsor_id:g.id,kind});}catch(e){}};
@@ -4200,9 +4200,6 @@ function terrApply(z,R){if(!R.ov)return{...z,real:R};const res=[],k=Math.cos(R.l
   /* il livello zona non dipende più dai superstiti simulati: servizi e mobilità veri + valore neutro */
   const level=Math.round((resRisk*.35+mobRisk*.35+5*.3)*10)/10;
   return{...z,type:R.type,resources:res,resRisk,mobRisk,level,real:R};}
-const _azReal=analyzeZone;
-analyzeZone=async function(address){const base=await _azReal(address);if(!navigator.onLine)return base;
-  try{const R=await terrFetch(address);return terrApply(base,R);}catch(e){console.warn('territorio vero',e);return base;}};
 function terrSummary(R){if(!R)return'';const bits=[];
   if(R.home!=null)bits.push(`⛰ <b>${R.home} m</b> s.l.m.`);
   if(R.pos)bits.push({altura:'🏔 casa <b>in altura</b>',bassa:'💧 casa <b>in zona bassa</b>',pendio:`📐 <b>pendio ${String(R.slope).replace('.',',')}%</b>`,piano:'➖ <b>pianura</b>'}[R.pos]);
@@ -4244,7 +4241,7 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 /* bollettino del territorio nella pagina del gioco */
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611101234';
+const ZSH_BUILD='202611101356';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -4339,10 +4336,6 @@ function trHouseCard(H){if(!H||!H.poly||H.poly.length<3)return'';const xs=H.poly
    <div><b class="disp">🏠 La tua casa vera</b><span>${KIND_N[H.kind]||'Edificio'}${H.att?` · attaccata a ${H.att} ${H.att===1?'casa':'case'}`:''}</span><span>≈ ${H.len} × ${H.wid} m · ${H.area} m² a terra</span><span>${H.levels} ${H.levels===1?'piano':'piani'} · tetto ${roofN}</span><small class="muted">La simulazione e il gioco la disegnano così.</small></div></div>`;}
 const _terrSummaryH=terrSummary;terrSummary=function(R){const h=_terrSummaryH(R);if(!R||!R.house)return h;return h.replace('<div class="terrchips">',trHouseCard(R.house)+'<div class="terrchips">');};
 /* valutazione: tipo di casa e piani compilati dalla mappa */
-const _azHouse=analyzeZone;
-analyzeZone=async function(address){const z=await _azHouse(address);try{const H=z&&z.real&&z.real.house;if(H&&S.answers){S.aiFilled=S.aiFilled||{};
-    const t={villa:'villa',bifamiliare:'bifam',schiera:'schiera',casale:'cascina'}[H.kind];if(t&&!S.answers.tipo){S.answers.tipo=t;S.aiFilled.tipo=true;}
-    if(H.kind!=='apt'&&!S.answers.piani){S.answers.piani=H.levels>=3?'3':String(H.levels);S.aiFilled.piani=true;}}}catch(e){}return z;};
 /* gioco: "La tua casa vera" come casa da difendere */
 function trSetupVera(){try{const R=S.zone&&S.zone.real,H=R&&R.house;if(!H)return;const base={apt:'apt',schiera:'schiera',bifamiliare:'bifamiliare',casale:'casale',villa:'villa'}[H.kind]||'villa';
   const B=HTYPES[base]||HTYPES.villa;const zone={centro:'centro',periferia:'periferia',campagna:'campagna',lago:'fiume',montagna:'montagna'}[R.type||S.zone.type]||B.zone;
@@ -4517,8 +4510,6 @@ function zAskPublic(){if(document.querySelector('#sheet.open'))return setTimeout
    <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" data-pub="1">✅ Sì, mostrami</button><button class="btn ghost small" data-pub="0">No grazie</button></div>`,card=>{
    card.querySelectorAll('[data-pub]').forEach(b=>b.onclick=()=>{S.pubOk=b.dataset.pub==='1';closeSheet();toast(S.pubOk?'👥 Sei sulla mappa della community':'Ok, resti invisibile');zSyncProfile(true);try{saveLocal();}catch(e){}});});}
 /* l'impostazione si salva con i progressi */
-const _snapZ=snapshot;snapshot=function(){const d=_snapZ();if(d&&d.S)d.S.pubOk=S.pubOk;return d;};
-const _restZ=restore;restore=function(d){const r=_restZ(d);try{if(d&&d.S&&d.S.pubOk!=null)S.pubOk=d.S.pubOk;}catch(e){}return r;};
 /* segnaposto degli utenti sulla mappa vera */
 function zDrawUsers(lm){if(!lm||!lm.map)return;(lm._usr||[]).forEach(x=>x.remove());lm._usr=[];const me=S.user&&S.user.id;const now=Date.now();
   window.ZUSERS.forEach(u=>{if(u.user_id===me)return;const on=u.seen_at&&now-new Date(u.seen_at).getTime()<6*60*1000;
@@ -4529,8 +4520,6 @@ function zDrawUsers(lm){if(!lm||!lm.map)return;(lm._usr||[]).forEach(x=>x.remove
       <p class="muted" style="font-size:13px">Per privacy non vedi l'indirizzo né i punti deboli della sua casa.</p></div>`);});
     lm._usr.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([u.lon_r,u.lat_r]).addTo(lm.map));});}
 /* quando ci si collega o si valuta la casa */
-const _onLoginZ=onLogin;onLogin=async function(u,fresh){const r=await _onLoginZ(u,fresh);window.ZADMIN=null;zSyncProfile();zLoadUsers();return r;};
-const _azZ=analyzeZone;analyzeZone=async function(a){const z=await _azZ(a);setTimeout(()=>zSyncProfile(true),500);return z;};
 zLoadUsers();setInterval(()=>{if(!document.hidden)zSyncProfile();},3*60*1000);setInterval(()=>{if(!document.hidden)zLoadUsers();},5*60*1000);
 /* menu: cambiare idea */
 window.zTogglePublic=()=>{S.pubOk=!S.pubOk;zSyncProfile(true);toast(S.pubOk?'👥 Ora sei visibile sulla mappa':'Ora sei invisibile sulla mappa');try{saveLocal();}catch(e){}};
@@ -4619,8 +4608,6 @@ function doMove(P){try{
 const _vZonaMv=vZona;vZona=function(){_vZonaMv();try{if(!S.zone||document.getElementById('mvBtn'))return;const g=document.getElementById('geoBtn');const row=g&&g.parentElement;
   if(row)row.insertAdjacentHTML('afterend','<button class="btn ghost small" id="mvBtn" style="margin-top:8px">🚚 Ho cambiato casa</button>');const b=document.getElementById('mvBtn');if(b)b.onclick=moveSheet;}catch(e){}};
 /* cronologia delle case salvata con i progressi */
-const _snapMv=snapshot;snapshot=function(){const d=_snapMv();if(d&&d.S)d.S.case=S.case||[];return d;};
-const _restMv=restore;restore=function(d){const r=_restMv(d);try{if(d&&d.S&&d.S.case)S.case=d.S.case;}catch(e){}return r;};
 </script>
 <script>
 /* =========================================================
@@ -4856,7 +4843,6 @@ vZona=function(){
     try{rmMount(document.getElementById('rmH'),z.address);}catch(e){}return;}
   _vZonaHome();};
 /* dopo l'analisi della casa nuova il trasloco è finito */
-const _azMove=analyzeZone;analyzeZone=async function(a){const z=await _azMove(a);if(S.moving)setTimeout(()=>{S.moving=0;},0);return z;};
 /* il trasloco porta alla schermata dedicata */
 const _doMoveH=doMove;doMove=function(P){S.moving=Date.now();_doMoveH(P);};
 </script>
@@ -5102,7 +5088,7 @@ window.W={on:false,m:null,busy:false};
 window.HQW={blocked:new Set(),st:new Map(),t:0,key:''};
 const wNum=n=>Number(n||0).toLocaleString('it-IT');
 async function wRpc(fn,args){if(typeof SB==='undefined'||!SB||!S.user)throw new Error('Accedi per entrare nel mondo unico');const{data,error}=await SB.rpc(fn,args||{});if(error)throw error;return data;}
-async function wMine(silent){if(typeof SB==='undefined'||!SB||!S.user||W.busy)return;W.busy=true;
+async function wMineBase(silent){if(typeof SB==='undefined'||!SB||!S.user||W.busy)return;W.busy=true;
   try{let d;try{d=await wRpc('world_mine2');}catch(x){d=await wRpc('world_mine');}if(!d)return;W.on=true;W.m=d;
     const news=(d.news||[]).filter(n=>n.delta>0);if(news.length&&!silent){const tot=news.reduce((a,n)=>a+n.delta,0);const big=news.find(n=>/abitante|esclus|inattiv|Bonus/.test(n.reason));
       setTimeout(()=>toast(big?`🏠 ${big.reason}: +🧱 ${wNum(big.delta)}`:`🧱 +${wNum(tot)} Mattoni`),1200);}
@@ -5212,8 +5198,6 @@ document.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest
 const _oweW=window.onWaveEnd;window.onWaveEnd=function(win,L,ev,coop){try{if(_oweW)_oweW(win,L,ev,coop);}catch(e){}if(win&&!coop&&S.user)wEarn('notte');};
 const _tmEventW=tmEvent;tmEvent=function(k,id,ok){const T=G&&G.tm;const before=T?T.list.filter(m=>m.done).length:0;_tmEventW(k,id,ok);const after=T?T.list.filter(m=>m.done).length:0;for(let i=before;i<after;i++)if(S.user)wEarn('missione');};
 /* all'accesso: riepilogo, accesso del giorno, verifiche (valutazione, codici, inviti), conferma casa */
-const _onLoginW=onLogin;onLogin=async function(u,fresh){const r=await _onLoginW(u,fresh);setTimeout(async()=>{await wMine();await wEarn('login');await wEarn('verifica');wClaim(false);},1500);return r;};
-const _azW=analyzeZone;analyzeZone=async function(a){const z=await _azW(a);setTimeout(()=>{if(S.user)wClaim(true);},1200);return z;};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user)wMine(true);});
 /* la scheda "La tua casa" mostra lo stato nel mondo unico */
 const _vZonaWorld=vZona;vZona=function(){_vZonaWorld();try{const t=document.querySelector('.myhome .mh-top>div:last-child');if(t&&!t.querySelector('.mhw'))t.insertAdjacentHTML('beforeend',`<small class="mhw" style="display:block;margin-top:4px" id="wHome">${wHomeLine()}</small>`);}catch(e){}};
@@ -5280,7 +5264,6 @@ function orBannerHTML(){const s=OR.s;if(!S.user||!s||!s.next_at)return'<div clas
 function orBindBanner(){const b=document.querySelector('.obanner');if(!b)return;const c=b.querySelector('[data-bcl]');if(c)c.onclick=()=>{G.sub='q';go('orda');setTimeout(()=>{const x=document.querySelector('[data-ocl]');if(x)x.scrollIntoView({behavior:'smooth',block:'center'});},400);};
   const p=b.querySelector('[data-bpr]');if(p)p.onclick=async()=>{p.disabled=true;try{await SB.rpc('world_prepare');toast('🛡️ Case preparate: +15 difesa');}catch(e){}orLoad(true);};}
 function orPutBanner(){try{if(!S.user||!OR.s||app.querySelector('.obanner')||!['mappa','valuta'].includes(S.tab)||(S.tab==='orda'&&G.view==='battle'))return;const h=document.createElement('div');h.innerHTML=orBannerHTML();app.insertBefore(h.firstElementChild,app.firstChild);orBindBanner();}catch(e){}}
-const _goOR=go;go=function(tab){_goOR(tab);orPutBanner();};
 /* ---- nel gioco: l'orda del mondo in cima, le notti a mano ("Difendi tu") sotto ---- */
 /* ---- l'assalto sulla mappa vera (visto da tutti) ---- */
 async function orViewBase(lm){if(!lm||!lm.map||typeof SB==='undefined'||!SB)return[];const b=lm.map.getBounds();
@@ -5444,7 +5427,6 @@ const GK={mattoni:['🧱','Mattoni'],monete:['🪙','Monete'],cibo:['🥫','Cibo
 async function ayLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return;if(!force&&Date.now()-AY.t<60000)return;AY.t=Date.now();
   try{const a=await SB.rpc('world_allies');if(!a.error)AY.list=a.data||[];const l=await SB.rpc('world_loans');if(!l.error)AY.loans=l.data||[];}catch(e){}ayRefresh();}
 /* regali ricevuti: monete, gemme, materiali entrano nella partita */
-const _wMineAY=wMine;wMine=async function(silent){await _wMineAY(silent);ayInbox();};
 function ayHTML(){if(!S.user)return'';const L=AY.list,LO=AY.loans;
   return`<div class="ayb"><h4 class="ah">🤝 I tuoi alleati (${L.length})</h4>
    ${L.length?L.map(a=>`<div class="arow"><div><b>@${esc(a.nick)}</b><small>livello ${a.wlevel}${a.dist_km!=null?' · '+wNum(a.dist_km)+' km':''}</small></div><button class="btn small" data-agive="${a.user_id}" data-anick="${esc(a.nick)}">🎁 Regala / Presta</button></div>`).join(''):'<p class="muted" style="font-size:12.5px">Diventate alleati aiutandovi in un’orda o invitandovi: poi potete regalarvi e prestarvi Mattoni, e regalarvi monete e materiali (le gemme no).</p>'}
@@ -5474,8 +5456,6 @@ function luckTopHTML(){try{luckInit();}catch(e){}const ds=(typeof dailyState==='
    ========================================================= */
 ICON.io='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
 const NAV_ACT={home:'home',valuta:'home',gioco:'home',mappa:'mappa',orda:'orda',io:'io',radio:'io',contatti:'io',sponsor:'io',guida:'io'};
-const _goS=go;go=function(tab){if(tab!=='io')return _goS(tab);window.__last='apre io';document.body.classList.remove('inbattle');
-  if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab='io';renderNav();window.scrollTo(0,0);try{setMusic('app');}catch(e){}try{closeSheet();}catch(e){}renderIo();};
 
 /* ---------------- 🏠 CASA: la valutazione è qui dentro ---------------- */
 const _renderHomeS=renderHome;renderHome=function(){_renderHomeS();try{
@@ -5656,8 +5636,6 @@ NAV_ACT.social='social';NAV_ACT.io='io';
 function renderNavBase(){try{document.body.dataset.tab=S.tab;}catch(e){}const items=[['home','Casa'],['mappa','Mappa'],['orda','Orda'],['social','Superstiti']];const act=NAV_ACT[S.tab]||S.tab;
   $('#nav').innerHTML=items.map(([k,l])=>`<button class="${act===k?'on':''}" data-tab="${k}" aria-label="${l}">${ICON[k]}<span>${l}</span></button>`).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{try{vibe();}catch(e){}go(b.dataset.tab);});socBadge();ioBtn();}
-const _goSoc=go;go=function(tab){if(tab!=='social')return _goSoc(tab);window.__last='apre superstiti';document.body.classList.remove('inbattle');
-  if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab='social';renderNav();window.scrollTo(0,0);try{setMusic('app');}catch(e){}try{closeSheet();}catch(e){}renderSocial();};
 /* in Casa: le novità dei superstiti, per entrarci ogni giorno */
 const _renderHomeSoc=renderHome;renderHome=function(){_renderHomeSoc();try{if(!S.user||!S.result||app.querySelector('.hsoc'))return;const after=app.querySelector('.hval')||app.querySelector('.hcard');if(!after)return;
   const L=(SOC.feed.zona||SOC.feed.mondo||[]).slice(0,3);
@@ -5736,7 +5714,6 @@ function pzActions(m){openSheet('💬 Messaggio',`<div class="pzm ${m.mine?'mine
 /* la piazza è la prima voce di Superstiti */
 SOC.tab='piazza';
 /* ---------------- accesso chiaro e avatar sempre aggiornato ---------------- */
-const _onLoginPz=onLogin;onLogin=async function(u,fresh){const r=await _onLoginPz(u,fresh);try{renderNav();if(S.tab==='social')renderSocial();}catch(e){}return r;};
 setInterval(()=>{try{const b=document.getElementById('ioBtn');if(!b)return;const want=S.user?((S.user.nick||(S.user.email||'?').split('@')[0])[0]||'?').toUpperCase():'👤';if(b.textContent!==want){b.textContent=want;b.classList.toggle('nolog',!S.user);}}catch(e){}},2000);
 /* in Casa, se non sei collegato, lo vedi subito */
 const _renderHomePz=renderHome;renderHome=function(){_renderHomePz();try{if(S.user||!S.result||app.querySelector('.nolog'))return;const c=app.querySelector('.hcard');if(c)c.insertAdjacentHTML('beforebegin',`<div class="panel nolog"><b>🔒 Non sei collegato in questa app</b><p style="font-weight:400;margin:4px 0">Accedi per salvare i progressi, avere la tua casa nel mondo e giocare con gli altri.</p>${pzSafariNote()}<button class="btn" onclick="loginSheet()">Accedi</button></div>`);}catch(e){}};
@@ -5843,7 +5820,6 @@ function regBar(lm){const box=lm.map.getContainer().closest('.mapfull')||lm.map.
     if(k==='prev')REG.i=(REG.i-1+REG.H.length)%REG.H.length;if(k==='next')REG.i=(REG.i+1)%REG.H.length;regGo(lm);});}
 function regText(lm,t){const b=document.querySelector('.regbar');if(!b)return;b.querySelector('.regtx').textContent=t;const n=b.querySelector('.regn');if(n)n.textContent=`${REG.i+1}/${REG.H.length}`;}
 /* uscendo dalla mappa la regia si spegne */
-const _goReg=go;go=function(t){if(t!=='mappa')REG.active=false;return _goReg(t);};
 /* ---- punti di accesso ben visibili ---- */
 /* mappa: i pulsanti della barra dell'orda aprono la regia */
 /* menu: due voci nuove */
@@ -5976,9 +5952,6 @@ function fuRes(h,mode){if(mode==='sim'){const r=regSimRows().find(x=>Math.abs(x.
    ========================================================= */
 /* ---------------- la vecchia pagina Casa diventa "La mia casa" ---------------- */
 const renderCasaDash=renderHome;NAV_ACT.casa='home';
-const _goM2=go;go=function(tab){if(tab!=='casa')return _goM2(tab);window.__last='apre la mia casa';document.body.classList.remove('inbattle');
-  if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab='casa';renderNav();window.scrollTo(0,0);try{closeSheet();}catch(e){}renderCasaDash();
-  try{const top=app.querySelector('.page');if(top&&!app.querySelector('.cback'))top.insertAdjacentHTML('afterbegin','<button class="cback" data-cback>‹ Torna alla home</button>');const b=app.querySelector('[data-cback]');if(b)b.onclick=()=>go('home');}catch(e){}};
 /* ---------------- HOMEPAGE: tutta un disegno ---------------- */
 renderHome=function(){const m=window.W&&W.m,s=OR.s;const has=!!S.result;const next=(s&&s.next_at)||vNextSlot();
   app.innerHTML=`<section class="hscene"><div class="hsart">${heroSVG()}</div>
@@ -6238,7 +6211,6 @@ function eqPaint(){try{const h=app.querySelector('.hschips');if(h){h.querySelect
     if(t){if(!x){r.insertAdjacentHTML('beforeend','<p class="eqriv"></p>');x=r.querySelector('.eqriv');}x.innerHTML=t;}else if(x)x.remove();}}catch(e){}}
 const _renderHomeEq=renderHome;renderHome=function(){_renderHomeEq();eqPaint();if(S.user){eqLoad();}};
 /* al collegamento: kit e stato */
-const _wMineEq=wMine;wMine=async function(){const r=await _wMineEq.apply(this,arguments);try{if(S.user){eqWelcome();eqLoad();}}catch(e){}return r;};
 /* 2) rivali con lo scudo: pulsanti spenti */
 EQ.rank={};
 async function eqRank(){const p=SOC.rp||'settimana';try{const{data,error}=await SB.rpc('world_rank_lega',{p_period:p});if(error)throw error;EQ.rank[p]=data||[];}catch(e){EQ.rank[p]={err:e.message};}if(S.tab==='social'&&SOC.tab==='classifiche'&&SOC.rs==='lega')eqRankPaint();}
@@ -6449,7 +6421,6 @@ async function casaTop(){const pg=app.querySelector('.page');if(!pg||pg.querySel
   gal.innerHTML=`<b class="disp" style="font-size:22px">🗺️ Le tue case nel mondo (${L.length})</b><div class="mgrid">${L.map((h,i)=>`<button class="mgc" data-mg="${i}"><div class="mgart" data-mga="${i}">${houseArt('villa',h.level,h.bid,{k:'g'+i})}</div><b>${h.label}</b><small><span data-mgt="${i}">…</span> · liv. ${h.level} · ${kmTxt(h.km)}</small></button>`).join('')}</div>`;
   box.after(gal);gal.querySelectorAll('[data-mg]').forEach(b=>b.onclick=()=>{const h=L[+b.dataset.mg];S.mfHouses=true;go('mappa');setTimeout(()=>mhFly(h,true),900);});
   L.forEach(async(h,i)=>{const t=await bType(h.lat,h.lon,h.bid);const a=gal.querySelector(`[data-mga="${i}"]`),tt=gal.querySelector(`[data-mgt="${i}"]`);if(a)a.innerHTML=houseArt(t,h.level,h.bid,{k:'g'+i});if(tt)tt.textContent=BT[t][1];});}
-const _goCase=go;go=function(tab){const r=_goCase(tab);if(tab==='casa')setTimeout(casaTop,30);return r;};
 /* ---------- nella scheda di ogni casa: il suo disegno ---------- */
 /* ---------- nella barra "Le tue case" del mondo: miniature ---------- */
 </script>
@@ -6725,7 +6696,6 @@ function coPut(){try{if(S.tab==='home'){const h=app.querySelector('.hsbtns');if(
   if(S.tab==='orda'){const pg=app.querySelector('.page');if(pg){const o=pg.querySelector(':scope > .coach');const n=document.createElement('div');n.innerHTML=coHTML(false);const el=n.firstElementChild;if(o)o.replaceWith(el);else pg.prepend(el);coBind(el);}}}catch(e){}}
 const _renderHomeCo=renderHome;renderHome=function(){_renderHomeCo();coPut();};
 /* aggiornamenti */
-const _wMineCo=wMine;wMine=async function(){const r=await _wMineCo.apply(this,arguments);try{rsSync();await defLoad(true);coPut();if(S.tab==='orda'&&FR.node)frHeader();}catch(e){}return r;};
 setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='home'||S.tab==='orda'))coPut();},30000);
 </script>
 <script>
@@ -6741,8 +6711,7 @@ setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='home'||S.tab
 /* ---- 1) ---- */
 eqPad=function(){const c=document.querySelector('#sheet.open .sheet-b');if(c&&/[Ii]nvit/.test(c.textContent)&&!c.querySelector('.eqpad'))c.insertAdjacentHTML('beforeend','<p class="eqpad">🤝 <b>Padrino</b>: per i primi 14 giorni ricevi anche il 10% in più di quello che guadagna chi hai invitato (a lui non togliamo niente).</p>');};
 function sheetClean(){try{const sh=document.getElementById('sheet');if(!sh)return;[...sh.children].forEach(ch=>{if(!ch.classList.contains('sheet-bg')&&!ch.classList.contains('sheet-card'))ch.remove();});}catch(e){}}
-const _closeSheetAl=closeSheet;closeSheet=function(){const r=_closeSheetAl.apply(this,arguments);sheetClean();return r;};
-setInterval(sheetClean,6000);try{const _osSc=openSheet;openSheet=function(){const r=_osSc.apply(this,arguments);setTimeout(sheetClean,80);return r;};}catch(e){}
+setInterval(sheetClean,6000);
 /* ---- 2) ---- */
 async function allyAsk(uid,nick,btn){try{if(btn)btn.disabled=true;const r=await socRpc('world_ally_request',{p_target:uid});toast((r&&r.msg)||'🤝 Proposta inviata');}catch(e){toast(e.message||'Non riuscito');if(btn)btn.disabled=false;}}
 async function allyNudge(uid,btn){try{if(btn)btn.disabled=true;const r=await socRpc('world_shout',{p_to:uid,p_code:5});toast(r&&r.ok===false?r.msg:'📣 Ricordato: “🤝 Facciamo squadra?”');}catch(e){toast(e.message||'Non riuscito');if(btn)btn.disabled=false;}}
@@ -7004,7 +6973,6 @@ async function casaAll(){const pg=app.querySelector('.page');if(!pg||pg.dataset.
     drawHouse(card.querySelector('[data-mca]'),h,hOpts(h,T)).then(g=>{if(g){const d=card.querySelector('[data-mcd]');if(d)d.textContent=' · '+realDesc(g);}});
     card.querySelector('[data-mcs]').onclick=()=>houseSheet(h);card.querySelector('[data-mcm]').onclick=()=>{S.mfHouses=true;go('mappa');setTimeout(()=>mhFly(h,true),900);};
     const d=card.querySelector('.mcdia');d.addEventListener('toggle',async()=>{if(d.open)d.querySelector('[data-mcdl]').innerHTML=diaryHTML(await diaryLoad(h.bid));});});}
-const _goAs=go;go=function(tab){const r=_goAs(tab);if(tab==='casa')setTimeout(()=>{casaTop().then(()=>setTimeout(casaAll,200)).catch(()=>casaAll());},60);return r;};
 /* nella scheda casa: anche lì difese e meteo disegnati */
 const _drawHouseAs=drawHouse;drawHouse=async function(el,h,o={}){if(o.defs==null||o.ev==null){const T=typeof thrOf==='function'?thrOf(h):null;if(T)o=Object.assign({defs:T.defs||{},ev:T.ev},o);}return _drawHouseAs(el,h,o);};
 /* il diario si scrive anche dall'app (potenziamenti, preparazione) */
@@ -7068,7 +7036,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611101234';
+const APPV='202611101356';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -7137,13 +7105,10 @@ function coinSweep(){try{if(typeof G==='undefined'||!G)return;const k='zsh_coinb
   if(isNaN(base)){/* prima volta: converto le monete che avevi */const old=Math.max(0,G.coins||0);localStorage.setItem(k,'0');G.coins=0;try{saveLocal();}catch(e){}if(old>=5)giveMattoni(Math.min(300,Math.floor(old/5)),'Monete convertite');return;}
   const c=G.coins||0;if(c>0){G.coins=0;try{saveLocal();}catch(e){}if(c>=5)giveMattoni(Math.floor(c/5),'Premi');}}catch(e){}}
 setInterval(coinSweep,10000);
-const _wMineMt=wMine;wMine=async function(){const r=await _wMineMt.apply(this,arguments);try{if(S.user&&!wMine.__fl){wMine.__fl=1;setTimeout(()=>{matFlush();coinSweep();},500);}}catch(e){}return r;};
 /* testi: dove c'erano monete ora ci sono Mattoni */
 function coinText(root){try{(root||app).querySelectorAll('.tmp, .lpan, .daily, #sheet.open .sheet-b').forEach(el=>{const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;const L=[];while((n=w.nextNode()))if(/🪙/.test(n.nodeValue))L.push(n);
   L.forEach(n=>{n.nodeValue=n.nodeValue.replace(/🪙\s*(\d+)/g,(m,v)=>'🧱 '+Math.max(1,Math.floor(+v/5))).replace(/(\d+)\s*🪙/g,(m,v)=>Math.max(1,Math.floor(+v/5))+' 🧱').replace(/🪙/g,'🧱').replace(/\bmonete\b/g,'Mattoni');});});}catch(e){}}
 /* i testi si sistemano quando si apre una scheda o si cambia pagina (non più ogni secondo) */
-try{const _osCt=openSheet;openSheet=function(){const r=_osCt.apply(this,arguments);setTimeout(()=>coinText(),60);return r;};}catch(e){}
-try{const _goCt=go;go=function(){const r=_goCt.apply(this,arguments);setTimeout(()=>coinText(),400);return r;};}catch(e){}
 /* il portafoglio nel menu senza monete */
 </script>
 <script>
@@ -7155,7 +7120,6 @@ try{const _goCt=go;go=function(){const r=_goCt.apply(this,arguments);setTimeout(
    ========================================================= */
 function hpSwitcher(cur){const H=myHouses();if(H.length<2)return'';return`<div class="hpsel">${H.map((h,i)=>{const on=(h.home&&cur.home)||(!h.home&&!cur.home&&h.bid===cur.bid);const c=(typeof frChanceOf==='function')?frChanceOf(h):null;
   return`<button data-hps="${i}" class="${on?'on':''}"><b>${h.ic} ${esc(h.label)}</b><small>${c!=null?c+'%':''}</small></button>`;}).join('')}</div>`;}
-const _closeSheetHP=closeSheet;closeSheet=function(){const r=_closeSheetHP.apply(this,arguments);try{document.getElementById('sheet').classList.remove('hfull');}catch(e){}return r;};
 /* tutte le strade portano alla pagina della casa */
 const _renderHomeHP=renderHome;renderHome=function(){_renderHomeHP();try{const b=app.querySelector('[data-hs=casa]');if(b)b.onclick=async()=>{let home=S.user&&myHouses().find(x=>x.home);
     /* Fase 4a: appena aperta l'app l'accesso all'account e i dati delle case possono arrivare dopo qualche secondo:
@@ -7178,12 +7142,7 @@ const _casaAllHP=casaAll;casaAll=async function(){await thrLoad(true);await _cas
    ========================================================= */
 const OWN_K='zsh_owner';
 /* durante il cambio di account e l'uscita non si salva più niente sul telefono */
-const _saveLocalAc=saveLocal;saveLocal=function(){if(window.__noSave)return;return _saveLocalAc.apply(this,arguments);};
-try{const _pushAc=pushCloud;pushCloud=async function(){if(window.__noSave)return;return _pushAc.apply(this,arguments);};}catch(e){}
 function zWipeLocal(){window.__noSave=true;try{const keep=/^(zsh_snd|zsh_music|zsh_mute|zsh_rm2_|zsh_att_|zsh_spg_|zsh_inv$|zsh_bv_done)/;Object.keys(localStorage).forEach(k=>{if(/^zsh/.test(k)&&!keep.test(k))localStorage.removeItem(k);});}catch(e){}}
-const _onLoginAc=onLogin;onLogin=async function(u,fresh){try{const prev=localStorage.getItem(OWN_K);
-  if(prev&&u&&prev!==u.id){zWipeLocal();localStorage.setItem(OWN_K,u.id);sessionStorage.setItem('zsh_switched','1');location.reload();return;}
-  if(u)localStorage.setItem(OWN_K,u.id);}catch(e){}return _onLoginAc.apply(this,arguments);};
 (function(){try{if(sessionStorage.getItem('zsh_switched')){sessionStorage.removeItem('zsh_switched');setTimeout(()=>{try{toast('🔄 Account cambiato: dati del telefono separati');}catch(e){}},1500);}}catch(e){}})();
 const _zLogoutAc=zLogout;zLogout=async function(){try{if(typeof pushCloud==='function')await Promise.race([pushCloud(),new Promise(r=>setTimeout(r,1500))]);}catch(e){}zWipeLocal();return _zLogoutAc.apply(this,arguments);};
 /* ---- chi vive nella mia casa ---- */
@@ -7977,6 +7936,89 @@ function manualHTML(){let h=manualHTMLBase();
   h=h.replace('<details class="man"',`<details class="man"><summary>🎁 Regali, prestiti e fortuna</summary><div class="man-b"><p><b>Alleati</b> sono i giocatori con cui vi siete aiutati negli ultimi 30 giorni e chi hai invitato (o chi ti ha invitato). Agli alleati puoi <b>prestare Mattoni</b> (tornano da soli dopo 3 giorni) o <b>regalare</b> Mattoni, monete, gemme e materiali. Limiti al giorno: 300 Mattoni, 1.000 monete, 20 gemme, 10 per materiale; gli account nuovi possono regalare dopo 3 giorni.</p><p><b>Ruota, gratta e vinci, premio del giorno e barattolo</b> sono in alto nel gioco: giri e biglietti si guadagnano riscattando l’orda, vincendo notti e aiutando gli alleati.</p></div></details><details class="man"`);
   h=h.replace(/o <b>regalare<\/b> Mattoni, monete, gemme e materiali\. Limiti al giorno: 300 Mattoni, 1\.000 monete, 20 gemme, 10 per materiale/,'o <b>regalare</b> Mattoni, monete e materiali (le gemme no). Limiti al giorno: 300 Mattoni, 300 monete, 10 per materiale');
   return h;}
+</script>
+<script>
+/* =========================================================
+   COMUNE — UNA FUNZIONE PER OGNI COSA (Fase 4f-1)
+   Navigazione (go: base p4 + 8 strati), accesso (onLogin: base p17 + 4), case del mondo
+   (wMine: base p21 + 4), salvataggi (saveLocal, pushCloud, snapshot, restore), finestre
+   (openSheet, closeSheet), analisi della zona (analyzeZone: base p2 + 5). La base si chiama
+   …Base nel modulo di origine; UNA funzione fa, nello stesso ordine, quello che facevano gli strati.
+   ========================================================= */
+/* cambio scheda: Casa (p31) · Superstiti (p26) · Io (p25) · le altre (p4) con il banner dell'orda (p22);
+   la regia degli assalti si ferma uscendo dalla Mappa (p29); poi disegni della casa (p41, p49) e Mattoni (p52) */
+function go(tab){
+  if(tab==='casa'){(()=>{window.__last='apre la mia casa';
+  document.body.classList.remove('inbattle');
+  if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}
+  S.tab='casa';
+  renderNav();
+  window.scrollTo(0,0);
+  try{closeSheet();}catch(e){}
+  renderCasaDash();
+  try{const top=app.querySelector('.page');if(top&&!app.querySelector('.cback'))top.insertAdjacentHTML('afterbegin','<button class="cback" data-cback>‹ Torna alla home</button>');const b=app.querySelector('[data-cback]');if(b)b.onclick=()=>go('home');}catch(e){}})();}
+  else{
+    if(tab!=='mappa')REG.active=false;
+    if(tab==='social'){(()=>{window.__last='apre superstiti';
+  document.body.classList.remove('inbattle');
+  if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}
+  S.tab='social';
+  renderNav();
+  window.scrollTo(0,0);
+  try{setMusic('app');}catch(e){}
+  try{closeSheet();}catch(e){}
+  renderSocial();})();}
+    else if(tab==='io'){(()=>{window.__last='apre io';
+  document.body.classList.remove('inbattle');
+  if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}
+  S.tab='io';
+  renderNav();
+  window.scrollTo(0,0);
+  try{setMusic('app');}catch(e){}
+  try{closeSheet();}catch(e){}
+  renderIo();})();}
+    else{goBase(tab);orPutBanner();}
+  }
+  if(tab==='casa')setTimeout(casaTop,30);
+  if(tab==='casa')setTimeout(()=>{casaTop().then(()=>setTimeout(casaAll,200)).catch(()=>casaAll());},60);
+  setTimeout(()=>coinText(),400);}
+/* accesso: account diverso sullo stesso telefono → dati vecchi cancellati (p54); poi accesso (p17),
+   profilo e superstiti (p20), mondo e premi (p21), barra e Superstiti (p27) */
+async function onLogin(u,fresh){
+  try{const prev=localStorage.getItem(OWN_K);
+  if(prev&&u&&prev!==u.id){zWipeLocal();localStorage.setItem(OWN_K,u.id);sessionStorage.setItem('zsh_switched','1');location.reload();return;}
+  if(u)localStorage.setItem(OWN_K,u.id);}catch(e){}
+  const r=await onLoginBase(u,fresh);
+  window.ZADMIN=null;zSyncProfile();zLoadUsers();
+  setTimeout(async()=>{await wMine();await wEarn('login');await wEarn('verifica');wClaim(false);},1500);
+  try{renderNav();if(S.tab==='social')renderSocial();}catch(e){}
+  return r;}
+/* le mie case dal server (p21) → doni ricevuti (p24) → kit e leghe (p37) → difesa e prossimo passo (p44) → Mattoni in attesa (p52) */
+async function wMine(silent){const r=await wMineBase(silent);
+  ayInbox();
+  try{if(S.user){eqWelcome();eqLoad();}}catch(e){}
+  try{rsSync();await defLoad(true);coPut();if(S.tab==='orda'&&FR.node)frHeader();}catch(e){}
+  try{if(S.user&&!wMine.__fl){wMine.__fl=1;setTimeout(()=>{matFlush();coinSweep();},500);}}catch(e){}
+  return r;}
+/* salvataggi: mai durante il cambio account (p54) */
+function saveLocal(){if(window.__noSave)return;return saveLocalBase.apply(this,arguments);}
+async function pushCloud(){if(window.__noSave)return;return pushCloudBase.apply(this,arguments);}
+/* fotografia dei dati (p17) + visibilità sulla mappa (p20) + case passate (p20) */
+function snapshot(){const d=snapshotBase();if(d&&d.S)d.S.pubOk=S.pubOk;if(d&&d.S)d.S.case=S.case||[];return d;}
+function restore(d){const r=restoreBase(d);try{if(d&&d.S&&d.S.pubOk!=null)S.pubOk=d.S.pubOk;}catch(e){}try{if(d&&d.S&&d.S.case)S.case=d.S.case;}catch(e){}return r;}
+/* finestre: base (p5) + pulizia (p45) + Mattoni al posto delle monete (p52); chiusura + pulizia (p45) + pagina intera (p53) */
+function openSheet(){const r=openSheetBase.apply(this,arguments);setTimeout(sheetClean,80);setTimeout(()=>coinText(),60);return r;}
+function closeSheet(){const r=closeSheetBase.apply(this,arguments);sheetClean();try{document.getElementById('sheet').classList.remove('hfull');}catch(e){}return r;}
+/* analisi della zona: base (p2) → territorio vero (p20) → tipo e piani della casa (p20) → profilo (p20) → trasloco (p20) → casa nel mondo (p21) */
+async function analyzeZone(address){let z=await analyzeZoneBase(address);
+  z=await (async()=>{const base=z;if(!navigator.onLine)return base;try{const R=await terrFetch(address);return terrApply(base,R);}catch(e){console.warn('territorio vero',e);return base;}})();
+  try{const H=z&&z.real&&z.real.house;if(H&&S.answers){S.aiFilled=S.aiFilled||{};
+    const t={villa:'villa',bifamiliare:'bifam',schiera:'schiera',casale:'cascina'}[H.kind];if(t&&!S.answers.tipo){S.answers.tipo=t;S.aiFilled.tipo=true;}
+    if(H.kind!=='apt'&&!S.answers.piani){S.answers.piani=H.levels>=3?'3':String(H.levels);S.aiFilled.piani=true;}}}catch(e){}
+  setTimeout(()=>zSyncProfile(true),500);
+  if(S.moving)setTimeout(()=>{S.moving=0;},0);
+  setTimeout(()=>{if(S.user)wClaim(true);},1200);
+  return z;}
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */

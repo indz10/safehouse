@@ -8,9 +8,6 @@
    ========================================================= */
 /* ---------------- la vecchia pagina Casa diventa "La mia casa" ---------------- */
 const renderCasaDash=renderHome;NAV_ACT.casa='home';
-const _goM2=go;go=function(tab){if(tab!=='casa')return _goM2(tab);window.__last='apre la mia casa';document.body.classList.remove('inbattle');
-  if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}S.tab='casa';renderNav();window.scrollTo(0,0);try{closeSheet();}catch(e){}renderCasaDash();
-  try{const top=app.querySelector('.page');if(top&&!app.querySelector('.cback'))top.insertAdjacentHTML('afterbegin','<button class="cback" data-cback>‹ Torna alla home</button>');const b=app.querySelector('[data-cback]');if(b)b.onclick=()=>go('home');}catch(e){}};
 /* ---------------- HOMEPAGE: tutta un disegno ---------------- */
 renderHome=function(){const m=window.W&&W.m,s=OR.s;const has=!!S.result;const next=(s&&s.next_at)||vNextSlot();
   app.innerHTML=`<section class="hscene"><div class="hsart">${heroSVG()}</div>

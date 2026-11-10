@@ -139,7 +139,7 @@ function hash(str){let h=2166136261;for(const ch of str.toLowerCase())h=Math.imu
 function rng(seed){let s=seed||1;return()=>{s=Math.imul(s^(s>>>15),2246822507)^Math.imul(s^(s>>>13),3266489909);return((s^=s>>>16)>>>0)/4294967296;};}
 const POI_KINDS=[['super','Supermercato'],['farm','Farmacia'],['osp','Ospedale'],['ferr','Ferramenta'],['dist','Distributore'],['acqua','Fontana o fiume'],['cc','Carabinieri'],['vvf','Vigili del fuoco'],['racc','Area di raccolta']];
 const NICKS=['bunkerboy','nebbia','lagosafe','attico','maglia_nera','zia_pina','orto_forte','ilfabbro','luna_rossa','vedetta','cascinaz','mister_grate','ultimolume','padellona','sirena','topo_cantina','barricata','ninja_vespa'];
-async function analyzeZone(address){
+async function analyzeZoneBase(address){
   if(CONFIG.GOOGLE_MAPS_API_KEY){
     /* PRODUZIONE: funzione server con Geocoding + Places -> {type,pois:[{kind,name,dist,lat,lng}]}
        e utenti dal database Supabase (solo profili pubblici, posizione arrotondata). */

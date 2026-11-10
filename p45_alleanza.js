@@ -9,8 +9,7 @@
 /* ---- 1) ---- */
 eqPad=function(){const c=document.querySelector('#sheet.open .sheet-b');if(c&&/[Ii]nvit/.test(c.textContent)&&!c.querySelector('.eqpad'))c.insertAdjacentHTML('beforeend','<p class="eqpad">🤝 <b>Padrino</b>: per i primi 14 giorni ricevi anche il 10% in più di quello che guadagna chi hai invitato (a lui non togliamo niente).</p>');};
 function sheetClean(){try{const sh=document.getElementById('sheet');if(!sh)return;[...sh.children].forEach(ch=>{if(!ch.classList.contains('sheet-bg')&&!ch.classList.contains('sheet-card'))ch.remove();});}catch(e){}}
-const _closeSheetAl=closeSheet;closeSheet=function(){const r=_closeSheetAl.apply(this,arguments);sheetClean();return r;};
-setInterval(sheetClean,6000);try{const _osSc=openSheet;openSheet=function(){const r=_osSc.apply(this,arguments);setTimeout(sheetClean,80);return r;};}catch(e){}
+setInterval(sheetClean,6000);
 /* ---- 2) ---- */
 async function allyAsk(uid,nick,btn){try{if(btn)btn.disabled=true;const r=await socRpc('world_ally_request',{p_target:uid});toast((r&&r.msg)||'🤝 Proposta inviata');}catch(e){toast(e.message||'Non riuscito');if(btn)btn.disabled=false;}}
 async function allyNudge(uid,btn){try{if(btn)btn.disabled=true;const r=await socRpc('world_shout',{p_to:uid,p_code:5});toast(r&&r.ok===false?r.msg:'📣 Ricordato: “🤝 Facciamo squadra?”');}catch(e){toast(e.message||'Non riuscito');if(btn)btn.disabled=false;}}
