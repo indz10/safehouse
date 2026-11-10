@@ -39,8 +39,6 @@ function eqRankPaint(){const B=app.querySelector('#socBody');if(!B)return;const 
   if(L.err){box.innerHTML=head+`<p class="muted">Classifica della lega non disponibile (${esc(L.err)}).</p>`;return;}
   box.innerHTML=head+(L.length?L.map(r=>`<div class="srank ${r.me?'me':''}"><span class="rpos">${r.pos<=3?['🥇','🥈','🥉'][r.pos-1]:r.pos}</span><div class="stx">${socNick(r.user_id,r.nick)}<small>livello ${r.wlevel}${r.comune?' · '+esc(r.comune):''}</small></div><b>🧱 ${wNum(r.punti)}</b></div>`).join(''):'<p class="muted">Ancora nessuno nella tua lega questa settimana: puoi essere il primo!</p>');}
 /* 3) spinta e 5) prezzo progressivo spiegati nella scheda casa e nel preventivo */
-try{const _wSheetEq=wSheet;wSheet=async function(){const r=await _wSheetEq.apply(this,arguments);try{const c=document.querySelector('#sheet.open .sheet-b');const buy=c&&[...c.querySelectorAll('button')].find(b=>/^\s*(🛒|🔑|🏠)?\s*Compra/.test(b.textContent));if(c&&!c.querySelector('.hshead')&&buy&&EQ.s&&EQ.s.houses>0&&!c.querySelector('.eqpr'))
-  buy.insertAdjacentHTML('beforebegin',`<p class="eqpr">Hai già ${EQ.s.houses} ${EQ.s.houses===1?'casa':'case'} comprate: il prezzo è +${EQ.s.houses*10}% (chi ha più case paga di più, così il mondo resta aperto ai nuovi).</p>`);}catch(e){}return r;};}catch(e){}
 /* 6) padrino: nell'invito si spiega il premio */
 try{const _inviteSheetEq=inviteSheet;inviteSheet=function(){const r=_inviteSheetEq.apply(this,arguments);[0,300,900].forEach(t=>setTimeout(eqPad,t));return r;};}catch(e){}
 setInterval(()=>{if(S.user&&document.visibilityState==='visible')eqLoad();},5*60*1000);

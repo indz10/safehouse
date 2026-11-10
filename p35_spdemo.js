@@ -26,6 +26,5 @@ function spDemoPlace(){try{if(spRealCount()>0){/* ci sono sponsor veri: via gli 
   SP_DEMO_ON=true;(window.__zlms||[]).forEach(lm=>{try{spDraw(lm);}catch(e){}});}catch(e){console.warn('sponsor esempio',e);}}
 setInterval(spDemoPlace,8000);setTimeout(spDemoPlace,800);
 /* alla prima apertura della mappa li piazzo subito */
-const _liveMapSd=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapSd(el,addr,o);try{spDemoPlace();setTimeout(()=>{spDemoPlace();spDraw(lm);},1500);}catch(e){}return lm;};
 /* il segnaposto "vecchio" piccolo non serve: c'è quello grande con l'offerta */
 </script>

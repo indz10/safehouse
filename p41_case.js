@@ -65,7 +65,4 @@ async function casaTop(){const pg=app.querySelector('.page');if(!pg||pg.querySel
 const _goCase=go;go=function(tab){const r=_goCase(tab);if(tab==='casa')setTimeout(casaTop,30);return r;};
 /* ---------- nella scheda di ogni casa: il suo disegno ---------- */
 /* ---------- nella barra "Le tue case" del mondo: miniature ---------- */
-const _mhBarCase=mhBar;mhBar=function(){_mhBarCase();try{const L=myHouses();document.querySelectorAll('.mhouses [data-mh]').forEach(b=>{const h=L[+b.dataset.mh];if(!h||b.querySelector('.mhart'))return;const sp=b.querySelector('span');if(!sp)return;
-  const put=t=>{if(!sp.isConnected)return;sp.outerHTML=`<span class="mhart">${h.home&&S.answers?houseArt(homeBT()||t,1,'home',{k:'m'}):houseArt(t,h.level,h.bid,{k:'m'+h.bid})}</span>`;};
-  const ht=h.home?homeBT():null;if(ht)put(ht);else bType(h.lat,h.lon,h.bid||'home').then(put);});}catch(e){}};
 </script>

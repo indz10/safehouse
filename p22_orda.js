@@ -75,10 +75,6 @@ async function orPlay(lm){if(!lm||!lm.map||lm._playing)return;lm._playing=true;c
       if(p>=1&&!z.hit){z.hit=1;z.mk.getElement().textContent=z.r.held?'🛡️':'💥';z.mk.getElement().classList.add('hit');}});if(alive)requestAnimationFrame(step);else end();};
   if(rows.length)requestAnimationFrame(step);else end();}
 function orWatch(){S.zv='mondo';go('mappa');let n=0;const t=setInterval(()=>{const lm=(window.__zlms||[]).slice(-1)[0];n++;if(lm&&lm.map&&document.body.contains(lm.map.getContainer())){clearInterval(t);setTimeout(()=>orPlay(lm),900);}if(n>40)clearInterval(t);},300);}
-const _liveMapOR=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapOR(el,addr,o);try{const box=lm.map.getContainer().closest('.lmap');
-  if(box&&!box.querySelector('.lm-orda')){box.insertAdjacentHTML('beforeend','<button class="lm-orda" type="button">🧟 Orda</button>');box.querySelector('.lm-orda').onclick=e=>{e.stopPropagation();orPlay(lm);};}
-  lm.map.on('moveend',()=>{clearTimeout(lm._obt);lm._obt=setTimeout(()=>{if(!lm._playing)orBadges(lm);},500);});
-  setTimeout(()=>{if(orLive()&&!lm._autoplay){lm._autoplay=1;orPlay(lm);}else orBadges(lm);},1500);}catch(e){}return lm;};
 /* ---- giro guidato (facoltativo) ---- */
 const OT=[
  {tab:()=>{S.zv='mondo';go('mappa');},sel:'.lmap',t:'Questa è la <b>mappa vera</b>. La casetta rossa <b>TU</b> è casa tua: nel mondo unico è tua e nessuno può comprarla.'},

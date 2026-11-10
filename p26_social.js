@@ -106,14 +106,9 @@ function spDraw(lm){if(!lm||!lm.map)return;(lm._sp2||[]).forEach(x=>x.remove());
     el.style.zIndex='6';el.addEventListener('click',e=>{e.stopPropagation();try{dbEvent&&dbEvent(k,'map_tap');}catch(x){}sponsorSheet(k,z);});
     lm._sp2.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([g.lon,g.lat]).addTo(lm.map));});}
 /* 3) elenco degli sponsor per distanza, con "portami lì" */
-const _liveMapSp=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapSp(el,addr,o);try{spDraw(lm);setTimeout(()=>spDraw(lm),2500);
-}catch(e){}return lm;};
 /* i dati degli sponsor arrivati dopo: ridisegno senza ricaricare la pagina */
 (function(){let last='';setInterval(()=>{try{const sig=Object.entries(window.SP_GEO||{}).map(([k,g])=>k+(g&&g.lat)).join('|');if(sig!==last){last=sig;(window.__zlms||[]).forEach(lm=>spDraw(lm));}}catch(e){}},3000);})();
 /* nella Mappa: pulsante "⭐ Sponsor" con l'elenco, accanto a "⋯" */
-const _renderMappaSp=renderMappa;renderMappa=function(){_renderMappaSp();try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('.mfsp'))return;
-  const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null).length;w.insertAdjacentHTML('beforeend',`<button class="mfsp" data-mfsp>⭐ ${n} sponsor</button>`);
-  w.querySelector('[data-mfsp]').onclick=()=>spList(window.__mf);}catch(e){}};
 /* i giocatori sulla mappa (filtro 🤝): toccandoli si apre la loro scheda */
 document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('.lm-usr');if(!m)return;const id=m.dataset.uid;if(id&&S.user){e.stopPropagation();playerSheet(id);}},true);
 S.mf=S.mf||{};if(S.mf.all===false&&!S.mfAllSet){S.mf.all=true;S.mfAllSet=1;}

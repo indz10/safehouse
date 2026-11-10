@@ -35,7 +35,6 @@ async function attSheet(a){const c=ATT_CAT[a.typ];let adm=false;try{adm=typeof z
    card.querySelectorAll('[data-at]').forEach(b=>b.onclick=async()=>{const k=b.dataset.at;
      if(k==='spon'){window.open('admin.html','_blank');return;}if(k==='mine'){closeSheet();go('sponsor');return;}
      if(k==='hide'){if(!confirm('Togliere “'+a.name+'” dalla mappa per tutti? Puoi rimetterla dal pannello admin.'))return;await zHide(a.name,[a.lat,a.lon]);closeSheet();attDraw();toast('🚫 Tolta dalla mappa');}});});}
-const _liveMapAt=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapAt(el,addr,o);try{attLoad().then(()=>attDraw());setTimeout(attDraw,1500);}catch(e){}return lm;};
 /* elenco "⭐": sponsor veri + attività della zona */
 spList=function(lm){let c=null;try{c=lm&&lm.map&&lm.map.getCenter?lm.map.getCenter():null;}catch(e){}const o=c?{lat:c.lat,lon:c.lng}:(S.zone&&S.zone.real)||{lat:0,lon:0};
   const SPn=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&!g.demo&&SPONSORS[k]).map(([k,g])=>({k,g,d:trM(o.lat,o.lon,g.lat,g.lon)})).sort((a,b)=>a.d-b.d);

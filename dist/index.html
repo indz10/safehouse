@@ -3942,7 +3942,7 @@ function lmLabels(map,box){(box._lbl||[]).forEach(x=>x.remove());const out=[];co
   pl.forEach(f=>{const n=f.properties['name:it']||f.properties.name;const r=pr[f.properties.class];if(!n||!r||(r===3&&z<14)||(r===4&&z<15.5))return;const p=map.project(f.geometry.coordinates);
     if(p.x<0||p.y<0||p.x>W||p.y>H||near(n,p,400))return;seen.push({n,p});out.push(new maplibregl.Marker({element:elDiv('lm-place p'+r,`<span>${esc(n.toUpperCase())}</span>`)}).setLngLat(f.geometry.coordinates).addTo(map));});}
 /* costruisce la mappa dentro un elemento */
-async function liveMap(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[addr])||await lmGeocode(addr);
+async function liveMapBase(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[addr])||await lmGeocode(addr);
   if(!m.els||!m.els.length)rmFetch(addr).then(r=>{S.realNames=rmTopNames(r);}).catch(()=>{});
   el.innerHTML=`<div class="lmap ${o.night?'night':''}"><div class="lm-gl"></div><div class="lm-frame"></div><button class="lm-mode" type="button">${o.night?'☀️ Giorno':'🌙 Notte'}</button><button class="lm-3d" type="button">🏙️ 3D</button><button class="lm-10" type="button">🔭 10 km</button></div>`;
   const box=el.querySelector('.lmap'),gl=box.querySelector('.lm-gl');let night=!!o.night;
@@ -4269,7 +4269,7 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 /* bollettino del territorio nella pagina del gioco */
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611100109';
+const ZSH_BUILD='202611100239';
 (function autoUpdate(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
   const had=!!navigator.serviceWorker.controller;let reloading=false;
   const safe=()=>!(typeof G!=='undefined'&&G.view==='battle'&&S.tab==='orda')&&!document.querySelector('#sheet.open');
@@ -4312,13 +4312,13 @@ function bzCard(b,pub){const tel=(b.tel||'').replace(/[^\d+]/g,'');const web=b.w
      <ul><li>⭐ Bollino giallo col nome, visibile a tutto il quartiere</li><li>🎟️ Offerta con codice personale da mostrare in cassa</li><li>📩 Richieste di preventivo da chi abita qui</li><li>🛡️ Nel gioco: presidio che dà +5% barricata ai vicini</li></ul>
      <button class="btn wide" data-claim>Diventa sponsor</button></div>`:`<button class="bzc-own" data-claim>È la tua attività? Mettiti in evidenza →</button>`}
    <div data-admin></div></div>`;}
-bizSheet=function(b,z){openSheet(b.cand?'📌 Posto sponsor libero':'🛍️ Attività della zona',bzCard(b,false),card=>{
+function bizSheetBase(b,z){openSheet(b.cand?'📌 Posto sponsor libero':'🛍️ Attività della zona',bzCard(b,false),card=>{
   const c=card.querySelector('[data-claim]');if(c)c.onclick=()=>{closeSheet();S.motivo=b.cand?'sponsor':'negozio';S.motivoBiz=b.name;go('contatti');};
-  zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+b.name+'” dalla mappa per tutti?'))zHide(b.name,b.ll);};}});});};
-lmPoi=function(name,cat,d,ll,pub){const ic={Farmacia:'💊',Ospedale:'🏥',Clinica:'🏥','Forze dell’ordine':'🚓','Vigili del fuoco':'🚒',Municipio:'🏛️',Fontanella:'💧'}[cat]||'📍';
+  zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+b.name+'” dalla mappa per tutti?'))zHide(b.name,b.ll);};}});});}
+function lmPoiBase(name,cat,d,ll,pub){const ic={Farmacia:'💊',Ospedale:'🏥',Clinica:'🏥','Forze dell’ordine':'🚓','Vigili del fuoco':'🚒',Municipio:'🏛️',Fontanella:'💧'}[cat]||'📍';
   const fx={Farmacia:'Nel gioco: farmacia entro 800 m = resistenza casa +5%.',Ospedale:'Nel gioco: ospedale entro 1,5 km = resistenza casa +10%.',Clinica:'Nel gioco: presidio sanitario vicino = più resistenza.','Forze dell’ordine':'Nel gioco: forze dell’ordine entro 2 km = barricata +10%.','Vigili del fuoco':'Nel gioco: vigili del fuoco entro 3 km = barricata +5%.'}[cat];
   const b={i:name,ic,name,cat,d,ll,zfx:fx};openSheet(pub?'🛡️ Servizio della zona':'🛍️ Attività della zona',bzCard(b,pub),card=>{
-    zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+name+'” dalla mappa per tutti?'))zHide(name,ll);};}});});};
+    zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+name+'” dalla mappa per tutti?'))zHide(name,ll);};}});});}
 </script>
 <script>
 /* =========================================================
@@ -4428,8 +4428,6 @@ async function fillOnline(card,b){const box=card.querySelector('[data-online]');
     if(tel&&!act.querySelector('a[href^="tel:"]'))act.insertAdjacentHTML('beforeend',`<a href="tel:${tel.split(';')[0].replace(/[^\d+]/g,'')}"><span>📞</span>Chiama</a>`);
     if(web&&!act.querySelector('a[data-web]'))act.insertAdjacentHTML('beforeend',`<a data-web href="${esc(/^https?:/.test(web)?web:'https://'+web)}" target="_blank" rel="noopener"><span>🌐</span>Sito</a>`);}}
 const _bzCardO=bzCard;bzCard=function(b,pub){return _bzCardO(b,pub).replace('<div data-admin></div>','<div class="online" data-online><span class="spin"></span> Cerco orari e contatti online…</div><div data-admin></div>');};
-const _bizSheetO=bizSheet;bizSheet=function(b,z){_bizSheetO(b,z);const c=document.querySelector('#sheet.open .sheet-card');if(c)fillOnline(c,b);};
-const _lmPoiO=lmPoi;lmPoi=function(name,cat,d,ll,pub){_lmPoiO(name,cat,d,ll,pub);const c=document.querySelector('#sheet.open .sheet-card');if(c)fillOnline(c,{name,ll});};
 </script>
 <script>
 /* =========================================================
@@ -4555,7 +4553,6 @@ function zDrawUsers(lm){if(!lm||!lm.map)return;(lm._usr||[]).forEach(x=>x.remove
       <div class="terrb" style="margin-top:12px"><span class="ok">🏠 Indice ${u.indice!=null?String(u.indice).replace('.',','):'–'}</span><span class="ok">🎮 Livello ${u.livello||'–'}</span></div>
       <p class="muted" style="font-size:13px">Per privacy non vedi l'indirizzo né i punti deboli della sua casa.</p></div>`);});
     lm._usr.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([u.lon_r,u.lat_r]).addTo(lm.map));});}
-const _liveMapZ=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapZ(el,addr,o);try{(window.__zlms=window.__zlms||[]).push(lm);zDrawUsers(lm);}catch(e){}return lm;};
 /* quando ci si collega o si valuta la casa */
 const _onLoginZ=onLogin;onLogin=async function(u,fresh){const r=await _onLoginZ(u,fresh);window.ZADMIN=null;zSyncProfile();zLoadUsers();return r;};
 const _azZ=analyzeZone;analyzeZone=async function(a){const z=await _azZ(a);setTimeout(()=>zSyncProfile(true),500);return z;};
@@ -4580,8 +4577,6 @@ async function zReport(name,ll){if(!S.user||typeof SB==='undefined'||!SB){toast(
   window.ZMYHID.push(name);try{localStorage.setItem('zsh_myhid',JSON.stringify(window.ZMYHID));}catch(e){}window.ZHID=[...new Set([...(window.ZHID||[]),name])];zApplyHidden();closeSheet();toast('Grazie! Segnalazione inviata: la controlliamo noi');}
 window.ZHID=[...new Set([...(window.ZHID||[]),...window.ZMYHID])];
 const _bzCardR=bzCard;bzCard=function(b,pub){return _bzCardR(b,pub).replace('<div data-admin></div>',`<button class="bzc-rep" data-rep>⚠️ Ha chiuso o non esiste più? Segnalalo</button><div data-admin></div>`);};
-const _bizSheetR=bizSheet;bizSheet=function(b,z){_bizSheetR(b,z);const c=document.querySelector('#sheet.open .sheet-card');const r=c&&c.querySelector('[data-rep]');if(r)r.onclick=()=>zReport(b.name,b.ll);};
-const _lmPoiR=lmPoi;lmPoi=function(name,cat,d,ll,pub){_lmPoiR(name,cat,d,ll,pub);const c=document.querySelector('#sheet.open .sheet-card');const r=c&&c.querySelector('[data-rep]');if(r)r.onclick=()=>zReport(name,ll);};
 </script>
 <script>
 const _renderMenuZ=renderMenu;renderMenu=function(){_renderMenuZ();try{if(!S.user)return;const u=document.querySelector('.dr-user');if(!u||document.querySelector('[data-pubt]'))return;
@@ -4689,8 +4684,6 @@ function tmEvent(k,id,ok){const T=G&&G.tm;if(!T||T.day!==tmDay())return;let hit=
 window.onExpDone=(id,ok)=>tmEvent('exp',id,ok);
 window.onWaveEnd=(win,L,ev,coop)=>{if(!win||coop)return;tmEvent('win','x');if(ev)tmEvent('evwin',ev);};
 const _couponForTM=couponFor;couponFor=function(k){const c=_couponForTM(k);try{tmEvent('cp',k);}catch(e){}return c;};
-const _lmPoiTM=lmPoi;lmPoi=function(name,cat,d,ll,pub){_lmPoiTM(name,cat,d,ll,pub);try{tmEvent('poi',name);}catch(e){}};
-const _bizSheetTM=bizSheet;bizSheet=function(b,z){_bizSheetTM(b,z);try{tmEvent('biz',b.name);}catch(e){}};
 function tmHTML(){const T=tmInit();if(!T)return'';const done=T.list.filter(m=>m.cl).length;
   return`<div class="panel tmp"><div class="row spread"><b class="disp" style="font-size:22px">🎯 Missioni di oggi</b><span class="tag">${done}/${T.list.length}</span></div>
    <p style="font-weight:400;font-size:12.5px;margin:2px 0 8px">Sui posti veri della tua zona. Cambiano ogni giorno a mezzanotte.</p>
@@ -5097,7 +5090,6 @@ function zDrawCustom(lm){if(!lm||!lm.map)return;(lm._cus||[]).forEach(x=>x.remov
     el.addEventListener('click',e=>{e.stopPropagation();const d=Math.round(trM(m.lat,m.lon,c.lat,c.lon));
       if(['salute','servizi','scuola','verde','sport'].includes(C[0]))lmPoi(c.name,C[1],d,[c.lat,c.lon],true);else bizSheet({i:'c'+c.id,ic:C[2],name:c.name,cat:C[1],d,ll:[c.lat,c.lon],tel:c.phone||'',web:c.website||'',cand:c.cat==='casa'},S.zone);});
     lm._cus.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([c.lon,c.lat]).addTo(lm.map));});}
-const _liveMapC=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapC(el,addr,o);try{zDrawCustom(lm);}catch(e){}return lm;};
 /* anche in Vivere qui / Vacanza */
 const _zStructC=zStruct;zStruct=async function(z){const fresh=!z._st;const D=await _zStructC(z);if(fresh||!D._c){D._c=1;(window.ZCUSTOM||[]).forEach(c=>{const C=CUST_CAT[c.cat]||CUST_CAT.negozi;const d=Math.round(trM(D.lat,D.lon,c.lat,c.lon));
     const lim=['hotel','bb','agri','camp','attr','risto'].includes(C[0])?8000:1500;if(d>lim||D.items.some(x=>x.name===c.name&&trM(x.lat,x.lon,c.lat,c.lon)<60))return;
@@ -5182,7 +5174,7 @@ function wBind(){const p=app.querySelector('.wpan');if(!p)return;const c=p.query
   p.querySelectorAll('[data-wh]').forEach(b=>b.onclick=()=>{const h=W.m.houses[+b.dataset.wh];wSheet(h.building_id,h.lat,h.lon);});}
 /* ---- scheda di un edificio del mondo ---- */
 const W_ST={free:['🟢','Casa libera','#bfe8c9'],owned:['🟡','Casa di un altro giocatore','#fff0a0'],mine:['🔑','Casa tua (comprata)','#ffe680'],home:['🏠','Abitata da un superstite','#e2d6f5'],myhome:['❤️','Casa tua','#f6b8bf'],mypending:['⏳','Casa tua in conferma','#f6b8bf'],excluded:['🚫','Esclusa dal gioco','#e6e1d6']};
-async function wSheet(bid,lat,lon){openSheet('🌍 Edificio del mondo','<p><span class="spin"></span> Controllo l’edificio…</p>',()=>{});let q;
+async function wSheetBase(bid,lat,lon){openSheet('🌍 Edificio del mondo','<p><span class="spin"></span> Controllo l’edificio…</p>',()=>{});let q;
   try{q=await wRpc('world_quote',{p_bid:bid,p_lat:lat,p_lon:lon});}catch(e){openSheet('🌍 Edificio del mondo',`<p class="notice">${esc(e.message)}</p>`);return;}
   const st=W_ST[q.status]||W_ST.free;const lv=`<span class="tag">livello ${q.level}</span>`;let act='';
   if(q.status==='free')act=`<div class="wbuy"><div><b>Prezzo</b><span>🧱 ${wNum(q.price)}</span></div><div><b>I tuoi Mattoni</b><span>🧱 ${wNum(q.mattoni)}</span></div><div><b>Distanza</b><span>${q.dist_km} km / ${q.radius_km>=20000?'∞':q.radius_km+' km'}</span></div><div><b>Case</b><span>${q.owned}/${q.max}</span></div></div>
@@ -5207,7 +5199,7 @@ async function wSheet(bid,lat,lon){openSheet('🌍 Edificio del mondo','<p><span
       try{await SB.from('poi_reports').insert({name:'Edificio '+bid,lat,lon,motivo:'ESCLUDI EDIFICIO '+bid});toast('Richiesta inviata: la valutiamo noi');closeSheet();}catch(e){toast('Non inviata');}};});}
 function wAfterChange(){try{if(S.tab==='orda'&&G.view==='hub')renderHub();}catch(e){}(window.__zlms||[]).forEach(lm=>{try{wDrawMap(lm,true);}catch(e){}});}
 /* ---- mappa: stato degli edifici del mondo + tocco su un edificio ---- */
-async function wDrawMap(lm,force){if(!lm||!lm.map||!W.on)return;const map=lm.map;if(map.getZoom()<14){(lm._w||[]).forEach(x=>x.remove());lm._w=[];return;}
+async function wDrawMapBase(lm,force){if(!lm||!lm.map||!W.on)return;const map=lm.map;if(map.getZoom()<14){(lm._w||[]).forEach(x=>x.remove());lm._w=[];return;}
   const b=map.getBounds();const key=[b.getSouth(),b.getWest(),b.getNorth(),b.getEast()].map(v=>v.toFixed(3)).join(',');if(!force&&lm._wk===key)return;lm._wk=key;
   let rows=[];try{rows=await wRpc('world_view',{p_minlat:b.getSouth(),p_minlon:b.getWest(),p_maxlat:b.getNorth(),p_maxlon:b.getEast()})||[];}catch(e){return;}
   (lm._w||[]).forEach(x=>x.remove());lm._w=[];lm._wrows=rows;
@@ -5234,15 +5226,6 @@ async function wIdentify(lat,lon){
   /* 2) chiedo al server delle mappe, con riserva e un secondo tentativo */
   for(let t=0;t<2;t++){try{const els=await trOverpass(`[out:json][timeout:12];way["building"](around:12,${lat},${lon});out ids tags geom;`,12000,4);const b=wPick(els.map(e=>({...e,type:'way'})),lat,lon);if(b)return b;return null;}catch(e){if(t===0)await new Promise(r=>setTimeout(r,2500));}}
   throw new Error('occupato');}
-const _liveMapW=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapW(el,addr,o);try{const map=lm.map;
-  const homeG=()=>{try{if(window.__homeG||!S.zone||S.zone.address!==addr||map.getZoom()<14)return;const pt=map.project([lm.m.lon,lm.m.lat]);const fs=map.queryRenderedFeatures([[pt.x-3,pt.y-3],[pt.x+3,pt.y+3]],{layers:['bld']});
-    const g=wFromTile(fs,lm.m.lat,lm.m.lon);if(g){window.__homeG=g;if(S.user&&!(S.zone.real&&S.zone.real.house&&S.zone.real.house.bid))wClaim(false);}}catch(e){}};map.on('idle',homeG);
-  map.on('moveend',()=>{clearTimeout(lm._wt);lm._wt=setTimeout(()=>wDrawMap(lm),350);});setTimeout(()=>wDrawMap(lm),900);
-  map.on('click','bld',async e=>{if(!W.on)return;const pts=map.queryRenderedFeatures(e.point,{layers:['poi-biz','poi-pub','poi-cand','poi-hid'].filter(id=>map.getLayer(id))});if(pts.length)return;
-    const g=wFromTile(e.features,e.lngLat.lat,e.lngLat.lng);if(g){wSheet(g.bid,g.lat,g.lon);return;}
-    openSheet('🌍 Edificio del mondo','<p><span class="spin"></span> Riconosco l’edificio…</p>',()=>{});
-    try{const b=await wIdentify(e.lngLat.lat,e.lngLat.lng);if(!b){openSheet('🌍 Edificio del mondo','<p class="notice">Non riesco a riconoscere l’edificio: avvicina la mappa e riprova.</p>');return;}wSheet(b.bid,b.lat,b.lon);}
-    catch(x){openSheet('🌍 Edificio del mondo','<p class="notice">I server pubblici delle mappe sono molto occupati in questo momento: riprova tra un minuto. Le case vicino a casa tua si riconoscono sempre subito.</p>');}});}catch(e){}return lm;};
 /* ---- il quartiere del gioco usa il mondo unico ---- */
 async function wHood(){if(!W.on||!HQ.map||!HQ.map.lotsB)return;const m=RM.cache[S.zone&&S.zone.address];if(!m)return;
   if(Date.now()-HQW.t<60000&&HQW.key===S.zone.address)return;HQW.t=Date.now();HQW.key=S.zone.address;
@@ -5353,10 +5336,6 @@ async function orPlay(lm){if(!lm||!lm.map||lm._playing)return;lm._playing=true;c
       if(p>=1&&!z.hit){z.hit=1;z.mk.getElement().textContent=z.r.held?'🛡️':'💥';z.mk.getElement().classList.add('hit');}});if(alive)requestAnimationFrame(step);else end();};
   if(rows.length)requestAnimationFrame(step);else end();}
 function orWatch(){S.zv='mondo';go('mappa');let n=0;const t=setInterval(()=>{const lm=(window.__zlms||[]).slice(-1)[0];n++;if(lm&&lm.map&&document.body.contains(lm.map.getContainer())){clearInterval(t);setTimeout(()=>orPlay(lm),900);}if(n>40)clearInterval(t);},300);}
-const _liveMapOR=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapOR(el,addr,o);try{const box=lm.map.getContainer().closest('.lmap');
-  if(box&&!box.querySelector('.lm-orda')){box.insertAdjacentHTML('beforeend','<button class="lm-orda" type="button">🧟 Orda</button>');box.querySelector('.lm-orda').onclick=e=>{e.stopPropagation();orPlay(lm);};}
-  lm.map.on('moveend',()=>{clearTimeout(lm._obt);lm._obt=setTimeout(()=>{if(!lm._playing)orBadges(lm);},500);});
-  setTimeout(()=>{if(orLive()&&!lm._autoplay){lm._autoplay=1;orPlay(lm);}else orBadges(lm);},1500);}catch(e){}return lm;};
 /* ---- giro guidato (facoltativo) ---- */
 const OT=[
  {tab:()=>{S.zv='mondo';go('mappa');},sel:'.lmap',t:'Questa è la <b>mappa vera</b>. La casetta rossa <b>TU</b> è casa tua: nel mondo unico è tua e nessuno può comprarla.'},
@@ -5421,8 +5400,6 @@ W_ST.npc=['🤖','Casa di un superstite simulato','#d9dde3'];
 function wGidRing(R0){const R=R0.slice(0,-1);if(R.length<3)return null;let A=0,cx=0,cy=0;for(let i=0;i<R.length;i++){const[x1,y1]=R[i],[x2,y2]=R[(i+1)%R.length];const c=x1*y2-x2*y1;A+=c;cx+=(x1+x2)*c;cy+=(y1+y2)*c;}
   if(Math.abs(A)<1e-12){cx=R.reduce((a,p)=>a+p[0],0)/R.length;cy=R.reduce((a,p)=>a+p[1],0)/R.length;}else{cx/=3*A;cy/=3*A;}const la=+cy.toFixed(5),lo=+cx.toFixed(5);return{bid:'g'+la.toFixed(5)+'_'+lo.toFixed(5),lat:la,lon:lo};}
 /* scheda: case dei simulati */
-const _wSheetN=wSheet;wSheet=async function(bid,lat,lon){await _wSheetN(bid,lat,lon);try{const c=document.querySelector('#sheet.open .bzc-cat');if(c&&/simulato/.test(c.textContent)){const h=document.querySelector('#sheet.open .bzc-t h4');if(h)h.textContent='🤖 @'+npcNick(bid);
-    const box=document.querySelector('#sheet.open .bzc');if(box&&!box.querySelector('.npcn'))box.insertAdjacentHTML('afterend','<p class="npcn muted" style="font-size:12.5px;margin:8px 0 0">È un <b>personaggio del gioco</b>, non una persona: tiene vivo il mondo finché arrivano giocatori veri. Puoi comprargli la casa (+30%). Se l’abitante vero si iscrive, la casa passa a lui con le regole di sempre.</p>');}}catch(e){}};
 /* mappa: case dei simulati visibili da vicino */
 function wDrawNpc(lm){try{const map=lm.map;(lm._npc||[]).forEach(x=>x.remove());lm._npc=[];if(map.getZoom()<15.6||!W.on)return;
   const taken=new Set((lm._wrows||[]).map(r=>r.building_id));const fs=map.queryRenderedFeatures({layers:['bld']});const seen=new Set();let n=0;
@@ -5430,7 +5407,6 @@ function wDrawNpc(lm){try{const map=lm.map;(lm._npc||[]).forEach(x=>x.remove());
     for(const pl of polys){if(n>=40)break;const q=pl[0]&&wGidRing(pl[0]);if(!q||seen.has(q.bid)||taken.has(q.bid))continue;seen.add(q.bid);if(!isNpc(q.bid))continue;
       if(lm.m&&trM(q.lat,q.lon,lm.m.lat,lm.m.lon)<8)continue;n++;const el=elDiv('lm-w npc','<b>🤖</b>');el.addEventListener('click',e=>{e.stopPropagation();wSheet(q.bid,q.lat,q.lon);});
       lm._npc.push(new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([q.lon,q.lat]).addTo(map));}}}catch(e){}}
-const _wDrawMapN=wDrawMap;wDrawMap=async function(lm,force){await _wDrawMapN(lm,force);try{const b=lm.map.getBounds();lm._wrows=(lm._w||[]).length?lm._wrows:lm._wrows;}catch(e){}setTimeout(()=>wDrawNpc(lm),250);};
 /* l'assalto colpisce anche i simulati della zona (esito uguale per tutti) */
 /* ---- ALLEATI E RIVALI (tutto il mondo) ---- */
 window.AL={help:[],riv:[],t:0};
@@ -5566,7 +5542,7 @@ const _renderHomeS=renderHome;renderHome=function(){_renderHomeS();try{
 /* ---------------- 🗺️ MAPPA: una sola, a tutto schermo ---------------- */
 S.mf=S.mf||{case:true,spons:true,serv:false,vac:false,all:false};
 const MF=[['case','🏠','Case'],['spons','⭐','Sponsor'],['serv','🏥','Servizi'],['vac','🧳','Vacanza'],['all','🤝','Alleati']];
-renderMappa=function(){S.zv='mondo';const addr=S.zone&&S.zone.address;
+function renderMappaBase(){S.zv='mondo';const addr=S.zone&&S.zone.address;
   if(!addr){app.innerHTML=`<div class="page dots"><div class="panel night" style="margin-top:12px"><b class="disp" style="font-size:24px;color:var(--moon)">🗺️ Il mondo vero</b>
      <p style="color:#fff;font-weight:400">Valuta la tua casa: la mappa si apre sulla tua zona, con le case da comprare, gli sponsor vicini e l’orda.</p><button class="btn" data-go="valuta">📷 Valuta la mia casa</button></div>
      <div class="panel"><b>🔍 Oppure guarda una zona</b><div class="row" style="gap:6px;margin-top:6px"><input id="mfQ" class="field" placeholder="Via, paese o città" style="flex:1"><button class="btn small" id="mfGo">Vai</button></div></div></div>`;
@@ -5578,7 +5554,7 @@ renderMappa=function(){S.zv='mondo';const addr=S.zone&&S.zone.address;
   liveMap(el,addr,{zoom:16}).then(lm=>{window.__mf=lm;mfApply();setTimeout(mfApply,1500);setTimeout(mfApply,4000);}).catch(e=>console.warn('mappa',e));
   app.querySelectorAll('[data-mf]').forEach(b=>b.onclick=()=>{const k=b.dataset.mf;S.mf[k]=!S.mf[k];b.classList.toggle('on',S.mf[k]);mfApply();});
   app.querySelector('[data-mfmore]').onclick=mfMore;
-  app.querySelector('[data-mfraid]').onclick=()=>{try{orPlay(window.__mf);}catch(e){}};};
+  app.querySelector('[data-mfraid]').onclick=()=>{try{orPlay(window.__mf);}catch(e){}};}
 function mfApply(){const lm=window.__mf;const box=app.querySelector('.mapfull');if(!box)return;const f=S.mf;
   box.classList.toggle('f-case-off',!f.case);box.classList.toggle('f-spons-off',!f.spons);box.classList.toggle('f-serv-off',!f.serv);box.classList.toggle('f-vac-off',!f.vac);box.classList.toggle('f-all-off',!f.all);
   if(!lm||!lm.map)return;try{if(lm.setLayer){lm.setLayer('spons',f.spons);lm.setLayer('biz',f.serv);lm.setLayer('pub',f.serv);}}catch(e){}
@@ -5751,14 +5727,9 @@ function spDraw(lm){if(!lm||!lm.map)return;(lm._sp2||[]).forEach(x=>x.remove());
     el.style.zIndex='6';el.addEventListener('click',e=>{e.stopPropagation();try{dbEvent&&dbEvent(k,'map_tap');}catch(x){}sponsorSheet(k,z);});
     lm._sp2.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([g.lon,g.lat]).addTo(lm.map));});}
 /* 3) elenco degli sponsor per distanza, con "portami lì" */
-const _liveMapSp=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapSp(el,addr,o);try{spDraw(lm);setTimeout(()=>spDraw(lm),2500);
-}catch(e){}return lm;};
 /* i dati degli sponsor arrivati dopo: ridisegno senza ricaricare la pagina */
 (function(){let last='';setInterval(()=>{try{const sig=Object.entries(window.SP_GEO||{}).map(([k,g])=>k+(g&&g.lat)).join('|');if(sig!==last){last=sig;(window.__zlms||[]).forEach(lm=>spDraw(lm));}}catch(e){}},3000);})();
 /* nella Mappa: pulsante "⭐ Sponsor" con l'elenco, accanto a "⋯" */
-const _renderMappaSp=renderMappa;renderMappa=function(){_renderMappaSp();try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('.mfsp'))return;
-  const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null).length;w.insertAdjacentHTML('beforeend',`<button class="mfsp" data-mfsp>⭐ ${n} sponsor</button>`);
-  w.querySelector('[data-mfsp]').onclick=()=>spList(window.__mf);}catch(e){}};
 /* i giocatori sulla mappa (filtro 🤝): toccandoli si apre la loro scheda */
 document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('.lm-usr');if(!m)return;const id=m.dataset.uid;if(id&&S.user){e.stopPropagation();playerSheet(id);}},true);
 S.mf=S.mf||{};if(S.mf.all===false&&!S.mfAllSet){S.mf.all=true;S.mfAllSet=1;}
@@ -5931,7 +5902,6 @@ function regText(lm,t){const b=document.querySelector('.regbar');if(!b)return;b.
 const _goReg=go;go=function(t){if(t!=='mappa')REG.active=false;return _goReg(t);};
 /* ---- punti di accesso ben visibili ---- */
 /* mappa: i pulsanti della barra dell'orda aprono la regia */
-const _renderMappaReg=renderMappa;renderMappa=function(){_renderMappaReg();try{const r=app.querySelector('[data-mfraid]');if(r){r.textContent='🎬 Assalti';r.onclick=e=>{e.stopPropagation();assalto('last');};}}catch(e){}};
 /* menu: due voci nuove */
 try{
   const _zmDoReg=zmDo;zmDo=function(k,b){if(k==='a:last'||k==='a:sim'){zmClose();assalto(k.slice(2));return;}if(k==='push'){zmClose();pushSheet();return;}return _zmDoReg(k,b);};}catch(e){}
@@ -6085,7 +6055,7 @@ function myHouses(){const m=window.W&&W.m;const L=[];const home=m&&m.home&&m.hom
   ((m&&m.houses)||[]).forEach((h,i)=>L.push({home:false,bid:h.building_id,lat:h.lat,lon:h.lon,level:h.level||1,value:h.value||0,label:'Casa '+(i+1),ic:'🔑'}));
   const o=L[0];L.forEach(h=>{h.km=o?trM(o.lat,o.lon,h.lat,h.lon)/1000:0;});return L;}
 function kmTxt(k){return k<1?Math.round(k*1000)+' m':k<100?k.toFixed(1).replace('.',',')+' km':wNum(Math.round(k))+' km';}
-function mhBar(){const w=app.querySelector('.mapfull');if(!w)return;let b=w.querySelector('.mhouses');const L=myHouses();
+function mhBarBase(){const w=app.querySelector('.mapfull');if(!w)return;let b=w.querySelector('.mhouses');const L=myHouses();
   const html=`<div class="mhhead"><b>🏠 Le tue case (${L.length})</b><button data-mhx>${S.mhOpen===false?'▲':'▼'}</button></div>
     <div class="mhlist" ${S.mhOpen===false?'hidden':''}>${L.length?L.map((h,i)=>`<button class="mhc" data-mh="${i}"><span>${h.ic}</span><b>${h.label}</b><small>${h.home?'livello '+h.level:'liv. '+h.level+' · '+kmTxt(h.km)}</small></button>`).join(''):`<p class="muted" style="font-size:12.5px;margin:4px">${S.user?'Valuta la tua casa: diventa la prima del tuo impero.':'Accedi per avere le tue case nel mondo.'}</p>`}
      <button class="mhc add" data-mhadd><span>➕</span><b>Compra</b><small>tocca una casa libera</small></button></div>`;
@@ -6095,10 +6065,8 @@ function mhBar(){const w=app.querySelector('.mapfull');if(!w)return;let b=w.quer
   const ad=b.querySelector('[data-mhadd]');if(ad)ad.onclick=()=>openSheet('➕ Comprare una casa','<p style="font-weight:400">Avvicina la mappa e <b>tocca una casa</b>: se è libera (o di un superstite simulato 🤖) vedi il prezzo in 🧱 Mattoni e il pulsante Compra. Puoi comprare ovunque, anche in Australia: il prezzo sale con la distanza da casa tua.</p><p class="muted" style="font-size:12.5px">Per andare lontano usa ⋯ → 🔍 Cerca un luogo.</p>');}
 function mhFly(h,open){const lm=window.__mf;if(!lm||!lm.map)return;try{lm.map.flyTo({center:[h.lon,h.lat],zoom:17,pitch:0,duration:h.km>500?3200:1500});}catch(e){}
   if(open)setTimeout(()=>houseSheet(h),h.km>500?3300:1600);}
-const _renderMappaM2=renderMappa;renderMappa=function(){_renderMappaM2();try{mhBar();setTimeout(mhBar,1500);}catch(e){}};
 /* ---------------- SCHEDA DELLA CASA ---------------- */
 /* tocco su una casa tua sulla mappa → la sua scheda */
-const _wSheetM2=wSheet;wSheet=async function(bid,lat,lon){const h=myHouses().find(x=>(x.bid&&x.bid===bid)||(Math.abs(x.lat-lat)<.0002&&Math.abs(x.lon-lon)<.0003));if(h&&S.user)return houseSheet(h);return _wSheetM2(bid,lat,lon);};
 /* ---------------- ACQUISTO IN APP (Mattoni e gemme) ---------------- */
 function shopSheet(miss){openSheet('🛒 Bottega',`${miss?`<p class="notice">Ti mancano <b>🧱 ${wNum(miss)} Mattoni</b>. Puoi guadagnarli giocando oppure comprarli.</p>`:''}
   <h4 class="hh">🧱 Mattoni</h4><div class="shopg">${[['🧱 500','1,99 €'],['🧱 1.500','4,99 €'],['🧱 4.000','9,99 €']].map(([a,b])=>`<div><b>${a}</b><small>${b}</small><button class="btn small ghost" disabled>Presto</button></div>`).join('')}</div>
@@ -6251,7 +6219,6 @@ function spDemoPlace(){try{if(spRealCount()>0){/* ci sono sponsor veri: via gli 
   SP_DEMO_ON=true;(window.__zlms||[]).forEach(lm=>{try{spDraw(lm);}catch(e){}});}catch(e){console.warn('sponsor esempio',e);}}
 setInterval(spDemoPlace,8000);setTimeout(spDemoPlace,800);
 /* alla prima apertura della mappa li piazzo subito */
-const _liveMapSd=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapSd(el,addr,o);try{spDemoPlace();setTimeout(()=>{spDemoPlace();spDraw(lm);},1500);}catch(e){}return lm;};
 /* il segnaposto "vecchio" piccolo non serve: c'è quello grande con l'offerta */
 </script>
 <script>
@@ -6291,7 +6258,6 @@ async function attSheet(a){const c=ATT_CAT[a.typ];let adm=false;try{adm=typeof z
    card.querySelectorAll('[data-at]').forEach(b=>b.onclick=async()=>{const k=b.dataset.at;
      if(k==='spon'){window.open('admin.html','_blank');return;}if(k==='mine'){closeSheet();go('sponsor');return;}
      if(k==='hide'){if(!confirm('Togliere “'+a.name+'” dalla mappa per tutti? Puoi rimetterla dal pannello admin.'))return;await zHide(a.name,[a.lat,a.lon]);closeSheet();attDraw();toast('🚫 Tolta dalla mappa');}});});}
-const _liveMapAt=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapAt(el,addr,o);try{attLoad().then(()=>attDraw());setTimeout(attDraw,1500);}catch(e){}return lm;};
 /* elenco "⭐": sponsor veri + attività della zona */
 spList=function(lm){let c=null;try{c=lm&&lm.map&&lm.map.getCenter?lm.map.getCenter():null;}catch(e){}const o=c?{lat:c.lat,lon:c.lng}:(S.zone&&S.zone.real)||{lat:0,lon:0};
   const SPn=Object.entries(window.SP_GEO||{}).filter(([k,g])=>g&&g.lat!=null&&!g.demo&&SPONSORS[k]).map(([k,g])=>({k,g,d:trM(o.lat,o.lon,g.lat,g.lon)})).sort((a,b)=>a.d-b.d);
@@ -6378,8 +6344,6 @@ function eqRankPaint(){const B=app.querySelector('#socBody');if(!B)return;const 
   if(L.err){box.innerHTML=head+`<p class="muted">Classifica della lega non disponibile (${esc(L.err)}).</p>`;return;}
   box.innerHTML=head+(L.length?L.map(r=>`<div class="srank ${r.me?'me':''}"><span class="rpos">${r.pos<=3?['🥇','🥈','🥉'][r.pos-1]:r.pos}</span><div class="stx">${socNick(r.user_id,r.nick)}<small>livello ${r.wlevel}${r.comune?' · '+esc(r.comune):''}</small></div><b>🧱 ${wNum(r.punti)}</b></div>`).join(''):'<p class="muted">Ancora nessuno nella tua lega questa settimana: puoi essere il primo!</p>');}
 /* 3) spinta e 5) prezzo progressivo spiegati nella scheda casa e nel preventivo */
-try{const _wSheetEq=wSheet;wSheet=async function(){const r=await _wSheetEq.apply(this,arguments);try{const c=document.querySelector('#sheet.open .sheet-b');const buy=c&&[...c.querySelectorAll('button')].find(b=>/^\s*(🛒|🔑|🏠)?\s*Compra/.test(b.textContent));if(c&&!c.querySelector('.hshead')&&buy&&EQ.s&&EQ.s.houses>0&&!c.querySelector('.eqpr'))
-  buy.insertAdjacentHTML('beforebegin',`<p class="eqpr">Hai già ${EQ.s.houses} ${EQ.s.houses===1?'casa':'case'} comprate: il prezzo è +${EQ.s.houses*10}% (chi ha più case paga di più, così il mondo resta aperto ai nuovi).</p>`);}catch(e){}return r;};}catch(e){}
 /* 6) padrino: nell'invito si spiega il premio */
 try{const _inviteSheetEq=inviteSheet;inviteSheet=function(){const r=_inviteSheetEq.apply(this,arguments);[0,300,900].forEach(t=>setTimeout(eqPad,t));return r;};}catch(e){}
 setInterval(()=>{if(S.user&&document.visibilityState==='visible')eqLoad();},5*60*1000);
@@ -6588,9 +6552,6 @@ async function casaTop(){const pg=app.querySelector('.page');if(!pg||pg.querySel
 const _goCase=go;go=function(tab){const r=_goCase(tab);if(tab==='casa')setTimeout(casaTop,30);return r;};
 /* ---------- nella scheda di ogni casa: il suo disegno ---------- */
 /* ---------- nella barra "Le tue case" del mondo: miniature ---------- */
-const _mhBarCase=mhBar;mhBar=function(){_mhBarCase();try{const L=myHouses();document.querySelectorAll('.mhouses [data-mh]').forEach(b=>{const h=L[+b.dataset.mh];if(!h||b.querySelector('.mhart'))return;const sp=b.querySelector('span');if(!sp)return;
-  const put=t=>{if(!sp.isConnected)return;sp.outerHTML=`<span class="mhart">${h.home&&S.answers?houseArt(homeBT()||t,1,'home',{k:'m'}):houseArt(t,h.level,h.bid,{k:'m'+h.bid})}</span>`;};
-  const ht=h.home?homeBT():null;if(ht)put(ht);else bType(h.lat,h.lon,h.bid||'home').then(put);});}catch(e){}};
 </script>
 <script>
 /* =========================================================
@@ -7207,7 +7168,6 @@ function fxDraw(){(window.__zlms||[]).forEach(lm=>{try{if(!lm||!lm.map)return;(l
     el.innerHTML=`<div class="fxa"></div><div class="fxb">${[...new Set(g.k)].map(k=>(FXI[k]||['✨'])[0]).join('')}</div><small>@${esc(g.nick||'')}</small>`;
     el.title=[...new Set(g.k)].map(k=>(FXI[k]||['',''])[1]).join(', ');el.addEventListener('click',e=>{e.stopPropagation();playerSheet(g.uid);});
     lm._fx.push(new maplibregl.Marker({element:el}).setLngLat([g.lon,g.lat]).addTo(lm.map));});}catch(e){}});}
-const _liveMapAs=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapAs(el,addr,o);try{setTimeout(()=>fxLoad(),1200);}catch(e){}return lm;};
 ['doDisp','allyShield','alHelp'].forEach(n=>{try{const f=window[n];if(typeof f!=='function')return;window[n]=async function(){const r=await f.apply(this,arguments);setTimeout(()=>fxLoad(true),700);return r;};}catch(e){}});
 setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='mappa'||S.tab==='orda'))fxLoad();},60000);
 /* ---- 4) MESSAGGI DIRETTI ---- */
@@ -7246,7 +7206,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611100109';
+const APPV='202611100239';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -7519,20 +7479,6 @@ setTimeout(()=>{try{if(!localStorage.getItem('zsh_inv'))return;if(sessionStorage
    CASA ABITATA DA ALTRI: niente "Casa libera · Prezzo", ma chi ci abita (se è alleato o coinquilino)
    o "🏠 Casa abitata" (se è uno sconosciuto: privacy, mai nome + indirizzo esatto)
    ========================================================= */
-const _wSheetAb=wSheet;wSheet=async function(bid,lat,lon){let q=null;try{q=await wRpc('world_quote',{p_bid:bid,p_lat:lat,p_lon:lon});}catch(e){}
-  /* le MIE case (comprate o casa vera): sempre la pagina della casa, mai la vecchia scheda */
-  if(q&&['mine','myhome','mypending'].includes(q.status)&&S.user){const pick=()=>{const H=myHouses();const want=q.status==='mine'?H.filter(x=>!x.home):H.filter(x=>x.home);
-      return want.find(x=>x.bid&&x.bid===bid)||want.map(x=>[x,trM(x.lat,x.lon,lat,lon)]).sort((a,b)=>a[1]-b[1]).map(x=>x[0]).find(x=>trM(x.lat,x.lon,lat,lon)<120);};
-    let h=pick();if(!h){try{await wMine(true);}catch(e){}h=pick();}if(h)return houseSheet(h);}
-  if(!q||q.status!=='home')return _wSheetAb.apply(this,arguments);
-  const R=q.residents||[];const pend=!!q.pending;
-  openSheet(R.length?`🏠 Casa di @${esc(R[0].nick)}${R.length>1?' e altri':''}`:'🏠 Casa abitata',`
-    <div class="abhero ${pend?'pend':''}"><span>${pend?'⏳':'🏠'}</span><div><b>${R.length?R.map(r=>'@'+esc(r.nick)).join(', '):'Qui abita un superstite'}</b>
-      <small>${pend?'Casa in conferma: diventa definitiva da domani.':'Casa confermata nel mondo.'} Le case abitate non si possono comprare.</small></div></div>
-    ${R.length?R.map(r=>`<div class="alrow"><span class="sav">${esc((r.nick||'?')[0].toUpperCase())}</span><div class="alrt"><b>@${esc(r.nick)}</b><small>${r.status==='pending'?'⏳ in conferma':'🏠 abita qui'}${r.ally?' · 🤝 alleato':''}</small></div>
-      <div class="alacts" style="width:auto"><button class="btn small ghost" data-abp="${r.user_id}">👤 Profilo</button><button class="btn small" data-abm="${r.user_id}" data-n="${esc(r.nick)}">💬 Scrivi</button></div></div>`).join('')
-     :'<p class="muted" style="font-size:12.5px">Per la privacy, il nome di chi abita qui lo vedono solo i suoi alleati e i suoi coinquilini. Sulla mappa i superstiti compaiono in una posizione approssimata.</p>'}`,
-    card=>{card.querySelectorAll('[data-abp]').forEach(b=>b.onclick=()=>playerSheet(b.dataset.abp));card.querySelectorAll('[data-abm]').forEach(b=>b.onclick=()=>dmSheet(b.dataset.abm,b.dataset.n));});};
 </script>
 <script>
 /* =========================================================
@@ -7590,7 +7536,6 @@ function zSun(lat,lon,d){d=d||new Date();const rad=Math.PI/180;const y0=Date.UTC
 function zIsNight(lat,lon,d){try{d=d||new Date();if(lat==null){const H=typeof myHouses==='function'?myHouses():[];const h=H[0]||(S.geo&&{lat:S.geo.lat,lon:S.geo.lon});if(!h)return d.getHours()>=18||d.getHours()<7;lat=h.lat;lon=h.lon;}
   const s=zSun(lat,lon,d);if(s.polar)return s.polar==='notte';const m=d.getUTCHours()*60+d.getUTCMinutes();return m>s.set+20||m<s.rise-20;}catch(e){return d.getHours()>=18||d.getHours()<7;}}
 /* all'apertura: ogni mappa parte col giorno o la notte veri (se chi la apre non ha già scelto) */
-const _liveMapNt=liveMap;liveMap=async function(el,addr,o){o=Object.assign({},o||{});if(o.night===undefined){const c=(RM.cache&&RM.cache[addr])||null;o.night=zIsNight(c&&c.lat,c&&c.lon);}return _liveMapNt.call(this,el,addr,o);};
 /* scelta manuale: se tocchi 🌙/☀️ quella mappa non cambia più da sola */
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.lm-mode');if(b&&e.isTrusted){const box=b.closest('.lmap');if(box)box.dataset.manual='1';}},true);
 /* con l'app aperta: al tramonto e all'alba le mappe cambiano da sole */
@@ -7621,8 +7566,6 @@ async function hLegendPut(box,h){try{if(!box||!box.isConnected)return;const T=ty
   let g=null;try{g=await bGeom(h.lat,h.lon);}catch(e){}let lg=box.nextElementSibling;if(!lg||!lg.classList.contains('hlegend')){lg=document.createElement('div');lg.className='hlegend';box.after(lg);}
   const L=hLegend(h,o,g);lg.innerHTML=L.length?`<b>🔎 Sul disegno</b>${L.map(x=>`<span>${esc(x)}</span>`).join('')}`:'<b>🔎 Sul disegno</b><span class="muted">ancora nessuna modifica: le fortificazioni che compri compaiono qui e sulla casa</span>';}catch(e){}}
 /* miniature della barra "Le tue case" (Mappa): disegno vero al posto delle icone generiche */
-const _mhBarLg=mhBar;mhBar=function(){_mhBarLg.apply(this,arguments);try{const L=myHouses();document.querySelectorAll('.mhouses .mhc[data-mh]').forEach(b=>{const h=L[+b.dataset.mh];if(!h||b.querySelector('.mhart[data-vera]'))return;
-  const old=b.querySelector('.mhart')||b.querySelector('svg,span');const d=document.createElement('div');d.className='mhart';d.dataset.vera='1';if(old)old.replaceWith(d);else b.prepend(d);drawHouse(d,h,{noLegend:true}).then(g=>{if(!g&&!d.innerHTML)d.innerHTML=`<span style="font-size:28px">${h.ic}</span>`;});});}catch(e){}};
 </script>
 <script>
 /* =========================================================
@@ -7914,6 +7857,101 @@ async function houseSheet(h){const tok=++HS.tok;
   /* se il disegno è quasi pronto lo aspetto un attimo, così compare già con la pagina */
   if(HS.art)await Promise.race([HS.art,new Promise(r=>setTimeout(r,1500))]);
   clearTimeout(t);if(body.isConnected)reveal();}
+</script>
+<script>
+/* =========================================================
+   MAPPA — UNA FUNZIONE PER OGNI COSA (Fase 4c)
+   Prima: liveMap = base (p19) + 9 strati (p20 ×2, p21, p22, p26, p35, p36, p49, p61);
+   renderMappa, mhBar, wSheet, wDrawMap, bizSheet, lmPoi = base + 1–4 strati ciascuna.
+   Ora: la base si chiama …Base nel modulo di origine e UNA funzione fa, in ordine,
+   quello che facevano gli strati. Comportamento identico.
+   ========================================================= */
+/* la mappa a fumetto: notte automatica col tramonto vero (p61), poi la mappa (p19), poi in ordine:
+   superstiti (p20), luoghi aggiunti dall'admin (p20), mondo unico (p21), orda (p22), sponsor (p26),
+   sponsor di esempio (p35), attività della zona (p36), effetti dell'assedio (p49) */
+async function liveMap(el,addr,o){
+  o=Object.assign({},o||{});if(o.night===undefined){const c=(RM.cache&&RM.cache[addr])||null;o.night=zIsNight(c&&c.lat,c&&c.lon);}
+  const lm=await liveMapBase(el,addr,o);
+  await (async()=>{try{(window.__zlms=window.__zlms||[]).push(lm);zDrawUsers(lm);}catch(e){}})();
+  await (async()=>{try{zDrawCustom(lm);}catch(e){}})();
+  await (async()=>{try{const map=lm.map;
+  const homeG=()=>{try{if(window.__homeG||!S.zone||S.zone.address!==addr||map.getZoom()<14)return;const pt=map.project([lm.m.lon,lm.m.lat]);const fs=map.queryRenderedFeatures([[pt.x-3,pt.y-3],[pt.x+3,pt.y+3]],{layers:['bld']});
+    const g=wFromTile(fs,lm.m.lat,lm.m.lon);if(g){window.__homeG=g;if(S.user&&!(S.zone.real&&S.zone.real.house&&S.zone.real.house.bid))wClaim(false);}}catch(e){}};map.on('idle',homeG);
+  map.on('moveend',()=>{clearTimeout(lm._wt);lm._wt=setTimeout(()=>wDrawMap(lm),350);});setTimeout(()=>wDrawMap(lm),900);
+  map.on('click','bld',async e=>{if(!W.on)return;const pts=map.queryRenderedFeatures(e.point,{layers:['poi-biz','poi-pub','poi-cand','poi-hid'].filter(id=>map.getLayer(id))});if(pts.length)return;
+    const g=wFromTile(e.features,e.lngLat.lat,e.lngLat.lng);if(g){wSheet(g.bid,g.lat,g.lon);return;}
+    openSheet('🌍 Edificio del mondo','<p><span class="spin"></span> Riconosco l’edificio…</p>',()=>{});
+    try{const b=await wIdentify(e.lngLat.lat,e.lngLat.lng);if(!b){openSheet('🌍 Edificio del mondo','<p class="notice">Non riesco a riconoscere l’edificio: avvicina la mappa e riprova.</p>');return;}wSheet(b.bid,b.lat,b.lon);}
+    catch(x){openSheet('🌍 Edificio del mondo','<p class="notice">I server pubblici delle mappe sono molto occupati in questo momento: riprova tra un minuto. Le case vicino a casa tua si riconoscono sempre subito.</p>');}});}catch(e){}})();
+  await (async()=>{try{const box=lm.map.getContainer().closest('.lmap');
+  if(box&&!box.querySelector('.lm-orda')){box.insertAdjacentHTML('beforeend','<button class="lm-orda" type="button">🧟 Orda</button>');box.querySelector('.lm-orda').onclick=e=>{e.stopPropagation();orPlay(lm);};}
+  lm.map.on('moveend',()=>{clearTimeout(lm._obt);lm._obt=setTimeout(()=>{if(!lm._playing)orBadges(lm);},500);});
+  setTimeout(()=>{if(orLive()&&!lm._autoplay){lm._autoplay=1;orPlay(lm);}else orBadges(lm);},1500);}catch(e){}})();
+  await (async()=>{try{spDraw(lm);setTimeout(()=>spDraw(lm),2500);
+}catch(e){}})();
+  await (async()=>{try{spDemoPlace();setTimeout(()=>{spDemoPlace();spDraw(lm);},1500);}catch(e){}})();
+  await (async()=>{try{attLoad().then(()=>attDraw());setTimeout(attDraw,1500);}catch(e){}})();
+  await (async()=>{try{setTimeout(()=>fxLoad(),1200);}catch(e){}})();
+  return lm;}
+/* scheda Mappa: base (p25) + pulsante sponsor (p26) + pulsante assalti (p29) + barra "Le tue case" (p31) */
+function renderMappa(){renderMappaBase();
+  (()=>{try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('.mfsp'))return;
+  const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null).length;w.insertAdjacentHTML('beforeend',`<button class="mfsp" data-mfsp>⭐ ${n} sponsor</button>`);
+  w.querySelector('[data-mfsp]').onclick=()=>spList(window.__mf);}catch(e){}})();
+  (()=>{try{const r=app.querySelector('[data-mfraid]');if(r){r.textContent='🎬 Assalti';r.onclick=e=>{e.stopPropagation();assalto('last');};}}catch(e){}})();
+  (()=>{try{mhBar();setTimeout(mhBar,1500);}catch(e){}})();}
+/* barra "Le tue case": base (p31) + disegno per tipo (p41) + disegno della casa vera (p62) */
+function mhBar(){mhBarBase();
+  (()=>{try{const L=myHouses();document.querySelectorAll('.mhouses [data-mh]').forEach(b=>{const h=L[+b.dataset.mh];if(!h||b.querySelector('.mhart'))return;const sp=b.querySelector('span');if(!sp)return;
+  const put=t=>{if(!sp.isConnected)return;sp.outerHTML=`<span class="mhart">${h.home&&S.answers?houseArt(homeBT()||t,1,'home',{k:'m'}):houseArt(t,h.level,h.bid,{k:'m'+h.bid})}</span>`;};
+  const ht=h.home?homeBT():null;if(ht)put(ht);else bType(h.lat,h.lon,h.bid||'home').then(put);});}catch(e){}})();
+  (()=>{try{const L=myHouses();document.querySelectorAll('.mhouses .mhc[data-mh]').forEach(b=>{const h=L[+b.dataset.mh];if(!h||b.querySelector('.mhart[data-vera]'))return;
+  const old=b.querySelector('.mhart')||b.querySelector('svg,span');const d=document.createElement('div');d.className='mhart';d.dataset.vera='1';if(old)old.replaceWith(d);else b.prepend(d);drawHouse(d,h,{noLegend:true}).then(g=>{if(!g&&!d.innerHTML)d.innerHTML=`<span style="font-size:28px">${h.ic}</span>`;});});}catch(e){}})();}
+/* case del mondo sulla mappa (p21) + case dei superstiti simulati (p23) */
+async function wDrawMap(lm,force){await wDrawMapBase(lm,force);setTimeout(()=>wDrawNpc(lm),250);}
+/* scheda di un edificio del mondo:
+   1) le MIE case e le case abitate (p58): pagina della casa o "Casa abitata"
+   2) un'altra mia casa riconosciuta per posizione (p31): pagina della casa
+   3) altrimenti la scheda dell'edificio (p21) col nome del simulato (p23); poi il prezzo per chi ha già case (p37) */
+async function wSheet(bid,lat,lon){
+  let q=null;
+  try{q=await wRpc('world_quote',{p_bid:bid,p_lat:lat,p_lon:lon});}catch(e){}
+  if(q&&['mine','myhome','mypending'].includes(q.status)&&S.user){const pick=()=>{const H=myHouses();const want=q.status==='mine'?H.filter(x=>!x.home):H.filter(x=>x.home);
+      return want.find(x=>x.bid&&x.bid===bid)||want.map(x=>[x,trM(x.lat,x.lon,lat,lon)]).sort((a,b)=>a[1]-b[1]).map(x=>x[0]).find(x=>trM(x.lat,x.lon,lat,lon)<120);};
+    let h=pick();if(!h){try{await wMine(true);}catch(e){}h=pick();}if(h)return houseSheet(h);}
+  if(!q||q.status!=='home')return wSheetEdificio(bid,lat,lon);
+  const R=q.residents||[];
+  const pend=!!q.pending;
+  openSheet(R.length?`🏠 Casa di @${esc(R[0].nick)}${R.length>1?' e altri':''}`:'🏠 Casa abitata',`
+    <div class="abhero ${pend?'pend':''}"><span>${pend?'⏳':'🏠'}</span><div><b>${R.length?R.map(r=>'@'+esc(r.nick)).join(', '):'Qui abita un superstite'}</b>
+      <small>${pend?'Casa in conferma: diventa definitiva da domani.':'Casa confermata nel mondo.'} Le case abitate non si possono comprare.</small></div></div>
+    ${R.length?R.map(r=>`<div class="alrow"><span class="sav">${esc((r.nick||'?')[0].toUpperCase())}</span><div class="alrt"><b>@${esc(r.nick)}</b><small>${r.status==='pending'?'⏳ in conferma':'🏠 abita qui'}${r.ally?' · 🤝 alleato':''}</small></div>
+      <div class="alacts" style="width:auto"><button class="btn small ghost" data-abp="${r.user_id}">👤 Profilo</button><button class="btn small" data-abm="${r.user_id}" data-n="${esc(r.nick)}">💬 Scrivi</button></div></div>`).join('')
+     :'<p class="muted" style="font-size:12.5px">Per la privacy, il nome di chi abita qui lo vedono solo i suoi alleati e i suoi coinquilini. Sulla mappa i superstiti compaiono in una posizione approssimata.</p>'}`,
+    card=>{card.querySelectorAll('[data-abp]').forEach(b=>b.onclick=()=>playerSheet(b.dataset.abp));card.querySelectorAll('[data-abm]').forEach(b=>b.onclick=()=>dmSheet(b.dataset.abm,b.dataset.n));});}
+async function wSheetEdificio(bid,lat,lon){
+  const h=myHouses().find(x=>(x.bid&&x.bid===bid)||(Math.abs(x.lat-lat)<.0002&&Math.abs(x.lon-lon)<.0003));let r;
+  if(h&&S.user)r=await houseSheet(h);else{await wSheetBase(bid,lat,lon);
+    await (async()=>{try{const c=document.querySelector('#sheet.open .bzc-cat');if(c&&/simulato/.test(c.textContent)){const h=document.querySelector('#sheet.open .bzc-t h4');if(h)h.textContent='🤖 @'+npcNick(bid);
+    const box=document.querySelector('#sheet.open .bzc');if(box&&!box.querySelector('.npcn'))box.insertAdjacentHTML('afterend','<p class="npcn muted" style="font-size:12.5px;margin:8px 0 0">È un <b>personaggio del gioco</b>, non una persona: tiene vivo il mondo finché arrivano giocatori veri. Puoi comprargli la casa (+30%). Se l’abitante vero si iscrive, la casa passa a lui con le regole di sempre.</p>');}}catch(e){}})();}
+  await (async()=>{try{const c=document.querySelector('#sheet.open .sheet-b');const buy=c&&[...c.querySelectorAll('button')].find(b=>/^\s*(🛒|🔑|🏠)?\s*Compra/.test(b.textContent));if(c&&!c.querySelector('.hshead')&&buy&&EQ.s&&EQ.s.houses>0&&!c.querySelector('.eqpr'))
+  buy.insertAdjacentHTML('beforebegin',`<p class="eqpr">Hai già ${EQ.s.houses} ${EQ.s.houses===1?'casa':'case'} comprate: il prezzo è +${EQ.s.houses*10}% (chi ha più case paga di più, così il mondo resta aperto ai nuovi).</p>`);}catch(e){}})();
+  return r;}
+/* scheda di un'attività: base (p20) + dati online (p20) + "segnala" (p20) + missione (p20) */
+function bizSheet(b,z){bizSheetBase(b,z);
+  (()=>{const c=document.querySelector('#sheet.open .sheet-card');
+  if(c)fillOnline(c,b);})();
+  (()=>{const c=document.querySelector('#sheet.open .sheet-card');
+  const r=c&&c.querySelector('[data-rep]');
+  if(r)r.onclick=()=>zReport(b.name,b.ll);})();
+  (()=>{try{tmEvent('biz',b.name);}catch(e){}})();}
+function lmPoi(name,cat,d,ll,pub){lmPoiBase(name,cat,d,ll,pub);
+  (()=>{const c=document.querySelector('#sheet.open .sheet-card');
+  if(c)fillOnline(c,{name,ll});})();
+  (()=>{const c=document.querySelector('#sheet.open .sheet-card');
+  const r=c&&c.querySelector('[data-rep]');
+  if(r)r.onclick=()=>zReport(name,ll);})();
+  (()=>{try{tmEvent('poi',name);}catch(e){}})();}
 </script>
 <script>
 /* ---------------- AVVIO ---------------- */
