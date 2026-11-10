@@ -7,6 +7,7 @@
   - `001_impronte.sql`: un'impronta per ogni funzione, tabella, regola e lavoro programmato del database vero.
   - `impronte_attese.txt`: le stesse impronte calcolate dal database di prova.
   - Confronto: `node docs/strumenti/confronta_db.js <impronte vere>`.
-- `functions/zsh-push/` — funzione Edge per le notifiche e per meteo e pendenza delle case. `zsh-api.ts` — funzione Edge per l'IA delle foto, Radio Operatore e attività.
+- `functions/` — funzioni Edge `zsh-push` (notifiche, meteo e pendenza) e `zsh-api` (IA delle foto, Radio Operatore, attività): cosa fanno, segreti e come pubblicarle in `functions/LEGGIMI.md`.
+  - `controllo/002_notifiche.sql` (solo lettura): l'orologio chiama zsh-push? partono le notifiche?
 
 Inventario (chi usa cosa, funzioni non usate): `docs/DATABASE.md`.

@@ -27,7 +27,7 @@ PWA in un solo file `index.html`: valuta la sicurezza della casa vera e la trasf
 - Link d'invito: sempre `ZSH_SITO` (sito vero, p20), anche quando si prova da un'anteprima.
 - **Mappa del codice**: `docs/MAPPA_CODICE.md` (moduli, catene di avvolgimenti, codice morto, cosa serve del vecchio gioco, struttura della Fase 4). Strumenti per rifare le misure: `docs/strumenti/`.
 - SQL: i file `*.sql` alla radice sono la **storia** (già eseguiti su Supabase, ordine in `docs/strumenti/schema_sql.js`): non si modificano più. Dalla Fase 6a ogni cambio è un file **`supabase/migrazioni/NNN_nome.sql`** (vedi `supabase/LEGGIMI.md`). Stato del database: `supabase/schema.sql`, rigenerato da `docs/strumenti/db_locale.sh` (Postgres di prova locale, mai quello vero). Inventario e funzioni non usate: `docs/DATABASE.md`. Controllo del database vero: `supabase/controllo/001_impronte.sql` (solo lettura) + `docs/strumenti/confronta_db.js`.
-- Funzione Edge: `supabase/functions/zsh-push/index.ts` (notifiche + meteo/pendenza per casa).
+- Funzioni Edge: `supabase/functions/zsh-push/index.ts` (notifiche + meteo/pendenza per casa) e `supabase/functions/zsh-api/index.ts` (IA foto, Radio Operatore, attività); segreti e pubblicazione in `supabase/functions/LEGGIMI.md`. Controllo notifiche: `supabase/controllo/002_notifiche.sql`.
 
 ## Prove
 - Server finto: `sb_mock.js` (+ `ml_stub.js` per la mappa). Le prove sono `t_*.py` (Playwright, iPhone 13).

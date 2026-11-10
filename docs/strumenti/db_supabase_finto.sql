@@ -8,7 +8,8 @@ create function auth.uid() returns uuid language sql stable as $$ select nullif(
 create function auth.role() returns text language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claim.role', true),''),'anon') $$;
 create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims', true),''),'{}')::jsonb $$;
 grant usage on schema auth to anon, authenticated, service_role; grant usage on schema public to anon, authenticated, service_role;
-create schema cron; create table cron.job(jobid bigserial primary key, jobname text, schedule text, command text);
+create schema cron; create table cron.job(jobid bigserial primary key, jobname text, schedule text, command text, active boolean default true);
+create table cron.job_run_details(runid bigserial primary key, jobid bigint, status text, start_time timestamptz default now());
 create function cron.schedule(n text, s text, c text) returns bigint language sql as $$ insert into cron.job(jobname,schedule,command) values(n,s,c) returning jobid $$;
 create function cron.unschedule(n text) returns boolean language sql as $$ delete from cron.job where jobname=n returning true $$;
-create schema net; create function net.http_post(url text, body jsonb default '{}', params jsonb default '{}', headers jsonb default '{}', timeout_milliseconds int default 5000) returns bigint language sql as $$ select 1::bigint $$;
+create schema net; create table net._http_response(id bigserial primary key, status_code int, created timestamptz default now()); create function net.http_post(url text, body jsonb default '{}', params jsonb default '{}', headers jsonb default '{}', timeout_milliseconds int default 5000) returns bigint language sql as $$ select 1::bigint $$;
