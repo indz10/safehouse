@@ -9,6 +9,7 @@
 /* cambio scheda: Casa (p31) · Superstiti (p26) · Io (p25) · le altre (p4) con il banner dell'orda (p22);
    la regia degli assalti si ferma uscendo dalla Mappa (p29); poi disegni della casa (p41, p49) e Mattoni (p52) */
 function go(tab){
+  if(tab==='casa'&&casasOk()){casasSheet();return;}
   if(tab==='casa'){(()=>{window.__last='apre la mia casa';
   document.body.classList.remove('inbattle');
   if(typeof G!=='undefined'&&G.run){G.run.stop=true;G.run=null;}

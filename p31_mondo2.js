@@ -14,7 +14,7 @@ renderHome=function(){const m=window.W&&W.m,s=OR.s;const has=!!S.result;const ne
     <div class="hstitle"><h1>Zombie<span>Safe House</span></h1><p>${has?'Il mondo ti aspetta, superstite.':'Quanto resiste la tua casa all’orda?'}</p></div>
     <div class="hsbtns">${S.user&&m?`<div class="hschips"><span>🧱 ${wNum(m.mattoni)}</span><span>💎 ${(typeof G!=='undefined'&&G.gems)||0}</span><span>🧟 tra <b data-oleft>${orLeft(next)}</b></span></div>`:''}
       <button class="hsbig" data-hs="mondo">🌍 Vai al mondo</button>
-      ${has?'<button class="hsmid" data-hs="casa">🏠 La mia casa</button>':'<button class="hsmid" data-hs="valuta">📷 Valuta la mia casa</button>'}
+      ${has?`<button class="hsmid" data-hs="casa">🏠 ${S.user?'Le mie case':'La mia casa'}</button>`:'<button class="hsmid" data-hs="valuta">📷 Valuta la mia casa</button>'}
       <div class="hsrow"><button data-hs="orda">🧟 Orda</button><button data-hs="social">👥 Superstiti</button><button data-hs="menu">☰ Tutto</button></div>
     </div></section>`;
   try{const sv=app.querySelector('.hsart svg');if(sv){sv.setAttribute('preserveAspectRatio','xMidYMid slice');}const sc=app.querySelector('.hscene');const nav=$('#nav');sc.style.height=Math.max(460,innerHeight-sc.getBoundingClientRect().top-(nav?nav.offsetHeight:64))+'px';}catch(e){}

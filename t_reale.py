@@ -24,11 +24,11 @@ async def main():
         b=await p.chromium.launch();dev=p.devices['iPhone 13'];pg=await (await b.new_context(**dev)).new_page();pg.set_default_timeout(9000);errs=[];pg.on('pageerror',lambda e:errs.append(str(e)[:160]))
         await pg.route('**/*',route);await pg.add_init_script(path='sb_mock.js');await pg.add_init_script(path='ml_stub.js');await pg.add_init_script('window.__noHello=1')
         await pg.goto('file://'+D+'/app.html');await pg.wait_for_timeout(500)
-        await pg.evaluate("async()=>{SB=__mockSB;S.user={id:'me',nick:'ale'};S.pubOk=true;zSyncProfile.asked=1;localStorage.clear();localStorage.setItem('zsh_kit_me','1');S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');S.answers={...SAMPLE,porta:'blindata',grate:'alcune',luci:'sensore',allarme:'cam',recinzione:'si'};S.result=computeScore(S.answers,S.zone);G.tourAsked=1;G.tourDone=1;G.howSeen=1;await wMine(true);await orLoad(true);OR.s.prepared=true;OR.s.helps_in=2;go('casa');}")
-        await pg.wait_for_timeout(3500);await pg.evaluate("()=>closeSheet()")
-        print('casa vera disegnata:',await pg.evaluate("()=>{const a=document.querySelector('.mycasa .mcart');return [a&&a.dataset.real,a&&a.dataset.desc,document.querySelector('.mycasa small').textContent]}"))
+        await pg.evaluate("async()=>{SB=__mockSB;S.user={id:'me',nick:'ale'};S.pubOk=true;zSyncProfile.asked=1;localStorage.clear();localStorage.setItem('zsh_kit_me','1');S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');S.answers={...SAMPLE,porta:'blindata',grate:'alcune',luci:'sensore',allarme:'cam',recinzione:'si'};S.result=computeScore(S.answers,S.zone);G.tourAsked=1;G.tourDone=1;G.howSeen=1;await wMine(true);await orLoad(true);OR.s.prepared=true;OR.s.helps_in=2;go('home');houseSheet(myHouses()[0]);}")
+        await pg.wait_for_timeout(6000)
+        print('casa vera disegnata:',await pg.evaluate("()=>{const a=document.querySelector('#sheet.open .hsart');return [!!(a&&a.querySelector('svg')),a&&(a.querySelector('span')||{}).textContent]}"))
         print('rinforzi:',await pg.evaluate("()=>[...document.querySelectorAll('.rinf span')].map(s=>s.textContent)"))
-        el=await pg.query_selector('.mycasa');await el.screenshot(path='y_real1.png')
+        el=await pg.query_selector('#sheet.open .hsart');await el.screenshot(path='y_real1.png')
         # campionario: stessa casa a livello 1 senza rinforzi, livello 5; e il condominio
         await pg.evaluate("""async()=>{const g=await bGeom(45.3255,10.6582);const g2={main:{...g.near.find(n=>n.b==='apartments')},near:[g.main]};
           document.body.innerHTML='<div id=cmp style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px;background:#f3e9d2;width:740px"></div>';const c=document.getElementById('cmp');
