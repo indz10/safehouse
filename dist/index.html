@@ -4259,7 +4259,7 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 /* bollettino del territorio nella pagina del gioco */
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611102153';
+const ZSH_BUILD='202611102226';
 /* Fase 5d: appena aperta (o riaperta dallo sfondo) l'app controlla subito la versione; se ce n'è una nuova
    nei primi 20 s mostra "Aggiorno l'app…" e si ricarica SUBITO (anche con una finestra aperta: è appena partita).
    Se arriva mentre stai giocando, aspetta che non ci siano finestre aperte (come prima). Mai due volte di fila per la stessa versione. */
@@ -4818,7 +4818,7 @@ const _zSyncInv=zSyncProfile;zSyncProfile=async function(force){await _zSyncInv(
   const{error}=await SB.from('profili_pubblici').update({invitato_da:inv}).eq('user_id',S.user.id);if(!error)localStorage.setItem('zsh_inv_ok','1');}catch(e){}};
 async function inviteSheetBase(){if(!S.user){toast('Accedi per avere il tuo link di invito');return;}let L=[];try{const{data}=await SB.rpc('miei_invitati');L=data||[];}catch(e){}
   G.invCl=G.invCl||[];const ready=L.filter(x=>x.valutato&&!G.invCl.includes(x.nick));
-  openSheet('📨 Invita amici e vicini',`<p style="font-weight:400;margin-bottom:10px">Chi entra col tuo link e valuta la sua casa ti fa guadagnare <b>💎 5</b>. Se abita entro 1,5 km diventa uno dei tuoi <b>👥 Vicini veri</b>: potete aiutarvi contro l’orda del quartiere.</p>
+  openSheet('📨 Invita amici e vicini',`<p style="font-weight:400;margin-bottom:10px">Chi entra col tuo link e valuta la sua casa ti fa guadagnare <b>🧱 150</b> e <b>💎 5</b>. Se abita entro 1,5 km diventa uno dei tuoi <b>👥 Vicini veri</b>: potete aiutarvi contro l’orda del quartiere.</p>
    <div class="invl"><input readonly value="${esc(invLink())}"><button class="btn small" data-invcp>Copia</button></div>
    <div class="row" style="gap:8px;margin:10px 0;flex-wrap:wrap"><button class="btn" data-invsh>📤 Condividi il link</button><a class="btn ghost small" href="https://wa.me/?text=${encodeURIComponent(invTxt())}" target="_blank" rel="noopener">WhatsApp</a></div>
    <h3 style="margin-top:6px">I tuoi invitati (${L.length})</h3>${L.length?L.map(x=>`<div class="tm ${x.valutato?'ok':''}"><span class="tmi">${x.valutato?'✅':'⏳'}</span><div class="tmt"><span><b>@${esc(x.nick)}</b></span><small>${x.valutato?(G.invCl.includes(x.nick)?'Premio già ritirato':'Ha valutato la casa: premio pronto'):'Registrato, deve ancora valutare la casa'}</small></div></div>`).join(''):'<p class="muted">Ancora nessuno: condividi il link!</p>'}
@@ -4937,7 +4937,7 @@ function manualHTMLBase(){const sec=(id,t,body,open)=>`<details class="man" ${op
   const S3=sec('premi','🎁 Premi e missioni',`<p>Dopo ogni orda tocca <b>Riscatta</b>: arrivano Mattoni, giri di ruota e biglietti del gratta e vinci. In 🧟 Orda, nel riquadro <b>Premi e fortuna</b>, trovi la 🎡 ruota, il 🎟️ gratta e vinci, il 🎁 premio del giorno e il 🫙 barattolo; sotto, le <b>🎯 missioni di oggi</b> (il pulsante “Vai” ti porta dove si fanno).</p>
     <p>Giri e biglietti si guadagnano riscattando l’orda, completando le missioni e aiutando gli alleati. I 🧱 Mattoni li decide il server: al massimo 300 al giorno.</p>`);
   const S15=sec('community','👥 Community e inviti',`<p><b>Mappa della community:</b> se accetti, gli altri vedono il tuo nickname, l’indice della casa e il livello, in una posizione approssimata di circa 200 m. Mai l’indirizzo.</p>
-    <p><b>Inviti</b> (menu ☰): chi entra col tuo link e valuta la casa ti dà 💎 5.</p>`);
+    <p><b>Inviti</b> (menu ☰): chi entra col tuo link e valuta la casa ti dà 🧱 150 e 💎 5.</p>`);
   const S16=sec('vera','🔄 Casa vera ⇄ gioco',`<p>Quello che fai per la casa vera ti rende più forte nel gioco: lo <b>Scudo della casa vera</b> (0–5) cresce con la valutazione e le migliorie vere e dà +2 di difesa a tutte le tue case per ogni livello; i <b>Crediti Casa Vera</b> arrivano da sconti e preventivi usati davvero.</p>
     <p><b>Ho cambiato casa</b> (menu ☰): la casa vecchia resta nell’elenco delle tue case passate, ricevi un rimborso (che diventa Mattoni) e poi valuti la casa nuova. Il rimborso vale una volta ogni 30 giorni.</p>
     <p><b>Salvataggi:</b> con l’accesso fatto la partita è sempre allineata tra iPhone, Mac e computer.</p>`);
@@ -5314,10 +5314,13 @@ const OT=[
  {tab:()=>{S.zv='mondo';go('mappa');},sel:'.lmap',t:'Questa è la <b>mappa vera</b>. La casetta rossa <b>TU</b> è casa tua: nel mondo unico è tua e nessuno può comprarla.'},
  {tab:null,sel:'.lmap',t:'Tocca una <b>casa qualsiasi</b>: se è libera la compri con i <b>🧱 Mattoni</b>. Se un giorno chi ci abita si iscrive, a te torna tutto, più un bonus.'},
  {tab:null,sel:'.lm-orda',t:'Con <b>🧟 Orda</b> guardi l’ultimo assalto sulla mappa: 🛡️ case che hanno tenuto, 💥 case sfondate. Anche quelle degli altri.'},
+ {tab:()=>go('orda'),sel:'.fronte',t:'Questo è il <b>fronte</b>: gli zombie che arrivano sulla tua zona, con le strade vere (in salita sono più lenti). Tocca uno zombie per vederlo.'},
  {tab:()=>{G.sub='q';go('orda');},sel:'.opan',t:'Ogni giorno alle <b>9</b> e alle <b>21</b> arriva l’<b>orda del mondo</b>, da sola. Qui vedi quando.'},
  {tab:null,sel:'.opan .ostep',t:'Prima: tocca <b>Prepara</b> (+15 difesa) e, se vuoi, <b>Fortifica</b>. Dopo: <b>guarda l’assalto</b> e <b>riscatta</b> i premi. Tutto qui.'},
  {tab:null,sel:'.wpan',t:'Qui ci sono i tuoi <b>Mattoni</b>, le tue case e gli <b>affitti</b> da riscuotere ogni giorno.'},
- {tab:null,sel:'.tmp',t:'Ogni giorno <b>3 missioni</b> sui posti veri della tua zona: premi in più.'}];
+ {tab:null,sel:'.tmp',t:'Ogni giorno <b>3 missioni</b> (preparare le case, guardare l’assalto, aiutare un alleato…): premi in 🧱 Mattoni e 💎 gemme.'},
+ {tab:()=>go('social'),sel:'.sseg',t:'In <b>👥 Superstiti</b> trovi la piazza, gli <b>alleati</b> (vi mandate rinforzi e scudi), i rivali e la classifica.'},
+ {tab:()=>go('home'),sel:'[data-hs=casa]',t:'Da <b>🏠 Le mie case</b> apri la tua casa ❤️ (fortificazioni, piano d’azione, valutazione) e quelle che compri.'}];
 function orTour(i){try{G.tourDone=1;}catch(e){}if(i===0)closeSheet();const st=OT[i];document.querySelectorAll('.otour').forEach(x=>x.remove());if(!st){toast('🧭 Giro finito: buona difesa!');return;}
   if(st.tab)st.tab();setTimeout(()=>{const el=[...document.querySelectorAll(st.sel)].find(e=>e.offsetParent!==null);if(!el){orTour(i+1);return;}
     el.scrollIntoView({block:'center'});setTimeout(()=>{const r=el.getBoundingClientRect();const o=document.createElement('div');o.className='otour';
@@ -5553,7 +5556,7 @@ function renderIo(){const u=S.user;const m=window.W&&W.m;const nick=u?(u.nick||(
    ${u?`<div class="panel night iohead"><div class="ioav">${esc((nick||'?')[0].toUpperCase())}</div><div><b class="disp" style="font-size:24px;color:var(--moon)">@${esc(nick)}</b>
      <small>Livello mondo ${m?m.wlevel:'…'} · 🧱 ${m?wNum(m.mattoni):'…'} · 💎 ${(typeof G!=='undefined'&&G.gems)||0}</small></div></div>`
      :`<div class="panel night"><b class="disp" style="font-size:24px;color:var(--moon)">👤 Entra nel mondo</b><p style="color:#fff;font-weight:400">Con l’account la tua casa è tua nel mondo vero, salvi i progressi su tutti i dispositivi e giochi con gli alleati.</p><button class="btn" data-io="login">Accedi o registrati</button></div>`}
-   ${u?`<div class="panel"><b class="disp" style="font-size:20px">📨 Invita qualcuno</b><p style="font-weight:400;font-size:13.5px;margin:4px 0 8px">Vicino di casa o amico in Australia: chi entra con il tuo link e valuta la casa ti dà 💎 5 e diventa tuo alleato.</p><button class="btn" data-io="invita">📤 Invita</button></div>`:''}
+   ${u?`<div class="panel"><b class="disp" style="font-size:20px">📨 Invita qualcuno</b><p style="font-weight:400;font-size:13.5px;margin:4px 0 8px">Vicino di casa o amico in Australia: chi entra con il tuo link e valuta la casa ti dà 🧱 150 e 💎 5 e diventa tuo alleato.</p><button class="btn" data-io="invita">📤 Invita</button></div>`:''}
    ${typeof shopHTML==='function'?shopHTML():''}
    <div class="panel iolist">
     ${row('tour','🧭','Giro guidato')}${row('rules','📖','Come si gioca e manuale')}${row('radio','📻','Radio Operatore')}
@@ -6705,11 +6708,13 @@ function coSteps(){const s=OR.s||{},m=window.W&&W.m,L=[];const add=(id,ic,t,why,
   add('help','🆘','Chiedi aiuto agli alleati','+5 per ogni alleato che risponde (fino a +20).',!!s.asked,()=>coGoOrda('.opan'));
   const td=window.TB&&TB.d;if(td&&td.allies>0)add('shield','🛡️','Dai uno scudo a un alleato','20 💎: +5 alla sua difesa, e lui farà lo stesso con te.',Array.isArray(td.shields_out)&&td.shields_out.length>0,()=>{SOC.tab='squadra';go('social');});
   try{const ds=dailyState();add('daily','🎁','Riscuoti il premio del giorno','Ogni giorno di fila il premio cresce.',ds.claimed,()=>{go('orda');setTimeout(()=>dailySheet(),500);});}catch(e){}
-  try{const st=scudoSteps();const miss=st.find(x=>!x[2]);add('scudo','🏡',miss?`Casa vera: ${miss[1]}`:'Scudo della casa vera al massimo','Ogni livello di Scudo dà +2 di difesa a tutte le tue case.',!miss,()=>openScudo());}catch(e){}
-  if(m){const hs=myHouses();const up=hs.find(h=>!h.home&&h.level<5&&m.mattoni>=150*h.level);add('up','⬆️',up?`Potenzia ${up.label} (🧱 ${150*up.level})`:'Potenzia una casa','+12 di difesa e più affitti per livello.',!up,()=>{if(up){S.mfHouses=true;go('mappa');setTimeout(()=>mhFly(up,true),900);}else go('mappa');});
+  try{const st=scudoSteps();const miss=st.find(x=>!x[2]);add('scudo','🏡',miss?`Scudo ${st.filter(x=>x[2]).length}/5 · prossimo: ${miss[1].replace(/^Indice di casa/,'indice')}`:'Scudo della casa vera al massimo (5/5)','Ogni livello di Scudo dà +2 di difesa a tutte le tue case.',!miss,()=>openScudo());}catch(e){}
+  if(m){const hs=myHouses().filter(h=>!h.home);const low=hs.filter(h=>h.level<5);const up=low.find(h=>m.mattoni>=150*h.level)||low[0];
+    /* solo se hai case comprate: fatto quando sono tutte al livello 5 */
+    if(hs.length)add('up','⬆️',up?`Potenzia ${up.label}: livello ${up.level} → ${up.level+1} (🧱 ${150*up.level})`:'Case al livello massimo','+12 di difesa e più affitti per livello.',!up,()=>{if(up)houseSheet(up);});
     if(m.mattoni>=500)add('buy','🏠','Compra una casa nel mondo','Più case = più affitti e più premi a ogni orda.',false,()=>{S.mfHouses=true;go('mappa');});}
   try{const T=tmInit();if(T){const mm=T.list.find(x=>!x.cl);add('mis','🎯',mm?`Missione: ${String(mm.t).replace(/<[^>]+>/g,'')}`:'Missioni di oggi completate','Mattoni e gemme in premio.',!mm,()=>coGoOrda('.tmp'));}}catch(e){}
-  if(td&&td.allies===0)add('ally','🤝','Fatti un alleato','Invita un amico: 150 🧱 a te e alleanza automatica.',false,()=>inviteSheet());
+  if(td&&td.allies===0)add('ally','🤝','Fatti un alleato','Invita un amico: quando valuta la casa ti dà 🧱 150 e 💎 5, e diventate alleati.',false,()=>inviteSheet());
   return L;}
 function coGoOrda(sel){go('orda');setTimeout(()=>{const t=app.querySelector(sel);if(t){t.scrollIntoView({behavior:'smooth',block:'start'});t.classList.remove('flashme');void t.offsetWidth;t.classList.add('flashme');}},600);}
 function coHTML(compact){const L=coSteps();const todo=L.filter(x=>!x.done);const done=L.length-todo.length;const s=todo[0];
@@ -6861,7 +6866,7 @@ function thrHTML(T,sim){const r=thrCalc(T,sim);const base=thrCalc(T);const ev=EV
    <div class="thrw"><span>🧟 Vaganti (standard)<small>frenati da 🪤 Trappole</small></span><b>${Math.round(T.std_min*T.mw*(1-.06*Math.min(3,(Object.assign({},T.defs||{},sim.defs||{})).trappole||0)))}–${Math.round(T.std_max*T.mw*(1-.06*Math.min(3,(Object.assign({},T.defs||{},sim.defs||{})).trappole||0)))}</b></div>
    ${r.sp.length?r.sp.map(x=>{const z=ZSP[x.k]||{ic:'🧟',n:x.k,why:''};const d=ZDEF[x.dk];const d2=x.dk2?ZDEF[x.dk2]:null;return`<div class="thrw"><span>${z.ic} ${z.n}<small>${z.why}${x.mod!==1?` · qui ×${(Math.round(x.mod*100)/100).toString().replace('.',',')}`:''} · ferma: ${d[0]} ${d[1]}${d2?` (+ ${d2[0]} ${d2[1]})`:''}</small></span><b>${x.p.toFixed(1).replace('.',',')}</b></div>`;}).join(''):'<p class="muted" style="font-size:12.5px">Al tuo livello arrivano solo vaganti. Gli speciali arrivano dal livello 2.</p>'}
    <div class="thrw tot"><span>Forza dell’orda su questa casa</span><b>${r.amin}–${r.amax}</b></div>
-   ${kinds.length?`<h4 class="hh">🎯 Difese mirate (prova e guarda la %)</h4>${kinds.map(k=>{const d=ZDEF[k];const cur=(T.defs||{})[k]||0;const v=(sim.defs&&sim.defs[k]!=null)?sim.defs[k]:cur;
+   ${kinds.length?`<h4 class="hh">🎯 Fortificazioni contro questi zombie (prova e guarda la %)</h4>${kinds.map(k=>{const d=ZDEF[k];const cur=(T.defs||{})[k]||0;const v=(sim.defs&&sim.defs[k]!=null)?sim.defs[k]:cur;
       return`<div class="thdef"><span>${d[0]} <b>${d[1]}</b><small>${'●'.repeat(v)}${'○'.repeat(3-v)}${v>cur?' (prova)':''}</small></span><div><button data-sd="${k}" data-v="-1" ${v<=cur?'disabled':''}>−</button><button data-sd="${k}" data-v="1" ${v>=3?'disabled':''}>+</button></div></div>`;}).join('')}`:''}
    <div class="thdef"><span>⬆️ <b>Livello casa</b><small>${lvl}${lvl>T.level?' (prova)':''} · +12 di difesa per livello</small></span><div><button data-sl="-1" ${lvl<=T.level?'disabled':''}>−</button><button data-sl="1" ${lvl>=5?'disabled':''}>+</button></div></div>
    <div class="thres"><div><small>Difesa</small><b>${r.def}</b></div><div><small>Oggi</small><b>${base.ch}%</b></div><div class="${r.ch>base.ch?'up':''}"><small>Con le prove</small><b>${r.ch}%</b></div></div>
@@ -7064,7 +7069,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611102153';
+const APPV='202611102226';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}

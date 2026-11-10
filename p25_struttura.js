@@ -76,7 +76,7 @@ function renderIo(){const u=S.user;const m=window.W&&W.m;const nick=u?(u.nick||(
    ${u?`<div class="panel night iohead"><div class="ioav">${esc((nick||'?')[0].toUpperCase())}</div><div><b class="disp" style="font-size:24px;color:var(--moon)">@${esc(nick)}</b>
      <small>Livello mondo ${m?m.wlevel:'…'} · 🧱 ${m?wNum(m.mattoni):'…'} · 💎 ${(typeof G!=='undefined'&&G.gems)||0}</small></div></div>`
      :`<div class="panel night"><b class="disp" style="font-size:24px;color:var(--moon)">👤 Entra nel mondo</b><p style="color:#fff;font-weight:400">Con l’account la tua casa è tua nel mondo vero, salvi i progressi su tutti i dispositivi e giochi con gli alleati.</p><button class="btn" data-io="login">Accedi o registrati</button></div>`}
-   ${u?`<div class="panel"><b class="disp" style="font-size:20px">📨 Invita qualcuno</b><p style="font-weight:400;font-size:13.5px;margin:4px 0 8px">Vicino di casa o amico in Australia: chi entra con il tuo link e valuta la casa ti dà 💎 5 e diventa tuo alleato.</p><button class="btn" data-io="invita">📤 Invita</button></div>`:''}
+   ${u?`<div class="panel"><b class="disp" style="font-size:20px">📨 Invita qualcuno</b><p style="font-weight:400;font-size:13.5px;margin:4px 0 8px">Vicino di casa o amico in Australia: chi entra con il tuo link e valuta la casa ti dà 🧱 150 e 💎 5 e diventa tuo alleato.</p><button class="btn" data-io="invita">📤 Invita</button></div>`:''}
    ${typeof shopHTML==='function'?shopHTML():''}
    <div class="panel iolist">
     ${row('tour','🧭','Giro guidato')}${row('rules','📖','Come si gioca e manuale')}${row('radio','📻','Radio Operatore')}
