@@ -46,7 +46,7 @@ w_settle_loans(uuid) 6cc226f820
 w_shielded(uuid) e93050b23d
 w_slope(text) 0dcd67cdba
 w_slot_id(timestamp with time zone) 5fd33c951a
-w_threats_of(uuid) 568aad77a2
+w_threats_of(uuid) 6991091158
 w_tr_dm() af3d1fb89f
 w_tr_feed() e607f3ac80
 w_upower(uuid, text) a32d619709
@@ -92,14 +92,14 @@ world_inviter(text) efefc86acc
 world_loans() ed625fbef7
 world_mine() 0376f655ab
 world_mine2() 1abdaf5ab7
-world_my_defense() 7a6dd611d6
+world_my_defense() 8861613253
 world_my_effects() 7e4bd22f9b
 world_player(uuid) bf00842653
 world_prepare() 6c8f3e9765
 world_quote(text, double precision, double precision) 4cee44195d
 world_raid_claim() a1afefdb0e
-world_raid_status() 487e2233e0
-world_raid_view(double precision, double precision, double precision, double precision) f63467055a
+world_raid_status() 98cebefc0f
+world_raid_view(double precision, double precision, double precision, double precision) 32615aa14b
 world_rank(text, text) 7ee3678f27
 world_rank_lega(text) e575360a99
 world_reward(integer, text) cf34570f62

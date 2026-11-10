@@ -13,7 +13,7 @@ async function hs_base(h){openSheet(`${h.ic} ${h.label}`,'<p><span class="spin">
   try{if(S.user&&h.bid)q=await wRpc('world_quote',{p_bid:h.bid,p_lat:h.lat,p_lon:h.lon});}catch(e){}
   const m=W.m||{};const mat=m.mattoni||0,gems=(typeof G!=='undefined'&&G.gems)||0;const lvl=(q&&q.level)||h.level||1;const up=150*lvl;const s=OR.s||{};
   const real=(s.houses||[]).find(x=>Math.abs(x.lat-h.lat)<.0003&&Math.abs(x.lon-h.lon)<.0004);
-  const pw=45+12*lvl+(s.next_bonus!=null?s.next_bonus:(s.prepared?15:0))+(h.home?5:0);const wl=s.wlevel||m.wlevel||1;const chance=Math.max(3,Math.min(97,Math.round((pw-(30+4*Math.min(wl,30))+1)/60*100)));
+  const pw=45+12*lvl+(s.next_bonus!=null?s.next_bonus:(s.prepared?15:0))+(h.home?5:0);const wl=s.wlevel||m.wlevel||1;let chance=null;try{chance=frChanceOf(h);}catch(e){}/* Fase 6c: la stessa % della minaccia vera */if(chance==null)chance=Math.max(3,Math.min(97,Math.round((pw-(30+4*Math.min(wl,30))+1)/60*100)));
   const need=n=>mat>=n?'':`<small class="need">Ti mancano 🧱 ${wNum(n-mat)}</small>`;
   const act=(k,ic,t,sub,cost,dis)=>`<button class="hact" data-ha="${k}" ${dis?'disabled':''}><span>${ic}</span><div><b>${t}</b><small>${sub}</small>${cost?need(cost):''}</div>${cost?`<i>🧱 ${wNum(cost)}</i>`:'<i>›</i>'}</button>`;
   /* migliorie consigliate dall'IA */
@@ -79,7 +79,7 @@ async function hs_reale(h){try{const c=document.querySelector('#sheet.open');con
   const tmp=document.createElement('div');const g=await drawHouse(tmp,h,{lvl,a:h.home?(S.answers||{}):{},prep:!!(OR.s&&OR.s.prepared),helps:h.home?Math.min(4,+((OR.s||{}).helps_in||0)):0});
   if(g){const sp=box.querySelector('span');box.innerHTML=tmp.innerHTML+`<span>${esc(realDesc(g))}</span>`;}}catch(e){}}
 /* % di tenuta dal server e "Perché" (era in p44_guida.js) */
-async function hs_tenuta(h){try{await defLoad();const c=document.querySelector('#sheet.open');if(!c)return;const dh=defHouse(h.bid,h.home);const ch=dh?defChance(dh.total):null;
+async function hs_tenuta(h){try{await defLoad();const c=document.querySelector('#sheet.open');if(!c)return;const dh=defHouse(h.bid,h.home);let ch=null;try{ch=frChanceOf(h);}catch(e){}if(ch==null)ch=dh?defChance(dh.total):null;
   const box=c.querySelector('.hsdef');if(box&&ch!=null){box.innerHTML=`<b>${ch}%</b><small>probabilità di tenere</small><button class="whyb" data-why>🧮 Perché</button>`;box.querySelector('[data-why]').onclick=()=>whySheet(h.bid,h.home);}}catch(e){}}
 /* chi arriva su questa casa (era in p47_zombie.js) */
 async function hs_zombie(h){try{const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('.thpan'))return;

@@ -8,4 +8,5 @@ Ogni cambio al database = un file nuovo `NNN_nome.sql` (numero a 3 cifre, in ord
 
 | file | cosa fa | eseguito |
 |---|---|---|
-| 001_funzioni_mancanti.sql | rimette 7 funzioni usate dall'app e mancanti nel database vero (regali, prestiti, diario della casa, chi ti ha invitato); toglie 3 funzioni non usate | da eseguire |
+| 001_funzioni_mancanti.sql | rimette 7 funzioni usate dall'app e mancanti nel database vero (regali, prestiti, diario della casa, chi ti ha invitato); toglie 3 funzioni non usate | 10/11/2026 |
+| 002_formule_uguali.sql | bonus del condominio anche nel risultato vero dell'orda e sulla mappa degli assalti; "Perché" con la stessa difesa; moltiplicatori della minaccia con 4 decimali (docs/FORMULE.md) | da eseguire |

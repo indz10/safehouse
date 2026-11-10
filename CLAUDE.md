@@ -58,7 +58,7 @@ PWA in un solo file `index.html`: valuta la sicurezza della casa vera e la trasf
 - Case abitate (anche in conferma) mai comprabili.
 - Premi in Mattoni decisi dal server (world_reward, max 300/giorno). Niente monete.
 - Account separati sullo stesso telefono (zsh_owner): mai copiare i dati di un account in un altro.
-- Formule (attacco, difesa, fortificazioni, Punteggio Superstite) identiche tra SQL e app (p47 thrCalc).
+- Formule (attacco, difesa, fortificazioni, Punteggio Superstite) identiche tra SQL e app (p47 thrCalc): scritte in **`docs/FORMULE.md`**; prova `node docs/strumenti/prova_formule.js <cartella>` (dopo `db_locale.sh`) → `FORMULE UGUALI`. Ogni % "di tenere" nell'app viene da `frChanceOf` (minaccia vera `world_threats` + `thrCalc`); `defChance` (world_my_defense) solo se la minaccia non è arrivata.
 
 ## Riepilogo completo
 Vedi `ZombieSafeHouse_Riepilogo_per_nuova_chat.md` (stato, decisioni, cronologia delle versioni).
