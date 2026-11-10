@@ -51,7 +51,7 @@ function mfMore(){const lm=window.__mf;const box=app.querySelector('.mapfull .lm
   openSheet('⋯ Mappa',`<div class="mfmenu">
     <button data-mm="mode">${night?'☀️ Giorno':'🌙 Notte'}</button><button data-mm="3d">🏙️ Vista 3D</button><button data-mm="10">🔭 Guarda 10 km</button><button data-mm="home">📍 Torna a casa mia</button>
     <button data-mm="raid">🧟 Rivedi l’ultimo assalto</button><button data-mm="zona">ℹ️ Vivere qui: la mia zona</button><button data-mm="comm">👥 Aree della community</button></div>
-    <div class="row" style="gap:6px;margin-top:10px"><input id="mmQ" class="field" placeholder="🔍 Cerca un luogo" style="flex:1"><button class="btn small" data-mm="cerca">Vai</button></div>`,card=>{
+    <button class="btn wide" data-mm="cerca" style="margin-top:10px">🔎 Cerca un luogo nel mondo</button>`,card=>{
     const click=sel=>{const b=document.querySelector('.mapfull '+sel);if(b)b.click();};
     card.querySelectorAll('[data-mm]').forEach(b=>b.onclick=async()=>{const k=b.dataset.mm;
       if(k==='mode'){closeSheet();click('.lm-mode');return;}if(k==='3d'){closeSheet();click('.lm-3d');return;}if(k==='10'){closeSheet();click('.lm-10');return;}
@@ -59,7 +59,7 @@ function mfMore(){const lm=window.__mf;const box=app.querySelector('.mapfull .lm
       if(k==='raid'){closeSheet();try{if(typeof orPlay==='function')orPlay(lm);}catch(e){}return;}
       if(k==='comm'){closeSheet();try{lm.setLayer('comm',!lm._commOn);lm._commOn=!lm._commOn;}catch(e){}return;}
       if(k==='zona'){mfZona();return;}
-      if(k==='cerca'){const q=card.querySelector('#mmQ').value.trim();if(!q)return;b.disabled=true;try{const g=await lmGeocode(q);closeSheet();lm.map.flyTo({center:[g.lon,g.lat],zoom:15.5});}catch(e){toast('Luogo non trovato');b.disabled=false;}}});});}
+      if(k==='cerca'){cercaLuogo();return;}});});}
 async function mfZona(){openSheet('ℹ️ Vivere qui','<p><span class="spin"></span> Raccolgo i servizi veri della zona…</p>',()=>{});
   try{const D=await zStruct(S.zone);const L=typeof stLive==='function'?stLive(S.zone,D):null;const near=k=>(D.items||[]).filter(x=>x.g===k).sort((a,b)=>a.d-b.d)[0];
     const ess=[['salute','💊','Farmacia o salute'],['spesa','🛒','Spesa'],['scuola','🏫','Scuola'],['servizi','🏦','Servizi'],['verde','🌳','Parco']].map(([k,i,l])=>{const x=near(k);return x?`<div class="ln2"><span>${i} ${l}: <b>${esc(x.name)}</b></span><span>${dist(x.d)}</span></div>`:'';}).join('');
