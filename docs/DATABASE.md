@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **42** · viste: **1** · indici: **11** · regole (policy): **41** · trigger: **11** · lavori programmati: **1**
-- Funzioni: **121** (121 nomi); usate (direttamente o tramite altre funzioni): **121**; **non usate: 0**
+- Tabelle: **43** · viste: **1** · indici: **11** · regole (policy): **41** · trigger: **11** · lavori programmati: **1**
+- Funzioni: **123** (123 nomi); usate (direttamente o tramite altre funzioni): **123**; **non usate: 0**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -126,6 +126,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_send_help` | ✓ |  |  |  | 3: mondo_v3 → alleati_sim → zombie_alleati |
 | `world_set_home` | ✓ |  |  |  | 1: abitazione |
 | `world_set_realshield` | ✓ |  |  |  | 1: casavera |
+| `world_shape_get` | ✓ |  |  |  | 1: migr. 003_forme_edifici |
+| `world_shape_put` | ✓ |  |  |  | 1: migr. 003_forme_edifici |
 | `world_shout` | ✓ |  |  |  | 1: social |
 | `world_status_extra` | ✓ |  |  |  | 1: equita |
 | `world_team_bonus` | ✓ |  |  |  | 1: alleanze2 |
@@ -175,6 +177,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_homes` | mondo_unico | 8 | ✓ |
 | `world_house_req` | abitazione | 0 | ✓ |
 | `world_log` | mondo_unico | 0 | ✓ |
+| `world_shapes` | supabase/migrazioni/003_forme_edifici | 0 | ✓ |
 | `world_shields` | alleanze2 | 0 | ✓ |
 | `world_shouts` | social | 0 | ✓ |
 | `world_terrain` | zombie | 0 | ✓ |

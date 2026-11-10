@@ -44,8 +44,10 @@ const btFallback=seed=>{const keys=['villa','villa','bifam','schiera','condo','c
 async function bType(lat,lon,seed){const k='zsh_bt_'+lat.toFixed(4)+'_'+lon.toFixed(4);if(BT_MEM[k])return BT_MEM[k];try{const c=localStorage.getItem(k);if(c){BT_MEM[k]=c;return c;}
     const no=+localStorage.getItem(k+'_no')||0;if(no&&Date.now()-no<BT_NO_MS)return btFallback(seed);}catch(e){}
   if(BT_WAIT[k])return BT_WAIT[k];
-  return BT_WAIT[k]=(async()=>{let t=null,risposto=false;try{const els=await trOverpass(`[out:json][timeout:15];way(around:18,${lat},${lon})["building"];out tags 5;`,12000,5);risposto=true;if(els&&els.length){for(const e of els){t=btFromTags(e.tags);if(t)break;}}}catch(e){}
-    if(!t){t=btFallback(seed);if(risposto)try{localStorage.setItem(k+'_no',String(Date.now()));}catch(e){}}else{try{localStorage.setItem(k,t);}catch(e){}}BT_MEM[k]=t;
+  return BT_WAIT[k]=(async()=>{let t=null,risposto=false;const sk=k.replace('zsh_bt_','');const sv=await shpGet(sk,'bt');
+    if(sv){t=sv.found&&typeof sv.val==='string'?sv.val:btFallback(seed);if(sv.found)try{localStorage.setItem(k,t);}catch(e){}else try{localStorage.setItem(k+'_no',String(Date.now()));}catch(e){}BT_MEM[k]=t;delete BT_WAIT[k];return t;}
+    try{const els=await trOverpass(`[out:json][timeout:15];way(around:18,${lat},${lon})["building"];out tags 5;`,12000,5);risposto=true;if(els&&els.length){for(const e of els){t=btFromTags(e.tags);if(t)break;}}}catch(e){}
+    if(!t){t=btFallback(seed);if(risposto){shpPut(sk,'bt',null);try{localStorage.setItem(k+'_no',String(Date.now()));}catch(e){}}}else{shpPut(sk,'bt',t);try{localStorage.setItem(k,t);}catch(e){}}BT_MEM[k]=t;
     delete BT_WAIT[k];return t;})();}
 /* la casa vera: dal tipo scelto all'inizio, altrimenti dalla mappa */
 function homeBT(){const g=(typeof G!=='undefined'&&G.type)||'';if(['apt','residence','attico','loft','ringhiera'].includes(g))return'condo';if(g==='schiera')return'schiera';if(g==='bifamiliare')return'bifam';if(g==='casale')return'cascina';if(g==='villa')return'villa';return null;}

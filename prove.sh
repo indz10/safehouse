@@ -17,6 +17,7 @@ prova t_fronte_lento.py "ERR []"
 prova t_account.py "ERR []"
 prova t_casa_una.py "cambi visibili: 0"
 prova t_orologio.py "timer permanenti all'avvio: 1"
+prova t_forme.py "seconda volta: dal server, forma True | tipo villa | richieste a OpenStreetMap 0"
 for extra in "$@"; do prova "$extra" ""; done
 echo
 if [ $FALLITE -eq 0 ]; then echo "TUTTO OK"; else echo "PROVE NON RIUSCITE: $FALLITE"; exit 1; fi

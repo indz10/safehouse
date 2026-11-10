@@ -2126,6 +2126,43 @@ begin
 end $$;
 
 --
+-- Name: world_shape_get(text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_shape_get(p_k text, p_kind text) RETURNS json
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select case when s.k is null then null
+              when s.val is null and s.updated_at < now() - interval '3 days' then null
+              else json_build_object('found', s.val is not null, 'val', s.val) end
+  from (select 1) x left join public.world_shapes s on s.k = p_k and s.kind = p_kind
+  where auth.uid() is not null;
+$$;
+
+--
+-- Name: world_shape_put(text, text, jsonb); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_shape_put(p_k text, p_kind text, p_val jsonb) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $_$
+declare me uuid := auth.uid(); n int;
+begin
+  if me is null then return json_build_object('ok', false); end if;
+  if p_kind not in ('geo','bt') or p_k !~ '^-?[0-9]{1,3}\.[0-9]{4,5}_-?[0-9]{1,3}\.[0-9]{4,5}$' then return json_build_object('ok', false, 'msg', 'chiave'); end if;
+  if p_val is not null and octet_length(p_val::text) > 40000 then return json_build_object('ok', false, 'msg', 'troppo grande'); end if;
+  select count(*) into n from public.world_shapes where by_user = me and updated_at > now() - interval '1 day';
+  if n >= 400 then return json_build_object('ok', false, 'msg', 'limite di oggi'); end if;
+  insert into public.world_shapes(k, kind, val, by_user, updated_at) values (p_k, p_kind, p_val, me, now())
+  on conflict (k, kind) do update set val = excluded.val, by_user = excluded.by_user, updated_at = now()
+    -- una forma trovata non viene sostituita da un "non trovato"; si aggiorna se è vecchia di 60 giorni
+    where world_shapes.val is null or (excluded.val is not null and world_shapes.updated_at < now() - interval '60 days');
+  return json_build_object('ok', true);
+end $_$;
+
+--
 -- Name: world_shout(uuid, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2931,6 +2968,19 @@ CREATE SEQUENCE public.world_log_id_seq
 ALTER SEQUENCE public.world_log_id_seq OWNED BY public.world_log.id;
 
 --
+-- Name: world_shapes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_shapes (
+    k text NOT NULL,
+    kind text NOT NULL,
+    val jsonb,
+    by_user uuid DEFAULT auth.uid(),
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT world_shapes_kind_check CHECK ((kind = ANY (ARRAY['geo'::text, 'bt'::text])))
+);
+
+--
 -- Name: world_shields; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3314,6 +3364,13 @@ ALTER TABLE ONLY public.world_house_req
 
 ALTER TABLE ONLY public.world_log
     ADD CONSTRAINT world_log_pkey PRIMARY KEY (id);
+
+--
+-- Name: world_shapes world_shapes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_shapes
+    ADD CONSTRAINT world_shapes_pkey PRIMARY KEY (k, kind);
 
 --
 -- Name: world_shields world_shields_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -4304,6 +4361,12 @@ ALTER TABLE public.world_house_req ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.world_log ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: world_shapes; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_shapes ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: world_shields; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -4893,6 +4956,20 @@ GRANT ALL ON FUNCTION public.world_set_home(p_kind text, p_unit text) TO authent
 --
 
 GRANT ALL ON FUNCTION public.world_set_realshield(p_lvl integer) TO authenticated;
+
+--
+-- Name: FUNCTION world_shape_get(p_k text, p_kind text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_shape_get(p_k text, p_kind text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_shape_get(p_k text, p_kind text) TO authenticated;
+
+--
+-- Name: FUNCTION world_shape_put(p_k text, p_kind text, p_val jsonb); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_shape_put(p_k text, p_kind text, p_val jsonb) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_shape_put(p_k text, p_kind text, p_val jsonb) TO authenticated;
 
 --
 -- Name: FUNCTION world_shout(p_to uuid, p_code integer); Type: ACL; Schema: public; Owner: -

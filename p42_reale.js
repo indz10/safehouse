@@ -11,22 +11,30 @@ const RH={};const INKC='#140f1f';
 /* Fase 4a-4: una sola richiesta per casa anche se la chiedono pagina, barra "Le tue case" e legenda insieme;
    se OpenStreetMap risponde ma lì non c'è un edificio, il "non trovato" si ricorda 3 giorni */
 const BG_WAIT={},BG_NO_MS=3*86400000;
+/* Fase 7b: forme e tipi degli edifici salvati su Supabase per tutti (world_shapes). Ordine: memoria → telefono → server → OpenStreetMap.
+   Se il server non risponde entro 2,5 s si va avanti come prima. */
+async function shpGet(k,kind){try{if(!S.user||typeof SB==='undefined'||!SB||!SB.rpc)return null;
+  const r=await Promise.race([SB.rpc('world_shape_get',{p_k:k,p_kind:kind}),new Promise(ok=>setTimeout(()=>ok(null),2500))]);
+  return r&&!r.error&&r.data&&typeof r.data==='object'&&'found' in r.data?r.data:null;}catch(e){return null;}}
+function shpPut(k,kind,val){try{if(!S.user||typeof SB==='undefined'||!SB||!SB.rpc)return;SB.rpc('world_shape_put',{p_k:k,p_kind:kind,p_val:val==null?null:val}).then(()=>{},()=>{});}catch(e){}}
 async function bGeom(lat,lon){const k='zsh_bg2_'+lat.toFixed(5)+'_'+lon.toFixed(5);if(RH[k])return RH[k];try{const c=localStorage.getItem(k);if(c){RH[k]=JSON.parse(c);return RH[k];}
     const no=+localStorage.getItem(k+'_no')||0;if(no&&Date.now()-no<BG_NO_MS)return null;}catch(e){}
   if(BG_WAIT[k])return BG_WAIT[k];
   return BG_WAIT[k]=bGeomFetch(lat,lon,k).finally(()=>{delete BG_WAIT[k];});}
 async function bGeomFetch(lat,lon,k){
   const noBld=()=>{try{localStorage.setItem(k+'_no',String(Date.now()));}catch(e){}return null;};
+  const sk=k.replace('zsh_bg2_','');const sv=await shpGet(sk,'geo');
+  if(sv){if(sv.found&&sv.val&&sv.val.main){RH[k]=sv.val;try{localStorage.setItem(k,JSON.stringify(sv.val));}catch(e){}return sv.val;}if(!sv.found)return noBld();}
   let els=null;try{els=await trOverpass(`[out:json][timeout:20];(way(around:70,${lat},${lon})["building"];way(around:70,${lat},${lon})["leisure"="swimming_pool"];);out tags geom 60;`,15000,60);}catch(e){}
-  if(!els)return null;if(!els.length)return noBld();const kx=111320*Math.cos(lat*Math.PI/180),ky=110540;
+  if(!els)return null;if(!els.length){shpPut(sk,'geo',null);return noBld();}const kx=111320*Math.cos(lat*Math.PI/180),ky=110540;
   const POOLS=els.filter(e=>e.tags&&e.tags.leisure==='swimming_pool'&&e.geometry&&e.geometry.length>=4).map(e=>({p:e.geometry.map(g=>[Math.round((g.lon-lon)*kx*10)/10,Math.round((g.lat-lat)*ky*10)/10])}));
   const B=els.filter(e=>e.geometry&&e.geometry.length>=4&&!(e.tags&&e.tags.leisure)).map(e=>{let p=e.geometry.map(g=>[(g.lon-lon)*kx,(g.lat-lat)*ky]);if(p.length>1&&p[0][0]===p[p.length-1][0]&&p[0][1]===p[p.length-1][1])p.pop();
       if(p.length>40){const st=Math.ceil(p.length/40);p=p.filter((_,i)=>i%st===0);}const t=e.tags||{};return{p:p.map(q=>[Math.round(q[0]*10)/10,Math.round(q[1]*10)/10]),lv:+t['building:levels']||0,roof:t['roof:shape']||'',col:t['building:colour']||'',rcol:t['roof:colour']||'',b:t.building||'',mat:t['building:material']||''};});
-  if(!B.length)return noBld();
+  if(!B.length){shpPut(sk,'geo',null);return noBld();}
   const inside=(p)=>{let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const[xi,yi]=p[i],[xj,yj]=p[j];if((yi>0)!==(yj>0)&&0<(xj-xi)*(0-yi)/(yj-yi)+xi)c=!c;}return c;};
   const cen=p=>[p.reduce((s,q)=>s+q[0],0)/p.length,p.reduce((s,q)=>s+q[1],0)/p.length];
-  let mi=B.findIndex(b=>inside(b.p));if(mi<0){let bd=1e9;B.forEach((b,i)=>{const c=cen(b.p);const d=Math.hypot(c[0],c[1]);if(d<bd){bd=d;mi=i;}});if(bd>60)return noBld();}
-  const out={main:B[mi],near:B.filter((b,i)=>i!==mi&&Math.hypot(...cen(b.p))<55).slice(0,10),pools:POOLS.filter(q=>Math.hypot(...cen(q.p))<45).slice(0,3)};RH[k]=out;try{localStorage.setItem(k,JSON.stringify(out));}catch(e){}return out;}
+  let mi=B.findIndex(b=>inside(b.p));if(mi<0){let bd=1e9;B.forEach((b,i)=>{const c=cen(b.p);const d=Math.hypot(c[0],c[1]);if(d<bd){bd=d;mi=i;}});if(bd>60){shpPut(sk,'geo',null);return noBld();}}
+  const out={main:B[mi],near:B.filter((b,i)=>i!==mi&&Math.hypot(...cen(b.p))<55).slice(0,10),pools:POOLS.filter(q=>Math.hypot(...cen(q.p))<45).slice(0,3)};RH[k]=out;shpPut(sk,'geo',out);try{localStorage.setItem(k,JSON.stringify(out));}catch(e){}return out;}
 /* ---- disegno ---- */
 const PLASTER=['#efe0c4','#f2e6d0','#e9c9a0','#dcb48c','#f3ece2','#d6dcc8','#e8c4b4','#f0d9a8'];
 function shade(hex,f){try{const n=parseInt(hex.slice(1),16);const r=Math.round(((n>>16)&255)*f),g=Math.round(((n>>8)&255)*f),b=Math.round((n&255)*f);return'#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}catch(e){return hex;}}
