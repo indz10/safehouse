@@ -6,8 +6,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict HGlA1ykPUyz3E1e8anlQAkLbCLFfHkAsAX19fcXayvcT5HrPTDwXBC1faQebtzC
-
 --
 -- Name: public; Type: SCHEMA; Schema: -; Owner: -
 --
@@ -193,16 +191,6 @@ CREATE FUNCTION public.w_are_allies(a uuid, b uuid) RETURNS boolean
     or exists (select 1 from public.profili_pubblici p where p.user_id = b and p.invitato_da = left(a::text,8))
     or exists (select 1 from public.profili_pubblici p where p.user_id = a and p.invitato_da = left(b::text,8))
     or public.w_coinq(a, b));
-$$;
-
---
--- Name: w_attack(text, text); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.w_attack(p_slot text, p_bid text) RETURNS integer
-    LANGUAGE sql IMMUTABLE
-    AS $$
-  select 40 + (get_byte(decode(md5(p_slot || p_bid), 'hex'), 0) % 60);
 $$;
 
 --
@@ -502,16 +490,6 @@ begin
     end if;
   end if;
 end $$;
-
---
--- Name: w_power(integer, boolean, boolean); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.w_power(p_level integer, p_prep boolean, p_home boolean) RETURNS integer
-    LANGUAGE sql IMMUTABLE
-    AS $$
-  select 45 + 12 * greatest(p_level,1) + (case when p_prep then 15 else 0 end) + (case when p_home then 5 else 0 end);
-$$;
 
 --
 -- Name: w_power3(integer, integer, boolean); Type: FUNCTION; Schema: public; Owner: -
@@ -1043,17 +1021,6 @@ begin
   else delete from public.world_blocks where user_id = auth.uid() and blocked = p_user; end if;
   return json_build_object('ok',true,'msg', case when p_on then 'Bloccato: non vedrai più i suoi messaggi' else 'Sbloccato' end);
 end $$;
-
---
--- Name: world_blocked(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.world_blocked() RETURNS TABLE(user_id uuid, nick text)
-    LANGUAGE sql STABLE SECURITY DEFINER
-    SET search_path TO 'public'
-    AS $$
-  select b.blocked, public.w_nick(b.blocked) from public.world_blocks b where b.user_id = auth.uid();
-$$;
 
 --
 -- Name: world_buy(text, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
@@ -4630,12 +4597,6 @@ GRANT ALL ON FUNCTION public.world_ask_help() TO authenticated;
 GRANT ALL ON FUNCTION public.world_block(p_user uuid, p_on boolean) TO authenticated;
 
 --
--- Name: FUNCTION world_blocked(); Type: ACL; Schema: public; Owner: -
---
-
-GRANT ALL ON FUNCTION public.world_blocked() TO authenticated;
-
---
 -- Name: FUNCTION world_buy(p_bid text, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
 --
 
@@ -4986,6 +4947,4 @@ GRANT ALL ON FUNCTION public.zsh_stats() TO authenticated;
 --
 -- PostgreSQL database dump complete
 --
-
-\unrestrict HGlA1ykPUyz3E1e8anlQAkLbCLFfHkAsAX19fcXayvcT5HrPTDwXBC1faQebtzC
 

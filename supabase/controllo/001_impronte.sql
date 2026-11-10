@@ -1,9 +1,10 @@
 -- ZombieSafeHouse · CONTROLLO (solo lettura, non cambia niente)
 -- Restituisce UNA cella di testo: un'impronta per ogni funzione e per ogni tabella del database.
 -- Serve a confrontare il database vero con quello ricostruito dai file *.sql (Fase 6a).
+-- Le righe di commento (--) dentro le funzioni non contano: l'SQL Editor di Supabase le toglie.
 select
   'FUNZIONI' || E'\n' ||
-  (select string_agg(p.proname || '(' || oidvectortypes(p.proargtypes) || ') ' || left(md5(p.prosrc), 10), E'\n' order by p.proname, oidvectortypes(p.proargtypes))
+  (select string_agg(p.proname || '(' || oidvectortypes(p.proargtypes) || ') ' || left(md5(regexp_replace(p.prosrc, '\n[ \t]*--[^\n]*', '', 'g')), 10), E'\n' order by p.proname, oidvectortypes(p.proargtypes))
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public'
       and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e'))

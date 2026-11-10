@@ -8,3 +8,4 @@ Ogni cambio al database = un file nuovo `NNN_nome.sql` (numero a 3 cifre, in ord
 
 | file | cosa fa | eseguito |
 |---|---|---|
+| 001_funzioni_mancanti.sql | rimette 7 funzioni usate dall'app e mancanti nel database vero (regali, prestiti, diario della casa, chi ti ha invitato); toglie 3 funzioni non usate | da eseguire |

@@ -25,6 +25,6 @@ for f in "$R"/supabase/migrazioni/[0-9]*.sql; do [ -e "$f" ] || continue
   echo "-- e supabase/migrazioni/ su un Postgres di prova (docs/strumenti/db_locale.sh). È un DOCUMENTO: non eseguirlo."
   echo "-- Per cambiare il database: un file nuovo in supabase/migrazioni/NNN_nome.sql."
   echo "-- Lavori programmati (cron): $($P -d zsh -tA -c "select string_agg(jobname||' '||schedule, '; ') from cron.job")"
-  "$B/pg_dump" -h "$W" -p $PORT -U postgres -d zsh -n public --schema-only --no-owner | grep -v '^-- Dumped\|^SET \|^SELECT pg_catalog.set_config' | cat -s; } > "$R/supabase/schema.sql"
+  "$B/pg_dump" -h "$W" -p $PORT -U postgres -d zsh -n public --schema-only --no-owner | grep -v '^-- Dumped\|^SET \|^SELECT pg_catalog.set_config\|^\\restrict\|^\\unrestrict' | cat -s; } > "$R/supabase/schema.sql"
 $P -d zsh -tA -f "$R/supabase/controllo/001_impronte.sql" > "$R/supabase/controllo/impronte_attese.txt"
 echo "schema.sql: $(wc -l < "$R/supabase/schema.sql") righe · impronte: $(grep -c . "$R/supabase/controllo/impronte_attese.txt") righe · errori: $ERR"

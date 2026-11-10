@@ -11,7 +11,6 @@ push_unsubscribe(text) d8c7f31d16
 redeem_coupon(text, numeric) 2ae032ec11
 w_allies_of(uuid) f79fddd6ef
 w_are_allies(uuid, uuid) 562fd9a3ca
-w_attack(text, text) 7a160cf709
 w_attack3(text, text, integer) 4deba51e53
 w_bad(text) 2115eb8cd1
 w_boost(uuid) 23b0f9792c
@@ -33,8 +32,7 @@ w_max(integer) 76812ad5cd
 w_median_near(uuid) 1ef0515265
 w_next_slot(timestamp with time zone) e7098146fc
 w_nick(uuid) 0f0ebfc0c0
-w_pay(uuid, integer, text, text) 818c41bc54
-w_power(integer, boolean, boolean) b8df951fad
+w_pay(uuid, integer, text, text) 5bcdcb3669
 w_power3(integer, integer, boolean) 1514872532
 w_prev_slot(timestamp with time zone) 304fb96aeb
 w_price(double precision, double precision) 15fba21ed2
@@ -44,7 +42,7 @@ w_raid_houses(uuid, timestamp with time zone) 81af815347
 w_room(text) ab86838fbb
 w_score(uuid, boolean) 836191a166
 w_settle(uuid) 59bad382a9
-w_settle_loans(uuid) b0eb5b8356
+w_settle_loans(uuid) 6cc226f820
 w_shielded(uuid) e93050b23d
 w_slope(text) 0dcd67cdba
 w_slot_id(timestamp with time zone) 5fd33c951a
@@ -65,7 +63,6 @@ world_ally_shield(uuid) ebd03e1ab8
 world_ally_view(uuid) ef33f8ac73
 world_ask_help() eaa8fd1b52
 world_block(uuid, boolean) d5c18b09f9
-world_blocked() 9e2b07fdaa
 world_buy(text, double precision, double precision) c1440ed06d
 world_chat_list(text, bigint) ffb3c046c7
 world_chat_report(bigint) 89cee22a5d
@@ -78,7 +75,7 @@ world_def_upgrade(text, text) 17ee5d8a24
 world_dm_list(uuid) 83e7aeaa85
 world_dm_send(uuid, text) 8750519757
 world_dm_threads() 3560c66838
-world_earn(text) 79c255ec6c
+world_earn(text) d18bb31d86
 world_feed_list(text) 8c091dbd22
 world_find(text) ade7145174
 world_gift_claim(bigint) 2023464b42
