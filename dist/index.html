@@ -4259,7 +4259,7 @@ const _dayInitTR=dayInit;dayInit=function(){_dayInitTR();try{terrExps();}catch(e
 /* bollettino del territorio nella pagina del gioco */
 
 /* ---------- aggiornamento automatico dell'app installata ---------- */
-const ZSH_BUILD='202611102226';
+const ZSH_BUILD='202611102312';
 /* Fase 5d: appena aperta (o riaperta dallo sfondo) l'app controlla subito la versione; se ce n'è una nuova
    nei primi 20 s mostra "Aggiorno l'app…" e si ricarica SUBITO (anche con una finestra aperta: è appena partita).
    Se arriva mentre stai giocando, aspetta che non ci siano finestre aperte (come prima). Mai due volte di fila per la stessa versione. */
@@ -6682,17 +6682,20 @@ openScudo=function(){const st=scudoSteps(),lv=scudoLv();
 window.DEF={d:null,t:0};
 async function defLoadBase(force){if(!S.user||typeof SB==='undefined'||!SB)return null;if(!force&&DEF.d&&Date.now()-DEF.t<60000)return DEF.d;
   try{const{data,error}=await SB.rpc('world_my_defense');if(error)throw error;DEF.d=data;DEF.t=Date.now();}catch(e){}return DEF.d;}
-function defChance(total){const d=DEF.d;if(!d||total==null)return null;return Math.max(0,Math.min(100,Math.round((total-d.attack_min+1)/60*100)));}
+function defChance(total){const d=DEF.d;if(!d||total==null)return null;const w=Math.max(1,(d.attack_max-d.attack_min+1)||60);return Math.max(0,Math.min(100,Math.round((total-d.attack_min+1)/w*100)));}
 function defHouse(bid,home){const d=DEF.d;if(!d||!d.houses)return null;return d.houses.find(h=>(home&&h.home)||(bid&&h.bid===bid))||null;}
-function whySheet(bid,home){const d=DEF.d;if(!d){toast('Conto non disponibile ora');return;}const h=defHouse(bid,home)||d.houses&&d.houses[0];const tot=h?h.total:null;const ch=defChance(tot);
+function whySheet(bid,home){const d=DEF.d;if(!d){toast('Conto non disponibile ora');return;}const h=defHouse(bid,home)||d.houses&&d.houses[0];
+  /* Fase 6c: difesa, forza dell'orda e % dalla minaccia vera della casa (world_threats, come l'orda vera) */
+  let T=null,c=null;try{T=thrOf({bid,home:!!home})||(h?thrOf({bid:h.bid,home:h.home}):null);c=T?thrCalc(T):null;}catch(e){}
+  const tot=c?c.def:(h?h.total:null);const ch=c?c.ch:defChance(tot);const condo=h&&h.home?((T&&T.condo)||d.condo||0):0;
   const row=(ic,t,v,on=true)=>`<div class="whyr ${v<0?'neg':v>0?'pos':''}"><span>${ic} ${t}</span><b>${v>0?'+':''}${v}</b></div>`;
   openSheet('🧮 Perché '+(ch!=null?ch+'%':''),`<p style="font-weight:400;margin:0 0 8px">Il conto della <b>prossima orda</b>, calcolato dal server con le stesse regole per tutti.</p>
-   ${h?row('🏠','Base della casa',45)+row('⬆️',`Livello casa ${h.level} (12 per livello)`,12*Math.max(h.level,1))+(h.home?row('❤️','Casa vera',5):''):''}
+   ${h?row('🏠','Base della casa',45)+row('⬆️',`Livello casa ${h.level} (12 per livello)`,12*Math.max(h.level,1))+(h.home?row('❤️','Casa vera',5):'')+(condo?row('🏢','Difese del condominio',condo):''):''}
    ${row('🛡️','Case preparate',d.prep)}${row('🏡',`Scudo della casa vera ${d.realshield}/5`,d.realshield_pts)}${row('🤝',`Rinforzi degli alleati (${d.helps})`,d.helps_pts)}
    ${row('🛡️',`Scudi degli alleati (${d.shields})`,d.shields_pts)}${row('👥',`Difesa di squadra (${d.squad}/3 alleati pronti)`,d.squad_pts)}${row('🏢',`Coinquilini pronti (${d.coinq})`,d.coinq_pts)}
    ${d.malus?row('😈',`Malus dei rivali (orde ${d.attacks}, nebbia ${d.fog}, sabotaggio ${d.sab})`,-d.malus):''}
    <div class="whytot"><span>Difesa totale</span><b>${tot!=null?tot:'—'}</b></div>
-   <p style="font-weight:400;font-size:13px;margin:8px 0 0">L’orda per il tuo livello (${d.wlevel}) avrà una forza tra <b>${d.attack_min}</b> e <b>${d.attack_max}</b>. ${ch!=null?`Con ${tot} di difesa tieni nel <b>${ch}%</b> dei casi.`:''}</p>
+   <p style="font-weight:400;font-size:13px;margin:8px 0 0">${c?`L’orda su questa casa (livello ${T.wl}, con zombie speciali, meteo e pendenza) avrà una forza tra <b>${c.amin}</b> e <b>${c.amax}</b>.`:`L’orda per il tuo livello (${d.wlevel}) avrà una forza tra <b>${d.attack_min}</b> e <b>${d.attack_max}</b>.`} ${ch!=null?`Con ${tot} di difesa tieni nel <b>${ch}%</b> dei casi.`:''}</p>
    <p class="muted" style="font-size:12px;margin-top:6px">Per salire: prepara le case, chiedi rinforzi, potenzia la casa, migliora la casa vera (Scudo).</p>`);}
 /* nella scheda di ogni casa: probabilità vera + "Perché" */
 /* sul fronte: probabilità vera della casa vera */
@@ -7069,7 +7072,7 @@ const _sponsorSheetDm=sponsorSheet;sponsorSheet=function(){const r=_sponsorSheet
    - nella scheda della casa: "🎯 Fortificazioni consigliate" per gli zombie e il meteo di QUELLA casa
    - versione dell'app nel menu (per capire se un telefono è aggiornato)
    ========================================================= */
-const APPV='202611102226';
+const APPV='202611102312';
 function fortOpts(T){if(!T)return[];const base=thrCalc(T).ch;const L=[];
   DKS.forEach(k=>{const cur=(T.defs||{})[k]||0;if(cur>=3){L.push({k,cur,max:true,gain:0,cost:0});return;}const nx=thrCalc(T,{defs:{[k]:cur+1}}).ch;L.push({k,cur,cost:80*(cur+1),gain:nx-base,to:nx});});
   if(T.level<5){const nx=thrCalc(T,{level:T.level+1}).ch;L.push({k:'_lvl',cur:T.level,cost:150*T.level,gain:nx-base,to:nx});}
@@ -7482,7 +7485,7 @@ function frWx(){const F=FR.dests&&FR.dests[0];const T=F&&thrOf(F);if(!T||T.ev==n
 function frChanceOf(h){const T=thrOf(h);if(T)return thrCalc(T).ch;return frChanceOfBase(h);}
 /* intestazione del fronte: base (p39) + % dal server con "perché" (p44) + meteo senza temperatura (p47) */
 function frHeader(){frHeaderBase();
-  try{const d=DEF.d;if(d){const hh=defHouse(null,true);if(hh){const ch=defChance(hh.total);const n=FR.node;if(n){
+  try{const d=DEF.d;if(d){const hh=defHouse(null,true);if(hh){let ch=null;try{const hm=myHouses().find(x=>x.home);if(hm)ch=frChanceOf(hm);}catch(e){}if(ch==null)ch=defChance(hh.total);const n=FR.node;if(n){
     const chip=[...n.querySelectorAll('[data-frchips] span')].find(s=>/di tenere/.test(s.textContent));if(chip){chip.innerHTML=`🛡️ ${ch}% di tenere · <u>perché</u>`;chip.style.cursor='pointer';chip.onclick=()=>whySheet(null,true);}
     const pc=n.querySelector('[data-frpct]');if(pc)pc.textContent=ch+'%';const ring=n.querySelector('.frring');if(ring)ring.style.setProperty('--ok',ch>=50?'#5bd16a':'#d7263d');}}}}catch(e){}
   try{const w=FR.wx;const wb=FR.node&&FR.node.querySelector('.frwx');if(w&&wb&&(w.t==null||w.t===''))wb.textContent=`${w.ic} ${w.name}`;}catch(e){}}
@@ -7572,7 +7575,7 @@ async function hs_base(h){openSheet(`${h.ic} ${h.label}`,'<p><span class="spin">
   try{if(S.user&&h.bid)q=await wRpc('world_quote',{p_bid:h.bid,p_lat:h.lat,p_lon:h.lon});}catch(e){}
   const m=W.m||{};const mat=m.mattoni||0,gems=(typeof G!=='undefined'&&G.gems)||0;const lvl=(q&&q.level)||h.level||1;const up=150*lvl;const s=OR.s||{};
   const real=(s.houses||[]).find(x=>Math.abs(x.lat-h.lat)<.0003&&Math.abs(x.lon-h.lon)<.0004);
-  const pw=45+12*lvl+(s.next_bonus!=null?s.next_bonus:(s.prepared?15:0))+(h.home?5:0);const wl=s.wlevel||m.wlevel||1;const chance=Math.max(3,Math.min(97,Math.round((pw-(30+4*Math.min(wl,30))+1)/60*100)));
+  const pw=45+12*lvl+(s.next_bonus!=null?s.next_bonus:(s.prepared?15:0))+(h.home?5:0);const wl=s.wlevel||m.wlevel||1;let chance=null;try{chance=frChanceOf(h);}catch(e){}/* Fase 6c: la stessa % della minaccia vera */if(chance==null)chance=Math.max(3,Math.min(97,Math.round((pw-(30+4*Math.min(wl,30))+1)/60*100)));
   const need=n=>mat>=n?'':`<small class="need">Ti mancano 🧱 ${wNum(n-mat)}</small>`;
   const act=(k,ic,t,sub,cost,dis)=>`<button class="hact" data-ha="${k}" ${dis?'disabled':''}><span>${ic}</span><div><b>${t}</b><small>${sub}</small>${cost?need(cost):''}</div>${cost?`<i>🧱 ${wNum(cost)}</i>`:'<i>›</i>'}</button>`;
   /* migliorie consigliate dall'IA */
@@ -7638,7 +7641,7 @@ async function hs_reale(h){try{const c=document.querySelector('#sheet.open');con
   const tmp=document.createElement('div');const g=await drawHouse(tmp,h,{lvl,a:h.home?(S.answers||{}):{},prep:!!(OR.s&&OR.s.prepared),helps:h.home?Math.min(4,+((OR.s||{}).helps_in||0)):0});
   if(g){const sp=box.querySelector('span');box.innerHTML=tmp.innerHTML+`<span>${esc(realDesc(g))}</span>`;}}catch(e){}}
 /* % di tenuta dal server e "Perché" (era in p44_guida.js) */
-async function hs_tenuta(h){try{await defLoad();const c=document.querySelector('#sheet.open');if(!c)return;const dh=defHouse(h.bid,h.home);const ch=dh?defChance(dh.total):null;
+async function hs_tenuta(h){try{await defLoad();const c=document.querySelector('#sheet.open');if(!c)return;const dh=defHouse(h.bid,h.home);let ch=null;try{ch=frChanceOf(h);}catch(e){}if(ch==null)ch=dh?defChance(dh.total):null;
   const box=c.querySelector('.hsdef');if(box&&ch!=null){box.innerHTML=`<b>${ch}%</b><small>probabilità di tenere</small><button class="whyb" data-why>🧮 Perché</button>`;box.querySelector('[data-why]').onclick=()=>whySheet(h.bid,h.home);}}catch(e){}}
 /* chi arriva su questa casa (era in p47_zombie.js) */
 async function hs_zombie(h){try{const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('.thpan'))return;

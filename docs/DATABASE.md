@@ -31,7 +31,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_canon` |  |  |  | world_claim_home, world_quote, world_buy | 3: mondo_unico → mondo_unico_agg1 → abitazione |
 | `w_cleanup` |  |  |  | world_buy | 1: mondo_unico |
 | `w_coinq` |  |  |  | w_upower, w_are_allies, w_allies_of, world_allies, world_team_bonus, world_my_defense … | 1: alleanze2 |
-| `w_condo_bonus` |  |  |  | w_home_held, w_threats_of, world_house_info | 1: abitazione |
+| `w_condo_bonus` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of, world_house_info | 1: abitazione |
 | `w_condo_key` |  |  |  | w_condo_bonus, world_condo_give, world_house_info | 1: abitazione |
 | `w_def` |  |  |  | w_attack3, world_def_upgrade, w_threats_of | 2: zombie → zombie_alleati |
 | `w_feed_add` |  |  |  | w_tr_feed, w_tr_dm, world_house_invite, world_house_answer | 1: social |
@@ -60,7 +60,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_shielded` |  |  |  | world_send_attack, world_send_curse, world_welcome, world_status_extra, world_rivals | 1: equita |
 | `w_slope` |  |  |  | w_attack3, w_threats_of | 2: zombie → zombie_alleati |
 | `w_slot_id` |  |  |  | world_raid_status, world_prepare, world_raid_view, world_ask_help, world_help_list, world_send_help … | 1: orda_mondo |
-| `w_threats_of` |  |  |  | world_threats, world_ally_view, world_allies_status | 4: alleati_sim → zombie_alleati → fortezze → abitazione |
+| `w_threats_of` |  |  |  | world_threats, world_ally_view, world_allies_status | 5: alleati_sim → zombie_alleati → fortezze → abitazione → migr. 002_formule_uguali |
 | `w_tr_dm` |  |  | trigger |  | 1: assedio |
 | `w_tr_feed` |  |  | trigger |  | 4: social → aiuto_alleati → dispetti → alleanze2 |
 | `w_upower` |  |  |  | world_raid_status, world_raid_view, w_home_held, w_threats_of | 5: mondo_v3 → dispetti → alleanze2 → casavera → squadra_fix |
@@ -106,14 +106,14 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_loans` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
 | `world_mine` | ✓ |  |  | world_mine2 | 1: mondo_unico |
 | `world_mine2` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
-| `world_my_defense` | ✓ |  |  |  | 2: casavera → squadra_fix |
+| `world_my_defense` | ✓ |  |  |  | 3: casavera → squadra_fix → migr. 002_formule_uguali |
 | `world_my_effects` | ✓ |  |  |  | 3: assedio → casa_abitata → nome_casa |
 | `world_player` | ✓ |  |  |  | 1: social |
 | `world_prepare` | ✓ |  |  |  | 1: orda_mondo |
 | `world_quote` | ✓ |  |  | world_buy | 5: mondo_unico → mondo_unico_agg1 → mondo_v3 → casa_abitata → nome_casa |
 | `world_raid_claim` | ✓ |  |  |  | 2: orda_mondo → mondo_v3 |
-| `world_raid_status` | ✓ |  |  | world_raid_claim | 2: orda_mondo → mondo_v3 |
-| `world_raid_view` | ✓ |  |  |  | 2: orda_mondo → mondo_v3 |
+| `world_raid_status` | ✓ |  |  | world_raid_claim | 3: orda_mondo → mondo_v3 → migr. 002_formule_uguali |
+| `world_raid_view` | ✓ |  |  |  | 3: orda_mondo → mondo_v3 → migr. 002_formule_uguali |
 | `world_rank` | ✓ |  |  |  | 2: social → classifica |
 | `world_rank_lega` | ✓ |  |  |  | 2: equita → classifica |
 | `world_reward` | ✓ |  |  |  | 1: premi |

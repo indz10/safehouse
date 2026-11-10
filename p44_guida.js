@@ -17,17 +17,20 @@ openScudo=function(){const st=scudoSteps(),lv=scudoLv();
 window.DEF={d:null,t:0};
 async function defLoadBase(force){if(!S.user||typeof SB==='undefined'||!SB)return null;if(!force&&DEF.d&&Date.now()-DEF.t<60000)return DEF.d;
   try{const{data,error}=await SB.rpc('world_my_defense');if(error)throw error;DEF.d=data;DEF.t=Date.now();}catch(e){}return DEF.d;}
-function defChance(total){const d=DEF.d;if(!d||total==null)return null;return Math.max(0,Math.min(100,Math.round((total-d.attack_min+1)/60*100)));}
+function defChance(total){const d=DEF.d;if(!d||total==null)return null;const w=Math.max(1,(d.attack_max-d.attack_min+1)||60);return Math.max(0,Math.min(100,Math.round((total-d.attack_min+1)/w*100)));}
 function defHouse(bid,home){const d=DEF.d;if(!d||!d.houses)return null;return d.houses.find(h=>(home&&h.home)||(bid&&h.bid===bid))||null;}
-function whySheet(bid,home){const d=DEF.d;if(!d){toast('Conto non disponibile ora');return;}const h=defHouse(bid,home)||d.houses&&d.houses[0];const tot=h?h.total:null;const ch=defChance(tot);
+function whySheet(bid,home){const d=DEF.d;if(!d){toast('Conto non disponibile ora');return;}const h=defHouse(bid,home)||d.houses&&d.houses[0];
+  /* Fase 6c: difesa, forza dell'orda e % dalla minaccia vera della casa (world_threats, come l'orda vera) */
+  let T=null,c=null;try{T=thrOf({bid,home:!!home})||(h?thrOf({bid:h.bid,home:h.home}):null);c=T?thrCalc(T):null;}catch(e){}
+  const tot=c?c.def:(h?h.total:null);const ch=c?c.ch:defChance(tot);const condo=h&&h.home?((T&&T.condo)||d.condo||0):0;
   const row=(ic,t,v,on=true)=>`<div class="whyr ${v<0?'neg':v>0?'pos':''}"><span>${ic} ${t}</span><b>${v>0?'+':''}${v}</b></div>`;
   openSheet('🧮 Perché '+(ch!=null?ch+'%':''),`<p style="font-weight:400;margin:0 0 8px">Il conto della <b>prossima orda</b>, calcolato dal server con le stesse regole per tutti.</p>
-   ${h?row('🏠','Base della casa',45)+row('⬆️',`Livello casa ${h.level} (12 per livello)`,12*Math.max(h.level,1))+(h.home?row('❤️','Casa vera',5):''):''}
+   ${h?row('🏠','Base della casa',45)+row('⬆️',`Livello casa ${h.level} (12 per livello)`,12*Math.max(h.level,1))+(h.home?row('❤️','Casa vera',5):'')+(condo?row('🏢','Difese del condominio',condo):''):''}
    ${row('🛡️','Case preparate',d.prep)}${row('🏡',`Scudo della casa vera ${d.realshield}/5`,d.realshield_pts)}${row('🤝',`Rinforzi degli alleati (${d.helps})`,d.helps_pts)}
    ${row('🛡️',`Scudi degli alleati (${d.shields})`,d.shields_pts)}${row('👥',`Difesa di squadra (${d.squad}/3 alleati pronti)`,d.squad_pts)}${row('🏢',`Coinquilini pronti (${d.coinq})`,d.coinq_pts)}
    ${d.malus?row('😈',`Malus dei rivali (orde ${d.attacks}, nebbia ${d.fog}, sabotaggio ${d.sab})`,-d.malus):''}
    <div class="whytot"><span>Difesa totale</span><b>${tot!=null?tot:'—'}</b></div>
-   <p style="font-weight:400;font-size:13px;margin:8px 0 0">L’orda per il tuo livello (${d.wlevel}) avrà una forza tra <b>${d.attack_min}</b> e <b>${d.attack_max}</b>. ${ch!=null?`Con ${tot} di difesa tieni nel <b>${ch}%</b> dei casi.`:''}</p>
+   <p style="font-weight:400;font-size:13px;margin:8px 0 0">${c?`L’orda su questa casa (livello ${T.wl}, con zombie speciali, meteo e pendenza) avrà una forza tra <b>${c.amin}</b> e <b>${c.amax}</b>.`:`L’orda per il tuo livello (${d.wlevel}) avrà una forza tra <b>${d.attack_min}</b> e <b>${d.attack_max}</b>.`} ${ch!=null?`Con ${tot} di difesa tieni nel <b>${ch}%</b> dei casi.`:''}</p>
    <p class="muted" style="font-size:12px;margin-top:6px">Per salire: prepara le case, chiedi rinforzi, potenzia la casa, migliora la casa vera (Scudo).</p>`);}
 /* nella scheda di ogni casa: probabilità vera + "Perché" */
 /* sul fronte: probabilità vera della casa vera */

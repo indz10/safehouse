@@ -71,7 +71,7 @@ function frWx(){const F=FR.dests&&FR.dests[0];const T=F&&thrOf(F);if(!T||T.ev==n
 function frChanceOf(h){const T=thrOf(h);if(T)return thrCalc(T).ch;return frChanceOfBase(h);}
 /* intestazione del fronte: base (p39) + % dal server con "perché" (p44) + meteo senza temperatura (p47) */
 function frHeader(){frHeaderBase();
-  try{const d=DEF.d;if(d){const hh=defHouse(null,true);if(hh){const ch=defChance(hh.total);const n=FR.node;if(n){
+  try{const d=DEF.d;if(d){const hh=defHouse(null,true);if(hh){let ch=null;try{const hm=myHouses().find(x=>x.home);if(hm)ch=frChanceOf(hm);}catch(e){}if(ch==null)ch=defChance(hh.total);const n=FR.node;if(n){
     const chip=[...n.querySelectorAll('[data-frchips] span')].find(s=>/di tenere/.test(s.textContent));if(chip){chip.innerHTML=`🛡️ ${ch}% di tenere · <u>perché</u>`;chip.style.cursor='pointer';chip.onclick=()=>whySheet(null,true);}
     const pc=n.querySelector('[data-frpct]');if(pc)pc.textContent=ch+'%';const ring=n.querySelector('.frring');if(ring)ring.style.setProperty('--ok',ch>=50?'#5bd16a':'#d7263d');}}}}catch(e){}
   try{const w=FR.wx;const wb=FR.node&&FR.node.querySelector('.frwx');if(w&&wb&&(w.t==null||w.t===''))wb.textContent=`${w.ic} ${w.name}`;}catch(e){}}
