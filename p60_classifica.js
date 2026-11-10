@@ -24,13 +24,8 @@ function scDecorate(){try{if(S.tab!=='social'||SOC.tab!=='classifiche')return;co
   if(!B.querySelector('.scme')){const seg=B.querySelector('.schips');if(seg){seg.insertAdjacentHTML('beforebegin','<div class="panel scme"><div class="row spread"><b class="disp" style="font-size:20px">🏅 Il tuo Punteggio Superstite</b><button class="btn small ghost" data-scme>Dettaglio</button></div><div class="scmeb"><p class="muted"><span class="spin"></span></p></div></div>');
     const me=B.querySelector('.scme');me.querySelector('[data-scme]').onclick=()=>scSheet(null);scLoad(null).then(s=>{const b=me.querySelector('.scmeb');if(!b)return;
       b.innerHTML=s&&!s.err?`<div class="scmini"><b>${s.tot}</b><small>/1000</small>${SC_V.map(v=>`<span title="${v[2]}">${v[1]} ${s[v[0]]}</span>`).join('')}</div>`:scBars(s,true);});}}}catch(e){console.warn(e);}}
-const _socPaintSc=socPaint;socPaint=function(){_socPaintSc();scDecorate();};
-try{const _eqRankPaintSc=eqRankPaint;eqRankPaint=function(){_eqRankPaintSc();scDecorate();};}catch(e){}
 /* ---- SCHEDA ZOMBIE PER LE CASE DEGLI ALLEATI ---- */
 window.__zsCtx=null;
-const _thrViewAz=thrView;thrView=function(T){const h=_thrViewAz(T);if(!window.__azT)return h;const i=window.__azT.push(T)-1;
-  return h.replace(/<div class="thrw"><span>🧟 Vaganti/,`<div class="thrw azk" data-azk="walker" data-azt="${i}"><span>🧟 Vaganti`).replace(/<div class="thrw"><span>(\S+) ([^<]+)<small>difesa:/g,(m,ic,n)=>{const k=Object.keys(ZSP).find(x=>ZSP[x].n===n.trim());return k?`<div class="thrw azk" data-azk="${k}" data-azt="${i}"><span>${ic} ${n}<small>difesa:`:m;});};
-const _allySheetAz=allySheet;allySheet=async function(uid){window.__azT=[];window.__azU=uid;const r=await _allySheetAz(uid);return r;};
 document.addEventListener('click',e=>{const row=e.target.closest&&e.target.closest('[data-azk]');if(!row||!window.__azT)return;const T=window.__azT[+row.dataset.azt];if(!T)return;
   const nick=((document.querySelector('#sheet.open h3')||{}).textContent||'').replace(/^🤝\s*@?/,'');window.__zsCtx={T,ally:true,uid:window.__azU,nick,label:(T.home?'casa vera':'una sua casa')+' di @'+nick};frZSheet(row.dataset.azk);},true);
 </script>

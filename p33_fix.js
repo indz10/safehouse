@@ -19,6 +19,4 @@ const _shopSheetFx=shopSheet;shopSheet=function(miss){_shopSheetFx(miss);try{con
   const box=`<div class="earnfirst"><b>Come avere Mattoni adesso, gratis</b><ul><li>🧟 Riscatta i premi di ogni orda (2 al giorno)</li><li>🎯 3 missioni al giorno: 15 🧱 ciascuna</li><li>🏦 Affitti delle tue case, ogni giorno</li><li>📨 Ogni amico che entra e valuta la casa: 150 🧱</li><li>🎟️ Ogni codice sconto usato in un negozio sponsor: 100 🧱</li></ul></div>`;
   const first=c.querySelector('.notice')||c.querySelector('h4.hh');if(first)first.insertAdjacentHTML(first.classList.contains('notice')?'afterend':'beforebegin',box);}catch(e){}};
 /* ---- 3) richieste d'aiuto degli alleati in bacheca e "per te" ---- */
-const _socLineFx=socLine;socLine=function(f){if(f.kind!=='ask_ally')return _socLineFx(f);const a=socNick(f.actor,f.actor_nick);
-  return`<div class="sitem"><span class="sic">🆘</span><div class="stx">${a} chiede il tuo aiuto per la prossima orda<small>${socAgo(f.created_at)}</small></div><button class="btn small" data-shelp="${esc(f.actor)}">Manda rinforzi</button></div>`;};
 </script>

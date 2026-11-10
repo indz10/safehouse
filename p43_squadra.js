@@ -37,23 +37,12 @@ function tbHTML(){const d=TB.d;if(!d)return'<p class="muted"><span class="spin">
    <div class="tbrow"><span>🛡️ Scudi ricevuti</span><b>${d.shields_in||0}/2 → +${Math.min(10,5*(d.shields_in||0))}</b></div>
    <div class="tbtot">Bonus di squadra alla prossima orda: <b>+${tot}</b></div>`;}
 function tbPaint(){const b=app.querySelector('.tbbox');if(b)b.innerHTML=tbHTML();}
-const _socPaintTB=socPaint;socPaint=function(){_socPaintTB();try{if(SOC.tab!=='squadra'||!S.user)return;const B=app.querySelector('#socBody');if(!B)return;
-  if(!B.querySelector('.tbpan'))B.insertAdjacentHTML('afterbegin',`<div class="panel tbpan"><b class="disp" style="font-size:22px">🛡️ Bonus di squadra</b><p style="font-weight:400;font-size:12.5px;margin:2px 0 8px">Per la prossima orda. Gli alleati e i coinquilini non possono mandarsi orde né dispetti.</p><div class="tbbox">${tbHTML()}</div>
-    <details class="man"><summary>Come funzionano le alleanze</summary><div class="man-b"><p>• <b>Rinforzi</b>: +5 per ogni alleato che ti aiuta (max +20), gratis.<br>• <b>Scudo</b>: 20 💎, +5 a un alleato (max 2 scudi).<br>• <b>Difesa di squadra</b>: se almeno 3 tuoi alleati preparano le case, +5 a te.<br>• <b>Coinquilini</b>: chi abita nel tuo stesso edificio è alleato automatico; +3 per ognuno che prepara le case (max +9).<br>• <b>Doni</b>: Mattoni (anche in prestito), gemme, monete, giri di ruota, biglietti.</p></div></details></div>`);
-  try{ayRefresh();}catch(e){}try{ayLoad();}catch(e){}tbDecorate();
-  tbLoad();}catch(e){}};
 function tbDecorate(){try{const B=app.querySelector('#socBody')||app;
   B.querySelectorAll('[data-agive]').forEach(g=>{if(g.parentNode.querySelector('[data-ashield]'))return;const uid=g.dataset.agive,nick=g.dataset.anick;const a=(AY.list||[]).find(x=>x.user_id===uid);
     if(a&&a.coinq){const sm=g.parentNode.querySelector('small');if(sm&&!/coinquilino/.test(sm.textContent))sm.insertAdjacentHTML('afterbegin','🏢 coinquilino · ');}
     const given=TB.d&&Array.isArray(TB.d.shields_out)&&TB.d.shields_out.includes(uid);
     g.insertAdjacentHTML('beforebegin',`<button class="btn small ghost" data-ashield="${uid}" data-anick="${esc(nick)}" ${given?'disabled':''}>${given?'🛡️ ✓':'🛡️ Scudo'}</button>`);
     g.parentNode.querySelector('[data-ashield]').onclick=()=>allyShield(uid,nick);});}catch(e){}}
-const _ayRefreshTB=ayRefresh;ayRefresh=function(){_ayRefreshTB();tbDecorate();};
 /* scheda del giocatore: scudo se alleato */
-const _playerSheetTB=playerSheet;playerSheet=async function(uid){await _playerSheetTB(uid);try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('[data-pshield]'))return;if(!/Siete alleati|alleat/i.test(c.textContent)||/Questo sei tu/.test(c.textContent))return;
-  const ac=c.querySelector('.placts');const nick=((c.querySelector('.plhead .disp')||{}).textContent||'').replace('@','');if(!ac)return;
-  ac.insertAdjacentHTML('afterbegin',`<button class="btn small" data-pshield>🛡️ Scudo +5 (💎 20)</button>`);ac.querySelector('[data-pshield]').onclick=()=>allyShield(uid,nick);}catch(e){}};
 /* bacheca e "per te" */
-const _socLineTB=socLine;socLine=function(f){if(f.kind!=='shield')return _socLineTB(f);const a=socNick(f.actor,f.actor_nick),t=f.target?socNick(f.target,f.target_nick):'';
-  return`<div class="sitem"><span class="sic">🛡️</span><div class="stx">${a} ha dato uno scudo a ${t}: +5 alla prossima orda<small>${socAgo(f.created_at)}</small></div></div>`;};
 </script>
