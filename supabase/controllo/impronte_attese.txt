@@ -1,0 +1,210 @@
+FUNZIONI
+admin_link_sponsor(uuid, text) 0ab6ecc149
+admin_sponsor_accounts(uuid) d16a2a25d3
+admin_world_exclude(text) a341a4a41f
+delete_my_account() 93b6378551
+is_admin() ed60925f39
+miei_invitati() 6741a6f44c
+my_sponsor(uuid) cb7138eae0
+push_subscribe(text, text, text) 1ddb9629ed
+push_unsubscribe(text) d8c7f31d16
+redeem_coupon(text, numeric) 2ae032ec11
+w_allies_of(uuid) f79fddd6ef
+w_are_allies(uuid, uuid) 562fd9a3ca
+w_attack3(text, text, integer) 4deba51e53
+w_bad(text) 2115eb8cd1
+w_boost(uuid) 23b0f9792c
+w_canon(text, double precision, double precision) a8cd798858
+w_cleanup() ce8e6152f0
+w_coinq(uuid, uuid) 53655bd8e4
+w_condo_bonus(uuid) ace5cd272c
+w_condo_key(uuid) 894c2d1dc3
+w_def(text, text) d1aac29e3d
+w_feed_add(text, uuid, uuid, double precision, double precision, text) 1a92b9dc6f
+w_home_held(uuid, text) 2aa8d2c61a
+w_home_known(uuid, uuid) 401b1ac373
+w_is_npc(text) baa4920d26
+w_km(double precision, double precision, double precision, double precision) d1b3103a50
+w_league(integer) 049550122f
+w_level(integer) b510960b5d
+w_lvl_of(uuid) 584babf18f
+w_max(integer) 76812ad5cd
+w_median_near(uuid) 1ef0515265
+w_next_slot(timestamp with time zone) e7098146fc
+w_nick(uuid) 0f0ebfc0c0
+w_pay(uuid, integer, text, text) 5bcdcb3669
+w_power3(integer, integer, boolean) 1514872532
+w_prev_slot(timestamp with time zone) 304fb96aeb
+w_price(double precision, double precision) 15fba21ed2
+w_price2(uuid, double precision, double precision) c076f18600
+w_radius(integer) d64febc04f
+w_raid_houses(uuid, timestamp with time zone) 81af815347
+w_room(text) ab86838fbb
+w_score(uuid, boolean) 836191a166
+w_settle(uuid) 59bad382a9
+w_settle_loans(uuid) 6cc226f820
+w_shielded(uuid) e93050b23d
+w_slope(text) 0dcd67cdba
+w_slot_id(timestamp with time zone) 5fd33c951a
+w_threats_of(uuid) 568aad77a2
+w_tr_dm() af3d1fb89f
+w_tr_feed() e607f3ac80
+w_upower(uuid, text) a32d619709
+w_wallet(uuid) 27de1a6e90
+w_wxev(text, text) 042a705ec9
+w_zm(text, numeric, text, integer) 94a9eab19e
+w_ztypes() 76112a7194
+world_allies() 65fb8c2faf
+world_allies_status() 774a3128fd
+world_ally_answer(uuid, boolean) f0cb9fb4e9
+world_ally_pending() 2075b82e92
+world_ally_request(uuid) 4e3ca6d520
+world_ally_shield(uuid) ebd03e1ab8
+world_ally_view(uuid) ef33f8ac73
+world_ask_help() eaa8fd1b52
+world_block(uuid, boolean) d5c18b09f9
+world_buy(text, double precision, double precision) c1440ed06d
+world_chat_list(text, bigint) ffb3c046c7
+world_chat_report(bigint) 89cee22a5d
+world_chat_send(text, text) 8c7ba570ba
+world_claim_home(text, double precision, double precision) 0feb434a8a
+world_collect() 722919a3e5
+world_condo_give(text, integer) 11b65adf25
+world_coresidents() f6b396fcc0
+world_def_upgrade(text, text) 17ee5d8a24
+world_dm_list(uuid) 83e7aeaa85
+world_dm_send(uuid, text) 8750519757
+world_dm_threads() 3560c66838
+world_earn(text) d18bb31d86
+world_feed_list(text) 8c091dbd22
+world_find(text) ade7145174
+world_gift_claim(bigint) 2023464b42
+world_gifts_in() 51ca60df01
+world_give(uuid, text, integer, boolean) 3e93678e5a
+world_help_list() 451ff8492c
+world_home_vis(text) d2691098a9
+world_house_answer(uuid, boolean) 2237e540d9
+world_house_info() a6be031521
+world_house_invite(uuid) af3b41f4b3
+world_house_leave() b719c91511
+world_house_log(text) 43ff9091a4
+world_inviter(text) efefc86acc
+world_loans() ed625fbef7
+world_mine() 0376f655ab
+world_mine2() 1abdaf5ab7
+world_my_defense() 7a6dd611d6
+world_my_effects() 7e4bd22f9b
+world_player(uuid) bf00842653
+world_prepare() 6c8f3e9765
+world_quote(text, double precision, double precision) 4cee44195d
+world_raid_claim() a1afefdb0e
+world_raid_status() 487e2233e0
+world_raid_view(double precision, double precision, double precision, double precision) f63467055a
+world_rank(text, text) 7ee3678f27
+world_rank_lega(text) e575360a99
+world_reward(integer, text) cf34570f62
+world_rivals() 9b44911f45
+world_score(uuid, text) 1190c1faef
+world_seen() ce2347cdff
+world_sell(text) 75a73e6d6f
+world_send_attack(uuid) e507fc5a24
+world_send_curse(uuid, text) bbdf70a979
+world_send_help(uuid) 2b987cb8df
+world_set_home(text, text) f3eb706e13
+world_set_realshield(integer) 9aae268eb7
+world_shout(uuid, integer) ab6a2241e6
+world_status_extra() b12cc9499a
+world_team_bonus() 902e1c195a
+world_threats() e9837b68ee
+world_upgrade(text) 56e37f8b3d
+world_view(double precision, double precision, double precision, double precision) 8d26637b91
+world_welcome() 91b230ff05
+zsh_stats() 9085d780db
+TABELLE
+admins 05af36e7
+coupons e50872eb
+custom_pois 372fcecd
+hidden_pois 6536e782
+leads f2fa098f
+offers c0ff80a0
+poi_reports 4826405f
+profili_pubblici 23f88442
+push_keys f9ed0414
+push_log 60ff625e
+push_subs e1e63686
+reviews bd76b4bf
+salvataggi 5098a1c4
+sponsor_events b5c39783
+sponsor_stats_month 1ebba3b8
+sponsor_users a74be6ef
+sponsors 16fae63c
+subscriptions 43d90a91
+world_allies 9e7a3019
+world_attack_given d12f9512
+world_blocks c89fb2f6
+world_bonus fa82d7ad
+world_buildings 2b1feaf6
+world_chat 36d8e2a6
+world_chat_reports bb8b38ef
+world_condo 7c5e55f9
+world_condo_gifts 17d3c1e4
+world_curses 203cd63e
+world_defs 9c26ecac
+world_dm 42f21988
+world_excluded 67a6a429
+world_feed a78458ad
+world_gifts 2ccdb3dc
+world_help 84c102f5
+world_help_given 9935b169
+world_homes f606e040
+world_house_req e60b8c36
+world_log a7c8214e
+world_shields 39ed43a6
+world_shouts 38a06241
+world_terrain b6c5b216
+world_wallet ca07faf4
+world_wx 6b1c15c8
+REGOLE
+admins admin vede admin
+coupons lettura codici
+coupons utente crea i suoi codici
+custom_pois custom_admin
+custom_pois custom_select
+hidden_pois admin gestisce nascosti
+hidden_pois tutti leggono nascosti
+leads sponsor aggiorna stato preventivo
+leads sponsor legge i suoi preventivi
+leads utente invia preventivo
+offers app legge offerte attive
+offers sponsor e admin gestiscono offerte
+poi_reports admin gestisce segnalazioni
+poi_reports admin legge segnalazioni
+poi_reports utenti segnalano
+profili_pubblici ognuno aggiorna il suo profilo
+profili_pubblici ognuno cancella il suo profilo
+profili_pubblici ognuno crea il suo profilo
+profili_pubblici si vedono i profili pubblici
+reviews admin modera recensioni
+reviews app legge recensioni
+reviews recensione verificata
+salvataggi ognuno aggiorna il suo salvataggio
+salvataggi ognuno crea il suo salvataggio
+salvataggi ognuno legge il suo salvataggio
+sponsor_events app registra eventi
+sponsor_events sponsor legge le sue statistiche
+sponsor_users admin gestisce utenti sponsor
+sponsor_users utente vede il proprio legame
+sponsors admin gestisce sponsor
+sponsors app legge sponsor attivi
+sponsors sponsor modifica i propri contatti
+subscriptions admin gestisce abbonamenti
+subscriptions sponsor vede il suo abbonamento
+world_buildings wb_sel
+world_excluded we_adm
+world_excluded we_sel
+world_gifts wg_sel
+world_homes wh_sel
+world_log wl_sel
+world_wallet ww_sel
+CRON
+zsh-push-tick */10 * * * *

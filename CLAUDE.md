@@ -26,7 +26,7 @@ PWA in un solo file `index.html`: valuta la sicurezza della casa vera e la trasf
 - **Aggiornamento** (Fase 5d): un solo meccanismo, `autoUpdate` in p20. Controlla la versione di `sw.js` all'apertura e ogni volta che l'app torna dallo sfondo; nei primi 20 s mostra "✨ Aggiorno l'app…" e ricarica subito, anche con una finestra aperta; più tardi aspetta che non ci siano finestre aperte. p56 mostra solo l'avviso "C'è una versione nuova".
 - Link d'invito: sempre `ZSH_SITO` (sito vero, p20), anche quando si prova da un'anteprima.
 - **Mappa del codice**: `docs/MAPPA_CODICE.md` (moduli, catene di avvolgimenti, codice morto, cosa serve del vecchio gioco, struttura della Fase 4). Strumenti per rifare le misure: `docs/strumenti/`.
-- SQL: file `*.sql` (blocchi già eseguiti su Supabase; i più recenti: zombie, alleati_sim, assedio, fortezze, premi, residenti, abitazione, nome_casa, classifica).
+- SQL: i file `*.sql` alla radice sono la **storia** (già eseguiti su Supabase, ordine in `docs/strumenti/schema_sql.js`): non si modificano più. Dalla Fase 6a ogni cambio è un file **`supabase/migrazioni/NNN_nome.sql`** (vedi `supabase/LEGGIMI.md`). Stato del database: `supabase/schema.sql`, rigenerato da `docs/strumenti/db_locale.sh` (Postgres di prova locale, mai quello vero). Inventario e funzioni non usate: `docs/DATABASE.md`. Controllo del database vero: `supabase/controllo/001_impronte.sql` (solo lettura) + `docs/strumenti/confronta_db.js`.
 - Funzione Edge: `supabase/functions/zsh-push/index.ts` (notifiche + meteo/pendenza per casa).
 
 ## Prove
