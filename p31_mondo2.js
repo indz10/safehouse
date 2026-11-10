@@ -33,7 +33,7 @@ function mhBarBase(){const w=app.querySelector('.mapfull');if(!w)return;let b=w.
   if(!b){w.insertAdjacentHTML('beforeend',`<div class="mhouses">${html}</div>`);b=w.querySelector('.mhouses');}else b.innerHTML=html;
   b.querySelector('[data-mhx]').onclick=()=>{S.mhOpen=S.mhOpen===false;mhBar();};
   b.querySelectorAll('[data-mh]').forEach(x=>x.onclick=()=>{const h=L[+x.dataset.mh];mhFly(h,true);});
-  const ad=b.querySelector('[data-mhadd]');if(ad)ad.onclick=()=>openSheet('➕ Comprare una casa','<p style="font-weight:400">Avvicina la mappa e <b>tocca una casa</b>: se è libera (o di un superstite simulato 🤖) vedi il prezzo in 🧱 Mattoni e il pulsante Compra. Puoi comprare ovunque, anche in Australia: il prezzo sale con la distanza da casa tua.</p><p class="muted" style="font-size:12.5px">Per andare lontano usa ⋯ → 🔍 Cerca un luogo.</p>');}
+  const ad=b.querySelector('[data-mhadd]');if(ad)ad.onclick=()=>openSheet('➕ Comprare una casa','<p style="font-weight:400">Avvicina la mappa e <b>tocca una casa</b>: se è libera (o di un superstite simulato 🤖) vedi il prezzo in 🧱 Mattoni e il pulsante Compra. Puoi comprare ovunque, anche in Australia: il prezzo sale con la distanza da casa tua.</p><p class="muted" style="font-size:12.5px">Per andare lontano (anche New York) tocca 🔎 Cerca un luogo sulla mappa.</p>');}
 function mhFly(h,open){const lm=window.__mf;if(!lm||!lm.map)return;try{lm.map.flyTo({center:[h.lon,h.lat],zoom:17,pitch:0,duration:h.km>500?3200:1500});}catch(e){}
   if(open)setTimeout(()=>houseSheet(h),h.km>500?3300:1600);}
 /* ---------------- SCHEDA DELLA CASA ---------------- */

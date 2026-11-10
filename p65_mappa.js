@@ -39,7 +39,33 @@ function renderMappa(){renderMappaBase();
   const n=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null).length;w.insertAdjacentHTML('beforeend',`<button class="mfsp" data-mfsp>⭐ ${n} sponsor</button>`);
   w.querySelector('[data-mfsp]').onclick=()=>spList(window.__mf);}catch(e){}})();
   (()=>{try{const r=app.querySelector('[data-mfraid]');if(r){r.textContent='🎬 Assalti';r.onclick=e=>{e.stopPropagation();assalto('last');};}}catch(e){}})();
-  (()=>{try{mhBar();setTimeout(mhBar,1500);}catch(e){}})();}
+  (()=>{try{mhBar();setTimeout(mhBar,1500);}catch(e){}})();
+  /* 🔎 cerca un luogo in tutto il mondo (Fase 9-0): la mappa ci vola sopra e lì si comprano case come vicino a casa */
+  (()=>{try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('[data-mfcerca]'))return;
+    w.insertAdjacentHTML('beforeend','<button class="mfcerca" data-mfcerca>🔎 Cerca un luogo</button>');w.querySelector('[data-mfcerca]').onclick=()=>cercaLuogo();}catch(e){}})();}
+const CERCA_K='zsh_cerca';
+function cercaVola(lat,lon,zoom){const lm=window.__mf;if(!lm||!lm.map)return;try{const c=lm.map.getCenter();const km=trM(c.lat,c.lng,lat,lon)/1000;
+  lm.map.flyTo({center:[lon,lat],zoom:zoom||17,pitch:0,duration:km>300?4000:km>20?2500:1200});}catch(e){}}
+function cercaLuogo(){let ult=[];try{ult=JSON.parse(localStorage.getItem(CERCA_K)||'[]');}catch(e){}
+  const riga=(r,i,k)=>`<button class="strow" data-${k}="${i}"><span class="splogo">📍</span><div><b>${esc(r.n)}</b><small>${esc(r.d||'')}</small></div><i>›</i></button>`;
+  const home=myHouses().find(x=>x.home);
+  openSheet('🔎 Cerca un luogo',`<p style="font-weight:400;margin-bottom:8px">Città, via o luogo di tutto il mondo: la mappa ci vola sopra. Tocca una casa libera per comprarla, come vicino a casa.</p>
+    <div class="row" style="gap:8px"><input id="cercaIn" class="field" placeholder="es. Times Square, New York" aria-label="Luogo da cercare" enterkeyhint="search"><button class="btn small" data-cercavai>Cerca</button></div>
+    <div data-cercares style="margin-top:8px"></div>
+    ${home?'<button class="btn ghost small" data-cercahome style="margin-top:8px">❤️ Torna a casa mia</button>':''}
+    ${ult.length?`<h4 class="hh">Ultime ricerche</h4>${ult.map((r,i)=>riga(r,i,'cercault')).join('')}`:''}`,card=>{
+    const inp=card.querySelector('#cercaIn'),box=card.querySelector('[data-cercares]');
+    const scegli=r=>{try{const L=[r,...ult.filter(x=>x.n!==r.n)].slice(0,5);localStorage.setItem(CERCA_K,JSON.stringify(L));}catch(e){}closeSheet();cercaVola(r.lat,r.lon,r.z);};
+    const vai=async()=>{const q=inp.value.trim();if(q.length<2){inp.focus();return;}box.innerHTML='<p class="muted"><span class="spin"></span> Cerco…</p>';
+      try{const d=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=it&q='+encodeURIComponent(q),{signal:trSig(9000)}).then(x=>x.json());
+        const R=(d||[]).map(x=>{const p=String(x.display_name||'').split(', ');return{n:p[0]||q,d:p.slice(1,4).join(', '),lat:+x.lat,lon:+x.lon,z:/house|building|residential|apartments|yes/.test(x.type||'')||x.addresstype==='building'?18:x.addresstype==='road'?17:x.addresstype==='city'||x.addresstype==='town'?14:16};}).filter(r=>isFinite(r.lat)&&isFinite(r.lon));
+        if(!R.length){box.innerHTML='<p class="muted">Nessun luogo trovato: prova con città e via (es. “Broadway 1, New York”).</p>';return;}
+        box.innerHTML=R.map((r,i)=>riga(r,i,'cercar')).join('');box.querySelectorAll('[data-cercar]').forEach(b=>b.onclick=()=>scegli(R[+b.dataset.cercar]));}
+      catch(e){box.innerHTML='<p class="muted">Ricerca non riuscita: controlla la connessione e riprova.</p>';}};
+    card.querySelector('[data-cercavai]').onclick=vai;inp.onkeydown=e=>{if(e.key==='Enter')vai();};
+    card.querySelectorAll('[data-cercault]').forEach(b=>b.onclick=()=>scegli(ult[+b.dataset.cercault]));
+    const hb=card.querySelector('[data-cercahome]');if(hb)hb.onclick=()=>{closeSheet();cercaVola(home.lat,home.lon,17);};
+    setTimeout(()=>{try{inp.focus();}catch(e){}},300);});}
 /* barra "Le tue case": base (p31) + disegno per tipo (p41) + disegno della casa vera (p62) */
 function mhBar(){mhBarBase();
   (()=>{try{const L=myHouses();document.querySelectorAll('.mhouses [data-mh]').forEach(b=>{const h=L[+b.dataset.mh];if(!h||b.querySelector('.mhart'))return;const sp=b.querySelector('span');if(!sp)return;

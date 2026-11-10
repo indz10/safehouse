@@ -107,6 +107,8 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 - **8 fatta:** `.github/workflows/prove.yml`, due lavori a ogni pull request verso main e a ogni modifica di main: **App** (`prove.sh` + t_case, t_map, t_menu, t_reale; controllo che `dist/` nel commit sia ricostruita dai sorgenti; schermate allegate se qualcosa fallisce) e **Database** (file SQL e migrazioni sul Postgres di prova senza errori, `impronte_attese.txt` aggiornato, `prova_formule.js` → FORMULE UGUALI).
 
 ## Fase 9 — Funzioni nuove già decise
+- Ordine deciso da Alessandro (11/11): **9-0** ricerca di un luogo in tutto il mondo sulla mappa · **9a** pannello del negozio e primi sponsor · **9b** presidi veri condivisi · poi considerazioni su come "confezionare il prodotto" prima degli store.
+- **9-0:** pulsante **🔎 Cerca un luogo** sulla mappa (`cercaLuogo` in p65): ricerca in tutto il mondo (Nominatim, prima era solo Italia ed era nascosta nel menu ⋯), la mappa ci vola sopra; ultime 5 ricerche e "Torna a casa mia". Comprare lontano funzionava già lato server (prezzo = 200 + 10 ogni 50 km da casa, +10% per casa posseduta, max 9.000).
 - Presidi veri condivisi (luoghi pubblici da OpenStreetMap; le orde li attaccano; chi li tiene dà +3 di difesa alle case entro 500 m).
 - Pannello del negozio e primi sponsor veri.
 - Pubblicazione negli store (Google Play, poi App Store).
@@ -132,6 +134,6 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 5 | fatta: 5a–5e (#19–#23) | #19–#23 | 5e: premio inviti uguale ovunque, prossimo passo e giro guidato aggiornati. 5d: "Aggiorno l'app…" e ricarica anche quando l'app torna dallo sfondo. 5c: pulsanti ‹ Menu e ‹ Le mie case, link d'invito al sito vero. 5b: elenco Le mie case, piano e valutazione nella pagina della casa vera. 5a: via monete, notti, battaglia e "Difendi tu" dai testi ancora visibili; premi mostrati in 🧱 |
 | 6 | fatta: 6a–6d (#24–#26; migrazioni 001 e 002 eseguite) | #24–#26 | 6d: funzioni Edge con istruzioni, controllo notifiche. 6c: una sola % di tenere, migrazione 002, docs/FORMULE.md. 6b: migrazione 001 (7 funzioni mancanti, 3 tolte). 6a: schema.sql ricostruito, inventario, controllo di sola lettura |
 | 7 | fatta: 7a–7c (#27–#29; migrazione 003 eseguita) | #27–#29 | 7c: compressione, stile pulito, caratteri non bloccanti, copia salvata se la rete tarda |
-| 8 | prove automatiche in attesa di Merge | Fase 8 — Prove automatiche su GitHub | .github/workflows/prove.yml: App + Database |
-| 9 | da fare | | |
+| 8 | fatta | #30 | .github/workflows/prove.yml: App + Database |
+| 9 | 9-0 (cerca un luogo) in attesa di Merge | Fase 9-0 — Cerca un luogo nel mondo | poi 9a negozio, 9b presidi |
 | 10 | da fare | | |
