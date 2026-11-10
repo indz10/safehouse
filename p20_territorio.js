@@ -748,7 +748,8 @@ const _fillOnlineG=fillOnline;fillOnline=async function(card,b){await _fillOnlin
 /* INVITI: link personale, chi entra col tuo link è collegato a te */
 (function(){try{const p=new URLSearchParams(location.search).get('invito');if(p&&/^[0-9a-f]{8}$/i.test(p)){localStorage.setItem('zsh_inv',p.toLowerCase());history.replaceState(null,'',location.pathname);}}catch(e){}})();
 const myCode=()=>S.user&&S.user.id?S.user.id.slice(0,8):null;
-const invLink=()=>location.origin+'/?invito='+myCode();
+const ZSH_SITO='https://safehousezombie.netlify.app';/* sempre il sito vero, anche da un'anteprima */
+const invLink=()=>ZSH_SITO+'/?invito='+myCode();
 /* messaggio d'invito con le istruzioni: aprire in Safari/Chrome, creare l'account, mettere l'app sulla Home */
 const invTxt=()=>`🧟 Ti invito su ZombieSafeHouse: scopri quanto resisterebbe casa tua a un’apocalisse zombie (e come renderla più sicura davvero).
 

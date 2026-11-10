@@ -16,7 +16,14 @@ function zmItems(){const L=zmItemsBase();
   if(g)g[1]=g[1].filter(r=>!['g:difendi'].includes(r[2]));})();
   return L;}
 /* cosa fa ogni voce: Orda e fronte (p39) · Oggi (p34) · casa, regole, Mattoni (p32) · piano (p31) · assalti e notifiche (p29) · il resto (p28) */
-function zmDo(k,b){
+/* ogni voce del menu: finestra con "‹ Menu"; pagina con "‹ Torna al menu" in cima (Fase 5c) */
+function zmDo(k,b){const tab0=S.tab;const back={t:'‹ Menu',fn:()=>{closeSheet();zmOpen();}};window.SHEET_BACK=back;
+  const r=zmDoRun(k,b);
+  setTimeout(()=>{if(document.querySelector('#sheet.open'))return;if(window.SHEET_BACK===back)window.SHEET_BACK=null;
+    if(S.tab===tab0)return;const p=app.querySelector('.page')||app.firstElementChild;if(!p||app.querySelector('[data-zmback]'))return;
+    p.insertAdjacentHTML('afterbegin','<button class="cback" data-zmback>‹ Torna al menu</button>');app.querySelector('[data-zmback]').onclick=()=>zmOpen();},1300);
+  return r;}
+function zmDoRun(k,b){
   if(k==='g:difendi'||k==='g:oggi'||k==='g:impero'){zmClose();go('orda');setTimeout(()=>{const t=k==='g:difendi'?app.querySelector('.odplay'):app.querySelector('.fronte');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},400);return;}
   if(k==='oggi'){zmClose();oggiSheet();return;}
   if(k==='casa'){zmClose();go('casa');return;}if(k==='manual'){zmClose();openSheet('📚 Tutte le regole',rulesHTML());return;}if(k==='shop'){zmClose();shopSheet(0);return;}

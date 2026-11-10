@@ -9,7 +9,7 @@
    ========================================================= */
 let BV_PROMPT=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();BV_PROMPT=e;const b=document.querySelector('#bvpage [data-bvinst]');if(b)b.hidden=false;});
 function bvOS(){const ua=navigator.userAgent||'';if(/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&'ontouchend' in document))return'ios';if(/Android/i.test(ua))return'android';return'pc';}
-function bvInvLink(){const c=localStorage.getItem('zsh_inv');return location.origin+'/'+(c?'?invito='+c:'');}
+function bvInvLink(){const c=localStorage.getItem('zsh_inv');return ZSH_SITO+'/'+(c?'?invito='+c:'');}
 async function bvWho(){const c=localStorage.getItem('zsh_inv');if(!c||typeof SB==='undefined'||!SB)return null;try{const{data}=await SB.rpc('world_inviter',{p_code:c});return data||null;}catch(e){return null;}}
 function bvSteps(os,where,logged){const acc=`<div class="bvst ${logged?'done':''}"><span>${logged?'✅':'1'}</span><div><b>Crea l’account</b><small>${logged?'Fatto: siete collegati.':'Serve per giocare con chi ti ha invitato. Fallo <b>qui</b>, prima di installare.'}</small>${logged?'':'<button class="btn" data-bvacc>Crea l’account</button>'}</div></div>`;
   if(where==='inapp')return`<div class="bvwarn">⚠️ Sei dentro <b>${/Instagram/i.test(navigator.userAgent)?'Instagram':/FBAN|FBAV/i.test(navigator.userAgent)?'Facebook':'WhatsApp'}</b>: qui l’app funziona a metà.</div>
