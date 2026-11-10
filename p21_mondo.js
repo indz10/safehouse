@@ -47,7 +47,7 @@ function wBind(){const p=app.querySelector('.wpan');if(!p)return;const c=p.query
   p.querySelectorAll('[data-wh]').forEach(b=>b.onclick=()=>{const h=W.m.houses[+b.dataset.wh];wSheet(h.building_id,h.lat,h.lon);});}
 /* ---- scheda di un edificio del mondo ---- */
 const W_ST={free:['🟢','Casa libera','#bfe8c9'],owned:['🟡','Casa di un altro giocatore','#fff0a0'],mine:['🔑','Casa tua (comprata)','#ffe680'],home:['🏠','Abitata da un superstite','#e2d6f5'],myhome:['❤️','Casa tua','#f6b8bf'],mypending:['⏳','Casa tua in conferma','#f6b8bf'],excluded:['🚫','Esclusa dal gioco','#e6e1d6']};
-async function wSheet(bid,lat,lon){openSheet('🌍 Edificio del mondo','<p><span class="spin"></span> Controllo l’edificio…</p>',()=>{});let q;
+async function wSheetBase(bid,lat,lon){openSheet('🌍 Edificio del mondo','<p><span class="spin"></span> Controllo l’edificio…</p>',()=>{});let q;
   try{q=await wRpc('world_quote',{p_bid:bid,p_lat:lat,p_lon:lon});}catch(e){openSheet('🌍 Edificio del mondo',`<p class="notice">${esc(e.message)}</p>`);return;}
   const st=W_ST[q.status]||W_ST.free;const lv=`<span class="tag">livello ${q.level}</span>`;let act='';
   if(q.status==='free')act=`<div class="wbuy"><div><b>Prezzo</b><span>🧱 ${wNum(q.price)}</span></div><div><b>I tuoi Mattoni</b><span>🧱 ${wNum(q.mattoni)}</span></div><div><b>Distanza</b><span>${q.dist_km} km / ${q.radius_km>=20000?'∞':q.radius_km+' km'}</span></div><div><b>Case</b><span>${q.owned}/${q.max}</span></div></div>
@@ -72,7 +72,7 @@ async function wSheet(bid,lat,lon){openSheet('🌍 Edificio del mondo','<p><span
       try{await SB.from('poi_reports').insert({name:'Edificio '+bid,lat,lon,motivo:'ESCLUDI EDIFICIO '+bid});toast('Richiesta inviata: la valutiamo noi');closeSheet();}catch(e){toast('Non inviata');}};});}
 function wAfterChange(){try{if(S.tab==='orda'&&G.view==='hub')renderHub();}catch(e){}(window.__zlms||[]).forEach(lm=>{try{wDrawMap(lm,true);}catch(e){}});}
 /* ---- mappa: stato degli edifici del mondo + tocco su un edificio ---- */
-async function wDrawMap(lm,force){if(!lm||!lm.map||!W.on)return;const map=lm.map;if(map.getZoom()<14){(lm._w||[]).forEach(x=>x.remove());lm._w=[];return;}
+async function wDrawMapBase(lm,force){if(!lm||!lm.map||!W.on)return;const map=lm.map;if(map.getZoom()<14){(lm._w||[]).forEach(x=>x.remove());lm._w=[];return;}
   const b=map.getBounds();const key=[b.getSouth(),b.getWest(),b.getNorth(),b.getEast()].map(v=>v.toFixed(3)).join(',');if(!force&&lm._wk===key)return;lm._wk=key;
   let rows=[];try{rows=await wRpc('world_view',{p_minlat:b.getSouth(),p_minlon:b.getWest(),p_maxlat:b.getNorth(),p_maxlon:b.getEast()})||[];}catch(e){return;}
   (lm._w||[]).forEach(x=>x.remove());lm._w=[];lm._wrows=rows;
@@ -99,15 +99,6 @@ async function wIdentify(lat,lon){
   /* 2) chiedo al server delle mappe, con riserva e un secondo tentativo */
   for(let t=0;t<2;t++){try{const els=await trOverpass(`[out:json][timeout:12];way["building"](around:12,${lat},${lon});out ids tags geom;`,12000,4);const b=wPick(els.map(e=>({...e,type:'way'})),lat,lon);if(b)return b;return null;}catch(e){if(t===0)await new Promise(r=>setTimeout(r,2500));}}
   throw new Error('occupato');}
-const _liveMapW=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapW(el,addr,o);try{const map=lm.map;
-  const homeG=()=>{try{if(window.__homeG||!S.zone||S.zone.address!==addr||map.getZoom()<14)return;const pt=map.project([lm.m.lon,lm.m.lat]);const fs=map.queryRenderedFeatures([[pt.x-3,pt.y-3],[pt.x+3,pt.y+3]],{layers:['bld']});
-    const g=wFromTile(fs,lm.m.lat,lm.m.lon);if(g){window.__homeG=g;if(S.user&&!(S.zone.real&&S.zone.real.house&&S.zone.real.house.bid))wClaim(false);}}catch(e){}};map.on('idle',homeG);
-  map.on('moveend',()=>{clearTimeout(lm._wt);lm._wt=setTimeout(()=>wDrawMap(lm),350);});setTimeout(()=>wDrawMap(lm),900);
-  map.on('click','bld',async e=>{if(!W.on)return;const pts=map.queryRenderedFeatures(e.point,{layers:['poi-biz','poi-pub','poi-cand','poi-hid'].filter(id=>map.getLayer(id))});if(pts.length)return;
-    const g=wFromTile(e.features,e.lngLat.lat,e.lngLat.lng);if(g){wSheet(g.bid,g.lat,g.lon);return;}
-    openSheet('🌍 Edificio del mondo','<p><span class="spin"></span> Riconosco l’edificio…</p>',()=>{});
-    try{const b=await wIdentify(e.lngLat.lat,e.lngLat.lng);if(!b){openSheet('🌍 Edificio del mondo','<p class="notice">Non riesco a riconoscere l’edificio: avvicina la mappa e riprova.</p>');return;}wSheet(b.bid,b.lat,b.lon);}
-    catch(x){openSheet('🌍 Edificio del mondo','<p class="notice">I server pubblici delle mappe sono molto occupati in questo momento: riprova tra un minuto. Le case vicino a casa tua si riconoscono sempre subito.</p>');}});}catch(e){}return lm;};
 /* ---- il quartiere del gioco usa il mondo unico ---- */
 async function wHood(){if(!W.on||!HQ.map||!HQ.map.lotsB)return;const m=RM.cache[S.zone&&S.zone.address];if(!m)return;
   if(Date.now()-HQW.t<60000&&HQW.key===S.zone.address)return;HQW.t=Date.now();HQW.key=S.zone.address;

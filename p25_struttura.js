@@ -29,7 +29,7 @@ const _renderHomeS=renderHome;renderHome=function(){_renderHomeS();try{
 /* ---------------- 🗺️ MAPPA: una sola, a tutto schermo ---------------- */
 S.mf=S.mf||{case:true,spons:true,serv:false,vac:false,all:false};
 const MF=[['case','🏠','Case'],['spons','⭐','Sponsor'],['serv','🏥','Servizi'],['vac','🧳','Vacanza'],['all','🤝','Alleati']];
-renderMappa=function(){S.zv='mondo';const addr=S.zone&&S.zone.address;
+function renderMappaBase(){S.zv='mondo';const addr=S.zone&&S.zone.address;
   if(!addr){app.innerHTML=`<div class="page dots"><div class="panel night" style="margin-top:12px"><b class="disp" style="font-size:24px;color:var(--moon)">🗺️ Il mondo vero</b>
      <p style="color:#fff;font-weight:400">Valuta la tua casa: la mappa si apre sulla tua zona, con le case da comprare, gli sponsor vicini e l’orda.</p><button class="btn" data-go="valuta">📷 Valuta la mia casa</button></div>
      <div class="panel"><b>🔍 Oppure guarda una zona</b><div class="row" style="gap:6px;margin-top:6px"><input id="mfQ" class="field" placeholder="Via, paese o città" style="flex:1"><button class="btn small" id="mfGo">Vai</button></div></div></div>`;
@@ -41,7 +41,7 @@ renderMappa=function(){S.zv='mondo';const addr=S.zone&&S.zone.address;
   liveMap(el,addr,{zoom:16}).then(lm=>{window.__mf=lm;mfApply();setTimeout(mfApply,1500);setTimeout(mfApply,4000);}).catch(e=>console.warn('mappa',e));
   app.querySelectorAll('[data-mf]').forEach(b=>b.onclick=()=>{const k=b.dataset.mf;S.mf[k]=!S.mf[k];b.classList.toggle('on',S.mf[k]);mfApply();});
   app.querySelector('[data-mfmore]').onclick=mfMore;
-  app.querySelector('[data-mfraid]').onclick=()=>{try{orPlay(window.__mf);}catch(e){}};};
+  app.querySelector('[data-mfraid]').onclick=()=>{try{orPlay(window.__mf);}catch(e){}};}
 function mfApply(){const lm=window.__mf;const box=app.querySelector('.mapfull');if(!box)return;const f=S.mf;
   box.classList.toggle('f-case-off',!f.case);box.classList.toggle('f-spons-off',!f.spons);box.classList.toggle('f-serv-off',!f.serv);box.classList.toggle('f-vac-off',!f.vac);box.classList.toggle('f-all-off',!f.all);
   if(!lm||!lm.map)return;try{if(lm.setLayer){lm.setLayer('spons',f.spons);lm.setLayer('biz',f.serv);lm.setLayer('pub',f.serv);}}catch(e){}

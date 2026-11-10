@@ -29,7 +29,7 @@ function myHouses(){const m=window.W&&W.m;const L=[];const home=m&&m.home&&m.hom
   ((m&&m.houses)||[]).forEach((h,i)=>L.push({home:false,bid:h.building_id,lat:h.lat,lon:h.lon,level:h.level||1,value:h.value||0,label:'Casa '+(i+1),ic:'🔑'}));
   const o=L[0];L.forEach(h=>{h.km=o?trM(o.lat,o.lon,h.lat,h.lon)/1000:0;});return L;}
 function kmTxt(k){return k<1?Math.round(k*1000)+' m':k<100?k.toFixed(1).replace('.',',')+' km':wNum(Math.round(k))+' km';}
-function mhBar(){const w=app.querySelector('.mapfull');if(!w)return;let b=w.querySelector('.mhouses');const L=myHouses();
+function mhBarBase(){const w=app.querySelector('.mapfull');if(!w)return;let b=w.querySelector('.mhouses');const L=myHouses();
   const html=`<div class="mhhead"><b>🏠 Le tue case (${L.length})</b><button data-mhx>${S.mhOpen===false?'▲':'▼'}</button></div>
     <div class="mhlist" ${S.mhOpen===false?'hidden':''}>${L.length?L.map((h,i)=>`<button class="mhc" data-mh="${i}"><span>${h.ic}</span><b>${h.label}</b><small>${h.home?'livello '+h.level:'liv. '+h.level+' · '+kmTxt(h.km)}</small></button>`).join(''):`<p class="muted" style="font-size:12.5px;margin:4px">${S.user?'Valuta la tua casa: diventa la prima del tuo impero.':'Accedi per avere le tue case nel mondo.'}</p>`}
      <button class="mhc add" data-mhadd><span>➕</span><b>Compra</b><small>tocca una casa libera</small></button></div>`;
@@ -39,10 +39,8 @@ function mhBar(){const w=app.querySelector('.mapfull');if(!w)return;let b=w.quer
   const ad=b.querySelector('[data-mhadd]');if(ad)ad.onclick=()=>openSheet('➕ Comprare una casa','<p style="font-weight:400">Avvicina la mappa e <b>tocca una casa</b>: se è libera (o di un superstite simulato 🤖) vedi il prezzo in 🧱 Mattoni e il pulsante Compra. Puoi comprare ovunque, anche in Australia: il prezzo sale con la distanza da casa tua.</p><p class="muted" style="font-size:12.5px">Per andare lontano usa ⋯ → 🔍 Cerca un luogo.</p>');}
 function mhFly(h,open){const lm=window.__mf;if(!lm||!lm.map)return;try{lm.map.flyTo({center:[h.lon,h.lat],zoom:17,pitch:0,duration:h.km>500?3200:1500});}catch(e){}
   if(open)setTimeout(()=>houseSheet(h),h.km>500?3300:1600);}
-const _renderMappaM2=renderMappa;renderMappa=function(){_renderMappaM2();try{mhBar();setTimeout(mhBar,1500);}catch(e){}};
 /* ---------------- SCHEDA DELLA CASA ---------------- */
 /* tocco su una casa tua sulla mappa → la sua scheda */
-const _wSheetM2=wSheet;wSheet=async function(bid,lat,lon){const h=myHouses().find(x=>(x.bid&&x.bid===bid)||(Math.abs(x.lat-lat)<.0002&&Math.abs(x.lon-lon)<.0003));if(h&&S.user)return houseSheet(h);return _wSheetM2(bid,lat,lon);};
 /* ---------------- ACQUISTO IN APP (Mattoni e gemme) ---------------- */
 function shopSheet(miss){openSheet('🛒 Bottega',`${miss?`<p class="notice">Ti mancano <b>🧱 ${wNum(miss)} Mattoni</b>. Puoi guadagnarli giocando oppure comprarli.</p>`:''}
   <h4 class="hh">🧱 Mattoni</h4><div class="shopg">${[['🧱 500','1,99 €'],['🧱 1.500','4,99 €'],['🧱 4.000','9,99 €']].map(([a,b])=>`<div><b>${a}</b><small>${b}</small><button class="btn small ghost" disabled>Presto</button></div>`).join('')}</div>

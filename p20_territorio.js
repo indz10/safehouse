@@ -258,13 +258,13 @@ function bzCard(b,pub){const tel=(b.tel||'').replace(/[^\d+]/g,'');const web=b.w
      <ul><li>⭐ Bollino giallo col nome, visibile a tutto il quartiere</li><li>🎟️ Offerta con codice personale da mostrare in cassa</li><li>📩 Richieste di preventivo da chi abita qui</li><li>🛡️ Nel gioco: presidio che dà +5% barricata ai vicini</li></ul>
      <button class="btn wide" data-claim>Diventa sponsor</button></div>`:`<button class="bzc-own" data-claim>È la tua attività? Mettiti in evidenza →</button>`}
    <div data-admin></div></div>`;}
-bizSheet=function(b,z){openSheet(b.cand?'📌 Posto sponsor libero':'🛍️ Attività della zona',bzCard(b,false),card=>{
+function bizSheetBase(b,z){openSheet(b.cand?'📌 Posto sponsor libero':'🛍️ Attività della zona',bzCard(b,false),card=>{
   const c=card.querySelector('[data-claim]');if(c)c.onclick=()=>{closeSheet();S.motivo=b.cand?'sponsor':'negozio';S.motivoBiz=b.name;go('contatti');};
-  zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+b.name+'” dalla mappa per tutti?'))zHide(b.name,b.ll);};}});});};
-lmPoi=function(name,cat,d,ll,pub){const ic={Farmacia:'💊',Ospedale:'🏥',Clinica:'🏥','Forze dell’ordine':'🚓','Vigili del fuoco':'🚒',Municipio:'🏛️',Fontanella:'💧'}[cat]||'📍';
+  zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+b.name+'” dalla mappa per tutti?'))zHide(b.name,b.ll);};}});});}
+function lmPoiBase(name,cat,d,ll,pub){const ic={Farmacia:'💊',Ospedale:'🏥',Clinica:'🏥','Forze dell’ordine':'🚓','Vigili del fuoco':'🚒',Municipio:'🏛️',Fontanella:'💧'}[cat]||'📍';
   const fx={Farmacia:'Nel gioco: farmacia entro 800 m = resistenza casa +5%.',Ospedale:'Nel gioco: ospedale entro 1,5 km = resistenza casa +10%.',Clinica:'Nel gioco: presidio sanitario vicino = più resistenza.','Forze dell’ordine':'Nel gioco: forze dell’ordine entro 2 km = barricata +10%.','Vigili del fuoco':'Nel gioco: vigili del fuoco entro 3 km = barricata +5%.'}[cat];
   const b={i:name,ic,name,cat,d,ll,zfx:fx};openSheet(pub?'🛡️ Servizio della zona':'🛍️ Attività della zona',bzCard(b,pub),card=>{
-    zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+name+'” dalla mappa per tutti?'))zHide(name,ll);};}});});};
+    zIsAdmin().then(ok=>{const a=card.querySelector('[data-admin]');if(ok&&a){a.innerHTML='<button class="btn small ghost" style="margin-top:10px">🚫 Nascondi dalla mappa (solo admin)</button>';a.firstChild.onclick=()=>{if(confirm('Nascondere “'+name+'” dalla mappa per tutti?'))zHide(name,ll);};}});});}
 </script>
 <script>
 /* =========================================================
@@ -374,8 +374,6 @@ async function fillOnline(card,b){const box=card.querySelector('[data-online]');
     if(tel&&!act.querySelector('a[href^="tel:"]'))act.insertAdjacentHTML('beforeend',`<a href="tel:${tel.split(';')[0].replace(/[^\d+]/g,'')}"><span>📞</span>Chiama</a>`);
     if(web&&!act.querySelector('a[data-web]'))act.insertAdjacentHTML('beforeend',`<a data-web href="${esc(/^https?:/.test(web)?web:'https://'+web)}" target="_blank" rel="noopener"><span>🌐</span>Sito</a>`);}}
 const _bzCardO=bzCard;bzCard=function(b,pub){return _bzCardO(b,pub).replace('<div data-admin></div>','<div class="online" data-online><span class="spin"></span> Cerco orari e contatti online…</div><div data-admin></div>');};
-const _bizSheetO=bizSheet;bizSheet=function(b,z){_bizSheetO(b,z);const c=document.querySelector('#sheet.open .sheet-card');if(c)fillOnline(c,b);};
-const _lmPoiO=lmPoi;lmPoi=function(name,cat,d,ll,pub){_lmPoiO(name,cat,d,ll,pub);const c=document.querySelector('#sheet.open .sheet-card');if(c)fillOnline(c,{name,ll});};
 </script>
 <script>
 /* =========================================================
@@ -501,7 +499,6 @@ function zDrawUsers(lm){if(!lm||!lm.map)return;(lm._usr||[]).forEach(x=>x.remove
       <div class="terrb" style="margin-top:12px"><span class="ok">🏠 Indice ${u.indice!=null?String(u.indice).replace('.',','):'–'}</span><span class="ok">🎮 Livello ${u.livello||'–'}</span></div>
       <p class="muted" style="font-size:13px">Per privacy non vedi l'indirizzo né i punti deboli della sua casa.</p></div>`);});
     lm._usr.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([u.lon_r,u.lat_r]).addTo(lm.map));});}
-const _liveMapZ=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapZ(el,addr,o);try{(window.__zlms=window.__zlms||[]).push(lm);zDrawUsers(lm);}catch(e){}return lm;};
 /* quando ci si collega o si valuta la casa */
 const _onLoginZ=onLogin;onLogin=async function(u,fresh){const r=await _onLoginZ(u,fresh);window.ZADMIN=null;zSyncProfile();zLoadUsers();return r;};
 const _azZ=analyzeZone;analyzeZone=async function(a){const z=await _azZ(a);setTimeout(()=>zSyncProfile(true),500);return z;};
@@ -526,8 +523,6 @@ async function zReport(name,ll){if(!S.user||typeof SB==='undefined'||!SB){toast(
   window.ZMYHID.push(name);try{localStorage.setItem('zsh_myhid',JSON.stringify(window.ZMYHID));}catch(e){}window.ZHID=[...new Set([...(window.ZHID||[]),name])];zApplyHidden();closeSheet();toast('Grazie! Segnalazione inviata: la controlliamo noi');}
 window.ZHID=[...new Set([...(window.ZHID||[]),...window.ZMYHID])];
 const _bzCardR=bzCard;bzCard=function(b,pub){return _bzCardR(b,pub).replace('<div data-admin></div>',`<button class="bzc-rep" data-rep>⚠️ Ha chiuso o non esiste più? Segnalalo</button><div data-admin></div>`);};
-const _bizSheetR=bizSheet;bizSheet=function(b,z){_bizSheetR(b,z);const c=document.querySelector('#sheet.open .sheet-card');const r=c&&c.querySelector('[data-rep]');if(r)r.onclick=()=>zReport(b.name,b.ll);};
-const _lmPoiR=lmPoi;lmPoi=function(name,cat,d,ll,pub){_lmPoiR(name,cat,d,ll,pub);const c=document.querySelector('#sheet.open .sheet-card');const r=c&&c.querySelector('[data-rep]');if(r)r.onclick=()=>zReport(name,ll);};
 </script>
 <script>
 const _renderMenuZ=renderMenu;renderMenu=function(){_renderMenuZ();try{if(!S.user)return;const u=document.querySelector('.dr-user');if(!u||document.querySelector('[data-pubt]'))return;
@@ -635,8 +630,6 @@ function tmEvent(k,id,ok){const T=G&&G.tm;if(!T||T.day!==tmDay())return;let hit=
 window.onExpDone=(id,ok)=>tmEvent('exp',id,ok);
 window.onWaveEnd=(win,L,ev,coop)=>{if(!win||coop)return;tmEvent('win','x');if(ev)tmEvent('evwin',ev);};
 const _couponForTM=couponFor;couponFor=function(k){const c=_couponForTM(k);try{tmEvent('cp',k);}catch(e){}return c;};
-const _lmPoiTM=lmPoi;lmPoi=function(name,cat,d,ll,pub){_lmPoiTM(name,cat,d,ll,pub);try{tmEvent('poi',name);}catch(e){}};
-const _bizSheetTM=bizSheet;bizSheet=function(b,z){_bizSheetTM(b,z);try{tmEvent('biz',b.name);}catch(e){}};
 function tmHTML(){const T=tmInit();if(!T)return'';const done=T.list.filter(m=>m.cl).length;
   return`<div class="panel tmp"><div class="row spread"><b class="disp" style="font-size:22px">🎯 Missioni di oggi</b><span class="tag">${done}/${T.list.length}</span></div>
    <p style="font-weight:400;font-size:12.5px;margin:2px 0 8px">Sui posti veri della tua zona. Cambiano ogni giorno a mezzanotte.</p>
@@ -1043,7 +1036,6 @@ function zDrawCustom(lm){if(!lm||!lm.map)return;(lm._cus||[]).forEach(x=>x.remov
     el.addEventListener('click',e=>{e.stopPropagation();const d=Math.round(trM(m.lat,m.lon,c.lat,c.lon));
       if(['salute','servizi','scuola','verde','sport'].includes(C[0]))lmPoi(c.name,C[1],d,[c.lat,c.lon],true);else bizSheet({i:'c'+c.id,ic:C[2],name:c.name,cat:C[1],d,ll:[c.lat,c.lon],tel:c.phone||'',web:c.website||'',cand:c.cat==='casa'},S.zone);});
     lm._cus.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([c.lon,c.lat]).addTo(lm.map));});}
-const _liveMapC=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapC(el,addr,o);try{zDrawCustom(lm);}catch(e){}return lm;};
 /* anche in Vivere qui / Vacanza */
 const _zStructC=zStruct;zStruct=async function(z){const fresh=!z._st;const D=await _zStructC(z);if(fresh||!D._c){D._c=1;(window.ZCUSTOM||[]).forEach(c=>{const C=CUST_CAT[c.cat]||CUST_CAT.negozi;const d=Math.round(trM(D.lat,D.lon,c.lat,c.lon));
     const lim=['hotel','bb','agri','camp','attr','risto'].includes(C[0])?8000:1500;if(d>lim||D.items.some(x=>x.name===c.name&&trM(x.lat,x.lon,c.lat,c.lon)<60))return;

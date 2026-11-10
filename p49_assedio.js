@@ -72,7 +72,6 @@ function fxDraw(){(window.__zlms||[]).forEach(lm=>{try{if(!lm||!lm.map)return;(l
     el.innerHTML=`<div class="fxa"></div><div class="fxb">${[...new Set(g.k)].map(k=>(FXI[k]||['✨'])[0]).join('')}</div><small>@${esc(g.nick||'')}</small>`;
     el.title=[...new Set(g.k)].map(k=>(FXI[k]||['',''])[1]).join(', ');el.addEventListener('click',e=>{e.stopPropagation();playerSheet(g.uid);});
     lm._fx.push(new maplibregl.Marker({element:el}).setLngLat([g.lon,g.lat]).addTo(lm.map));});}catch(e){}});}
-const _liveMapAs=liveMap;liveMap=async function(el,addr,o){const lm=await _liveMapAs(el,addr,o);try{setTimeout(()=>fxLoad(),1200);}catch(e){}return lm;};
 ['doDisp','allyShield','alHelp'].forEach(n=>{try{const f=window[n];if(typeof f!=='function')return;window[n]=async function(){const r=await f.apply(this,arguments);setTimeout(()=>fxLoad(true),700);return r;};}catch(e){}});
 setInterval(()=>{if(document.visibilityState==='visible'&&(S.tab==='mappa'||S.tab==='orda'))fxLoad();},60000);
 /* ---- 4) MESSAGGI DIRETTI ---- */

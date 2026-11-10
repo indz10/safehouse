@@ -32,8 +32,6 @@ W_ST.npc=['🤖','Casa di un superstite simulato','#d9dde3'];
 function wGidRing(R0){const R=R0.slice(0,-1);if(R.length<3)return null;let A=0,cx=0,cy=0;for(let i=0;i<R.length;i++){const[x1,y1]=R[i],[x2,y2]=R[(i+1)%R.length];const c=x1*y2-x2*y1;A+=c;cx+=(x1+x2)*c;cy+=(y1+y2)*c;}
   if(Math.abs(A)<1e-12){cx=R.reduce((a,p)=>a+p[0],0)/R.length;cy=R.reduce((a,p)=>a+p[1],0)/R.length;}else{cx/=3*A;cy/=3*A;}const la=+cy.toFixed(5),lo=+cx.toFixed(5);return{bid:'g'+la.toFixed(5)+'_'+lo.toFixed(5),lat:la,lon:lo};}
 /* scheda: case dei simulati */
-const _wSheetN=wSheet;wSheet=async function(bid,lat,lon){await _wSheetN(bid,lat,lon);try{const c=document.querySelector('#sheet.open .bzc-cat');if(c&&/simulato/.test(c.textContent)){const h=document.querySelector('#sheet.open .bzc-t h4');if(h)h.textContent='🤖 @'+npcNick(bid);
-    const box=document.querySelector('#sheet.open .bzc');if(box&&!box.querySelector('.npcn'))box.insertAdjacentHTML('afterend','<p class="npcn muted" style="font-size:12.5px;margin:8px 0 0">È un <b>personaggio del gioco</b>, non una persona: tiene vivo il mondo finché arrivano giocatori veri. Puoi comprargli la casa (+30%). Se l’abitante vero si iscrive, la casa passa a lui con le regole di sempre.</p>');}}catch(e){}};
 /* mappa: case dei simulati visibili da vicino */
 function wDrawNpc(lm){try{const map=lm.map;(lm._npc||[]).forEach(x=>x.remove());lm._npc=[];if(map.getZoom()<15.6||!W.on)return;
   const taken=new Set((lm._wrows||[]).map(r=>r.building_id));const fs=map.queryRenderedFeatures({layers:['bld']});const seen=new Set();let n=0;
@@ -41,7 +39,6 @@ function wDrawNpc(lm){try{const map=lm.map;(lm._npc||[]).forEach(x=>x.remove());
     for(const pl of polys){if(n>=40)break;const q=pl[0]&&wGidRing(pl[0]);if(!q||seen.has(q.bid)||taken.has(q.bid))continue;seen.add(q.bid);if(!isNpc(q.bid))continue;
       if(lm.m&&trM(q.lat,q.lon,lm.m.lat,lm.m.lon)<8)continue;n++;const el=elDiv('lm-w npc','<b>🤖</b>');el.addEventListener('click',e=>{e.stopPropagation();wSheet(q.bid,q.lat,q.lon);});
       lm._npc.push(new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([q.lon,q.lat]).addTo(map));}}}catch(e){}}
-const _wDrawMapN=wDrawMap;wDrawMap=async function(lm,force){await _wDrawMapN(lm,force);try{const b=lm.map.getBounds();lm._wrows=(lm._w||[]).length?lm._wrows:lm._wrows;}catch(e){}setTimeout(()=>wDrawNpc(lm),250);};
 /* l'assalto colpisce anche i simulati della zona (esito uguale per tutti) */
 /* ---- ALLEATI E RIVALI (tutto il mondo) ---- */
 window.AL={help:[],riv:[],t:0};

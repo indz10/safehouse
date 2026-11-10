@@ -12,7 +12,6 @@ function zSun(lat,lon,d){d=d||new Date();const rad=Math.PI/180;const y0=Date.UTC
 function zIsNight(lat,lon,d){try{d=d||new Date();if(lat==null){const H=typeof myHouses==='function'?myHouses():[];const h=H[0]||(S.geo&&{lat:S.geo.lat,lon:S.geo.lon});if(!h)return d.getHours()>=18||d.getHours()<7;lat=h.lat;lon=h.lon;}
   const s=zSun(lat,lon,d);if(s.polar)return s.polar==='notte';const m=d.getUTCHours()*60+d.getUTCMinutes();return m>s.set+20||m<s.rise-20;}catch(e){return d.getHours()>=18||d.getHours()<7;}}
 /* all'apertura: ogni mappa parte col giorno o la notte veri (se chi la apre non ha già scelto) */
-const _liveMapNt=liveMap;liveMap=async function(el,addr,o){o=Object.assign({},o||{});if(o.night===undefined){const c=(RM.cache&&RM.cache[addr])||null;o.night=zIsNight(c&&c.lat,c&&c.lon);}return _liveMapNt.call(this,el,addr,o);};
 /* scelta manuale: se tocchi 🌙/☀️ quella mappa non cambia più da sola */
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.lm-mode');if(b&&e.isTrusted){const box=b.closest('.lmap');if(box)box.dataset.manual='1';}},true);
 /* con l'app aperta: al tramonto e all'alba le mappe cambiano da sole */

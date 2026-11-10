@@ -92,7 +92,7 @@ function lmLabels(map,box){(box._lbl||[]).forEach(x=>x.remove());const out=[];co
   pl.forEach(f=>{const n=f.properties['name:it']||f.properties.name;const r=pr[f.properties.class];if(!n||!r||(r===3&&z<14)||(r===4&&z<15.5))return;const p=map.project(f.geometry.coordinates);
     if(p.x<0||p.y<0||p.x>W||p.y>H||near(n,p,400))return;seen.push({n,p});out.push(new maplibregl.Marker({element:elDiv('lm-place p'+r,`<span>${esc(n.toUpperCase())}</span>`)}).setLngLat(f.geometry.coordinates).addTo(map));});}
 /* costruisce la mappa dentro un elemento */
-async function liveMap(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[addr])||await lmGeocode(addr);
+async function liveMapBase(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[addr])||await lmGeocode(addr);
   if(!m.els||!m.els.length)rmFetch(addr).then(r=>{S.realNames=rmTopNames(r);}).catch(()=>{});
   el.innerHTML=`<div class="lmap ${o.night?'night':''}"><div class="lm-gl"></div><div class="lm-frame"></div><button class="lm-mode" type="button">${o.night?'☀️ Giorno':'🌙 Notte'}</button><button class="lm-3d" type="button">🏙️ 3D</button><button class="lm-10" type="button">🔭 10 km</button></div>`;
   const box=el.querySelector('.lmap'),gl=box.querySelector('.lm-gl');let night=!!o.night;
