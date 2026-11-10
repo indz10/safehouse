@@ -1,0 +1,8 @@
+Controllo notifiche (supabase/controllo/002_notifiche.sql) sul database vero, 10/11/2026 sera
+telefoni iscritti alle notifiche: 1 (di cui con account 1)
+chiavi delle notifiche create: 1
+orologio zsh-push-tick: */10 * * * * (attivo) — 144 chiamate in 24 ore, 0 fallite; risposte 200: 33 (pg_net tiene solo le ultime ore)
+avvisi d'orda inviati negli ultimi 3 giorni: 12 — ultimo 2026-11-10 20:00 UTC (orda delle 21)
+meteo vero per la prossima orda: 3 case · pendenza salvata: 4 case
+Conclusione: il servizio funziona; l'amico invitato non riceve notifiche perché il suo telefono non si è mai iscritto
+(serve l'app aperta dalla schermata Home su iPhone + menu ☰ → Notifiche delle orde → Consenti).
