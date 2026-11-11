@@ -21,7 +21,7 @@ function condoHTML(C){if(!C)return'';return`<div class="cdpan"><h4 class="hh">�
     ${d.next?`<div class="cdbar"><i style="width:${pct}%"></i><small>🧱 ${wNum(d.pot)} / ${wNum(d.next)} per il livello ${d.level+1}</small></div>
     <div class="cdbtn">${[20,50,100].map(v=>`<button class="btn small ghost" data-cdg="${d.kind}" data-v="${v}">+🧱 ${v}</button>`).join('')}</div>`:'<small class="muted">Al massimo</small>'}
     ${(d.top||[]).length?`<small class="muted">Hanno versato: ${d.top.map(t=>`@${esc(t.nick)} ${wNum(t.tot)}`).join(' · ')}</small>`:''}</div>`;}).join('')}</div>`;}
-function abitHTML(I){if(!I||I.err)return`<p class="muted" style="font-size:12.5px">Non disponibile${I&&I.err?' ('+esc(I.err)+')':''}. Esegui il file abitazione.sql su Supabase.</p>`;
+function abitHTML(I){if(!I||I.err)return`<p class="muted" style="font-size:12.5px">Non disponibile${I&&I.err?' ('+esc(I.err)+')':''}${typeof SB!=='undefined'&&SB?': riprova tra poco':': l’app non è collegata al server (controlla la rete e riapri l’app)'}.</p>`;
   const[ic,n,d]=HK[I.kind]||HK.casa;const M=I.members||[],N=I.neighbors||[],R=I.requests||[];
   return`<div class="hktype ${I.kind_set?'':'todo'}"><span>${ic}</span><div><b>${I.kind_set?n:'Che tipo di casa è?'}${I.kind==='condominio'&&I.unit?' · '+esc(I.unit):''}</b><small>${I.kind_set?d:'Dillo al gioco: casa, condominio o residence'}</small></div><button class="btn small" data-hkc>${I.kind_set?'Cambia':'Scegli'}</button></div>
    ${R.map(r=>`<div class="hkreq">🏠 <b>@${esc(r.nick)}</b> dice che vivete nella stessa casa<div><button class="btn small" data-hra="${r.user_id}" data-y="1">Sì, viviamo insieme</button><button class="btn small ghost" data-hra="${r.user_id}" data-y="0">No</button></div></div>`).join('')}

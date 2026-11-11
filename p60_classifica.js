@@ -9,7 +9,7 @@ const SC_V=[['dif','🛡️','Difesa',300,s=>`${s.held}/${s.orde} orde tenute da
   ['costanza','📅','Costanza',100,s=>`${s.giorni}/${s.giorni_max} giorni giocati`,'Entra ogni giorno: premio del giorno, orde, missioni.'],
   ['crescita','📈','Crescita',100,s=>`🧱 ${wNum(s.mattoni)} guadagnati giocando`,'Riscatta le orde, completa le missioni, riscuoti gli affitti.']];
 async function scLoad(uid){try{const{data,error}=await SB.rpc('world_score',{p_user:uid||null,p_period:SOC.rp||'settimana'});if(error)throw error;return data;}catch(e){return{err:e.message};}}
-function scBars(s,mine){if(!s||s.err)return`<p class="muted" style="font-size:12.5px">Punteggio non disponibile${s&&s.err?' ('+esc(s.err)+')':''}. Esegui il file classifica.sql su Supabase.</p>`;
+function scBars(s,mine){if(!s||s.err)return`<p class="muted" style="font-size:12.5px">Punteggio non disponibile${s&&s.err?' ('+esc(s.err)+')':''}${typeof SB!=='undefined'&&SB?': riprova tra poco':': l’app non è collegata al server (controlla la rete e riapri l’app)'}.</p>`;
   const weakest=SC_V.map(v=>[v,s[v[0]]/v[3]]).sort((a,b)=>a[1]-b[1])[0][0];
   return SC_V.map(v=>{const val=s[v[0]]||0;const pc=Math.round(val/v[3]*100);return`<div class="scrow"><div class="sct"><b>${v[1]} ${v[2]}</b><span>${val}<small>/${v[3]}</small></span></div><div class="scbar"><i style="width:${pc}%"></i></div><small>${esc(v[4](s))}</small></div>`;}).join('')
    +(mine?`<p class="sctip">💡 Per salire di più: <b>${weakest[1]} ${weakest[2]}</b> — ${weakest[5]}</p>`:'');}

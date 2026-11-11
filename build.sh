@@ -26,6 +26,6 @@ sed -i "s/__BUILD__/$B/g" app.html
 rm -rf dist && mkdir -p dist
 cp app.html dist/index.html
 sed "s/__BUILD__/$B/g" pwa/sw.js > dist/sw.js
-cp pwa/manifest.json pwa/*.png pwa/orde.ics dist/
+cp pwa/manifest.json pwa/*.png pwa/orde.ics pwa/supabase.js dist/
 cp admin.html negozio.html legal/*.html dist/
 echo "versione $B -> dist/"

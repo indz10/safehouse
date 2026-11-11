@@ -6,13 +6,21 @@
 CONFIG.SB_URL='https://wmweptdpfworispqjhto.supabase.co';
 CONFIG.SB_KEY='sb_publishable_kaNxtTEWBzAdqGVAp_wLdA_XzOtNQFp';
 let SB=null;const SAVE_KEY='zsh_v2_salvataggio';const SNAP={b:null,at:0};
+/* libreria di Supabase: PRIMA la copia nel nostro sito (supabase.js, dalla Fase 10: su alcuni telefoni/reti jsdelivr
+   non si raggiunge e l'app restava senza server, "Cannot read properties of null (reading 'rpc')"), poi due siti di riserva;
+   se nessuno risponde, si riprova quando torna la rete. SB_STATO: 'carico' | 'ok' | 'errore' (lo mostra "Controlla il mio gioco"). */
+window.SB_STATO='carico';
+const SB_LIBS=['supabase.js','https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js','https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'];
+function sbLib(i,fatto){if(window.supabase&&window.supabase.createClient)return fatto();if(i>=SB_LIBS.length){window.SB_STATO='errore';
+    window.addEventListener('online',()=>{if(!SB&&window.SB_STATO==='errore'){window.SB_STATO='carico';sbLib(0,fatto);}},{once:true});return;}
+  const s=document.createElement('script');s.src=SB_LIBS[i];let finito=false;const avanti=()=>{if(finito)return;finito=true;s.remove();sbLib(i+1,fatto);};
+  const t=setTimeout(avanti,9000);s.onload=()=>{clearTimeout(t);if(window.supabase&&window.supabase.createClient){finito=true;fatto();}else avanti();};s.onerror=()=>{clearTimeout(t);avanti();};document.head.appendChild(s);}
 (function loadSB(){if(!CONFIG.SB_KEY||CONFIG.SB_KEY.indexOf('%%')===0)return;
-  const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';
-  s.onload=async()=>{try{SB=window.supabase.createClient(CONFIG.SB_URL,CONFIG.SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
+  sbLib(0,async()=>{try{SB=window.supabase.createClient(CONFIG.SB_URL,CONFIG.SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
       const{data}=await SB.auth.getSession();if(data&&data.session)await onLogin(data.session.user,false);
       SB.auth.onAuthStateChange((ev,ses)=>{if(ev==='SIGNED_IN'&&ses&&(!S.user||S.user.id!==ses.user.id))onLogin(ses.user,true);if(ev==='SIGNED_OUT'){S.user=null;}});
-    }catch(e){console.warn('Supabase non disponibile',e);SB=null;}};
-  s.onerror=()=>{SB=null;};document.head.appendChild(s);})();
+      window.SB_STATO='ok';
+    }catch(e){console.warn('Supabase non disponibile',e);SB=null;window.SB_STATO='errore';}});})();
 /* ---------- salvataggio: cosa si salva ---------- */
 function snapshotBase(){const s={zone:S.zone||null,answers:S.answers||null,result:S.result||null,game:S.game?{base:S.game.base||null,applied:[...(S.game.applied||[])]}:null,
    rmiss:S.rmiss||{},coupons:S.coupons||{},couponUsed:!!S.couponUsed,acc:S.acc||{},qtog:S.qtog||{},finali:S.finali||{},leads:S.leads||0,geo:S.geo||null,pubOk:S.pubOk,case:S.case||[]};

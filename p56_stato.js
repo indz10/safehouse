@@ -25,6 +25,7 @@ setTimeout(()=>{try{if(zWhere()==='inapp'&&!sessionStorage.getItem('zsh_inapp'))
 async function zStatus(){const out=[];const add=(ok,t,how,act)=>out.push({ok,t,how,act});
   const L=await zLatest();add(!L||+L<=+APPV,`Versione app: ${typeof appVerTxt==='function'?appVerTxt():APPV}`,L&&+L>+APPV?'C’è una versione più nuova: tocca Aggiorna':'',L&&+L>+APPV?'upd':null);
   const w=zWhere();add(w==='app',w==='app'?'Aperta dall’icona sulla schermata Home':w==='inapp'?'Aperta dentro WhatsApp o un’altra app':'Aperta nel browser',w==='app'?'':w==='inapp'?'Apri il link con Safari (iPhone) o Chrome (Android)':'iPhone: Condividi → Aggiungi alla schermata Home; Android: ⋮ → Installa app');
+  const sbs=window.SB_STATO;add(!!(typeof SB!=='undefined'&&SB),SB?'Collegato al server':sbs==='carico'?'Mi sto collegando al server…':'NON collegato al server',SB?'':sbs==='carico'?'Aspetta qualche secondo e riapri questa finestra':'La rete del telefono blocca il collegamento: prova con il Wi-Fi o un\'altra rete, poi chiudi e riapri l\'app',null);
   add(!!S.user,S.user?`Account: @${S.user.nick||''}`:'Non hai fatto l’accesso',S.user?'':'Menu ☰ → Accedi o crea l’account: senza account non c’è il mondo condiviso','login');
   add(!!S.result,S.result?'Valutazione della casa vera fatta':'Valutazione della casa vera da fare',S.result?'':'Fai la valutazione: serve per la casa disegnata e lo Scudo','val');
   let I=null;if(S.user){try{const{data}=await SB.rpc('world_house_info');I=data;}catch(e){}}

@@ -794,7 +794,7 @@ function deleteSheet(){openSheet('🗑 Elimina il mio account',`<p style="font-w
    schermata dei nuovi utenti. Trasloco con schermata dedicata.
    ========================================================= */
 const _vZonaHome=vZona;
-vZona=function(){
+vZona=function(){if(!document.getElementById('vv'))return;/* pagina Valuta già chiusa */
   /* trasloco in corso: schermata "La tua nuova casa" */
   if(S.moving&&!S.zone){_vZonaHome();try{const h=document.querySelector('#vv h2');if(h)h.textContent='Dove si trova la casa nuova?';
       const old=S.case&&S.case[0];const p=h&&h.nextElementSibling;

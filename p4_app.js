@@ -24,7 +24,7 @@ function renderValuta(){
   app.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>{S.step=+b.dataset.jump;renderValuta();});
   views[S.step]();
 }
-function vZona(){
+function vZona(){if(!document.getElementById('vv'))return;/* pagina Valuta già chiusa (analisi finita dopo) */
   const z=S.zone;
   $('#vv').innerHTML=`
    <h2>Dove si trova la casa?</h2>
