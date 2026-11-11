@@ -4,7 +4,7 @@ Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sq
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
 - Tabelle: **47** · viste: **1** · indici: **14** · regole (policy): **42** · trigger: **12** · lavori programmati: **3**
-- Funzioni: **141** (141 nomi); usate (direttamente o tramite altre funzioni): **141**; **non usate: 0**
+- Funzioni: **153** (153 nomi); usate (direttamente o tramite altre funzioni): **153**; **non usate: 0**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -31,6 +31,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `sponsors_guard` |  |  | trigger |  | 1: migr. 004_sponsor_iscrizione |
 | `w_allies_of` |  |  |  | w_upower, w_tr_feed, world_allies, world_team_bonus, world_my_defense, world_allies_status … | 2: aiuto_alleati → alleanze2 |
 | `w_are_allies` |  |  |  | world_quote, world_send_help, world_send_attack, world_give, world_feed_list, world_player … | 3: mondo_v4 → social → alleanze2 |
+| `w_atk_pts` |  |  |  | world_send_attack, world_player | 1: migr. 009_mezzi_assalti |
 | `w_attack3` |  |  |  | world_raid_status, world_raid_view, w_home_held | 4: mondo_v3 → zombie → zombie_alleati → fortezze |
 | `w_bad` |  |  |  | world_chat_send, world_dm_send | 1: chat |
 | `w_boost` |  |  |  | w_pay, world_status_extra | 1: equita |
@@ -39,7 +40,9 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_coinq` |  |  |  | w_upower, w_are_allies, w_allies_of, world_allies, world_team_bonus, world_my_defense … | 1: alleanze2 |
 | `w_condo_bonus` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of, world_house_info | 1: abitazione |
 | `w_condo_key` |  |  |  | w_condo_bonus, world_condo_give, world_house_info | 1: abitazione |
-| `w_def` |  |  |  | w_attack3, world_def_upgrade, w_threats_of | 2: zombie → zombie_alleati |
+| `w_def` |  |  |  | w_attack3, world_def_upgrade, w_threats_of, w_atk_pts | 2: zombie → zombie_alleati |
+| `w_dist_km` |  |  |  | world_send_help, world_send_attack, world_player | 1: migr. 009_mezzi_assalti |
+| `w_dot` |  |  |  | world_send_help, world_player, world_mezzo | 1: migr. 009_mezzi_assalti |
 | `w_feed_add` |  |  |  | w_tr_feed, w_tr_dm, world_house_invite, world_house_answer | 1: social |
 | `w_home_held` |  |  |  | world_raid_status, w_score | 3: mondo_v3 → abitazione → migr. 006_presidi |
 | `w_home_known` |  |  |  | world_view, world_quote, world_my_effects, world_presidi_list | 1: nome_casa |
@@ -50,6 +53,12 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_lvl_of` |  |  |  | world_raid_view, w_home_held, world_help_list, world_send_attack, world_ally_pending, world_rank … | 1: mondo_v3 |
 | `w_max` |  |  |  | world_quote, world_mine | 1: mondo_unico |
 | `w_median_near` |  |  |  | w_boost, world_status_extra | 1: equita |
+| `w_mezzo` |  |  |  | world_send_help, world_send_attack, world_player, w_atk_pts, world_mezzo, world_set_mezzo_vero … | 1: migr. 009_mezzi_assalti |
+| `w_mz_atk` |  |  |  | w_atk_pts, world_mezzo | 1: migr. 009_mezzi_assalti |
+| `w_mz_help` |  |  |  | world_send_help, world_player, world_mezzo | 1: migr. 009_mezzi_assalti |
+| `w_mz_range` |  |  |  | world_send_help, world_send_attack, world_player, world_mezzo | 1: migr. 009_mezzi_assalti |
+| `w_mz_rank` |  |  |  | w_mezzo, world_buy_mezzo | 1: migr. 009_mezzi_assalti |
+| `w_mz_speed` |  |  |  | world_send_help, world_send_attack, world_player, world_mezzo | 1: migr. 009_mezzi_assalti |
 | `w_next_slot` |  |  |  | world_raid_status, world_prepare, world_ask_help, world_help_list, world_send_help, world_send_attack … | 1: orda_mondo |
 | `w_nick` |  |  |  | world_view, world_quote, world_help_list, w_settle_loans, world_give, world_gifts_in … | 1: mondo_unico |
 | `w_pay` |  |  |  | w_cleanup, world_earn, world_claim_home, w_settle, world_sell, world_collect … | 2: mondo_unico → equita |
@@ -76,7 +85,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_threats_of` |  |  |  | world_threats, world_ally_view, world_allies_status | 6: alleati_sim → zombie_alleati → fortezze → abitazione → migr. 002_formule_uguali → migr. 006_presidi |
 | `w_tr_dm` |  |  | trigger |  | 1: assedio |
 | `w_tr_feed` |  |  | trigger |  | 4: social → aiuto_alleati → dispetti → alleanze2 |
-| `w_upower` |  |  |  | world_raid_status, world_raid_view, w_home_held, w_threats_of | 5: mondo_v3 → dispetti → alleanze2 → casavera → squadra_fix |
+| `w_upower` |  |  |  | world_raid_status, world_raid_view, w_home_held, w_threats_of | 6: mondo_v3 → dispetti → alleanze2 → casavera → squadra_fix → migr. 009_mezzi_assalti |
 | `w_wallet` |  |  |  | w_pay, world_earn, world_claim_home, world_collect, world_mine, world_raid_status … | 1: mondo_unico |
 | `w_wxev` |  |  |  | w_attack3, w_threats_of | 2: zombie → zombie_alleati |
 | `w_zm` |  |  |  | w_attack3, w_threats_of | 2: zombie → zombie_alleati |
@@ -91,6 +100,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_ask_help` | ✓ |  |  |  | 1: mondo_v3 |
 | `world_block` | ✓ |  |  |  | 1: chat |
 | `world_buy` | ✓ |  |  |  | 4: mondo_unico → mondo_unico_agg1 → casa_abitata → nome_casa |
+| `world_buy_mezzo` | ✓ |  |  |  | 1: migr. 009_mezzi_assalti |
 | `world_chat_list` | ✓ |  |  |  | 1: chat |
 | `world_chat_report` | ✓ |  |  |  | 1: chat |
 | `world_chat_send` | ✓ |  |  |  | 1: chat |
@@ -117,11 +127,12 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_house_log` | ✓ |  |  |  | 2: assedio → migr. 001_funzioni_mancanti |
 | `world_inviter` | ✓ |  |  |  | 2: benvenuto → migr. 001_funzioni_mancanti |
 | `world_loans` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
+| `world_mezzo` | ✓ |  |  |  | 1: migr. 009_mezzi_assalti |
 | `world_mine` | ✓ |  |  | world_mine2 | 1: mondo_unico |
 | `world_mine2` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
-| `world_my_defense` | ✓ |  |  |  | 4: casavera → squadra_fix → migr. 002_formule_uguali → migr. 006_presidi |
+| `world_my_defense` | ✓ |  |  |  | 5: casavera → squadra_fix → migr. 002_formule_uguali → migr. 006_presidi → migr. 009_mezzi_assalti |
 | `world_my_effects` | ✓ |  |  |  | 3: assedio → casa_abitata → nome_casa |
-| `world_player` | ✓ |  |  |  | 1: social |
+| `world_player` | ✓ |  |  |  | 2: social → migr. 009_mezzi_assalti |
 | `world_prepare` | ✓ |  |  |  | 1: orda_mondo |
 | `world_presidi_list` | ✓ |  |  |  | 1: migr. 006_presidi |
 | `world_presidi_seed` | ✓ |  |  |  | 1: migr. 006_presidi |
@@ -139,10 +150,11 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_score` | ✓ |  |  |  | 1: classifica |
 | `world_seen` | ✓ |  |  |  | 1: mondo_unico |
 | `world_sell` | ✓ |  |  |  | 1: mondo_unico |
-| `world_send_attack` | ✓ |  |  |  | 3: mondo_v3 → equita → alleanze2 |
+| `world_send_attack` | ✓ |  |  |  | 4: mondo_v3 → equita → alleanze2 → migr. 009_mezzi_assalti |
 | `world_send_curse` | ✓ |  |  |  | 2: dispetti → equita |
-| `world_send_help` | ✓ |  |  |  | 3: mondo_v3 → alleati_sim → zombie_alleati |
+| `world_send_help` | ✓ |  |  |  | 4: mondo_v3 → alleati_sim → zombie_alleati → migr. 009_mezzi_assalti |
 | `world_set_home` | ✓ |  |  |  | 1: abitazione |
+| `world_set_mezzo_vero` | ✓ |  |  |  | 1: migr. 009_mezzi_assalti |
 | `world_set_realshield` | ✓ |  |  |  | 1: casavera |
 | `world_shape_get` | ✓ |  |  |  | 1: migr. 003_forme_edifici |
 | `world_shape_put` | ✓ |  |  |  | 1: migr. 003_forme_edifici |
@@ -177,7 +189,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `sponsors` | ZombieSafeHouse_backend_sponsor | 8 | ✓ |
 | `subscriptions` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `world_allies` | social | 0 | ✓ |
-| `world_attack_given` | mondo_v3 | 0 | ✓ |
+| `world_attack_given` | mondo_v3 | 1 | ✓ |
 | `world_blocks` | chat | 0 | ✓ |
 | `world_bonus` | mondo_unico | 0 | ✓ |
 | `world_buildings` | mondo_unico | 0 | ✓ |
@@ -192,7 +204,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_feed` | social | 0 | ✓ |
 | `world_gifts` | mondo_v4 | 0 | ✓ |
 | `world_help` | mondo_v3 | 0 | ✓ |
-| `world_help_given` | mondo_v3 | 0 | ✓ |
+| `world_help_given` | mondo_v3 | 1 | ✓ |
 | `world_homes` | mondo_unico | 8 | ✓ |
 | `world_house_req` | abitazione | 0 | ✓ |
 | `world_log` | mondo_unico | 0 | ✓ |
