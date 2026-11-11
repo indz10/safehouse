@@ -45,19 +45,19 @@ function thrAdvise(T,budget){const sim={defs:{},level:T.level};const kinds=[...n
     if(sim.level<5){const c=150*sim.level;if(c<=left){sim.level++;const g=ch()-base;sim.level--;if(g>0&&(!best||g/c>best.r))best={t:'l',c,r:g/c};}}
     if(!best)break;left-=best.c;if(best.t==='d'){const cur=sim.defs[best.k]!=null?sim.defs[best.k]:((T.defs||{})[best.k]||0);sim.defs[best.k]=cur+1;}else sim.level++;}
   return{sim,spent:budget-left};}
-async function thrSection(card,h){await thrLoad();const T=thrOf(h);const box=card.querySelector('.thbox');if(!box)return;
+async function thrSection(card,h,after){const dopo=after||(()=>houseSheet(h));await thrLoad();const T=thrOf(h);const box=card.querySelector('.thbox');if(!box)return;
   if(!T){box.innerHTML=`<p class="muted" style="font-size:12.5px">${THR.err?'Simulatore non disponibile ('+esc(THR.err)+'). Esegui il file zombie.sql su Supabase.':'Questa casa non è ancora nel mondo.'}</p>`;return;}
   const sim={defs:{},level:T.level};const draw=()=>{box.innerHTML=thrHTML(T,sim);
     box.querySelectorAll('[data-sd]').forEach(b=>b.onclick=()=>{const k=b.dataset.sd;const cur=(T.defs||{})[k]||0;const v=(sim.defs[k]!=null?sim.defs[k]:cur)+(+b.dataset.v);sim.defs[k]=Math.max(cur,Math.min(3,v));draw();});
     box.querySelectorAll('[data-sl]').forEach(b=>b.onclick=()=>{sim.level=Math.max(T.level,Math.min(5,sim.level+(+b.dataset.sl)));draw();});
     const adv=box.querySelector('[data-sadv]');if(adv)adv.onclick=()=>{const m=(window.W&&W.m&&W.m.mattoni)||0;const before=thrCalc(T).ch;const r=thrAdvise(T,m);
       if(!r.spent){toast(m<80?'Servono almeno 🧱 80 per una difesa':'Con i Mattoni che hai non ci sono migliorie utili qui');return;}sim.defs=r.sim.defs;sim.level=r.sim.level;draw();toast(`🧠 Con 🧱 ${wNum(r.spent)}: da ${before}% a ${thrCalc(T,sim).ch}%. Controlla e tocca “Compra”.`);};
-    const pr=box.querySelector('[data-sprep]');if(pr)pr.onclick=async()=>{pr.disabled=true;try{const{data,error}=await SB.rpc('world_prepare');if(error)throw error;toast('🛡️ '+data.msg);await orLoad(true);await thrLoad(true);await defLoad(true);houseSheet(h);}catch(e){toast(e.message||'Non riuscito');pr.disabled=false;}};
+    const pr=box.querySelector('[data-sprep]');if(pr)pr.onclick=async()=>{pr.disabled=true;try{const{data,error}=await SB.rpc('world_prepare');if(error)throw error;toast('🛡️ '+data.msg);await orLoad(true);await thrLoad(true);await defLoad(true);dopo();}catch(e){toast(e.message||'Non riuscito');pr.disabled=false;}};
     const buy=box.querySelector('[data-sbuy]');if(buy)buy.onclick=async()=>{buy.disabled=true;try{
       for(const k of Object.keys(sim.defs)){const cur=(T.defs||{})[k]||0;for(let l=cur;l<sim.defs[k];l++){const{data,error}=await SB.rpc('world_def_upgrade',{p_bid:T.bid,p_kind:k});if(error)throw error;if(!data.ok)throw new Error(data.msg);}}
       for(let l=T.level;l<sim.level;l++){const r=await wRpc('world_upgrade',{p_bid:T.bid});if(!r.ok)throw new Error(r.msg);}
       toast('🛡️ Migliorie fatte!');try{sfx('win');}catch(e){}}catch(e){toast(e.message||'Non riuscito');}
-      await wMine(true);await thrLoad(true);await defLoad(true);houseSheet(h);};};draw();}
+      await wMine(true);await thrLoad(true);await defLoad(true);dopo();};};draw();}
 /* ---------- fronte: composizione e meteo veri della casa inquadrata ---------- */
 FZ.ombra={ic:'👤',v:3,sc:1.05,sp:'Si muove nell’ombra: fortissima con nebbia, blackout e di notte. La fermano fari e luci.'};
 if(typeof ZT!=='undefined'&&!ZT.ombra)ZT.ombra={name:'Ombra',sp:22,hp:14,dps:9};

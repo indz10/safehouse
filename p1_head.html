@@ -818,14 +818,28 @@ html,body{overflow-x:hidden;max-width:100%}
 .lnlab::after{content:'';position:absolute;left:14px;bottom:-11px;border:7px solid transparent;border-top-color:var(--ink)}
 .lnlab.k-mia{background:#ffd6e0}.lnlab.k-sp{background:#f7d64a}.lnlab.k-pres-mio{background:#c9f0cf}.lnlab.k-pres-alleato{background:#d6e9ff}.lnlab.k-pres-altro{background:#ffd6d6}
 .lnzb{position:absolute;left:0;top:0;font-size:56px;line-height:1;transform-origin:50% 100%;filter:drop-shadow(3px 3px 0 #140f1f) drop-shadow(-1px -1px 0 #140f1f)}
-.lntop{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;background:linear-gradient(#140f1fdd,#140f1f00)}
+.lntop{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 16px) 18px 10px;background:linear-gradient(#140f1fdd,#140f1f00)}
 .lnx{width:44px;height:44px;flex:none;background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-size:20px;font-weight:900;color:var(--ink)}
 .lntt{flex:1;min-width:0;display:flex;flex-direction:column;color:#fff}.lntt b{font-size:18px}.lnst{font-size:12.5px;opacity:.9}
 .lnn{color:#f7d64a;font-weight:800;font-size:13px;white-space:nowrap}
-.lnbot{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 12px calc(env(safe-area-inset-bottom) + 26px);background:linear-gradient(#140f1f00,#140f1fdd)}
+.lnbot{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 18px calc(env(safe-area-inset-bottom) + 34px);background:linear-gradient(#140f1f00,#140f1fdd)}
 .lnor{color:#fff;font-weight:800;font-size:14px}
 .lnprev{background:#f7d64a;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-weight:800;font-size:13.5px;padding:8px 10px;color:var(--ink);white-space:nowrap}
-.lnpriv{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 4px);margin:0;text-align:center;color:#fff;opacity:.7;font-size:11px}
+.lnlab.qui{left:50%;top:auto;bottom:calc(env(safe-area-inset-bottom) + 96px);transform:translateX(-50%)!important;font-size:17px;padding:8px 12px;background:#ffd6e0;animation:lnpulse 1.6s ease-in-out infinite}
+.lnlab.qui::after{display:none}
+@keyframes lnpulse{50%{box-shadow:5px 5px 0 var(--ink)}}
+.lente::after{content:'';position:absolute;inset:6px;border:4px solid var(--ink);outline:3px solid #fff;outline-offset:-7px;pointer-events:none;z-index:1}
+.lnboom{--r:0deg;position:absolute;font-family:var(--display);font-size:46px;color:#f7d64a;-webkit-text-stroke:2px var(--ink);text-shadow:4px 4px 0 var(--ink);transform:rotate(var(--r));animation:lnboom 1.4s ease-out forwards;pointer-events:none}
+@keyframes lnboom{0%{transform:rotate(var(--r)) scale(.3);opacity:0}15%{transform:rotate(var(--r)) scale(1.15);opacity:1}80%{opacity:1}100%{transform:rotate(var(--r)) scale(1);opacity:0}}
+.lnpan{position:absolute;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 8px);max-height:64%;display:flex;flex-direction:column;background:var(--paper,#f6efe0);color:var(--ink);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);z-index:5}
+.lnph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:3px solid var(--ink);background:#ffd6e0}.lnph>div{flex:1;min-width:0;display:flex;flex-direction:column}.lnph b{font-size:17px}.lnph span{font-size:12px}
+.lnpx{width:38px;height:38px;flex:none;background:#fff;border:3px solid var(--ink);font-weight:900;font-size:17px;color:var(--ink)}
+.lnpb{overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+/* nella Lente: prima il risultato e i pulsanti, poi le fortificazioni; l'elenco degli zombie resta nella pagina della casa */
+.lnpan .thbox{display:flex;flex-direction:column;gap:8px}.lnpan .thres{order:-3}.lnpan .thtools{order:-2}.lnpan [data-sbuy]{order:-1}
+.lnpan .thrw:not(.tot){display:none}.lnpan .thhead{order:5;font-size:12.5px}
+@media (prefers-reduced-motion:reduce){.lnlab.qui,.lnboom{animation:none}}
+.lnpriv{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 14px);margin:0;text-align:center;color:#fff;opacity:.7;font-size:11px}
 .lm-pres{display:flex;flex-direction:column;align-items:center;cursor:pointer}
 .lm-pres b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#fff;border:3px solid var(--ink);box-shadow:2px 2px 0 var(--ink);font-size:16px}
 .lm-pres i{font-style:normal;font-size:14px;margin-top:-6px}

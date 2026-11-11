@@ -12,14 +12,24 @@
 const LENTE={on:false,h:null,beta:90,man:0,T:[],els:new Map(),z:[],prevUntil:0};
 const LN_HFOV=56,LN_VFOV=72,LN_MAXM=600;
 const LN_FS=`precision mediump float;varying vec2 v;uniform sampler2D t;uniform vec2 px,sc,of;
-float L(vec2 p){return dot(texture2D(t,of+p*sc).rgb,vec3(.299,.587,.114));}
-void main(){vec2 p=v;vec3 c=texture2D(t,of+p*sc).rgb;
- float a=L(p+px*vec2(-1.,-1.)),b=L(p+px*vec2(0.,-1.)),d=L(p+px*vec2(1.,-1.)),e=L(p+px*vec2(-1.,0.)),f=L(p+px*vec2(1.,0.)),g=L(p+px*vec2(-1.,1.)),h=L(p+px*vec2(0.,1.)),i=L(p+px*vec2(1.,1.));
- float gx=-a-2.*e-g+d+2.*f+i,gy=-a-2.*b-d+g+2.*h+i;float ed=length(vec2(gx,gy));
- float l=dot(c,vec3(.299,.587,.114));vec3 q=floor(c*4.+.5)/4.;q=clamp(mix(vec3(dot(q,vec3(.333))),q,1.45),0.,1.);
- q=mix(q,vec3(.97,.84,.29),step(.86,l)*.18);
- vec2 hg=gl_FragCoord.xy/5.;float dd=length(fract(hg)-.5);if(l<.5)q*=mix(1.,.62,step(dd,(.5-l)*1.1));
- q=mix(q,vec3(.078,.059,.122),smoothstep(.22,.42,ed));gl_FragColor=vec4(q,1.);}`;
+vec3 T(vec2 p){return texture2D(t,of+p*sc).rgb;}
+float L(vec2 p){return dot(T(p),vec3(.299,.587,.114));}
+float sob(vec2 p,vec2 r){float a=L(p+r*vec2(-1.,-1.)),b=L(p+r*vec2(0.,-1.)),d=L(p+r*vec2(1.,-1.)),e=L(p+r*vec2(-1.,0.)),f=L(p+r*vec2(1.,0.)),g=L(p+r*vec2(-1.,1.)),h=L(p+r*vec2(0.,1.)),i=L(p+r*vec2(1.,1.));
+ float gx=-a-2.*e-g+d+2.*f+i,gy=-a-2.*b-d+g+2.*h+i;return length(vec2(gx,gy));}
+vec3 hsv(vec3 c){vec4 K=vec4(0.,-1./3.,2./3.,-1.);vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g));vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r));float d=q.x-min(q.w,q.y);return vec3(abs(q.z+(q.w-q.y)/(6.*d+1e-10)),d/(q.x+1e-10),q.x);}
+vec3 rgb(vec3 c){vec3 p=abs(fract(c.xxx+vec3(1.,2./3.,1./3.))*6.-3.);return c.z*mix(vec3(1.),clamp(p-1.,0.,1.),c.y);}
+void main(){vec2 p=v;
+ vec3 c=(T(p)*2.+T(p+px*vec2(1.5,0.))+T(p-px*vec2(1.5,0.))+T(p+px*vec2(0.,1.5))+T(p-px*vec2(0.,1.5)))/6.;
+ vec3 h=hsv(c);float val=h.z;
+ h.x=floor(h.x*12.+.5)/12.;h.y=clamp(floor(min(1.,h.y*2.)*3.+.5)/3.,0.,1.);
+ h.z=val<.2?.14:val<.45?.4:val<.72?.7:.97;
+ vec3 q=rgb(h);
+ q=mix(q,vec3(.965,.937,.878),step(.9,h.z)*(1.-h.y));
+ vec2 hg=gl_FragCoord.xy/7.;float dd=length(fract(hg)-.5);
+ if(val<.62)q=mix(q,q*.35,step(dd,(.62-val)*.85));
+ float ed=max(sob(p,px),sob(p,px*2.6)*.8);
+ q=mix(q,vec3(.078,.059,.122),smoothstep(.16,.32,ed));
+ gl_FragColor=vec4(q,1.);}`;
 const LN_VS='attribute vec2 a;varying vec2 v;void main(){v=vec2(a.x*.5+.5,.5-a.y*.5);gl_Position=vec4(a,0.,1.);}';
 /* filtro fumetto: prepara WebGL sul canvas (false se non c'è) */
 function lnGL(cv){let gl=null;try{gl=cv.getContext('webgl',{premultipliedAlpha:false,antialias:false})||cv.getContext('experimental-webgl');}catch(e){}if(!gl)return null;
@@ -46,8 +56,8 @@ function lnOri(e){let h=null;if(e.webkitCompassHeading!=null&&!isNaN(e.webkitCom
   if(LENTE.h==null)LENTE.h=h;else{const d=((h-LENTE.h+540)%360)-180;LENTE.h=(LENTE.h+d*.25+360)%360;}if(!LENTE.bussola){LENTE.bussola=true;lnStatus();}}
 function lnBearing(la1,lo1,la2,lo2){const r=Math.PI/180,y=Math.sin((lo2-lo1)*r)*Math.cos(la2*r),x=Math.cos(la1*r)*Math.sin(la2*r)-Math.sin(la1*r)*Math.cos(la2*r)*Math.cos((lo2-lo1)*r);return(Math.atan2(y,x)/r+360)%360;}
 /* cosa c'è intorno: case mie, case del mondo (world_view: il nome solo se il server lo manda), sponsor, presidi */
-async function lnTargets(lat,lon){const T=[];const add=(id,ic,t,la,lo,k,act)=>{if(la==null||lo==null)return;const d=trM(lat,lon,la,lo);if(d<=LN_MAXM&&d>=8)T.push({id,ic,t,lat:la,lon:lo,d,k,act});};
-  try{myHouses().forEach((h,i)=>add('mh'+i,h.home?'❤️':'🔑',h.home?'Casa tua':'La tua '+h.label.toLowerCase(),h.lat,h.lon,'mia'));}catch(e){}
+async function lnTargets(lat,lon){const T=[];const add=(id,ic,t,la,lo,k,act)=>{if(la==null||lo==null)return;const d=trM(lat,lon,la,lo);if(k==='mia'?d<=LN_MAXM*3:(d<=LN_MAXM&&d>=8))T.push({id,ic,t,lat:la,lon:lo,d,k,act});};
+  try{myHouses().forEach((h,i)=>add('mh'+i,h.home?'❤️':'🔑',h.home?'Casa tua':'La tua '+h.label.toLowerCase(),h.lat,h.lon,'mia',()=>lnPanel(h)));}catch(e){}
   const dl=0.0062,dn=dl/Math.max(.2,Math.cos(lat*Math.PI/180));
   try{if(S.user){const rows=await wRpc('world_view',{p_minlat:lat-dl,p_minlon:lon-dn,p_maxlat:lat+dl,p_maxlon:lon+dn})||[];
     rows.forEach(r=>{if(r.status==='home')add('w'+r.building_id,'🏠',r.nick?'@'+r.nick:'Casa abitata',r.lat,r.lon,'casa');
@@ -56,27 +66,28 @@ async function lnTargets(lat,lon){const T=[];const add=(id,ic,t,la,lo,k,act)=>{i
   try{if(typeof SB!=='undefined'&&SB){const{data}=await SB.rpc('world_presidi_list',{p_minlat:lat-dl,p_minlon:lon-dn,p_maxlat:lat+dl,p_maxlon:lon+dn});
     if(data&&data.presidi){PRES.d=data;PRES.L=data.presidi;data.presidi.forEach(p=>add('p'+p.id,(PRES_K[p.kind]||['🚩'])[0],p.name+(p.stato==='mio'?' · tuo':p.stato==='libero'?' · libero':''),p.lat,p.lon,'pres-'+p.stato,()=>presSheet(p.id)));}}}catch(e){}
   /* due etichette nello stesso punto: tengo la prima */
-  const out=[];T.sort((a,b)=>a.d-b.d).forEach(x=>{if(!out.some(y=>trM(x.lat,x.lon,y.lat,y.lon)<12))out.push(x);});return out.slice(0,40);}
+  const out=[];T.sort((a,b)=>(a.k==='mia'?-1:0)-(b.k==='mia'?-1:0)||a.d-b.d).forEach(x=>{if(x.k==='mia'||!out.some(y=>trM(x.lat,x.lon,y.lat,y.lon)<12))out.push(x);});return out.slice(0,40);}
 async function lnRefresh(force){const L=LENTE,p=L.pos;if(!p||!L.on)return;if(!force&&L.tpos&&trM(L.tpos.lat,L.tpos.lon,p.lat,p.lon)<120)return;L.tpos={lat:p.lat,lon:p.lon};
   const T=await lnTargets(p.lat,p.lon);if(!L.on)return;L.T=T;const ids=new Set(T.map(x=>x.id));L.els.forEach((el,id)=>{if(!ids.has(id)){el.remove();L.els.delete(id);}});
   const box=L.root.querySelector('.lnl');T.forEach(x=>{if(L.els.has(x.id))return;const el=document.createElement('button');el.className='lnlab k-'+x.k;el.type='button';
-    el.innerHTML=`<b>${x.ic} ${esc(x.t.slice(0,34))}</b><small></small>`;if(x.act)el.onclick=e=>{e.stopPropagation();const a=x.act;lenteClose();setTimeout(a,60);};box.appendChild(el);L.els.set(x.id,el);});
+    el.innerHTML=`<b>${x.ic} ${esc(x.t.slice(0,34))}</b><small></small>`;if(x.act)el.onclick=e=>{e.stopPropagation();const a=x.act;if(x.k==='mia'){a();return;}lenteClose();setTimeout(a,60);};box.appendChild(el);L.els.set(x.id,el);});
   lnStatus();}
 /* le etichette davanti, alla direzione giusta; più lontane = più in alto e più piccole */
 function lnLabels(){const L=LENTE,p=L.pos;if(!p)return;const W=L.root.clientWidth,H=L.root.clientHeight;const head=((L.h==null?0:L.h)+L.man+360)%360;
   const hor=H*.52-((L.beta||90)-90)/LN_VFOV*H;const used=[];
   L.T.forEach(x=>{const el=L.els.get(x.id);if(!el)return;x.d=trM(p.lat,p.lon,x.lat,x.lon);const rel=((lnBearing(p.lat,p.lon,x.lat,x.lon)-head+540)%360)-180;
+    if(x.k==='mia'&&x.d<40){el.style.display='';el.classList.add('qui');el.style.transform='';el.querySelector('small').textContent='📍 Sei qui · tocca per potenziarla';return;}el.classList.remove('qui');
     if(Math.abs(rel)>LN_HFOV/2+4||x.d>LN_MAXM){el.style.display='none';return;}el.style.display='';
     const s=Math.max(.62,1.05-x.d/LN_MAXM*.45);const X=W/2+rel/LN_HFOV*W;let Y=hor-30-Math.min(1,x.d/LN_MAXM)*H*.22;
     const w=(el.offsetWidth||140)*s,hh=34*s;for(let k=0;k<6;k++){const hit=used.some(u=>Math.abs(u.x-X)<(u.w+w)/2&&Math.abs(u.y-Y)<(u.h+hh)/2);if(!hit)break;Y-=hh+4;}used.push({x:X,y:Y,w,h:hh});
-    el.style.transform=`translate(${Math.round(X-w/2)}px,${Math.round(Y)}px) scale(${s.toFixed(2)})`;el.querySelector('small').textContent=x.d<1000?Math.round(x.d/5)*5+' m':'';});
+    el.style.transform=`translate(${Math.round(X-w/2)}px,${Math.round(Y)}px) scale(${s.toFixed(2)})`;el.querySelector('small').textContent=(x.d<1000?Math.round(x.d/5)*5+' m':'')+(x.k==='mia'?' · tocca per potenziarla':'');});
   const n=L.root.querySelector('.lnn');if(n)n.textContent=['N','NE','E','SE','S','SO','O','NO'][Math.round(head/45)%8]+' '+Math.round(head)+'°';}
 /* zombie a fumetto: all'ora dell'orda (20 minuti) o per 25 s con "Fai passare l'orda" */
 function lnZombies(now){const L=LENTE,box=L.root.querySelector('.lnz');const live=(typeof orLive==='function'&&orLive())||Date.now()<L.prevUntil;
   if(!live){if(L.z.length){L.z.forEach(z=>z.el.remove());L.z=[];}return;}
   const W=L.root.clientWidth,H=L.root.clientHeight;
   if(L.z.length<6&&Math.random()<.04){const el=document.createElement('div');el.className='lnzb';el.textContent=['🧟','🧟‍♂️','🧟‍♀️'][Math.floor(Math.random()*3)];box.appendChild(el);
-    const left=Math.random()<.5;L.z.push({el,x:left?-.1:1.1,y:.62+Math.random()*.12,vx:(left?1:-1)*(.0006+Math.random()*.0007),vy:.00025+Math.random()*.0002,s:.6,t0:now,ph:Math.random()*6});}
+    lnBoom();const left=Math.random()<.5;L.z.push({el,x:left?-.1:1.1,y:.62+Math.random()*.12,vx:(left?1:-1)*(.0006+Math.random()*.0007),vy:.00025+Math.random()*.0002,s:.6,t0:now,ph:Math.random()*6});}
   L.z=L.z.filter(z=>{const dt=Math.min(60,now-(z.tl||now));z.tl=now;z.x+=z.vx*dt*.06;z.y+=z.vy*dt*.06;z.s=Math.min(1.5,z.s+.00025*dt);
     if(z.x<-.25||z.x>1.25||z.y>1.05){z.el.remove();return false;}
     const bob=Math.sin((now-z.t0)/140+z.ph)*6,tilt=Math.sin((now-z.t0)/260+z.ph)*9;
@@ -84,7 +95,7 @@ function lnZombies(now){const L=LENTE,box=L.root.querySelector('.lnz');const liv
 function lnStatus(){const L=LENTE,s=L.root&&L.root.querySelector('.lnst');if(!s)return;const n=L.T.length;
   s.textContent=!L.pos?'📍 Cerco la tua posizione…':!L.bussola?'🧭 Bussola spenta: trascina col dito per girarti':n?`👀 ${n} cose qui intorno (entro ${LN_MAXM} m)`:'Niente di segnato qui intorno (entro 600 m)';
   const o=L.root.querySelector('.lnor');if(o){const s2=typeof OR!=='undefined'&&OR.s;const live=typeof orLive==='function'&&orLive();
-    if(live)o.textContent='🧟 L’ORDA È QUI!';else if(s2&&s2.next_at){const m=Math.max(0,Math.round((new Date(s2.next_at)-Date.now())/60000));o.textContent=`🧟 Prossima orda tra ${m>=60?Math.floor(m/60)+' h '+(m%60)+' min':m+' min'}`;}else o.textContent='🧟 Le orde arrivano alle 9:00 e alle 21:00';}}
+    if(live)o.textContent='🧟 L’ORDA È QUI!';else if(s2&&s2.next_at){const m=Math.max(0,Math.round((new Date(s2.next_at)-Date.now())/60000));o.textContent=`🧟 Orda tra ${m>=60?Math.floor(m/60)+' h '+(m%60)+' min':m+' min'}`;}else o.textContent='🧟 Le orde arrivano alle 9:00 e alle 21:00';}}
 /* apertura: va chiamata da un tocco (iPhone chiede i permessi solo così) */
 async function lenteOpen(){if(LENTE.on)return;const L=LENTE;
   /* iPhone: il permesso della bussola va chiesto subito, dentro il tocco */
@@ -114,7 +125,24 @@ async function lenteOpen(){if(LENTE.on)return;const L=LENTE;
     L.G=lnGL(cv);r.classList.toggle('nogl',!L.G);}
   catch(e){r.classList.add('nocam');const s=r.querySelector('.lnst');if(s)s.textContent='📷 Fotocamera non disponibile: consenti la fotocamera a Safari (Impostazioni › Safari › Fotocamera)';}
   perm.then(x=>{if(x!=='granted'){L.bussola=false;}lnStatus();});
-  L.stT=setInterval(lnStatus,5000);lnFrame();setTimeout(lnStatus,600);}
+  L.stT=setInterval(lnStatus,5000);lnFrame();setTimeout(lnStatus,600);
+  /* le mie case: se il mondo non è ancora caricato (Lente aperta dal menu) lo carico e rifaccio le etichette */
+  if(S.user&&!(window.W&&W.m)){try{await wMine(true);}catch(e){}if(L.on)lnRefresh(true);}}
+/* scritte da fumetto quando arrivano gli zombie */
+function lnBoom(){const L=LENTE;if(!L.root||Math.random()>.5)return;const b=document.createElement('div');b.className='lnboom';
+  b.textContent=['GRRR!','ARGH!','BRAAAINS!','CRASH!','UÀÀÀH!'][Math.floor(Math.random()*5)];
+  b.style.left=Math.round(10+Math.random()*55)+'%';b.style.top=Math.round(38+Math.random()*22)+'%';b.style.setProperty('--r',(Math.random()*24-12).toFixed(0)+'deg');
+  L.root.querySelector('.lnz').appendChild(b);setTimeout(()=>b.remove(),1400);}
+/* potenzia una mia casa DENTRO la Lente: lo stesso simulatore della pagina della casa (difese, livello, prepara, compra) */
+async function lnPanel(h){const L=LENTE;if(!L.root)return;if(!S.user){toast('Accedi per potenziare le tue case');return;}
+  let pan=L.root.querySelector('.lnpan');if(!pan){pan=document.createElement('div');pan.className='lnpan';L.root.appendChild(pan);
+    ['pointerdown','pointermove'].forEach(k=>pan.addEventListener(k,e=>e.stopPropagation()));}
+  pan.innerHTML=`<div class="lnph"><div><b>${h.home?'❤️ Casa tua':'🔑 '+esc(h.label||'La tua casa')}</b><span>Potenzia dalla Lente: la fotocamera resta accesa</span></div><button class="lnpx" data-lnpx type="button" aria-label="Chiudi">✕</button></div>
+    <div class="lnpb"><div class="thbox"><p><span class="spin"></span> Carico le difese della casa…</p></div>
+    <button class="btn ghost small" data-lnpcasa type="button">🏠 Apri tutta la pagina della casa</button></div>`;
+  pan.querySelector('[data-lnpx]').onclick=()=>pan.remove();
+  pan.querySelector('[data-lnpcasa]').onclick=()=>{lenteClose();setTimeout(()=>houseSheet(h),60);};
+  try{await thrSection(pan,h,()=>{if(LENTE.on)lnPanel(h);});}catch(e){const b=pan.querySelector('.thbox');if(b)b.innerHTML='<p class="notice">Non riesco a caricare le difese ora: riprova tra poco.</p>';}}
 function lenteClose(){const L=LENTE;if(!L.on)return;L.on=false;cancelAnimationFrame(L.raf);clearInterval(L.stT);
   try{L.stream&&L.stream.getTracks().forEach(t=>t.stop());}catch(e){}L.stream=null;
   try{navigator.geolocation.clearWatch(L.watch);}catch(e){}
