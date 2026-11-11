@@ -32,6 +32,7 @@ button.ghost{background:#fff}button.red{background:var(--red);color:#fff}button:
 <div id="area" class="hidden">
 <div class="box" id="pickBox" style="display:none"><label>Negozio</label><select id="pick"></select></div>
 <div class="box" id="statoBox"><h2>🏪 La tua attività</h2><div id="stato">…</div></div>
+<div class="box" id="payBox"><h2>💳 Pacchetti e rinnovo</h2><div id="pay">…</div></div>
 <div class="box"><h2>✅ Valida un codice sconto</h2>
  <p class="hint" style="margin-top:0">Il cliente ti mostra il codice nell’app (es. ZSH-FV-1390). Scrivilo qui prima di applicare lo sconto.</p>
  <input id="code" placeholder="ZSH-…" autocomplete="off" autocapitalize="characters">
@@ -76,7 +77,17 @@ async function load(){$('#who').textContent=cur.name+' · pannello del negozio';
   $('#stato').innerHTML=cur.stato==='in_attesa'?'<div class="msg ok" style="background:#fff3c4">⏳ Richiesta in attesa: INDZ la controlla e la attiva. Intanto puoi completare scheda e offerta.</div>'
     :cur.stato==='rifiutato'?'<div class="msg ko">La richiesta non è stata approvata. Per informazioni scrivi a INDZ.</div>'
     :`<p style="margin:0 0 6px"><b>Nell’app:</b> ${cur.active?VIS[cur.visibility||'normale']:VIS.nascosto}</p><p style="margin:0 0 6px"><b>Pacchetto:</b> ${esc(cur.package||'vetrina')}${cur.valid_to?` · pagato fino al <b>${new Date(cur.valid_to).toLocaleDateString('it-IT')}</b>`:''}</p>
-       <p class="hint">Per comparire in evidenza o rinnovare: il pagamento online arriva a breve; per ora scrivi a INDZ.</p>`;
+       `;
+  /* Fase 9a-2: listino e pagamento con Stripe (attivo quando INDZ inserisce le chiavi) */
+  const{data:PR}=await SB.from('sponsor_prezzi').select('*').order('ordine');
+  $('#pay').innerHTML=cur.stato!=='attivo'?'<p class="hint" style="margin:0">Potrai scegliere un pacchetto quando INDZ avrà approvato la tua attività.</p>'
+    :(PR&&PR.length?PR.map(p=>`<div class="ld"><b>${esc(p.nome)}</b><small>€ ${String(p.prezzo_eur).replace('.',',')} · ${p.mesi} mesi${p.evidenza?' · ⭐ in evidenza: in cima agli elenchi e segnaposto più grande sulla mappa':' · bollino giallo sulla mappa'}</small>
+      <button data-buy="${esc(p.package)}" style="margin-top:6px">Paga e attiva</button></div>`).join('')+'<p class="hint">Pagamento sicuro con carta tramite Stripe; ricevi la fattura via email. Se hai già un pacchetto, il nuovo periodo si aggiunge alla scadenza.</p><div id="payMsg"></div>'
+      :'<p class="hint" style="margin:0">Listino non disponibile: scrivi a INDZ.</p>');
+  document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=async()=>{b.disabled=true;
+    try{const{data,error}=await SB.functions.invoke('zsh-pay',{body:{action:'checkout',sponsor_id:cur.id,package:b.dataset.buy}});
+      if(!error&&data&&data.url){location.href=data.url;return;}msg($('#payMsg'),esc((data&&data.msg)||(error&&error.message)||'Pagamento non disponibile'),false);}
+    catch(e){msg($('#payMsg'),'Pagamento non disponibile ora: scrivi a INDZ',false);}b.disabled=false;});
   CAMPI.forEach(k=>{const el=$('#e_'+k);if(el)el.value=cur[k]||'';});
   const{data:OF}=await SB.from('offers').select('*').eq('sponsor_id',cur.id).order('created_at',{ascending:false}).limit(1);const of=(OF||[])[0];
   $('#o_t').value=of?of.title||'':'';$('#o_d').value=of?of.details||'':'';$('#o_v').value=of&&of.valid_to?of.valid_to:'';cur._offer=of||null;
@@ -102,6 +113,8 @@ $('#o_save').onclick=async()=>{const t=$('#o_t').value.trim();if(t.length<2){msg
   $('#o_save').disabled=false;if(r.error){msg($('#o_msg'),'Non salvata: '+esc(r.error.message),false);return;}cur._offer=r.data;msg($('#o_msg'),'✅ Offerta salvata',true);};
 $('#loginBtn').onclick=async()=>{const{error}=await SB.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#pw').value});if(error){msg($('#loginMsg'),'Accesso non riuscito: controlla email e password',false);return;}start();};
 $('#logout').onclick=async()=>{await SB.auth.signOut();location.reload();};
+if(/[?&]pagato=1/.test(location.search))setTimeout(()=>{const b=document.getElementById('stato');if(b)b.insertAdjacentHTML('beforebegin','<div class="msg ok">✅ Pagamento ricevuto: grazie! Il pacchetto si attiva entro un minuto (ricarica la pagina).</div>');},800);
+if(/[?&]annullato=1/.test(location.search))setTimeout(()=>{const b=document.getElementById('stato');if(b)b.insertAdjacentHTML('beforebegin','<div class="msg ko">Pagamento annullato: non ti è stato addebitato niente.</div>');},800);
 start();
 </script>
 </body></html>

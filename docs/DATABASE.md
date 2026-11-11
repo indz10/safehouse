@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **43** · viste: **1** · indici: **11** · regole (policy): **41** · trigger: **12** · lavori programmati: **1**
-- Funzioni: **126** (126 nomi); usate (direttamente o tramite altre funzioni): **126**; **non usate: 0**
+- Tabelle: **44** · viste: **1** · indici: **11** · regole (policy): **42** · trigger: **12** · lavori programmati: **2**
+- Funzioni: **128** (128 nomi); usate (direttamente o tramite altre funzioni): **128**; **non usate: 0**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -24,7 +24,9 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `push_subscribe` | ✓ |  |  |  | 1: push |
 | `push_unsubscribe` | ✓ |  |  |  | 1: push |
 | `redeem_coupon` | ✓ |  |  |  | 1: ZombieSafeHouse_backend_sponsor |
+| `sponsor_pagato` |  | ✓ |  |  | 1: migr. 005_sponsor_pagamenti |
 | `sponsor_request` | ✓ |  |  |  | 1: migr. 004_sponsor_iscrizione |
+| `sponsor_scadenze` |  |  | cron |  | 1: migr. 005_sponsor_pagamenti |
 | `sponsors_guard` |  |  | trigger |  | 1: migr. 004_sponsor_iscrizione |
 | `w_allies_of` |  |  |  | w_upower, w_tr_feed, world_allies, world_team_bonus, world_my_defense, world_allies_status … | 2: aiuto_alleati → alleanze2 |
 | `w_are_allies` |  |  |  | world_quote, world_send_help, world_send_attack, world_give, world_feed_list, world_player … | 3: mondo_v4 → social → alleanze2 |
@@ -157,6 +159,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `reviews` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `salvataggi` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `sponsor_events` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
+| `sponsor_prezzi` | supabase/migrazioni/005_sponsor_pagamenti | 0 | ✓ |
 | `sponsor_users` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `sponsors` | ZombieSafeHouse_backend_sponsor | 8 | ✓ |
 | `subscriptions` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |

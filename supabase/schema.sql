@@ -1,7 +1,7 @@
 -- ZombieSafeHouse · STATO DEL DATABASE (schema public) ricostruito eseguendo in ordine i file *.sql
 -- e supabase/migrazioni/ su un Postgres di prova (docs/strumenti/db_locale.sh). È un DOCUMENTO: non eseguirlo.
 -- Per cambiare il database: un file nuovo in supabase/migrazioni/NNN_nome.sql.
--- Lavori programmati (cron): zsh-push-tick */10 * * * *
+-- Lavori programmati (cron): zsh-push-tick */10 * * * *; zsh-sponsor-scadenze 17 3 * * *
 --
 -- PostgreSQL database dump
 --
@@ -181,6 +181,31 @@ begin
 end; $$;
 
 --
+-- Name: sponsor_pagato(uuid, text, text, numeric); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.sponsor_pagato(p_sponsor uuid, p_package text, p_stripe_id text, p_eur numeric) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare pr public.sponsor_prezzi; s public.sponsors; da date; fino date;
+begin
+  if exists (select 1 from public.subscriptions where stripe_id = p_stripe_id) then return json_build_object('ok', true, 'msg', 'già registrato'); end if;
+  select * into pr from public.sponsor_prezzi where package = p_package;
+  select * into s from public.sponsors where id = p_sponsor;
+  if pr.package is null or s.id is null then return json_build_object('ok', false, 'msg', 'pacchetto o sponsor sconosciuto'); end if;
+  da := greatest(current_date, coalesce(s.valid_to, current_date));
+  fino := (da + make_interval(months => pr.mesi))::date;
+  update public.sponsors set package = pr.package, valid_from = coalesce(valid_from, current_date), valid_to = fino,
+    stato = 'attivo', visibility = case when visibility = 'nascosto' then 'nascosto' when pr.evidenza then 'evidenza' else 'normale' end,
+    active = (visibility <> 'nascosto')
+  where id = p_sponsor;
+  insert into public.subscriptions(sponsor_id, package, price_eur, period, starts_on, ends_on, status, stripe_id)
+  values (p_sponsor, pr.package, coalesce(p_eur, pr.prezzo_eur), pr.mesi || ' mesi', da, fino, 'attivo', p_stripe_id);
+  return json_build_object('ok', true, 'fino', fino);
+end $$;
+
+--
 -- Name: sponsor_request(jsonb); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -210,6 +235,22 @@ begin
     insert into public.offers(sponsor_id, title, details, active) values (sid, left(trim(p->>'offer'), 120), left(p->>'offer_details', 400), true);
   end if;
   return json_build_object('ok', true, 'id', sid, 'msg', 'Richiesta inviata: INDZ la controlla e la attiva');
+end $$;
+
+--
+-- Name: sponsor_scadenze(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.sponsor_scadenze() RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare n int;
+begin
+  update public.subscriptions set status = 'scaduto' where status = 'attivo' and ends_on < current_date;
+  update public.sponsors set visibility = 'normale' where visibility = 'evidenza' and valid_to is not null and valid_to < current_date;
+  get diagnostics n = row_count;
+  return n;
 end $$;
 
 --
@@ -2592,6 +2633,22 @@ ALTER TABLE public.sponsor_events ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 );
 
 --
+-- Name: sponsor_prezzi; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sponsor_prezzi (
+    package text NOT NULL,
+    nome text NOT NULL,
+    prezzo_eur numeric(10,2) NOT NULL,
+    mesi integer DEFAULT 12 NOT NULL,
+    evidenza boolean DEFAULT false NOT NULL,
+    attivo boolean DEFAULT true NOT NULL,
+    ordine integer DEFAULT 0 NOT NULL,
+    CONSTRAINT sponsor_prezzi_mesi_check CHECK (((mesi >= 1) AND (mesi <= 36))),
+    CONSTRAINT sponsor_prezzi_prezzo_eur_check CHECK ((prezzo_eur > (0)::numeric))
+);
+
+--
 -- Name: sponsor_stats_month; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -3279,6 +3336,13 @@ ALTER TABLE ONLY public.salvataggi
 
 ALTER TABLE ONLY public.sponsor_events
     ADD CONSTRAINT sponsor_events_pkey PRIMARY KEY (id);
+
+--
+-- Name: sponsor_prezzi sponsor_prezzi_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sponsor_prezzi
+    ADD CONSTRAINT sponsor_prezzi_pkey PRIMARY KEY (package);
 
 --
 -- Name: sponsor_users sponsor_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -4246,6 +4310,12 @@ CREATE POLICY "sponsor vede il suo abbonamento" ON public.subscriptions FOR SELE
 ALTER TABLE public.sponsor_events ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: sponsor_prezzi; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.sponsor_prezzi ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: sponsor_users; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -4262,6 +4332,12 @@ ALTER TABLE public.sponsors ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: sponsor_prezzi tutti leggono il listino; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "tutti leggono il listino" ON public.sponsor_prezzi FOR SELECT USING (attivo);
 
 --
 -- Name: hidden_pois tutti leggono nascosti; Type: POLICY; Schema: public; Owner: -
@@ -4550,11 +4626,23 @@ GRANT ALL ON FUNCTION public.push_subscribe(p_endpoint text, p_p256dh text, p_au
 GRANT ALL ON FUNCTION public.push_unsubscribe(p_endpoint text) TO authenticated;
 
 --
+-- Name: FUNCTION sponsor_pagato(p_sponsor uuid, p_package text, p_stripe_id text, p_eur numeric); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.sponsor_pagato(p_sponsor uuid, p_package text, p_stripe_id text, p_eur numeric) FROM PUBLIC;
+
+--
 -- Name: FUNCTION sponsor_request(p jsonb); Type: ACL; Schema: public; Owner: -
 --
 
 REVOKE ALL ON FUNCTION public.sponsor_request(p jsonb) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.sponsor_request(p jsonb) TO authenticated;
+
+--
+-- Name: FUNCTION sponsor_scadenze(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.sponsor_scadenze() FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_allies_of(p_user uuid); Type: ACL; Schema: public; Owner: -
