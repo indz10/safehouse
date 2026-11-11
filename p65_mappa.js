@@ -47,7 +47,10 @@ function renderMappa(){renderMappaBase();
     w.insertAdjacentHTML('beforeend','<button class="mfcerca" data-mfcerca>🔎 Cerca un luogo</button>');w.querySelector('[data-mfcerca]').onclick=()=>cercaLuogo();}catch(e){}})();
   /* 🚩 presidi veri condivisi (Fase 9b) */
   (()=>{try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('[data-mfpres]'))return;
-    w.insertAdjacentHTML('beforeend','<button class="mfpres" data-mfpres>🚩 Presidi</button>');w.querySelector('[data-mfpres]').onclick=()=>presList(window.__mf);}catch(e){}})();}
+    w.insertAdjacentHTML('beforeend','<button class="mfpres" data-mfpres>🚩 Presidi</button>');w.querySelector('[data-mfpres]').onclick=()=>presList(window.__mf);}catch(e){}})();
+  /* 📷 Lente: realtà aumentata (Fase 10A, p70) */
+  (()=>{try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('[data-mflente]'))return;
+    w.insertAdjacentHTML('beforeend','<button class="mflente" data-mflente>📷 Lente</button>');w.querySelector('[data-mflente]').onclick=()=>lenteOpen();}catch(e){}})();}
 const CERCA_K='zsh_cerca';
 function cercaVola(lat,lon,zoom){const lm=window.__mf;if(!lm||!lm.map)return;try{const c=lm.map.getCenter();const km=trM(c.lat,c.lng,lat,lon)/1000;
   lm.map.flyTo({center:[lon,lat],zoom:zoom||17,pitch:0,duration:km>300?4000:km>20?2500:1200});}catch(e){}}

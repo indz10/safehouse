@@ -10,6 +10,9 @@
 function zmItems(){const L=zmItemsBase();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
   if(g)g[1].unshift(['📅','Oggi: ora, meteo e calendario','oggi']);})();
+  /* Fase 10A: la Lente (fotocamera a fumetto) */
+  (()=>{const g=L.find(x=>x[0]==='Gioco');
+  if(g)g[1].splice(1,0,['📷','Lente: guarda con la fotocamera','lente']);})();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
   if(g)g[1]=g[1].map(r=>r[2]==='g:difendi'?['⚔️','Gioca la notte','g:difendi']:r);})();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
@@ -26,6 +29,7 @@ function zmDo(k,b){const tab0=S.tab;const back={t:'‹ Menu',fn:()=>{closeSheet(
 function zmDoRun(k,b){
   if(k==='g:difendi'||k==='g:oggi'||k==='g:impero'){zmClose();go('orda');setTimeout(()=>{const t=k==='g:difendi'?app.querySelector('.odplay'):app.querySelector('.fronte');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},400);return;}
   if(k==='oggi'){zmClose();oggiSheet();return;}
+  if(k==='lente'){zmClose();lenteOpen();return;}
   if(k==='casa'){zmClose();go('casa');return;}if(k==='manual'){zmClose();openSheet('📚 Tutte le regole',rulesHTML());return;}if(k==='shop'){zmClose();shopSheet(0);return;}
   if(k==='home'&&b&&/Piano/.test(b.textContent)){zmClose();go('casa');return;}
   if(k==='a:last'||k==='a:sim'){zmClose();assalto(k.slice(2));return;}if(k==='push'){zmClose();pushSheet();return;}
