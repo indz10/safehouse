@@ -116,7 +116,7 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 - Pubblicazione negli store (Google Play, poi App Store).
 
 ## Fase 10 — Realtà aumentata "Lente ZombieSafeHouse"
-**10A — nella PWA (fattibile ora, su iPhone e Android):**
+**10A — nella PWA (fattibile ora, su iPhone e Android):** ✅ fatta (p70_lente.js, "📷 Lente" nella Mappa e nel menu ☰; prova `t_lente.py`). Zombie con le emoji a fumetto; le etichette delle case usano gli stessi dati della mappa (`world_view`: nome solo se il server lo manda).
 - Fotocamera a schermo intero (getUserMedia) con **filtro fumetto in tempo reale** (shader WebGL: contorni neri spessi, colori a tinte piatte, retino a puntini, palette ZombieSafeHouse): tutto quello che inquadri diventa fumetto.
 - **Etichette in realtà aumentata con GPS + bussola** (DeviceOrientation, con permesso iOS): sopra gli edifici inquadrati le tue case, quelle degli alleati, gli sponsor, i presidi; per i superstiti che hanno scelto "Tutti" nome, livello e Punteggio Superstite; per le case degli altri solo "🏠 Casa abitata". Precisione: GPS 5–20 m, bussola 10–20° → etichette "fluttuanti", non incollate al muro.
 - Zombie a fumetto che camminano nell'inquadratura all'ora dell'orda.
@@ -137,5 +137,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 6 | fatta: 6a–6d (#24–#26; migrazioni 001 e 002 eseguite) | #24–#26 | 6d: funzioni Edge con istruzioni, controllo notifiche. 6c: una sola % di tenere, migrazione 002, docs/FORMULE.md. 6b: migrazione 001 (7 funzioni mancanti, 3 tolte). 6a: schema.sql ricostruito, inventario, controllo di sola lettura |
 | 7 | fatta: 7a–7c (#27–#29; migrazione 003 eseguita) | #27–#29 | 7c: compressione, stile pulito, caratteri non bloccanti, copia salvata se la rete tarda |
 | 8 | fatta | #30 | .github/workflows/prove.yml: App + Database |
-| 9 | 9-0, 9a-1, 9a-2 fatte (#31–#36; Stripe pronto ma spento); 9b presidi in attesa di Merge | #31–#36, Fase 9b — Presidi veri condivisi | poi considerazioni prima degli store |
-| 10 | da fare | | |
+| 9 | 9-0, 9a-1, 9a-2, 9b fatte (#31–#37; Stripe pronto ma spento) | #31–#37 | 9c store: le considerazioni si riprendono a prodotto finito (decisione di Alessandro 11/11) |
+| 10 | 10A in attesa di Merge | Fase 10A — Lente | poi: mappa dell'app per controllare e modificare pagina per pagina; 10B (store) dopo gli store |
