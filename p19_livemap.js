@@ -76,20 +76,24 @@ function hexRing(m,x,y,r){const out=[];for(let i=0;i<=6;i++){const a=Math.PI/180
 async function lmGeocode(addr){const w=await trWhere(addr);return{lat:w.lat,lon:w.lon,els:[],place:addr};}
 const elDiv=(cls,html)=>{const d=document.createElement('div');d.className='lm '+cls;d.innerHTML=html;return d;};
 /* nomi di vie e paesi con il carattere del fumetto, presi dalla mappa stessa */
-function lmLabels(map,box){(box._lbl||[]).forEach(x=>x.remove());const out=[];const z=map.getZoom();box._lbl=out;if(z<12.5)return;
+/* Fase 9-0c: nomi di vie e paesi. In alcune città (es. Londra) le mappe hanno anche punti o forme strane nel livello dei nomi:
+   si saltano, e un errore qui non ferma mai la mappa */
+function lmLabels(map,box){try{lmLabelsIn(map,box);}catch(e){console.warn('nomi sulla mappa',e);}}
+function lmLabelsIn(map,box){(box._lbl||[]).forEach(x=>x.remove());const out=[];const z=map.getZoom();box._lbl=out;if(z<12.5)return;
   const seen=[];const near=(n,p,d)=>seen.some(s=>s.n===n&&Math.hypot(s.p.x-p.x,s.p.y-p.y)<d);const W=box.clientWidth,H=box.clientHeight;let feats=[];
   try{feats=map.querySourceFeatures('omt',{sourceLayer:'transportation_name'});}catch(e){}
   const rank={motorway:1,trunk:1,primary:1,secondary:2,tertiary:2,minor:3,service:4};
   feats.sort((a,b)=>(rank[a.properties.class]||5)-(rank[b.properties.class]||5));
   outer:for(const f of feats){const n=f.properties['name:it']||f.properties.name;const r=rank[f.properties.class]||5;if(!n||r>4||(r>=3&&z<15)||(r===4&&z<16))continue;
-    const lines=f.geometry.type==='MultiLineString'?f.geometry.coordinates:[f.geometry.coordinates];
-    for(const c of lines){if(!c||c.length<2)continue;const i=Math.floor((c.length-1)/2);const a=map.project(c[i]),b=map.project(c[i+1]);const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+    const gt=f.geometry&&f.geometry.type;if(gt!=='LineString'&&gt!=='MultiLineString')continue;
+    const lines=gt==='MultiLineString'?f.geometry.coordinates:[f.geometry.coordinates];
+    for(const c of lines){if(!Array.isArray(c)||c.length<2||!Array.isArray(c[0])||!Array.isArray(c[1]))continue;const i=Math.floor((c.length-1)/2);const a=map.project(c[i]),b=map.project(c[i+1]);const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
       if(mid.x<0||mid.y<0||mid.x>W||mid.y>H||near(n,mid,220))continue;seen.push({n,p:mid});
       let ang=Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI;if(ang>90)ang-=180;if(ang<-90)ang+=180;
       out.push(new maplibregl.Marker({element:elDiv('lm-lbl c'+r,`<span>${esc(n.toUpperCase())}</span>`),rotation:ang,rotationAlignment:'map'}).setLngLat(map.unproject([mid.x,mid.y])).addTo(map));if(out.length>90)break outer;}}
   let pl=[];try{pl=map.querySourceFeatures('omt',{sourceLayer:'place'});}catch(e){}
   const pr={city:1,town:1,village:2,suburb:2,hamlet:3,neighbourhood:3,isolated_dwelling:4};
-  pl.forEach(f=>{const n=f.properties['name:it']||f.properties.name;const r=pr[f.properties.class];if(!n||!r||(r===3&&z<14)||(r===4&&z<15.5))return;const p=map.project(f.geometry.coordinates);
+  pl.forEach(f=>{const n=f.properties['name:it']||f.properties.name;const r=pr[f.properties.class];if(!n||!r||(r===3&&z<14)||(r===4&&z<15.5))return;if(!f.geometry||f.geometry.type!=='Point'||!Array.isArray(f.geometry.coordinates))return;const p=map.project(f.geometry.coordinates);
     if(p.x<0||p.y<0||p.x>W||p.y>H||near(n,p,400))return;seen.push({n,p});out.push(new maplibregl.Marker({element:elDiv('lm-place p'+r,`<span>${esc(n.toUpperCase())}</span>`)}).setLngLat(f.geometry.coordinates).addTo(map));});}
 /* costruisce la mappa dentro un elemento */
 async function liveMapBase(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cache[addr])||await lmGeocode(addr);
