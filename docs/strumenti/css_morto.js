@@ -5,7 +5,7 @@
 // Uso: node docs/strumenti/css_morto.js <cartella del repository> [--scrivi]   (senza --scrivi: solo l'elenco)
 const fs=require('fs'),path=require('path');
 const R=process.argv[2]||'.';const scrivi=process.argv.includes('--scrivi');
-const PREFISSI=['h-','s-','k-','man-','info-','map-','biz-','fx-','p-','sp-','orda-','zsh-','frz-','maplibregl-','leaflet-','mapboxgl-'];
+const PREFISSI=['h-','s-','k-','st-','man-','info-','map-','biz-','fx-','p-','sp-','orda-','zsh-','frz-','maplibregl-','leaflet-','mapboxgl-'];
 const order=fs.readFileSync(path.join(R,'build.sh'),'utf8').match(/^cat (.*?) > app\.html/m)[1].split(/\s+/);
 const head=fs.readFileSync(path.join(R,'p1_head.html'),'utf8');
 const src=order.filter(f=>f!=='p1_head.html').map(f=>fs.readFileSync(path.join(R,f),'utf8')).join('\n')+head.replace(/<style>[\s\S]*?<\/style>/g,'');

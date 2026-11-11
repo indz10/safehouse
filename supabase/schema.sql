@@ -1757,9 +1757,10 @@ CREATE FUNCTION public.world_house_info() RETURNS json
   with m as (select * from public.world_homes where user_id = auth.uid()), k as (select public.w_condo_key(auth.uid()) as ck)
   select json_build_object(
     'kind', m.kind, 'unit', m.unit, 'kind_set', m.kind_set, 'building_id', m.building_id, 'status', m.status,
-    'members', (select coalesce(json_agg(json_build_object('user_id', o.user_id, 'nick', public.w_nick(o.user_id))), '[]'::json)
+    'me_prep', coalesce((select (w.caps->>('prep:'||public.w_slot_id(public.w_next_slot(now()))))::int from public.world_wallet w where w.user_id = m.user_id),0) = 1,
+    'members', (select coalesce(json_agg(json_build_object('user_id', o.user_id, 'nick', public.w_nick(o.user_id), 'prep', coalesce((select (w.caps->>('prep:'||public.w_slot_id(public.w_next_slot(now()))))::int from public.world_wallet w where w.user_id = o.user_id),0) = 1)), '[]'::json)
                 from public.world_homes o where o.user_id <> m.user_id and o.building_id = m.building_id),
-    'neighbors', (select coalesce(json_agg(json_build_object('user_id', o.user_id, 'nick', public.w_nick(o.user_id), 'status', o.status, 'kind', o.kind, 'unit', o.unit,
+    'neighbors', (select coalesce(json_agg(json_build_object('user_id', o.user_id, 'nick', public.w_nick(o.user_id), 'status', o.status, 'kind', o.kind, 'unit', o.unit, 'prep', coalesce((select (w.caps->>('prep:'||public.w_slot_id(public.w_next_slot(now()))))::int from public.world_wallet w where w.user_id = o.user_id),0) = 1,
                     'seen_at', (select seen_at from public.profili_pubblici where user_id = o.user_id), 'ally', public.w_are_allies(m.user_id, o.user_id),
                     'asked', exists (select 1 from public.world_house_req r where r.from_u = m.user_id and r.to_u = o.user_id))), '[]'::json)
                 from public.world_homes o where o.user_id <> m.user_id and o.building_id <> m.building_id and o.status in ('home','pending')

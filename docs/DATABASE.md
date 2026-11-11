@@ -111,7 +111,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_help_list` | ✓ |  |  |  | 1: mondo_v3 |
 | `world_home_vis` | ✓ |  |  |  | 1: nome_casa |
 | `world_house_answer` | ✓ |  |  |  | 1: abitazione |
-| `world_house_info` | ✓ |  |  |  | 1: abitazione |
+| `world_house_info` | ✓ |  |  |  | 2: abitazione → migr. 008_cooperazione |
 | `world_house_invite` | ✓ |  |  |  | 1: abitazione |
 | `world_house_leave` | ✓ |  |  |  | 1: abitazione |
 | `world_house_log` | ✓ |  |  |  | 2: assedio → migr. 001_funzioni_mancanti |

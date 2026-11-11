@@ -97,7 +97,7 @@ world_give(uuid, text, integer, boolean) 3e93678e5a
 world_help_list() 451ff8492c
 world_home_vis(text) d2691098a9
 world_house_answer(uuid, boolean) 2237e540d9
-world_house_info() a6be031521
+world_house_info() 5f6ae0dbf5
 world_house_invite(uuid) af3b41f4b3
 world_house_leave() b719c91511
 world_house_log(text) 43ff9091a4
