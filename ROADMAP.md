@@ -138,4 +138,4 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 7 | fatta: 7a–7c (#27–#29; migrazione 003 eseguita) | #27–#29 | 7c: compressione, stile pulito, caratteri non bloccanti, copia salvata se la rete tarda |
 | 8 | fatta | #30 | .github/workflows/prove.yml: App + Database |
 | 9 | 9-0, 9a-1, 9a-2, 9b fatte (#31–#37; Stripe pronto ma spento) | #31–#37 | 9c store: le considerazioni si riprendono a prodotto finito (decisione di Alessandro 11/11) |
-| 10 | 10A in attesa di Merge | Fase 10A — Lente | poi: mappa dell'app per controllare e modificare pagina per pagina; 10B (store) dopo gli store |
+| 10 | 10A fatta (#38) | #38 | mappa dell'app pronta (`docs/strumenti/mappa_app.py`): ora modifiche pagina per pagina chieste da Alessandro; 10B dopo gli store |
