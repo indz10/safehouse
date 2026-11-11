@@ -125,5 +125,12 @@ function thrView(T){const h=thrViewBase(T);
   return h.replace(/<div class="thrw"><span>🧟 Vaganti/,`<div class="thrw azk" data-azk="walker" data-azt="${i}"><span>🧟 Vaganti`).replace(/<div class="thrw"><span>(\S+) ([^<]+)<small>difesa:/g,(m,ic,n)=>{const k=Object.keys(ZSP).find(x=>ZSP[x].n===n.trim());return k?`<div class="thrw azk" data-azk="${k}" data-azt="${i}"><span>${ic} ${n}<small>difesa:`:m;});}
 async function allySheet(uid){window.__azT=[];window.__azU=uid;const r=await allySheetBase(uid);return r;}
 /* inviti (p20) + nota del Padrino (p37/p45) */
-function inviteSheet(){const r=inviteSheetBase.apply(this,arguments);[0,300,900].forEach(t=>setTimeout(eqPad,t));return r;}
+function inviteSheet(){const r=inviteSheetBase.apply(this,arguments);[0,300,900].forEach(t=>setTimeout(eqPad,t));
+  /* chi non risulta invitato da nessuno può collegarsi a chi gli ha mandato il link (Fase 10: il collegamento si perdeva installando l'app) */
+  Promise.resolve(r).then(async()=>{let mio=null;try{mio=await invMio();}catch(e){}if(mio)return;
+    /* la finestra si ridisegna nel primo secondo (eqPad): il pulsante si rimette se manca */
+    const put=()=>{const c=document.querySelector('#sheet.open .card')||document.querySelector('#sheet.open');if(!c||!/Invita amici/.test(c.textContent)||c.querySelector('[data-invme]'))return;
+      c.insertAdjacentHTML('beforeend','<button class="btn ghost wide" data-invme style="margin-top:10px">🤝 Ti ha invitato qualcuno? Collegati a lui</button>');
+      c.querySelector('[data-invme]').onclick=()=>{window.SHEET_BACK={t:'‹ Invita',fn:inviteSheet};invCollega();};};[0,350,1000,1600].forEach(t=>setTimeout(put,t));});
+  return r;}
 </script>

@@ -36,14 +36,16 @@ async function zStatus(){const out=[];const add=(ok,t,how,act)=>out.push({ok,t,h
     add(true,`Livello del mondo ${T.wl}: zombie ${sp?'speciali '+sp:'solo vaganti'}`,nx?`Al livello ${nx[0]} arrivano anche ${nx[1]}`:'');
     add(T.temp!=null,T.temp!=null?`Meteo e terreno letti (${(EVN[T.ev]||EVN.calma)[1].toLowerCase()})`:'Meteo e terreno in arrivo',T.temp!=null?'':'Il server li legge entro 10–20 minuti dalla registrazione della casa');}
   const notif=('Notification' in window)&&Notification.permission==='granted';add(notif,notif?'Notifiche attive':'Notifiche spente',notif?'':(w==='app'?'Menu ☰ → Notifiche':'Prima metti l’app sulla schermata Home, poi attivale dal menu'));
+  /* chi ti ha invitato: se il collegamento si è perso (app installata prima dell'account, link aperto in WhatsApp…) si rifà a mano */
+  if(S.user){try{const inv=await invMio();add(!!inv,inv?`Invitato da @${inv}`:'Nessun invito collegato',inv?'':'Ti ha invitato qualcuno? Collegati a lui: diventate subito alleati e vi vedete sulla mappa','inv');}catch(e){}}
   try{const n=(ALS&&ALS.L)?ALS.L.length:(await alsLoad(true)||[]).length;add(n>0,`Alleati: ${n}`,n?'':'Superstiti → 🤝 Alleati: cerca o invita qualcuno');}catch(e){}
   return out;}
 async function zStatusSheet(){openSheet('🩺 Controlla il mio gioco','<p><span class="spin"></span> Controllo…</p>');const L=await zStatus();
   const txt='🩺 ZombieSafeHouse – stato\n'+L.map(x=>`${x.ok?'✅':'❌'} ${x.t}${x.how?' → '+x.how:''}`).join('\n');
   openSheet('🩺 Controlla il mio gioco',`<p class="muted" style="font-size:12.5px;margin-top:0">Se un amico vede meno cose di te, il motivo è quasi sempre qui sotto.</p>
-    ${L.map(x=>`<div class="zst ${x.ok?'ok':'ko'}"><span>${x.ok?'✅':'❌'}</span><div><b>${esc(x.t)}</b>${x.how?`<small>${esc(x.how)}</small>`:''}</div>${x.ok?'':x.act==='upd'?'<button class="btn small" data-zsa="upd">Aggiorna</button>':x.act==='login'?'<button class="btn small" data-zsa="login">Accedi</button>':x.act==='val'?'<button class="btn small" data-zsa="val">Valuta</button>':''}</div>`).join('')}
+    ${L.map(x=>`<div class="zst ${x.ok?'ok':'ko'}"><span>${x.ok?'✅':'❌'}</span><div><b>${esc(x.t)}</b>${x.how?`<small>${esc(x.how)}</small>`:''}</div>${x.ok?'':x.act==='upd'?'<button class="btn small" data-zsa="upd">Aggiorna</button>':x.act==='login'?'<button class="btn small" data-zsa="login">Accedi</button>':x.act==='val'?'<button class="btn small" data-zsa="val">Valuta</button>':x.act==='inv'?'<button class="btn small" data-zsa="inv">Collegati</button>':''}</div>`).join('')}
     <button class="btn wide" data-zshare>📤 Manda lo stato (WhatsApp, messaggi…)</button>`,card=>{
-    card.querySelectorAll('[data-zsa]').forEach(b=>b.onclick=()=>{const a=b.dataset.zsa;if(a==='upd')zUpdateNow();else if(a==='login'){closeSheet();try{loginSheet();}catch(e){zmOpen();}}else{closeSheet();S.step=1;go('valuta');}});
+    card.querySelectorAll('[data-zsa]').forEach(b=>b.onclick=()=>{const a=b.dataset.zsa;if(a==='upd')zUpdateNow();else if(a==='login'){closeSheet();try{loginSheet();}catch(e){zmOpen();}}else if(a==='inv'){window.SHEET_BACK={t:'‹ Controlla il mio gioco',fn:zStatusSheet};invCollega();}else{closeSheet();S.step=1;go('valuta');}});
     card.querySelector('[data-zshare]').onclick=()=>{if(navigator.share)navigator.share({text:txt}).catch(()=>{});else{try{navigator.clipboard.writeText(txt);toast('Copiato: incollalo nel messaggio');}catch(e){}}};});}
 /* nel menu, sopra la versione */
 </script>
