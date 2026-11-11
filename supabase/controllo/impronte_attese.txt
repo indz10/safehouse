@@ -7,6 +7,7 @@ delete_my_account() 93b6378551
 is_admin() ed60925f39
 miei_invitati() 6741a6f44c
 my_sponsor(uuid) cb7138eae0
+push_piazza(text, text) 9f299afc88
 push_subscribe(text, text, text) 1ddb9629ed
 push_unsubscribe(text) d8c7f31d16
 redeem_coupon(text, numeric) 2ae032ec11
@@ -38,6 +39,7 @@ w_median_near(uuid) 1ef0515265
 w_next_slot(timestamp with time zone) e7098146fc
 w_nick(uuid) 0f0ebfc0c0
 w_pay(uuid, integer, text, text) 5bcdcb3669
+w_piazza_nuovi(uuid, timestamp with time zone, text) 11b8e1d2c2
 w_power3(integer, integer, boolean) 1514872532
 w_pres_attack(text, text) 5c1cf84d42
 w_pres_bonus(text, text) 8e60934f25
@@ -149,7 +151,7 @@ poi_reports 4826405f
 profili_pubblici 23f88442
 push_keys f9ed0414
 push_log 60ff625e
-push_subs e1e63686
+push_subs c5695b12
 reviews bd76b4bf
 salvataggi 5098a1c4
 sponsor_events b5c39783

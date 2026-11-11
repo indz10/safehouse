@@ -32,7 +32,7 @@ jobs:
           pip install playwright==1.64.1
           python -m playwright install --with-deps chromium
       - name: Build e prove principali
-        run: ./prove.sh t_case.py t_map.py t_menu.py t_reale.py t_sponsor.py t_presidi.py t_lente.py t_invito.py t_server.py
+        run: ./prove.sh t_case.py t_map.py t_menu.py t_reale.py t_sponsor.py t_presidi.py t_lente.py t_invito.py t_server.py t_notifiche.py
       - name: dist/ aggiornata (ricostruita dai sorgenti del commit)
         run: |
           norm(){ sed -E 's/20[0-9]{10}/VERSIONE/g' "$1"; }

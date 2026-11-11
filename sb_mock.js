@@ -21,6 +21,7 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_presidio_occupa':{const p=(window.__PRES||[]).find(x=>x.id===a.p_id);if(!p||p.stato!=='libero')return{data:{ok:false,msg:'È già tenuto'},error:null};p.stato='mio';p.perso=false;p.record=0;return{data:{ok:true,msg:'Presidio occupato!'},error:null};}
   case'world_presidio_guardia':{const p=(window.__PRES||[]).find(x=>x.id===a.p_id);if(!p||p.stato==='libero'||p.stato==='altro')return{data:{ok:false,msg:'No'},error:null};p.io_guardia=true;p.guardie++;p.difesa=55+12*Math.min(5,p.guardie);return{data:{ok:true,guardie:p.guardie,difesa:p.difesa,msg:'Sei di guardia per la prossima orda'},error:null};}
   case'world_presidio_lascia':{const p=(window.__PRES||[]).find(x=>x.id===a.p_id);if(!p||p.stato!=='mio')return{data:{ok:false,msg:'Non lo tieni tu'},error:null};p.stato='libero';p.guardie=0;p.io_guardia=false;p.difesa=55;return{data:{ok:true,msg:'Presidio lasciato'},error:null};}
+  case'push_piazza':{window.__PZ=a.p_mode?a.p_mode:(window.__PZ||'zona');return{data:{ok:true,piazza:window.__PZ},error:null};}
   case'world_shape_get':{const S=window.__SHP=window.__SHP||{};const v=S[a.p_kind+'|'+a.p_k];return{data:v===undefined?null:{found:v!==null,val:v},error:null};}
   case'world_shape_put':{const S=window.__SHP=window.__SHP||{};const key=a.p_kind+'|'+a.p_k;if(!(S[key]&&a.p_val==null))S[key]=a.p_val;return{data:{ok:true},error:null};}
   case'world_claim_home':return{data:{ok:true,status:'pending',msg:'Casa registrata: domani riapri l’app per confermarla'},error:null};

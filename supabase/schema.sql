@@ -134,6 +134,26 @@ CREATE FUNCTION public.my_sponsor(s uuid) RETURNS boolean
 $$;
 
 --
+-- Name: push_piazza(text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.push_piazza(p_endpoint text, p_mode text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare m text;
+begin
+  if auth.uid() is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if coalesce(p_mode, '') <> '' then
+    if p_mode not in ('no','zona','tutto') then return json_build_object('ok', false, 'msg', 'scelta non valida'); end if;
+    update public.push_subs set piazza = p_mode, last_chat = now() where endpoint = p_endpoint and user_id = auth.uid();
+  end if;
+  select piazza into m from public.push_subs where endpoint = p_endpoint and user_id = auth.uid();
+  if m is null then return json_build_object('ok', false, 'msg', 'Notifiche non attive su questo telefono'); end if;
+  return json_build_object('ok', true, 'piazza', m);
+end $$;
+
+--
 -- Name: push_subscribe(text, text, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -603,6 +623,25 @@ begin
     end if;
   end if;
 end $$;
+
+--
+-- Name: w_piazza_nuovi(uuid, timestamp with time zone, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_piazza_nuovi(p_user uuid, p_since timestamp with time zone, p_mode text) RETURNS json
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  with z as (select 'z:' || round(h.lat::numeric,1) || ':' || round(h.lon::numeric,1) as room from public.world_homes h where h.user_id = p_user),
+  m as (select c.id, c.user_id, c.body, c.room from public.world_chat c
+         where c.created_at > p_since and not c.hidden and c.user_id is distinct from p_user
+           and (c.room in (select room from z) or (p_mode = 'tutto' and c.room = 'mondo'))
+           and not exists (select 1 from public.world_blocks b where b.user_id = p_user and b.blocked = c.user_id))
+  select json_build_object('n', (select count(*) from m),
+    'nick', (select public.w_nick(m.user_id) from m order by m.id desc limit 1),
+    'body', (select left(m.body, 90) from m order by m.id desc limit 1),
+    'zona', (select bool_or(m.room <> 'mondo') from m));
+$$;
 
 --
 -- Name: w_power3(integer, integer, boolean); Type: FUNCTION; Schema: public; Owner: -
@@ -2770,7 +2809,10 @@ CREATE TABLE public.push_subs (
     p256dh text NOT NULL,
     auth text NOT NULL,
     last_feed timestamp with time zone DEFAULT now() NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    piazza text DEFAULT 'zona'::text NOT NULL,
+    last_chat timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT push_subs_piazza_check CHECK ((piazza = ANY (ARRAY['no'::text, 'zona'::text, 'tutto'::text])))
 );
 
 --
@@ -4943,6 +4985,13 @@ GRANT ALL ON FUNCTION public.delete_my_account() TO authenticated;
 GRANT ALL ON FUNCTION public.miei_invitati() TO authenticated;
 
 --
+-- Name: FUNCTION push_piazza(p_endpoint text, p_mode text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.push_piazza(p_endpoint text, p_mode text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.push_piazza(p_endpoint text, p_mode text) TO authenticated;
+
+--
 -- Name: FUNCTION push_subscribe(p_endpoint text, p_p256dh text, p_auth text); Type: ACL; Schema: public; Owner: -
 --
 
@@ -5064,6 +5113,12 @@ REVOKE ALL ON FUNCTION public.w_median_near(p_user uuid) FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_pay(p_user uuid, p_delta integer, p_reason text, p_ref text) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_piazza_nuovi(p_user uuid, p_since timestamp with time zone, p_mode text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_piazza_nuovi(p_user uuid, p_since timestamp with time zone, p_mode text) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_pres_tick(); Type: ACL; Schema: public; Owner: -
