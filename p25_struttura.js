@@ -36,13 +36,18 @@ function renderMappaBase(){S.zv='mondo';const addr=S.zone&&S.zone.address;
   const wrap=app.querySelector('.mapfull');const fit=()=>{try{const nav=$('#nav');const top=wrap.getBoundingClientRect().top;wrap.style.height=Math.max(320,innerHeight-top-(nav?nav.offsetHeight:64))+'px';}catch(e){}};fit();
   window.addEventListener('resize',fit,{passive:true});
   const el=app.querySelector('#mfMap');
-  liveMap(el,addr,{zoom:16}).then(lm=>{window.__mf=lm;mfApply();setTimeout(mfApply,1500);setTimeout(mfApply,4000);}).catch(e=>console.warn('mappa',e));
+  liveMap(el,addr,{zoom:16}).then(lm=>{window.__mf=lm;mfApply();setTimeout(mfApply,1500);setTimeout(mfApply,4000);try{lm.map.on('moveend',()=>{if(window.__mf===lm)mfApply();});}catch(e){}}).catch(e=>console.warn('mappa',e));
   app.querySelectorAll('[data-mf]').forEach(b=>b.onclick=()=>{const k=b.dataset.mf;S.mf[k]=!S.mf[k];b.classList.toggle('on',S.mf[k]);mfApply();});
   app.querySelector('[data-mfmore]').onclick=mfMore;
   app.querySelector('[data-mfraid]').onclick=()=>{try{orPlay(window.__mf);}catch(e){}};}
 function mfApply(){const lm=window.__mf;const box=app.querySelector('.mapfull');if(!box)return;const f=S.mf;
   box.classList.toggle('f-case-off',!f.case);box.classList.toggle('f-spons-off',!f.spons);box.classList.toggle('f-serv-off',!f.serv);box.classList.toggle('f-vac-off',!f.vac);box.classList.toggle('f-all-off',!f.all);
-  if(!lm||!lm.map)return;try{if(lm.setLayer){lm.setLayer('spons',f.spons);lm.setLayer('biz',f.serv);lm.setLayer('pub',f.serv);}}catch(e){}
+  if(!lm||!lm.map)return;
+  /* Fase 9-0d: lontano da casa (oltre 3 km: un'altra città, Londra, New York…) attività e servizi pubblici si vedono sempre,
+     perché lì non ci sono le attività della tua zona caricate a parte; vicino a casa vale il filtro "Servizi" */
+  let lontano=false;try{const c=lm.map.getCenter();const h=lm.m||{};lontano=h.lat!=null&&trM(c.lat,c.lng,h.lat,h.lon)>3000;}catch(e){}
+  box.classList.toggle('mf-lontano',lontano);
+  try{if(lm.setLayer){lm.setLayer('spons',f.spons);lm.setLayer('biz',f.serv||lontano);lm.setLayer('pub',f.serv||lontano);}}catch(e){}
   if(f.vac&&!lm._vacDone){lm._vacDone=true;mfVacanza(lm);}}
 async function mfVacanza(lm){try{const D=await zStruct(S.zone);const V=(D.items||[]).filter(x=>['hotel','bb','agri','camp','attr'].includes(x.g)).slice(0,60);
   V.forEach(x=>{const el=elDiv('lm-vac',`<b>${x.ic}</b><em>${esc((x.name||'').slice(0,18))}</em>`);el.addEventListener('click',e=>{e.stopPropagation();try{bizSheet({i:'v'+x.lat+x.lon,ic:x.ic,name:x.name,cat:x.cat,d:x.d,ll:[x.lat,x.lon],tel:x.tel||'',web:x.web||''},S.zone);}catch(err){}});
