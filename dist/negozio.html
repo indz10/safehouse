@@ -31,13 +31,29 @@ button.ghost{background:#fff}button.red{background:var(--red);color:#fff}button:
 
 <div id="area" class="hidden">
 <div class="box" id="pickBox" style="display:none"><label>Negozio</label><select id="pick"></select></div>
+<div class="box" id="statoBox"><h2>🏪 La tua attività</h2><div id="stato">…</div></div>
 <div class="box"><h2>✅ Valida un codice sconto</h2>
  <p class="hint" style="margin-top:0">Il cliente ti mostra il codice nell’app (es. ZSH-FV-1390). Scrivilo qui prima di applicare lo sconto.</p>
  <input id="code" placeholder="ZSH-…" autocomplete="off" autocapitalize="characters">
  <label>Importo dello scontrino (facoltativo)</label><input id="amt" type="number" inputmode="decimal" placeholder="€">
  <div style="margin-top:12px"><button class="red" id="redeem" style="width:100%">Valida codice</button></div><div id="rMsg"></div></div>
 <div class="box"><h2>📊 Questo mese</h2><div class="stats" id="stats">…</div><p class="hint">Visualizzazioni sulla mappa e nel gioco, schede aperte, codici e richieste di preventivo arrivate dall’app.</p></div>
-<div class="box"><h2>📩 Richieste di preventivo</h2><div id="leads">…</div></div>
+<div class="box"><h2>📩 Richieste di preventivo</h2><p class="hint" style="margin-top:0">Arrivano dall’app: segna a che punto sei, così vedi quanti clienti ti porta ZombieSafeHouse.</p><div id="leads">…</div></div>
+<div class="box"><h2>🎟️ La tua offerta</h2><p class="hint" style="margin-top:0">Compare nella tua scheda nell’app. Il cliente ottiene un codice personale e te lo mostra in cassa: così sai che arriva da noi.</p>
+ <label>Offerta (breve)</label><input id="o_t" maxlength="120" placeholder="es. 10% di sconto su serrature e luci">
+ <label>Dettagli (facoltativo)</label><textarea id="o_d" rows="2" maxlength="400" placeholder="es. valido su acquisti da 30 €"></textarea>
+ <label>Valida fino al (facoltativo)</label><input id="o_v" type="date">
+ <div style="margin-top:12px"><button id="o_save">Salva offerta</button></div><div id="o_msg"></div></div>
+<div class="box"><h2>✏️ La tua scheda nell’app</h2><p class="hint" style="margin-top:0">Contatti, social e link a Google si vedono nella tua scheda. Ogni tocco dei clienti viene contato nelle statistiche.</p>
+ <div class="row"><div><label>Telefono</label><input id="e_phone" maxlength="40" inputmode="tel"></div><div><label>WhatsApp</label><input id="e_whatsapp" maxlength="40" inputmode="tel"></div></div>
+ <label>Sito web</label><input id="e_website" maxlength="200" placeholder="https://…">
+ <label>Scheda Google Maps (link)</label><input id="e_google_url" maxlength="300" placeholder="https://maps.app.goo.gl/…">
+ <div class="row"><div><label>Instagram</label><input id="e_instagram" maxlength="200" placeholder="https://instagram.com/…"></div><div><label>Facebook</label><input id="e_facebook" maxlength="200" placeholder="https://facebook.com/…"></div></div>
+ <label>TikTok</label><input id="e_tiktok" maxlength="200" placeholder="https://tiktok.com/@…">
+ <label>Orari</label><input id="e_orari" maxlength="300" placeholder="es. lun–sab 8:30–12:30, 15–19">
+ <label>Descrizione</label><textarea id="e_descrizione" rows="3" maxlength="600" placeholder="Cosa fai e perché sceglierti"></textarea>
+ <label>Sigla del logo (2–3 lettere)</label><input id="e_logo_text" maxlength="3">
+ <div style="margin-top:12px"><button id="e_save">Salva scheda</button></div><div id="e_msg"></div></div>
 <div class="box"><h2>🎟️ Ultimi codici usati</h2><div id="used">…</div></div>
 </div>
 </main>
@@ -48,14 +64,24 @@ const $=s=>document.querySelector(s);const esc=t=>String(t??'').replace(/[&<>"]/
 const msg=(el,t,ok)=>{el.innerHTML=`<div class="msg ${ok?'ok':'ko'}">${t}</div>`;};let SP=[],cur=null;
 async function start(){const{data:{user}}=await SB.auth.getUser();if(!user)return;
   const{data:links}=await SB.from('sponsor_users').select('sponsor_id').eq('user_id',user.id);
-  if(!links||!links.length){msg($('#loginMsg'),'Questo account non è ancora collegato a un negozio. Chiedi a INDZ di collegarlo (raschi.ale@gmail.com).',false);return;}
-  const{data:sps}=await SB.from('sponsors').select('id,name,logo_text,category').in('id',links.map(l=>l.sponsor_id));SP=sps||[];
+  if(!links||!links.length){msg($('#loginMsg'),'Questo account non ha ancora un’attività. Iscrivila dall’app: Mappa → tocca la tua attività → “Diventa sponsor” (o menu ☰ → Sponsor e contatti).',false);return;}
+  const{data:sps}=await SB.from('sponsors').select('*').in('id',links.map(l=>l.sponsor_id));SP=sps||[];
   $('#loginBox').classList.add('hidden');$('#area').classList.remove('hidden');$('#logout').style.display='';
   if(SP.length>1){$('#pickBox').style.display='';$('#pick').innerHTML=SP.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');$('#pick').onchange=()=>{cur=SP.find(s=>s.id===$('#pick').value);load();};}
   cur=SP[0];load();}
+const CAMPI=['phone','whatsapp','website','google_url','instagram','facebook','tiktok','orari','descrizione','logo_text'];
 async function load(){$('#who').textContent=cur.name+' · pannello del negozio';
+  /* Fase 9a-1: stato, scheda e offerta */
+  const VIS={nascosto:'🚫 oscurata da INDZ',normale:'visibile',evidenza:'⭐ in evidenza'};
+  $('#stato').innerHTML=cur.stato==='in_attesa'?'<div class="msg ok" style="background:#fff3c4">⏳ Richiesta in attesa: INDZ la controlla e la attiva. Intanto puoi completare scheda e offerta.</div>'
+    :cur.stato==='rifiutato'?'<div class="msg ko">La richiesta non è stata approvata. Per informazioni scrivi a INDZ.</div>'
+    :`<p style="margin:0 0 6px"><b>Nell’app:</b> ${cur.active?VIS[cur.visibility||'normale']:VIS.nascosto}</p><p style="margin:0 0 6px"><b>Pacchetto:</b> ${esc(cur.package||'vetrina')}${cur.valid_to?` · pagato fino al <b>${new Date(cur.valid_to).toLocaleDateString('it-IT')}</b>`:''}</p>
+       <p class="hint">Per comparire in evidenza o rinnovare: il pagamento online arriva a breve; per ora scrivi a INDZ.</p>`;
+  CAMPI.forEach(k=>{const el=$('#e_'+k);if(el)el.value=cur[k]||'';});
+  const{data:OF}=await SB.from('offers').select('*').eq('sponsor_id',cur.id).order('created_at',{ascending:false}).limit(1);const of=(OF||[])[0];
+  $('#o_t').value=of?of.title||'':'';$('#o_d').value=of?of.details||'':'';$('#o_v').value=of&&of.valid_to?of.valid_to:'';cur._offer=of||null;
   const{data:st}=await SB.from('sponsor_stats_month').select('*').eq('sponsor_id',cur.id).maybeSingle();const S=st||{};
-  $('#stats').innerHTML=[['👀',S.visualizzazioni,'visualizzazioni'],['📇',S.schede_aperte,'schede aperte'],['🎟️',S.codici_creati,'codici creati'],['✅',S.codici_usati,'codici usati in negozio'],['📩',S.preventivi,'richieste di preventivo']].map(([i,v,t])=>`<div class="st"><b>${v||0}</b><small>${i} ${t}</small></div>`).join('');
+  $('#stats').innerHTML=[['👀',S.visualizzazioni,'visualizzazioni'],['📇',S.schede_aperte,'schede aperte'],['🎟️',S.codici_creati,'codici creati'],['✅',S.codici_usati,'codici usati in negozio'],['📩',S.preventivi,'richieste di preventivo'],['📞',S.contatti,'contatti toccati (telefono, WhatsApp, sito, social, Google)']].map(([i,v,t])=>`<div class="st"><b>${v||0}</b><small>${i} ${t}</small></div>`).join('');
   const{data:L}=await SB.from('leads').select('*').eq('sponsor_id',cur.id).order('created_at',{ascending:false}).limit(50);
   $('#leads').innerHTML=(L&&L.length)?L.map(l=>`<div class="ld"><b>${esc(l.name)}</b> · <a href="${/@/.test(l.contact)?'mailto:':'tel:'}${esc(l.contact)}">${esc(l.contact)}</a><small>${new Date(l.created_at).toLocaleString('it-IT')}${l.house_index?` · indice casa ${String(l.house_index).replace('.',',')}`:''}</small>${l.message?`<p style="margin:6px 0">${esc(l.message)}</p>`:''}
     <select data-ls="${l.id}">${['nuovo','contattato','preventivo','vinto','perso'].map(s=>`<option ${l.status===s?'selected':''}>${s}</option>`).join('')}</select></div>`).join(''):'<p class="hint">Nessuna richiesta per ora.</p>';
@@ -66,6 +92,14 @@ $('#redeem').onclick=async()=>{const c=$('#code').value.trim().toUpperCase();if(
   const{data,error}=await SB.rpc('redeem_coupon',{p_code:c,p_amount:isNaN(a)?null:a});$('#redeem').disabled=false;
   if(error){msg($('#rMsg'),'Errore: '+esc(error.message),false);return;}const ok=/valid|ok|applica/i.test(data||'')&&!/inesist|altro|già|scadut/i.test(data||'');
   msg($('#rMsg'),ok?'✅ '+esc(data||'Codice valido: applica lo sconto'):'⛔ '+esc(data),ok);if(ok){$('#code').value='';$('#amt').value='';load();}};
+$('#e_save').onclick=async()=>{const row={};CAMPI.forEach(k=>{row[k]=($('#e_'+k).value||'').trim()||null;});
+  for(const k of ['website','google_url','instagram','facebook','tiktok'])if(row[k]&&!/^https?:\/\//i.test(row[k]))row[k]='https://'+row[k];
+  $('#e_save').disabled=true;const{error}=await SB.from('sponsors').update(row).eq('id',cur.id);$('#e_save').disabled=false;
+  if(error){msg($('#e_msg'),'Non salvato: '+esc(error.message),false);return;}Object.assign(cur,row);msg($('#e_msg'),'✅ Scheda salvata',true);};
+$('#o_save').onclick=async()=>{const t=$('#o_t').value.trim();if(t.length<2){msg($('#o_msg'),'Scrivi l’offerta',false);return;}
+  const row={title:t,details:$('#o_d').value.trim()||null,valid_to:$('#o_v').value||null,active:true};$('#o_save').disabled=true;
+  const r=cur._offer?await SB.from('offers').update(row).eq('id',cur._offer.id).select().single():await SB.from('offers').insert({...row,sponsor_id:cur.id}).select().single();
+  $('#o_save').disabled=false;if(r.error){msg($('#o_msg'),'Non salvata: '+esc(r.error.message),false);return;}cur._offer=r.data;msg($('#o_msg'),'✅ Offerta salvata',true);};
 $('#loginBtn').onclick=async()=>{const{error}=await SB.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#pw').value});if(error){msg($('#loginMsg'),'Accesso non riuscito: controlla email e password',false);return;}start();};
 $('#logout').onclick=async()=>{await SB.auth.signOut();location.reload();};
 start();

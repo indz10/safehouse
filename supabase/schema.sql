@@ -48,6 +48,28 @@ CREATE FUNCTION public.admin_sponsor_accounts(p_sponsor uuid) RETURNS TABLE(emai
 $$;
 
 --
+-- Name: admin_sponsor_set(uuid, text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.admin_sponsor_set(p_id uuid, p_stato text, p_visibility text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare s public.sponsors;
+begin
+  if not public.is_admin() then return json_build_object('ok', false, 'msg', 'solo admin'); end if;
+  select * into s from public.sponsors where id = p_id;
+  if s.id is null then return json_build_object('ok', false, 'msg', 'sponsor non trovato'); end if;
+  update public.sponsors set
+    stato = coalesce(nullif(p_stato,''), stato),
+    visibility = coalesce(nullif(p_visibility,''), visibility),
+    active = (coalesce(nullif(p_stato,''), stato) = 'attivo' and coalesce(nullif(p_visibility,''), visibility) <> 'nascosto'),
+    valid_from = case when coalesce(nullif(p_stato,''), stato) = 'attivo' and valid_from is null then current_date else valid_from end
+  where id = p_id returning * into s;
+  return json_build_object('ok', true, 'stato', s.stato, 'visibility', s.visibility, 'active', s.active);
+end $$;
+
+--
 -- Name: admin_world_exclude(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -157,6 +179,56 @@ begin
   insert into public.sponsor_events (sponsor_id, kind) values (c.sponsor_id, 'codice_usato');
   return 'Codice valido: sconto applicato';
 end; $$;
+
+--
+-- Name: sponsor_request(jsonb); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.sponsor_request(p jsonb) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); n int; sid uuid; nm text := left(trim(coalesce(p->>'name','')), 80); sl text;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi per iscrivere la tua attività'); end if;
+  if length(nm) < 2 then return json_build_object('ok', false, 'msg', 'Scrivi il nome dell''attività'); end if;
+  select count(*) into n from public.sponsors where richiesto_da = me and stato = 'in_attesa';
+  if n > 0 then return json_build_object('ok', false, 'msg', 'Hai già una richiesta in attesa: INDZ la sta controllando'); end if;
+  select count(*) into n from public.sponsors where richiesto_da = me;
+  if n >= 5 then return json_build_object('ok', false, 'msg', 'Troppe richieste da questo account: scrivi a INDZ'); end if;
+  sl := trim(both '-' from regexp_replace(lower(nm), '[^a-z0-9]+', '-', 'g')) || '-' || left(md5(random()::text), 4);
+  insert into public.sponsors(slug, name, logo_text, category, package, address, comune, lat, lon, phone, whatsapp, website, instagram, facebook,
+                              tiktok, google_url, orari, descrizione, active, stato, visibility, richiesto_da, richiesto_il)
+  values (sl, nm, left(coalesce(nullif(p->>'logo',''), upper(left(nm, 2))), 3), left(coalesce(nullif(p->>'category',''), 'Attività'), 60), 'vetrina',
+          left(p->>'address', 160), left(p->>'comune', 80), nullif(p->>'lat','')::double precision, nullif(p->>'lon','')::double precision,
+          left(p->>'phone', 40), left(p->>'whatsapp', 40), left(p->>'website', 200), left(p->>'instagram', 200), left(p->>'facebook', 200),
+          left(p->>'tiktok', 200), left(p->>'google_url', 300), left(p->>'orari', 300), left(p->>'descrizione', 600),
+          false, 'in_attesa', 'normale', me, now())
+  returning id into sid;
+  insert into public.sponsor_users(sponsor_id, user_id) values (sid, me);
+  if length(trim(coalesce(p->>'offer',''))) > 1 then
+    insert into public.offers(sponsor_id, title, details, active) values (sid, left(trim(p->>'offer'), 120), left(p->>'offer_details', 400), true);
+  end if;
+  return json_build_object('ok', true, 'id', sid, 'msg', 'Richiesta inviata: INDZ la controlla e la attiva');
+end $$;
+
+--
+-- Name: sponsors_guard(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.sponsors_guard() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+begin
+  if auth.uid() is null or public.is_admin() then return new; end if;
+  new.id := old.id; new.slug := old.slug; new.package := old.package; new.founder := old.founder;
+  new.active := old.active; new.stato := old.stato; new.visibility := old.visibility;
+  new.valid_from := old.valid_from; new.valid_to := old.valid_to; new.created_at := old.created_at;
+  new.richiesto_da := old.richiesto_da; new.richiesto_il := old.richiesto_il;
+  new.lat := old.lat; new.lon := old.lon; new.category := old.category; new.name := old.name;
+  return new;
+end $$;
 
 --
 -- Name: w_allies_of(uuid); Type: FUNCTION; Schema: public; Owner: -
@@ -2529,7 +2601,8 @@ CREATE VIEW public.sponsor_stats_month WITH (security_invoker='true') AS
     count(*) FILTER (WHERE (kind = 'scheda'::text)) AS schede_aperte,
     count(*) FILTER (WHERE (kind = 'codice_creato'::text)) AS codici_creati,
     count(*) FILTER (WHERE (kind = 'codice_usato'::text)) AS codici_usati,
-    count(*) FILTER (WHERE (kind = 'preventivo'::text)) AS preventivi
+    count(*) FILTER (WHERE (kind = 'preventivo'::text)) AS preventivi,
+    count(*) FILTER (WHERE (kind ~~ 'clic_%'::text)) AS contatti
    FROM public.sponsor_events
   WHERE (created_at >= date_trunc('month'::text, now()))
   GROUP BY sponsor_id;
@@ -2569,7 +2642,17 @@ CREATE TABLE public.sponsors (
     valid_from date,
     valid_to date,
     created_at timestamp with time zone DEFAULT now(),
-    CONSTRAINT sponsors_package_check CHECK ((package = ANY (ARRAY['vetrina'::text, 'vetrina_plus'::text, 'partner_categoria'::text, 'agenzia'::text, 'acchiappa'::text, 'nazionale'::text])))
+    stato text DEFAULT 'attivo'::text NOT NULL,
+    visibility text DEFAULT 'normale'::text NOT NULL,
+    google_url text,
+    tiktok text,
+    orari text,
+    descrizione text,
+    richiesto_da uuid,
+    richiesto_il timestamp with time zone,
+    CONSTRAINT sponsors_package_check CHECK ((package = ANY (ARRAY['vetrina'::text, 'vetrina_plus'::text, 'partner_categoria'::text, 'agenzia'::text, 'acchiappa'::text, 'nazionale'::text]))),
+    CONSTRAINT sponsors_stato_check CHECK ((stato = ANY (ARRAY['in_attesa'::text, 'attivo'::text, 'rifiutato'::text]))),
+    CONSTRAINT sponsors_visibility_check CHECK ((visibility = ANY (ARRAY['nascosto'::text, 'normale'::text, 'evidenza'::text])))
 );
 
 --
@@ -3472,6 +3555,12 @@ CREATE INDEX world_h_b ON public.world_homes USING btree (building_id, status);
 --
 
 CREATE INDEX world_log_user ON public.world_log USING btree (user_id, seen);
+
+--
+-- Name: sponsors sponsors_guard; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER sponsors_guard BEFORE UPDATE ON public.sponsors FOR EACH ROW EXECUTE FUNCTION public.sponsors_guard();
 
 --
 -- Name: world_dm tr_dm; Type: TRIGGER; Schema: public; Owner: -
@@ -4423,6 +4512,13 @@ GRANT ALL ON FUNCTION public.admin_link_sponsor(p_sponsor uuid, p_email text) TO
 GRANT ALL ON FUNCTION public.admin_sponsor_accounts(p_sponsor uuid) TO authenticated;
 
 --
+-- Name: FUNCTION admin_sponsor_set(p_id uuid, p_stato text, p_visibility text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.admin_sponsor_set(p_id uuid, p_stato text, p_visibility text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.admin_sponsor_set(p_id uuid, p_stato text, p_visibility text) TO authenticated;
+
+--
 -- Name: FUNCTION admin_world_exclude(p_bid text); Type: ACL; Schema: public; Owner: -
 --
 
@@ -4452,6 +4548,13 @@ GRANT ALL ON FUNCTION public.push_subscribe(p_endpoint text, p_p256dh text, p_au
 --
 
 GRANT ALL ON FUNCTION public.push_unsubscribe(p_endpoint text) TO authenticated;
+
+--
+-- Name: FUNCTION sponsor_request(p jsonb); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.sponsor_request(p jsonb) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.sponsor_request(p jsonb) TO authenticated;
 
 --
 -- Name: FUNCTION w_allies_of(p_user uuid); Type: ACL; Schema: public; Owner: -

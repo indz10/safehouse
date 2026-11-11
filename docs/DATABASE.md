@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **43** · viste: **1** · indici: **11** · regole (policy): **41** · trigger: **11** · lavori programmati: **1**
-- Funzioni: **123** (123 nomi); usate (direttamente o tramite altre funzioni): **123**; **non usate: 0**
+- Tabelle: **43** · viste: **1** · indici: **11** · regole (policy): **41** · trigger: **12** · lavori programmati: **1**
+- Funzioni: **126** (126 nomi); usate (direttamente o tramite altre funzioni): **126**; **non usate: 0**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -15,14 +15,17 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 |---|---|---|---|---|---|
 | `admin_link_sponsor` | ✓ |  |  |  | 1: aggiornamento_ottobre |
 | `admin_sponsor_accounts` | ✓ |  |  |  | 1: aggiornamento_ottobre |
+| `admin_sponsor_set` | ✓ |  |  |  | 1: migr. 004_sponsor_iscrizione |
 | `admin_world_exclude` | ✓ |  |  |  | 1: mondo_unico |
 | `delete_my_account` | ✓ |  |  |  | 1: aggiornamento_ottobre |
-| `is_admin` |  |  | regole | admin_link_sponsor, admin_sponsor_accounts, admin_world_exclude, world_chat_report | 1: ZombieSafeHouse_backend_sponsor |
+| `is_admin` |  |  | regole | admin_link_sponsor, admin_sponsor_accounts, admin_world_exclude, world_chat_report, sponsors_guard, admin_sponsor_set | 1: ZombieSafeHouse_backend_sponsor |
 | `miei_invitati` | ✓ |  |  |  | 1: aggiornamento_ottobre |
 | `my_sponsor` |  |  | regole | redeem_coupon | 1: ZombieSafeHouse_backend_sponsor |
 | `push_subscribe` | ✓ |  |  |  | 1: push |
 | `push_unsubscribe` | ✓ |  |  |  | 1: push |
 | `redeem_coupon` | ✓ |  |  |  | 1: ZombieSafeHouse_backend_sponsor |
+| `sponsor_request` | ✓ |  |  |  | 1: migr. 004_sponsor_iscrizione |
+| `sponsors_guard` |  |  | trigger |  | 1: migr. 004_sponsor_iscrizione |
 | `w_allies_of` |  |  |  | w_upower, w_tr_feed, world_allies, world_team_bonus, world_my_defense, world_allies_status … | 2: aiuto_alleati → alleanze2 |
 | `w_are_allies` |  |  |  | world_quote, world_send_help, world_send_attack, world_give, world_feed_list, world_player … | 3: mondo_v4 → social → alleanze2 |
 | `w_attack3` |  |  |  | world_raid_status, world_raid_view, w_home_held | 4: mondo_v3 → zombie → zombie_alleati → fortezze |
@@ -155,7 +158,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `salvataggi` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `sponsor_events` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `sponsor_users` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
-| `sponsors` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
+| `sponsors` | ZombieSafeHouse_backend_sponsor | 8 | ✓ |
 | `subscriptions` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `world_allies` | social | 0 | ✓ |
 | `world_attack_given` | mondo_v3 | 0 | ✓ |

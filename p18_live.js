@@ -10,9 +10,11 @@ const slugify=s=>(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]
   try{const{data:sp,error}=await sb.from('sponsors').select('*').eq('active',true);if(error||!sp||!sp.length)return;
     const{data:of}=await sb.from('offers').select('*').eq('active',true);
     Object.keys(SPONSORS).forEach(k=>{delete SPONSORS[k];});
-    sp.forEach(r=>{const k=r.slug||slugify(r.name);SPONSORS[k]={name:r.name,logo:r.logo_text||r.name.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase()};
+    /* Fase 9a-1: prima quelli in evidenza; quelli oscurati non arrivano (active=false) */
+    sp.sort((a,b)=>(b.visibility==='evidenza')-(a.visibility==='evidenza'));
+    sp.forEach(r=>{const k=r.slug||slugify(r.name);SPONSORS[k]={name:r.name,logo:r.logo_text||r.name.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase(),evid:r.visibility==='evidenza',orari:r.orari||'',descr:r.descrizione||'',addr:r.address||''};
       SP_CAT[k]=r.category;const o=(of||[]).find(x=>x.sponsor_id===r.id);SP_OFF[k]=o?o.title:'Offerta per chi usa l’app';
-      SP_LINK[k]={web:r.website||'',ig:r.instagram||'',fb:r.facebook||'',tel:r.phone||'',wa:(r.whatsapp||'').replace(/\D/g,'')};
+      SP_LINK[k]={web:r.website||'',ig:r.instagram||'',fb:r.facebook||'',tt:r.tiktok||'',g:r.google_url||'',tel:r.phone||'',wa:(r.whatsapp||'').replace(/\D/g,'')};
       SP_GEO[k]={lat:r.lat,lon:r.lon,id:r.id,offer:o?o.id:null};});
     if(typeof goBase==='function'&&S.tab)try{goBase(S.tab);}catch(e){}/* all'avvio, come prima: la navigazione di p4 (Fase 4f-1) */
   }catch(e){console.warn('sponsor',e);}})();

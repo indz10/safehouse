@@ -116,6 +116,7 @@ async function wSheetEdificio(bid,lat,lon){
   return r;}
 /* scheda di un'attività: base (p20) + dati online (p20) + "segnala" (p20) + missione (p20) */
 function bizSheet(b,z){bizSheetBase(b,z);
+  (()=>{try{const c=document.querySelector('#sheet.open [data-claim]');if(c)c.onclick=()=>{closeSheet();sponsorJoin({name:b.name,cat:b.cat,ll:b.ll,tel:b.tel,web:b.web});};}catch(e){}})();
   (()=>{const c=document.querySelector('#sheet.open .sheet-card');
   if(c)fillOnline(c,b);})();
   (()=>{const c=document.querySelector('#sheet.open .sheet-card');
