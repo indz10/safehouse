@@ -126,6 +126,11 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 
 ---
 
+### Dopo la Fase 10A (11/11)
+- Menu ☰: la versione usciva "v—" e spariva "🩺 Controlla il mio gioco" (il menu si ridisegna e cancellava le aggiunte): ora sono dentro il menu. Tolte le monete rimaste nel menu.
+- Inviti: chi installa l'app prima di creare l'account (o la apre da WhatsApp) perdeva il collegamento con chi l'ha invitato (iPhone: memoria separata). Ora "🤝 Ti ha invitato qualcuno? Collegati" (finestra Invita e Controlla il mio gioco): cerca il nome e collega, diventate subito alleati.
+- Mappa dell'app: elenco delle funzioni di ogni pagina; anche in PDF.
+
 ## Stato
 | Fase | Stato | PR | Note |
 |---|---|---|---|

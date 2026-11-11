@@ -34,12 +34,11 @@ function zmDoRun(k,b){
   if(k==='home'&&b&&/Piano/.test(b.textContent)){zmClose();go('casa');return;}
   if(k==='a:last'||k==='a:sim'){zmClose();assalto(k.slice(2));return;}if(k==='push'){zmClose();pushSheet();return;}
   return zmDoBase(k,b);}
-/* apertura del menu: base (p28) + versione (p50) + niente monete (p52) + "Controlla il mio gioco" (p56) */
+/* apertura del menu: base (p28, con versione e "Controlla il mio gioco"; niente monete) */
+/* "🩺 Controlla il mio gioco" in fondo al menu */
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#zmenu [data-zstat]');if(!b)return;try{zmClose();}catch(x){}zStatusSheet();});
 function zmOpen(){const r=zmOpenBase.apply(this,arguments);
-  (()=>{setTimeout(()=>{try{const v=document.querySelector('#zmenu .zmver');if(v)v.textContent=`ZombieSafeHouse · un marchio INDZ · versione ${appVerTxt()}`;}catch(e){}},30);})();
-  (()=>{setTimeout(()=>{try{document.querySelectorAll('#zmenu .zmwal span').forEach(s=>{if(/🪙/.test(s.textContent))s.remove();});}catch(e){}},40);})();
-  (()=>{setTimeout(()=>{try{const v=document.querySelector('#zmenu .zmver');if(v&&!document.querySelector('#zmenu [data-zstat]')){v.insertAdjacentHTML('beforebegin','<button class="zmrow zstbtn" data-zstat><span>🩺</span><b>Controlla il mio gioco</b><i>›</i></button>');
-  document.querySelector('#zmenu [data-zstat]').onclick=()=>{try{zmClose();}catch(e){}zStatusSheet();};}}catch(e){}},40);})();
+  /* versione e "Controlla il mio gioco" ora sono dentro il menu (p28): restano anche quando il menu si ridisegna */
   return r;}
 /* barra in alto: logo, 🔔, ☰ (p28) + pulsante audio (p33) */
 function zTopbar(){zTopbarBase();zSoundBtn();}

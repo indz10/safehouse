@@ -35,4 +35,20 @@ async function bvShow(force){try{if(document.getElementById('bvpage'))return;con
 setTimeout(()=>{try{if(!localStorage.getItem('zsh_inv'))return;if(sessionStorage.getItem('zsh_bv'))return;if(localStorage.getItem('zsh_bv_done'))return;
   const where=typeof zWhere==='function'?zWhere():'browser';if(where==='app'){localStorage.setItem('zsh_bv_done','1');return;}
   const ib=document.getElementById('zbinapp');if(ib)ib.remove();bvShow();}catch(e){}},1200);
+/* chi mi ha invitato (dal profilo sul server, non dalla memoria del telefono) */
+async function invMio(){if(!S.user||typeof SB==='undefined'||!SB)return null;
+  const{data}=await SB.from('profili_pubblici').select('invitato_da').eq('user_id',S.user.id).maybeSingle();const c=data&&data.invitato_da;if(!c)return null;
+  try{const r=await SB.rpc('world_inviter',{p_code:c});return r.data||'un superstite';}catch(e){return 'un superstite';}}
+/* collegarsi a mano a chi ti ha invitato: serve quando il link si è perso (su iPhone l'icona della schermata Home ha una memoria sua) */
+function invCollega(){if(!S.user){toast('Accedi prima');return;}
+  openSheet('🤝 Chi ti ha invitato?',`<p style="font-weight:400;margin:0 0 8px">Scrivi il nome di chi ti ha mandato il link. Vi collego: diventate subito alleati, vi vedete sulla mappa e lui riceve il premio quando valuti la casa.</p>
+    <div class="row" style="gap:8px"><input id="invq" placeholder="es. ale" autocomplete="off" style="flex:1;min-width:0"><button class="btn small" data-invq>Cerca</button></div><div class="invres" style="margin-top:10px"></div>`,card=>{
+    const go2=async()=>{const q=card.querySelector('#invq').value.trim().replace(/^@/,'');const box=card.querySelector('.invres');if(q.length<2){box.innerHTML='<p class="muted">Scrivi almeno 2 lettere</p>';return;}
+      box.innerHTML='<p><span class="spin"></span> Cerco…</p>';let L=[];try{const{data}=await SB.rpc('world_find',{p_q:q});L=data||[];}catch(e){}
+      box.innerHTML=L.length?L.map((x,i)=>`<button class="btn ghost wide" data-invp="${i}" style="margin-bottom:6px;text-align:left">@${esc(x.nick)} <small>· livello ${x.wlevel||1}${x.comune?' · '+esc(x.comune):''}</small></button>`).join(''):'<p class="muted">Nessun superstite con questo nome.</p>';
+      box.querySelectorAll('[data-invp]').forEach(b=>b.onclick=async()=>{const x=L[+b.dataset.invp];b.disabled=true;
+        try{const code=String(x.user_id).slice(0,8).toLowerCase();const{error}=await SB.from('profili_pubblici').update({invitato_da:code}).eq('user_id',S.user.id).is('invitato_da',null);if(error)throw error;
+          try{localStorage.setItem('zsh_inv',code);localStorage.setItem('zsh_inv_ok','1');}catch(e){}toast('🤝 Collegato a @'+x.nick+': ora siete alleati');closeSheet();try{alsLoad&&alsLoad(true);}catch(e){}}
+        catch(e){toast('Non riesco a collegarti ora: riprova');b.disabled=false;}});};
+    card.querySelector('[data-invq]').onclick=go2;card.querySelector('#invq').addEventListener('keydown',e=>{if(e.key==='Enter')go2();});});}
 </script>

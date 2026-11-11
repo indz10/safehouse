@@ -1,7 +1,7 @@
 # MAPPA DELL'APP · fotografa tutte le schermate principali (server finto, iPhone 13) e scrive una pagina HTML
 # con le foto numerate, per controllare l'app pagina per pagina e chiedere modifiche ("Pagina 12: …").
 # Uso: python3 docs/strumenti/mappa_app.py <cartella di uscita>   → <cartella>/mappa_app.html (foto dentro la pagina)
-import asyncio,sys,os,base64,json,html,datetime
+import asyncio,sys,os,base64,json,html,datetime,re
 R=os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'));sys.path.insert(0,R)
 from playwright.async_api import async_playwright
 import t_terr
@@ -9,6 +9,15 @@ OUT=sys.argv[1] if len(sys.argv)>1 else '.'
 SETUP="""async()=>{SB=__mockSB;S.user={id:'me',nick:'ale'};S.pubOk=true;zSyncProfile.asked=1;S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'Via Roma 10, Volta Mantovana',src:'gps'};
  S.zone=await analyzeZone('A');await rmFetch('A');S.answers={...SAMPLE};S.result=computeScore(S.answers,S.zone);G.tourAsked=1;G.tourDone=1;G.howSeen=1;
  __W.b['B1']={owner:'me',lat:45.3262,lon:10.6600,level:2,paid:320};try{await wMine(true);}catch(e){}}"""
+FUNZ=r"""()=>{const vis=e=>{const r=e.getBoundingClientRect();const st=getComputedStyle(e);return r.width>4&&r.height>4&&st.visibility!=='hidden'&&st.display!=='none'&&!e.closest('[hidden]');};
+ const top=document.getElementById('lente')||((document.getElementById('zmenu')&&vis(document.getElementById('zmenu')))?document.getElementById('zmenu'):null)||document.querySelector('#sheet.open .card, #sheet.open')||document.getElementById('fumetto')||document.querySelector('#app');
+ const out=[],seen=new Set();const add=t=>{t=(t||'').replace(/\s*\n+\s*/g,' · ').replace(/\s+/g,' ').trim();if(/^(Chiudi|‹ .*)$/.test(t))return;t=t.replace(/^(\S{1,4}) · /u,'$1 ');if(!t||t.length<2||t.length>70||seen.has(t))return;seen.add(t);out.push(t);};
+ top.querySelectorAll('button,a[href],select,input,textarea,[data-pres],[data-spk],[data-mh],[data-cs],.lnlab,.zmrow,[role=button]').forEach(e=>{if(!vis(e))return;
+   if(e.tagName==='INPUT'||e.tagName==='TEXTAREA'){if(e.type==='checkbox')add('☑️ '+((e.closest('label')||{}).textContent||'casella'));else{const lb=e.labels&&e.labels[0]?e.labels[0].innerText:'';add('✏️ campo: '+(lb||e.placeholder||e.name||'testo').replace(/\s*\*$/,''));}return;}
+   if(e.tagName==='SELECT'){add('🔽 scelta: '+[...e.options].slice(0,4).map(o=>o.text).join(' / '));return;}
+   const t=e.getAttribute('aria-label')||e.innerText||e.textContent;if(/^[✕×x]$/.test((t||'').trim()))return;add(t);});
+ if(top.id!=='lente'&&top.id!=='zmenu'&&top.matches&&top.matches('#app')){/* barra in alto e in basso: uguali ovunque, le salto */}
+ return out.slice(0,22);}"""
 RESET="()=>{try{lenteClose()}catch(e){};document.querySelectorAll('#fumetto,.otour').forEach(e=>e.remove());try{zmClose()}catch(e){};window.SHEET_BACK=null;closeSheet();}"
 # (sezione, titolo, cosa c'è, js da eseguire, attesa ms)
 P=[
@@ -60,17 +69,18 @@ async def main():
                 await pg.evaluate(RESET);await pg.evaluate("()=>go('home')");await pg.wait_for_timeout(500);await pg.evaluate(RESET)
                 await pg.evaluate(js);await pg.wait_for_timeout(ms)
                 img=await pg.screenshot(type='jpeg',quality=72)
-                foto.append((i,sez,tit,cosa,base64.b64encode(img).decode()))
+                fz=await pg.evaluate(FUNZ)
+                foto.append((i,sez,tit,cosa,base64.b64encode(img).decode(),fz))
                 print(i,tit,'ok',flush=True)
             except Exception as e:
-                print(i,tit,'ERRORE',str(e)[:120],flush=True);foto.append((i,sez,tit,cosa,None))
+                print(i,tit,'ERRORE',str(e)[:120],flush=True);foto.append((i,sez,tit,cosa,None,[]))
         await b.close()
-    ver=open(R+'/dist/sw.js').read().split('\n')[1][:80] if os.path.exists(R+'/dist/sw.js') else ''
+    ver=(re.search(r'zsh-\d+',open(R+'/dist/sw.js').read()) or [''])[0] if os.path.exists(R+'/dist/sw.js') else ''
     oggi=datetime.date.today().strftime('%d/%m/%Y')
     sez=[];[sez.append(f[1]) for f in foto if f[1] not in sez]
     E=html.escape
     card=lambda f:f'''<article class="p" id="p{f[0]}"><div class="ph">{f'<img loading="lazy" alt="" src="data:image/jpeg;base64,{f[4]}">' if f[4] else '<div class="noimg">foto non riuscita</div>'}</div>
-      <div class="pt"><span class="n">Pagina {f[0]}</span><h3>{E(f[2])}</h3><p>{E(f[3])}</p></div></article>'''
+      <div class="pt"><span class="n">Pagina {f[0]}</span><h3>{E(f[2])}</h3><p>{E(f[3])}</p>{('<details open><summary>Funzioni ('+str(len(f[5]))+')</summary><ul class="fz">'+''.join('<li>'+E(x)+'</li>' for x in f[5])+'</ul></details>') if f[5] else ''}</div></article>'''
     indice=''.join(f'<li><a href="#p{f[0]}"><b>{f[0]}</b> {E(f[2])}</a></li>' for f in foto)
     corpo=''.join(f'<section><h2>{E(s)}</h2><div class="grid">'+''.join(card(f) for f in foto if f[1]==s)+'</div></section>' for s in sez)
     page=f'''<title>Mappa di ZombieSafeHouse</title><meta name="claude:viewport-fit-sides" content="cover">
@@ -89,12 +99,14 @@ h2{{margin:28px 0 10px;font-size:28px;border-bottom:3px solid var(--line);paddin
 .p{{background:var(--card);border:3px solid var(--line);box-shadow:4px 4px 0 var(--line);display:flex;flex-direction:column;scroll-margin-top:12px}}
 .ph img{{display:block;width:100%;height:auto;border-bottom:3px solid var(--line)}}.noimg{{padding:40px 10px;text-align:center;color:var(--mut)}}
 .pt{{padding:10px 12px;min-width:0}}.pt h3{{margin:2px 0 4px;font-size:17px}}.pt p{{margin:0;color:var(--mut);font-size:14px}}
+.pt details{{margin-top:8px}}.pt summary{{font-weight:800;font-size:13.5px;cursor:pointer}}
+.fz{{margin:6px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:2px}}.fz li{{overflow-wrap:anywhere}}
 .n{{display:inline-block;background:var(--acc);color:var(--acc-fg);border:2px solid var(--acc-fg);font-variant-numeric:tabular-nums;font-weight:800;font-size:13px;padding:1px 8px}}
 footer{{color:var(--mut);font-size:13px}}
 </style><header><h1>🗺️ Mappa dell'app ZombieSafeHouse</h1><p class="sub">{len(foto)} pagine fotografate il {oggi} · versione {E(ver)}</p>
 <div class="how"><p><b>Come chiedere una modifica:</b> scrivi a Claude il numero della pagina e cosa cambiare.</p>
 <p>Esempio: <i>“Pagina 6: il pulsante Valuta più in alto, e il testo del piano più corto.”</i></p>
-<p>Le foto sono fatte con dati di prova (server finto): nomi e numeri non sono quelli veri.</p></div>
+<p>Sotto ogni foto: cosa c'è e l'elenco delle <b>funzioni</b> (pulsanti, campi e scelte che trovi in quella schermata), letto dall'app vera.</p><p>Le foto sono fatte con dati di prova (server finto): nomi e numeri non sono quelli veri.</p></div>
 <ol class="idx">{indice}</ol></header><main>{corpo}</main>
 <footer>Si rifà con: python3 docs/strumenti/mappa_app.py &lt;cartella&gt;</footer>'''
     os.makedirs(OUT,exist_ok=True);open(os.path.join(OUT,'mappa_app.html'),'w').write(page)
