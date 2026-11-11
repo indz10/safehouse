@@ -12,7 +12,7 @@ async def main():
         errs=[];pg.on('pageerror',lambda e:errs.append(str(e)[:160]))
         await pg.route('**/*',t_terr.route);await pg.add_init_script(path=D+'/sb_mock.js');await pg.add_init_script(path=D+'/ml_stub.js');await pg.add_init_script('window.__noHello=1')
         await pg.goto('file://'+D+'/app.html');await pg.wait_for_timeout(800)
-        await pg.evaluate("async()=>{SB=__mockSB;S.user={id:'me',nick:'ale'};S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');S.answers={...SAMPLE};S.result=computeScore(S.answers,S.zone);G.tourAsked=1;G.tourDone=1;G.howSeen=1;closeSheet();S.zv='mondo';go('mappa')}")
+        await pg.evaluate("async()=>{SB=__mockSB;S.user={id:'me',nick:'ale'};S.pubOk=true;zSyncProfile.asked=1;S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');S.answers={...SAMPLE};S.result=computeScore(S.answers,S.zone);G.tourAsked=1;G.tourDone=1;G.howSeen=1;closeSheet();S.zv='mondo';go('mappa')}")
         await pg.wait_for_timeout(3500);await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(300)
         # presidi del server finto vicino a me (a nord-est e a nord-ovest)
         await pg.evaluate("()=>{window.__PRES=[{id:'osm:n1',name:'Parco Nord',kind:'parco',lat:45.3285,lon:10.6584,stato:'libero',record:0,guardie:0,difesa:55,vicino:true},{id:'osm:n2',name:'Piazza Est',kind:'piazza',lat:45.3256,lon:10.6622,stato:'mio',record:2,guardie:1,difesa:67,vicino:true}];SP_GEO.lx={lat:45.3240,lon:10.6582};SPONSORS.lx=SPONSORS.lx||{name:'Ferramenta Sud',logo:'FS'}}")
@@ -43,7 +43,31 @@ async def main():
         await pg.evaluate("()=>{window.__TR=LENTE.stream.getTracks()}");await pg.click('[data-lnx]');await pg.wait_for_timeout(500)
         print('dopo la chiusura: fotocamera spenta',await pg.evaluate("()=>__TR.every(t=>t.readyState==='ended')"),'| lente tolta',await pg.evaluate("()=>!document.getElementById('lente')"))
         # dal menu ☰
-        await pg.evaluate("()=>zmOpen()");await pg.wait_for_timeout(500)
-        print('menu:',await pg.evaluate("()=>[...document.querySelectorAll('#zmenu .zmrow b')].some(b=>/Lente/.test(b.textContent))"))
+        await pg.evaluate("()=>{closeSheet();zmOpen()}");await pg.wait_for_timeout(700)
+        if len(sys.argv)>1:await pg.screenshot(path=sys.argv[1]+"/lente_menu.png")
+        # casa comprata a 12 m dalla casa vera: "Sei qui" deve restare sulla casa vera
+        await pg.evaluate("async()=>{__W.b['B9']={owner:'me',lat:45.3256,lon:10.6583,level:1,paid:200};await wMine(true);}")
+        await pg.evaluate("()=>{closeSheet();lenteOpen()}");await pg.wait_for_timeout(1500)
+        # edifici e servizi intorno (come li darebbe OpenStreetMap): un edificio libero a est, i carabinieri a nord
+        await pg.evaluate("""()=>{const R=(la,lo,dx,dy)=>[[lo-dx,la-dy],[lo+dx,la-dy],[lo+dx,la+dy],[lo-dx,la+dy]];
+          LENTE.area={lat:LENTE.pos.lat,lon:LENTE.pos.lon,B:[{id:'w77',R:R(45.3255,10.6582,.00008,.00006),t:{b:'house',l:'2',n:'',a:''}},{id:'w88',R:R(45.3255,10.6590,.00007,.00006),t:{b:'house',l:'2',n:'',a:'Via Roma 12'}}],
+            P:[{id:'n5',ic:'🚓',cat:'Carabinieri / Polizia',name:'Stazione Carabinieri',lat:45.3270,lon:10.6582,tel:'0376 1',ore:'',ind:'Via Garibaldi 1',srv:true},{id:'n6',ic:'☕',cat:'Bar',name:'Bar Sport',lat:45.3262,lon:10.6582,tel:'',ore:'7-20',ind:'',srv:false}]};
+          LENTE.tpos=null;lnRefresh(true);}""")
+        await pg.wait_for_timeout(800)
+        await bussola(90);await pg.wait_for_timeout(600)
+        print('sei qui:',await pg.evaluate("()=>[...document.querySelectorAll('.lnlab.qui b')].map(e=>e.textContent)"))
+        print('mirino:',await pg.evaluate("()=>{const a=document.querySelector('.lnaim');return a&&!a.hidden?a.textContent:null}"))
+        await pg.click('.lnaim');await pg.wait_for_timeout(1500)
+        print('scheda sopra la Lente:',await pg.evaluate("()=>{const s=document.querySelector('#sheet.open');return s?[(s.querySelector('h3')||{}).textContent,!!document.getElementById('lente'),/Compra/.test(s.textContent)]:null}"))
+        if len(sys.argv)>1:await pg.screenshot(path=sys.argv[1]+'/lente_compra.png')
+        await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(300)
+        await bussola(0);await pg.wait_for_timeout(600)
+        print('servizi verso nord:',await pg.evaluate("()=>[...document.querySelectorAll('.lnlab.k-srv,.lnlab.k-att')].filter(e=>e.style.display!=='none').map(e=>e.querySelector('b').textContent)"))
+        await pg.evaluate("()=>[...document.querySelectorAll('.lnlab.k-srv')].find(e=>/Carabinieri/.test(e.textContent)).click()");await pg.wait_for_timeout(400)
+        print('scheda servizio:',await pg.evaluate("()=>(document.querySelector('.lnpan .lnph')||{}).textContent"))
+        if len(sys.argv)>1:await pg.screenshot(path=sys.argv[1]+'/lente_servizi.png')
+        await pg.evaluate("()=>lenteClose()")
+        await pg.evaluate("()=>{closeSheet();zmOpen()}");await pg.wait_for_timeout(700)
+        print('menu:',await pg.evaluate("()=>/Lente: guarda/.test(document.body.innerText)"))
         print('ERR',errs);await b.close()
 asyncio.run(main())

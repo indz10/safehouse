@@ -835,6 +835,13 @@ html,body{overflow-x:hidden;max-width:100%}
 .lnph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:3px solid var(--ink);background:#ffd6e0}.lnph>div{flex:1;min-width:0;display:flex;flex-direction:column}.lnph b{font-size:17px}.lnph span{font-size:12px}
 .lnpx{width:38px;height:38px;flex:none;background:#fff;border:3px solid var(--ink);font-weight:900;font-size:17px;color:var(--ink)}
 .lnpb{overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.lente-top .sheet{z-index:460}.lente-on .toast{z-index:470}
+.lnret{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border:4px solid #fff;border-radius:50%;box-shadow:0 0 0 3px var(--ink),inset 0 0 0 3px var(--ink);pointer-events:none;z-index:2}
+.lnret::before,.lnret::after{content:'';position:absolute;background:#fff;box-shadow:0 0 0 2px var(--ink)}.lnret::before{left:50%;top:-16px;bottom:-16px;width:4px;margin-left:-2px}.lnret::after{top:50%;left:-16px;right:-16px;height:4px;margin-top:-2px}
+.lnaim{position:absolute;left:50%;top:calc(50% + 46px);transform:translateX(-50%);width:min(88%,360px);display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:#fff;color:var(--ink);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:8px 10px;z-index:3}
+.lnaim b{font-size:16px}.lnaim small{font-size:12.5px;line-height:1.3}.lnaim span{font-weight:800;font-size:13.5px;color:#d7263d}
+.lnaim.st-free{background:#fff4c2}.lnaim.st-home,.lnaim.st-owned{background:#ffd6d6}.lnaim.st-mia-casa,.lnaim.st-mia,.lnaim.st-myhome,.lnaim.st-mine{background:#ffd6e0}
+.lnpan a{text-decoration:none}.lnpan a[href^="tel"]{color:var(--ink);font-weight:800}.lnlab.k-srv{background:#d6e9ff}.lnlab.k-att{background:#efe6ff;font-size:13px}
 /* nella Lente: prima il risultato e i pulsanti, poi le fortificazioni; l'elenco degli zombie resta nella pagina della casa */
 .lnpan .thbox{display:flex;flex-direction:column;gap:8px}.lnpan .thres{order:-3}.lnpan .thtools{order:-2}.lnpan [data-sbuy]{order:-1}
 .lnpan .thrw:not(.tot){display:none}.lnpan .thhead{order:5;font-size:12.5px}
