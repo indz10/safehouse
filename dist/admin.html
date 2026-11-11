@@ -100,15 +100,23 @@ $('#saveBtn').onclick=async()=>{const name=$('#f_name').value.trim(),m=$('#saveM
     else await SB.from('offers').insert({sponsor_id:data.id,title:off,remedy_tags:tags});}
   if(EDIT)resetForm();
   msg(m,`✅ ${name} salvato${row.active?' e visibile nell’app':''}.`,true);$('#saveBtn').disabled=false;loadList();};
+/* Fase 9a-1: richieste dall'app in cima; per ogni sponsor stato e visibilità (oscurato / normale / in evidenza) */
+const esc2=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 async function loadList(){const{data,error}=await SB.from('sponsors').select('*').order('created_at',{ascending:false});const L=$('#list');
   if(error){L.textContent='Errore: '+error.message;return;}if(!data.length){L.textContent='Nessuno sponsor ancora.';return;}
-  L.innerHTML=data.map(s=>`<div class="sp"><div><b>${s.name}</b> <span class="tag ${s.active?'on':'off'}">${s.active?'attivo':'non attivo'}</span><small>${s.category||''} · ${s.package} · ${s.address||''}</small><small>📍 ${s.lat??'–'}, ${s.lon??'–'}</small></div>
-    <div class="row" style="flex-direction:column"><button class="ghost" data-t="${s.id}" data-a="${s.active}">${s.active?'Disattiva':'Attiva'}</button><button class="ghost" data-show="${s.lat},${s.lon}">Mappa</button><button class="ghost" data-ed="${s.id}">✏️ Modifica</button><button class="ghost" data-acc="${s.id}">🔑 Account negozio</button><button class="ghost" data-del="${s.id}" style="color:#d7263d">🗑 Elimina</button></div></div>`).join('');
+  data.sort((a,b)=>(a.stato==='in_attesa'?0:1)-(b.stato==='in_attesa'?0:1));
+  const VIS={nascosto:'🚫 Oscurato',normale:'Normale',evidenza:'⭐ In evidenza'};
+  L.innerHTML=data.map(s=>`<div class="sp"><div><b>${esc2(s.name)}</b> <span class="tag ${s.active?'on':'off'}">${s.stato==='in_attesa'?'🆕 richiesta da approvare':s.stato==='rifiutato'?'rifiutato':s.active?'visibile':'non visibile'}</span><small>${esc2(s.category||'')} · ${s.package} · ${esc2(s.address||'')}</small><small>📍 ${s.lat??'–'}, ${s.lon??'–'}${s.phone?' · 📞 '+esc2(s.phone):''}${s.website?' · 🌐 '+esc2(s.website):''}</small>${s.descrizione?`<small>${esc2(s.descrizione)}</small>`:''}${s.valid_to?`<small>pagato fino al ${s.valid_to}</small>`:''}</div>
+    <div class="row" style="flex-direction:column">${s.stato==='in_attesa'?`<button data-ap="${s.id}">✅ Approva</button><button class="ghost" data-rif="${s.id}">❌ Rifiuta</button>`:
+      `<select data-vis="${s.id}">${Object.entries(VIS).map(([k,t])=>`<option value="${k}" ${(s.visibility||'normale')===k?'selected':''}>${t}</option>`).join('')}</select>${s.stato==='rifiutato'?`<button class="ghost" data-ap="${s.id}">Riattiva</button>`:''}`}<button class="ghost" data-show="${s.lat},${s.lon}">Mappa</button><button class="ghost" data-ed="${s.id}">✏️ Modifica</button><button class="ghost" data-acc="${s.id}">🔑 Account negozio</button><button class="ghost" data-del="${s.id}" style="color:#d7263d">🗑 Elimina</button></div></div>`).join('');
   L.querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>editSp(data.find(x=>x.id===b.dataset.ed)));
   L.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const sp=data.find(x=>x.id===b.dataset.del);
     if(!confirm('Eliminare DEFINITIVAMENTE “'+sp.name+'”? Spariscono anche offerte, codici e preventivi collegati. Se vuoi solo sospenderlo usa “Disattiva”.'))return;
     const{error}=await SB.from('sponsors').delete().eq('id',sp.id);if(error){alert('Errore: '+error.message);return;}if(EDIT===sp.id)resetForm();loadList();});
-  L.querySelectorAll('[data-t]').forEach(b=>b.onclick=async()=>{await SB.from('sponsors').update({active:b.dataset.a!=='true'}).eq('id',b.dataset.t);loadList();});
+  const set=async(id,stato,vis)=>{const{data:r,error:e}=await SB.rpc('admin_sponsor_set',{p_id:id,p_stato:stato||'',p_visibility:vis||''});if(e||!r||!r.ok)alert('Non riuscito: '+((e&&e.message)||(r&&r.msg)||'?'));loadList();};
+  L.querySelectorAll('[data-ap]').forEach(b=>b.onclick=()=>set(b.dataset.ap,'attivo','normale'));
+  L.querySelectorAll('[data-rif]').forEach(b=>b.onclick=()=>{if(confirm('Rifiutare questa richiesta? Non comparirà nell’app.'))set(b.dataset.rif,'rifiutato','nascosto');});
+  L.querySelectorAll('[data-vis]').forEach(sel=>sel.onchange=()=>set(sel.dataset.vis,'',sel.value));
   L.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>{const[a,o]=b.dataset.show.split(',').map(Number);if(!isNaN(a)){map.setView([a,o],18);mk.setLatLng([a,o]);window.scrollTo(0,0);}});}
 
 /* ricerca attività su OpenStreetMap: nome, indirizzo, telefono, sito e punto sulla mappa */

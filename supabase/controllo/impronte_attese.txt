@@ -1,6 +1,7 @@
 FUNZIONI
 admin_link_sponsor(uuid, text) 0ab6ecc149
 admin_sponsor_accounts(uuid) d16a2a25d3
+admin_sponsor_set(uuid, text, text) feb687dca0
 admin_world_exclude(text) a341a4a41f
 delete_my_account() 93b6378551
 is_admin() ed60925f39
@@ -9,6 +10,8 @@ my_sponsor(uuid) cb7138eae0
 push_subscribe(text, text, text) 1ddb9629ed
 push_unsubscribe(text) d8c7f31d16
 redeem_coupon(text, numeric) 2ae032ec11
+sponsor_request(jsonb) 5b2033e9ba
+sponsors_guard() fb6e27a43c
 w_allies_of(uuid) f79fddd6ef
 w_are_allies(uuid, uuid) 562fd9a3ca
 w_attack3(text, text, integer) 4deba51e53
@@ -137,9 +140,9 @@ push_subs e1e63686
 reviews bd76b4bf
 salvataggi 5098a1c4
 sponsor_events b5c39783
-sponsor_stats_month 1ebba3b8
+sponsor_stats_month c5ad4f54
 sponsor_users a74be6ef
-sponsors 16fae63c
+sponsors 23040d78
 subscriptions 43d90a91
 world_allies 9e7a3019
 world_attack_given d12f9512

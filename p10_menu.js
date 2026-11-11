@@ -44,17 +44,17 @@ function loginSheet(mode){
       S.user={nick,email:e};closeSheet();toast(mode==='reg'?`Benvenuto, @${nick}!`:`Bentornato, @${nick}!`);};});
 }
 function renderSponsor(){
-  const sp=Object.values(SPONSORS);
+  /* Fase 9a-1: gli sponsor veri (prima quelli in evidenza) + iscrizione */
+  const K=Object.keys(SPONSORS);
   app.innerHTML=`<div class="page">
-    <h2>Sponsor e partner</h2><p class="muted" style="margin:6px 0 14px">Le aziende che rendono più sicuri i nostri quartieri. Ogni sponsor è sempre segnalato come tale.</p>
-    ${['Partner principale','Alleato del quartiere'].map(tier=>`<h3 style="margin:14px 0 8px">${tier==='Partner principale'?'🏆 Partner principali':'🤝 Alleati del quartiere'}</h3>
-      ${sp.filter(s=>s.tier===tier).map(s=>`<div class="panel spcard"><div class="row" style="gap:12px;align-items:flex-start"><div class="logo big" style="background:${s.col}">${s.logo}</div>
-        <div style="flex:1"><b class="disp" style="font-size:22px">${esc(s.name)}</b><div class="tag">${esc(s.cat)}</div><p style="font-weight:400;font-size:14px;margin:6px 0">${esc(s.desc)}</p>
-        <div class="offer">🎁 ${esc(s.offer)}</div>
-        <a class="btn small alt" href="${s.url}" target="_blank" rel="sponsored noopener" style="margin-top:8px;text-decoration:none">Visita il sito ↗</a>
-        <small class="muted" style="display:block;margin-top:4px">Sponsor · link di esempio nell’anteprima</small></div></div></div>`).join('')}`).join('')}
-    <div class="panel night" style="margin-top:16px"><h3 style="color:var(--moon)">Vuoi comparire qui?</h3><p style="font-weight:400;color:#e5def5;margin:6px 0 10px">Logo, offerta e link al tuo sito, prodotti dentro il gioco, presenza sulla mappa del quartiere.</p>
-      <button class="btn alt small" data-sp2>Diventa sponsor</button></div></div>`;
-  app.querySelector('[data-sp2]').onclick=()=>{S.motivo='sponsor';go('contatti');};
+    <h2>Sponsor e partner</h2><p class="muted" style="margin:6px 0 14px">Le attività che rendono più sicuri i nostri quartieri. Ogni sponsor è sempre segnalato come tale.</p>
+    ${K.length?K.map(k=>{const s=SPONSORS[k];return`<button class="panel spcard ${s.evid?'evid':''}" data-spk="${esc(k)}" style="display:block;width:100%;text-align:left"><div class="row" style="gap:12px;align-items:flex-start"><div class="logo big" style="background:#f7d64a">${esc(s.logo||'')}</div>
+        <div style="flex:1"><b class="disp" style="font-size:21px">${s.evid?'⭐ ':''}${esc(s.name)}</b><div class="tag">${esc(SP_CAT[k]||'Sponsor')}</div>
+        ${SP_OFF[k]?`<div class="offer" style="margin-top:6px">🎁 ${esc(SP_OFF[k])}</div>`:''}<small class="muted" style="display:block;margin-top:4px">Sponsor · tocca per contatti e sconto</small></div></div></button>`;}).join('')
+      :'<p class="muted">Ancora nessuno sponsor nella tua zona.</p>'}
+    <div class="panel night" style="margin-top:16px"><h3 style="color:var(--moon)">Hai un’attività?</h3><p style="font-weight:400;color:#e5def5;margin:6px 0 10px">Compari sulla mappa con il bollino giallo, la tua offerta, i tuoi contatti e i tuoi social. Nel pannello del negozio vedi quanti clienti ti porta l’app.</p>
+      <button class="btn alt small" data-sp2>⭐ Iscrivi la tua attività</button></div></div>`;
+  app.querySelector('[data-sp2]').onclick=()=>sponsorJoin({});
+  app.querySelectorAll('[data-spk]').forEach(b=>b.onclick=()=>{try{sponsorSheet(b.dataset.spk,S.zone);}catch(e){}});
 }
 </script>

@@ -111,7 +111,7 @@ async function liveMapBase(el,addr,o={}){await loadML();let m=(RM.cache&&RM.cach
   add('me',[m.lon,m.lat],elDiv('lm-tu','<svg viewBox="0 0 44 44" width="44" height="44"><path d="M4 21 L22 5 L40 21 V41 H4Z" fill="#d7263d" stroke="#140f1f" stroke-width="3" stroke-linejoin="round"/><text x="22" y="35" text-anchor="middle" font-family="Bangers,Impact" font-size="15" fill="#fff">TU</text></svg>'));
   const GEO=window.SP_GEO||{};const useGeo=Object.keys(GEO).some(k=>GEO[k]&&GEO[k].lat!=null&&SPONSORS[k]);
   const z=S.zone||{seed:7,address:addr};
-  const spEl=(sk,nm)=>elDiv('lm-sp',`<b>${esc(SPONSORS[sk].logo)}</b><i>⭐</i><em>${esc(nm||SPONSORS[sk].name)}</em>`);
+  const spEl=(sk,nm)=>elDiv('lm-sp'+(SPONSORS[sk]&&SPONSORS[sk].evid?' evid':''),`<b>${esc(SPONSORS[sk].logo)}</b><i>⭐</i><em>${esc(nm||SPONSORS[sk].name)}</em>`);
   /* tocchi su attività, servizi e posti sponsor disegnati dalla mappa */
   const poiInfo=f=>{const p=f.properties||{};const sub=p.subclass||p.class||'';const c=f.geometry.coordinates;const nm=p['name:it']||p.name||POI_N[sub]||'Attività';return{sub,nm,ll:[c[1],c[0]],d:lmDist(m.lat,m.lon,c[1],c[0])};};
   map.on('click','poi-cand',e=>{const f=e.features&&e.features[0];if(!f)return;const x=poiInfo(f);if(typeof bizSheet==='function')bizSheet({i:'t'+(f.id||x.nm),ic:({locksmith:'🔑',electrical:'💡',paint:'🎨',glaziery:'🪟',trade:'🧱',building_materials:'🧱',security:'🛡️'})[x.sub]||'🔧',name:x.nm,cat:POI_N[x.sub]||'Attività per la casa',d:x.d,ll:x.ll,cand:true},z);});
