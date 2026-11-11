@@ -82,8 +82,8 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_reward':{M.rew=(M.rew||0);const g=Math.min(a.p_amount,60,300-M.rew);if(g<=0)return{data:{ok:false,got:0,msg:'max'},error:null};M.rew+=g;M.wallet.mattoni+=g;return{data:{ok:true,got:g},error:null};}
   case'world_coresidents':return{data:[{user_id:'u5',nick:'vicina',status:'home',seen_at:new Date().toISOString(),ally:false},{user_id:'u9',nick:'arf18',status:'pending',seen_at:new Date(Date.now()-3600e3).toISOString(),ally:true}],error:null};
   case'world_house_info':{M.hk=M.hk||{kind:'casa',unit:null,kind_set:false};M.cd=M.cd||{portone:{level:0,pot:0},cancello:{level:1,pot:30},telecamere:{level:0,pot:0}};
-      return{data:{kind:M.hk.kind,unit:M.hk.unit,kind_set:M.hk.kind_set,building_id:'home',status:'home',members:M.hk.mem||[],requests:M.hk.req===false?[]:[{user_id:'u7',nick:'mamma'}],
-        neighbors:[{user_id:'u5',nick:'vicina',status:'home',kind:'condominio',unit:'B 3',seen_at:new Date().toISOString(),ally:false,asked:!!M.hk.asked}],
+      return{data:{kind:M.hk.kind,unit:M.hk.unit,kind_set:M.hk.kind_set,building_id:'home',status:'home',me_prep:!!M.prep,members:(M.hk.mem||[]).map(m=>({...m,prep:m.prep!==undefined?m.prep:false})),requests:M.hk.req===false?[]:[{user_id:'u7',nick:'mamma'}],
+        neighbors:[{user_id:'u5',nick:'vicina',status:'home',kind:'condominio',unit:'B 3',prep:true,seen_at:new Date().toISOString(),ally:false,asked:!!M.hk.asked}],
         condo:M.hk.kind==='condominio'?{bonus:3*Object.values(M.cd).reduce((a,d)=>a+d.level,0),defs:Object.entries(M.cd).map(([k,d])=>({kind:k,level:d.level,pot:d.pot,next:d.level>=3?null:240*(d.level+1),top:d.pot?[{nick:'ale',tot:d.pot}]:[]}))}:null},error:null};}
   case'world_set_home':M.hk=M.hk||{};M.hk.kind=a.p_kind;M.hk.unit=a.p_unit||null;M.hk.kind_set=true;return{data:{ok:true,msg:'salvato'},error:null};
   case'world_house_invite':M.hk.asked=true;return{data:{ok:true,msg:'Richiesta inviata'},error:null};
