@@ -28,6 +28,7 @@ function whySheet(bid,home){const d=DEF.d;if(!d){toast('Conto non disponibile or
    ${h?row('🏠','Base della casa',45)+row('⬆️',`Livello casa ${h.level} (12 per livello)`,12*Math.max(h.level,1))+(h.home?row('❤️','Casa vera',5):'')+(condo?row('🏢','Difese del condominio',condo):''):''}
    ${row('🛡️','Case preparate',d.prep)}${row('🏡',`Scudo della casa vera ${d.realshield}/5`,d.realshield_pts)}${row('🤝',`Rinforzi degli alleati (${d.helps})`,d.helps_pts)}
    ${row('🛡️',`Scudi degli alleati (${d.shields})`,d.shields_pts)}${row('👥',`Difesa di squadra (${d.squad}/3 alleati pronti)`,d.squad_pts)}${row('🏢',`Coinquilini pronti (${d.coinq})`,d.coinq_pts)}
+   ${(T?T.pres:h&&h.pres)?row('🚩','Presidi tenuti entro 500 m',T?T.pres:h.pres):''}
    ${d.malus?row('😈',`Malus dei rivali (orde ${d.attacks}, nebbia ${d.fog}, sabotaggio ${d.sab})`,-d.malus):''}
    <div class="whytot"><span>Difesa totale</span><b>${tot!=null?tot:'—'}</b></div>
    <p style="font-weight:400;font-size:13px;margin:8px 0 0">${c?`L’orda su questa casa (livello ${T.wl}, con zombie speciali, meteo e pendenza) avrà una forza tra <b>${c.amin}</b> e <b>${c.amax}</b>.`:`L’orda per il tuo livello (${d.wlevel}) avrà una forza tra <b>${d.attack_min}</b> e <b>${d.attack_max}</b>.`} ${ch!=null?`Con ${tot} di difesa tieni nel <b>${ch}%</b> dei casi.`:''}</p>

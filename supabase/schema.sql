@@ -1,7 +1,7 @@
 -- ZombieSafeHouse · STATO DEL DATABASE (schema public) ricostruito eseguendo in ordine i file *.sql
 -- e supabase/migrazioni/ su un Postgres di prova (docs/strumenti/db_locale.sh). È un DOCUMENTO: non eseguirlo.
 -- Per cambiare il database: un file nuovo in supabase/migrazioni/NNN_nome.sql.
--- Lavori programmati (cron): zsh-push-tick */10 * * * *; zsh-sponsor-scadenze 17 3 * * *
+-- Lavori programmati (cron): zsh-push-tick */10 * * * *; zsh-sponsor-scadenze 17 3 * * *; zsh-presidi 3 * * * *
 --
 -- PostgreSQL database dump
 --
@@ -452,7 +452,7 @@ CREATE FUNCTION public.w_home_held(p_user uuid, p_slot text) RETURNS boolean
     LANGUAGE sql STABLE SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-  select public.w_power3(coalesce((select b.level from public.world_buildings b where b.building_id = h.building_id),1), public.w_upower(p_user,p_slot) + public.w_condo_bonus(p_user), true)
+  select public.w_power3(coalesce((select b.level from public.world_buildings b where b.building_id = h.building_id),1), public.w_upower(p_user,p_slot) + public.w_condo_bonus(p_user) + public.w_pres_bonus(h.building_id,p_slot), true)
          >= public.w_attack3(p_slot, h.building_id, public.w_lvl_of(p_user))
   from public.world_homes h where h.user_id = p_user;
 $$;
@@ -613,6 +613,77 @@ CREATE FUNCTION public.w_power3(p_level integer, p_bonus integer, p_home boolean
     AS $$
   select 45 + 12 * greatest(p_level,1) + p_bonus + (case when p_home then 5 else 0 end);
 $$;
+
+--
+-- Name: w_pres_attack(text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_pres_attack(p_slot text, p_id text) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select 50 + get_byte(decode(md5(p_slot || 'presidio' || p_id), 'hex'), 0) % 50;
+$$;
+
+--
+-- Name: w_pres_bonus(text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_pres_bonus(p_bid text, p_slot text) RETURNS integer
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  with c as (select coalesce((select b.lat from public.world_buildings b where b.building_id = p_bid), (select h.lat from public.world_homes h where h.building_id = p_bid limit 1)) as lat,
+                    coalesce((select b.lon from public.world_buildings b where b.building_id = p_bid), (select h.lon from public.world_homes h where h.building_id = p_bid limit 1)) as lon,
+                    public.w_slot_t(p_slot) as t)
+  select least(6, 3 * count(*))::int
+  from c join public.world_presidi p on p.lat between c.lat - 0.005 and c.lat + 0.005 and public.w_km(c.lat, c.lon, p.lat, p.lon) <= 0.5
+  where exists (select 1 from public.world_presidi_tenute t where t.presidio_id = p.id and t.dal < c.t and (t.al is null or t.al >= c.t));
+$$;
+
+--
+-- Name: w_pres_def(text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_pres_def(p_id text, p_slot text) RETURNS integer
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select 55 + 12 * least(5, (select count(*) from public.world_presidi_guardie g where g.presidio_id = p_id and g.slot_id = p_slot))::int;
+$$;
+
+--
+-- Name: w_pres_near(uuid, double precision, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_pres_near(p_user uuid, p_lat double precision, p_lon double precision, p_km double precision) RETURNS boolean
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select exists (select 1 from public.world_homes h where h.user_id = p_user and h.lat between p_lat - p_km/100 and p_lat + p_km/100 and public.w_km(h.lat, h.lon, p_lat, p_lon) <= p_km)
+      or exists (select 1 from public.world_buildings b where b.owner = p_user and b.lat between p_lat - p_km/100 and p_lat + p_km/100 and public.w_km(b.lat, b.lon, p_lat, p_lon) <= p_km);
+$$;
+
+--
+-- Name: w_pres_tick(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_pres_tick() RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare pt timestamptz := public.w_prev_slot(now()); pid text := public.w_slot_id(public.w_prev_slot(now())); p record; n int := 0;
+begin
+  for p in select * from public.world_presidi where holder is not null and coalesce(ultimo_slot, '') < pid and held_since < pt for update skip locked loop
+    if public.w_pres_def(p.id, pid) >= public.w_pres_attack(pid, p.id) then
+      update public.world_presidi set ultimo_slot = pid, record = record + 1 where id = p.id;
+    else
+      update public.world_presidi set ultimo_slot = pid, holder = null, held_since = null, record = 0, perso_da = p.holder, perso_il = pt where id = p.id;
+      update public.world_presidi_tenute set al = pt where presidio_id = p.id and al is null;
+      n := n + 1;
+    end if;
+  end loop;
+  return n;
+end $$;
 
 --
 -- Name: w_prev_slot(timestamp with time zone); Type: FUNCTION; Schema: public; Owner: -
@@ -812,6 +883,16 @@ CREATE FUNCTION public.w_slot_id(p_t timestamp with time zone) RETURNS text
 $$;
 
 --
+-- Name: w_slot_t(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_slot_t(p_slot text) RETURNS timestamp with time zone
+    LANGUAGE sql STABLE
+    AS $$
+  select (to_timestamp(p_slot, 'YYYY-MM-DD-HH24')::timestamp) at time zone 'Europe/Rome';
+$$;
+
+--
 -- Name: w_threats_of(uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -820,7 +901,7 @@ CREATE FUNCTION public.w_threats_of(p_user uuid) RETURNS json
     SET search_path TO 'public'
     AS $$
 declare nid text := public.w_slot_id(public.w_next_slot(now())); wl int; up int; out json[] := '{}'; h record;
-  s numeric; ev text; hh int; sp json; ssum numeric; mw numeric; tr numeric; dt int; amin int; amax int;
+  s numeric; ev text; hh int; sp json; ssum numeric; mw numeric; tr numeric; dt int; amin int; amax int; pb int;
 begin
   if p_user is null then return '[]'::json; end if;
   wl := least(greatest(public.w_lvl_of(p_user),1),30); up := public.w_upower(p_user, nid); hh := coalesce(nullif(right(nid,2),'')::int,21);
@@ -834,9 +915,10 @@ begin
              'p', round(t.base*(1+0.03*wl)*public.w_zm(t.k,s,ev,hh)*(1-0.3*least(public.w_def(h.bid,t.dk),3))*(1-0.15*least(public.w_def(h.bid,t.dk2),3)),1)) order by t.minl), '[]'::json),
            coalesce(sum(t.base*(1+0.03*wl)*public.w_zm(t.k,s,ev,hh)*(1-0.3*least(public.w_def(h.bid,t.dk),3))*(1-0.15*least(public.w_def(h.bid,t.dk2),3))),0)
       into sp, ssum from public.w_ztypes() t where wl >= t.minl;
-    dt := 45 + 12*greatest(h.lvl,1) + (case when h.home then 5 + public.w_condo_bonus(p_user) else 0 end) + up;
+    pb := public.w_pres_bonus(h.bid, nid);
+    dt := 45 + 12*greatest(h.lvl,1) + (case when h.home then 5 + public.w_condo_bonus(p_user) else 0 end) + up + pb;
     amin := round((30+2*wl)*mw*tr + ssum); amax := round((30+2*wl+49)*mw*tr + ssum);
-    out := out || json_build_object('bid', h.bid, 'home', h.home, 'level', h.lvl, 'lat', h.lat, 'lon', h.lon, 'def', dt, 'bonus', up, 'condo', case when h.home then public.w_condo_bonus(p_user) else 0 end,
+    out := out || json_build_object('bid', h.bid, 'home', h.home, 'level', h.lvl, 'lat', h.lat, 'lon', h.lon, 'def', dt, 'bonus', up, 'pres', pb, 'condo', case when h.home then public.w_condo_bonus(p_user) else 0 end,
       'wl', wl, 'slope', round(s,3), 'ev', ev, 'temp', (select x.temp from public.world_wx x where x.building_id = h.bid and x.slot_id = nid), 'hh', hh, 'mw', round(mw,4),
       'std_min', 30+2*wl, 'std_max', 30+2*wl+49, 'specials', sp, 'atk_min', amin, 'atk_max', amax,
       'chance', greatest(0, least(100, round((dt - amin + 1)::numeric / greatest(1, amax - amin + 1) * 100))),
@@ -1794,8 +1876,8 @@ CREATE FUNCTION public.world_my_defense() RETURNS json
     'coinq', b.cq, 'coinq_pts', least(9,3*b.cq), 'attacks', b.atk, 'fog', b.fog, 'sab', b.sab, 'malus', b.malus,
     'bonus', b.prep + 2*b.rs + least(20,5*b.helps) + least(10,5*b.sh) + (case when b.ap >= 3 then 5 else 0 end) + least(9,3*b.cq) - b.malus,
     'attack_min', b.amin, 'attack_max', b.amin + 49, 'condo', b.cb, 'wlevel', b.wl,
-    'houses', coalesce((select json_agg(json_build_object('bid', hs.bid, 'home', hs.home, 'level', hs.lvl,
-        'total', 45 + 12*greatest(hs.lvl,1) + (case when hs.home then 5 + b.cb else 0 end) + b.prep + 2*b.rs + least(20,5*b.helps) + least(10,5*b.sh) + (case when b.ap >= 3 then 5 else 0 end) + least(9,3*b.cq) - b.malus)) from hs), '[]'::json))
+    'houses', coalesce((select json_agg(json_build_object('bid', hs.bid, 'home', hs.home, 'level', hs.lvl, 'pres', public.w_pres_bonus(hs.bid, (select id from n)),
+        'total', 45 + 12*greatest(hs.lvl,1) + (case when hs.home then 5 + b.cb else 0 end) + public.w_pres_bonus(hs.bid, (select id from n)) + b.prep + 2*b.rs + least(20,5*b.helps) + least(10,5*b.sh) + (case when b.ap >= 3 then 5 else 0 end) + least(9,3*b.cq) - b.malus)) from hs), '[]'::json))
   from b;
 $$;
 
@@ -1860,6 +1942,116 @@ begin
   perform public.w_wallet(me);
   update public.world_wallet set caps = jsonb_set(caps, array['prep:'||nid], '1') where user_id = me;
   return json_build_object('ok',true,'msg','Case preparate per la prossima orda','next_id',nid);
+end $$;
+
+--
+-- Name: world_presidi_list(double precision, double precision, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_presidi_list(p_minlat double precision, p_minlon double precision, p_maxlat double precision, p_maxlon double precision) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); nid text := public.w_slot_id(public.w_next_slot(now())); res json; mine int := 0;
+begin
+  perform public.w_pres_tick();
+  if me is not null then select count(*) into mine from public.world_presidi where holder = me; end if;
+  select coalesce(json_agg(json_build_object(
+      'id', p.id, 'name', p.name, 'kind', p.kind, 'lat', p.lat, 'lon', p.lon,
+      'stato', case when p.holder is null then 'libero' when p.holder = me then 'mio' when me is not null and public.w_are_allies(me, p.holder) then 'alleato' else 'altro' end,
+      'nick', case when p.holder is not null and me is not null and public.w_home_known(me, p.holder) then (select pp.nick from public.profili_pubblici pp where pp.user_id = p.holder) end,
+      'record', p.record, 'dal', p.held_since,
+      'perso', p.holder is null and p.perso_il is not null and p.perso_il > now() - interval '24 hours',
+      'guardie', (select count(*) from public.world_presidi_guardie g where g.presidio_id = p.id and g.slot_id = nid),
+      'io_guardia', me is not null and exists (select 1 from public.world_presidi_guardie g where g.presidio_id = p.id and g.slot_id = nid and g.user_id = me),
+      'difesa', public.w_pres_def(p.id, nid),
+      'vicino', me is not null and public.w_pres_near(me, p.lat, p.lon, 1.0))), '[]'::json)
+    into res
+    from (select * from public.world_presidi where lat between p_minlat and p_maxlat and lon between p_minlon and p_maxlon order by id limit 150) p;
+  return json_build_object('presidi', res, 'miei', mine, 'max', 3, 'slot', nid, 'attacco_min', 50, 'attacco_max', 99);
+end $$;
+
+--
+-- Name: world_presidi_seed(jsonb); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_presidi_seed(p jsonb) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $_$
+declare me uuid := auth.uid(); e jsonb; n int := 0; c int; la double precision; lo double precision;
+begin
+  if me is null or jsonb_typeof(p) is distinct from 'array' then return json_build_object('ok', false, 'nuovi', 0); end if;
+  for e in select value from jsonb_array_elements(p) limit 40 loop
+    begin la := (e->>'lat')::double precision; lo := (e->>'lon')::double precision; exception when others then continue; end;
+    if la is null or lo is null or coalesce(e->>'id', '') !~ '^osm:[nwr][0-9]{1,12}$'
+       or coalesce(e->>'kind', '') not in ('parco','piazza','stazione','municipio','biblioteca','scuola','ospedale','pompieri','polizia','chiesa','centro','sport')
+       or length(trim(coalesce(e->>'name', ''))) not between 2 and 80
+       or not public.w_pres_near(me, la, lo, 2.5) then continue; end if;
+    insert into public.world_presidi(id, name, kind, lat, lon, created_by)
+    values (e->>'id', trim(e->>'name'), e->>'kind', la, lo, me) on conflict (id) do nothing;
+    get diagnostics c = row_count; n := n + c;
+  end loop;
+  return json_build_object('ok', true, 'nuovi', n);
+end $_$;
+
+--
+-- Name: world_presidio_guardia(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_presidio_guardia(p_id text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); p public.world_presidi; nid text := public.w_slot_id(public.w_next_slot(now())); n int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi per fare la guardia'); end if;
+  perform public.w_pres_tick();
+  select * into p from public.world_presidi where id = p_id;
+  if p.id is null or p.holder is null then return json_build_object('ok', false, 'msg', 'Il presidio è libero: occupalo prima'); end if;
+  if p.holder <> me and not public.w_are_allies(me, p.holder) then return json_build_object('ok', false, 'msg', 'Possono fare la guardia solo chi lo tiene e i suoi alleati'); end if;
+  insert into public.world_presidi_guardie(presidio_id, user_id, slot_id) values (p_id, me, nid) on conflict do nothing;
+  n := (select count(*) from public.world_presidi_guardie where presidio_id = p_id and slot_id = nid);
+  return json_build_object('ok', true, 'guardie', n, 'difesa', public.w_pres_def(p_id, nid), 'msg', 'Sei di guardia per la prossima orda');
+end $$;
+
+--
+-- Name: world_presidio_lascia(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_presidio_lascia(p_id text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid();
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  update public.world_presidi set holder = null, held_since = null, record = 0 where id = p_id and holder = me;
+  if not found then return json_build_object('ok', false, 'msg', 'Non lo tieni tu'); end if;
+  update public.world_presidi_tenute set al = now() where presidio_id = p_id and user_id = me and al is null;
+  return json_build_object('ok', true, 'msg', 'Presidio lasciato');
+end $$;
+
+--
+-- Name: world_presidio_occupa(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_presidio_occupa(p_id text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); p public.world_presidi;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi per occupare un presidio'); end if;
+  perform public.w_pres_tick();
+  select * into p from public.world_presidi where id = p_id for update;
+  if p.id is null then return json_build_object('ok', false, 'msg', 'Presidio non trovato'); end if;
+  if p.holder is not null then return json_build_object('ok', false, 'msg', case when p.holder = me then 'Lo tieni già tu' else 'È già tenuto: si libera se l''orda lo fa cadere' end); end if;
+  if not public.w_pres_near(me, p.lat, p.lon, 1.0) then return json_build_object('ok', false, 'msg', 'Serve una tua casa entro 1 km dal presidio'); end if;
+  if (select count(*) from public.world_presidi where holder = me) >= 3 then return json_build_object('ok', false, 'msg', 'Tieni già 3 presidi: lasciane uno per occuparne un altro'); end if;
+  update public.world_presidi set holder = me, held_since = now(), record = 0, ultimo_slot = public.w_slot_id(public.w_prev_slot(now())) where id = p_id;
+  insert into public.world_presidi_tenute(presidio_id, user_id, dal) values (p_id, me, now());
+  return json_build_object('ok', true, 'msg', 'Presidio occupato! Dalla prossima orda dà +3 di difesa alle case entro 500 m');
 end $$;
 
 --
@@ -1949,10 +2141,10 @@ begin
   if me is null then return json_build_object('next_at', nt, 'prev_at', pt); end if;
   w := public.w_wallet(me); lvl := public.w_level(w.lifetime); bon := public.w_upower(me, pid); cb := public.w_condo_bonus(me);
   select coalesce(json_agg(json_build_object('bid',x.building_id,'lat',x.lat,'lon',x.lon,'level',x.level,'home',x.home,
-           'attack',public.w_attack3(pid,x.building_id,lvl),'power',public.w_power3(x.level,bon + (case when x.home then cb else 0 end),x.home),
-           'held',public.w_power3(x.level,bon + (case when x.home then cb else 0 end),x.home) >= public.w_attack3(pid,x.building_id,lvl))),'[]'::json),
-         count(*) filter (where public.w_power3(x.level,bon + (case when x.home then cb else 0 end),x.home) >= public.w_attack3(pid,x.building_id,lvl)), count(*),
-         coalesce(sum(case when public.w_power3(x.level,bon + (case when x.home then cb else 0 end),x.home) >= public.w_attack3(pid,x.building_id,lvl) then 8 + 4*x.level else 2 end),0)
+           'attack',public.w_attack3(pid,x.building_id,lvl),'power',public.w_power3(x.level,bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id,pid),x.home),
+           'held',public.w_power3(x.level,bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id,pid),x.home) >= public.w_attack3(pid,x.building_id,lvl))),'[]'::json),
+         count(*) filter (where public.w_power3(x.level,bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id,pid),x.home) >= public.w_attack3(pid,x.building_id,lvl)), count(*),
+         coalesce(sum(case when public.w_power3(x.level,bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id,pid),x.home) >= public.w_attack3(pid,x.building_id,lvl) then 8 + 4*x.level else 2 end),0)
     into res, held, tot, matt
     from public.w_raid_houses(me, pt) x;
   select 25 * count(*) into bounty from public.world_attack_given a where a.attacker = me and a.slot_id = pid and public.w_home_held(a.target, pid) = false;
@@ -1985,7 +2177,7 @@ CREATE FUNCTION public.world_raid_view(p_minlat double precision, p_minlon doubl
       from public.world_homes h, s
      where h.first_at <= s.t and h.lat between p_minlat and p_maxlat and h.lon between p_minlon and p_maxlon)
   select x.building_id, x.lat, x.lon,
-    public.w_power3(x.level, public.w_upower(x.who, s.id) + (case when x.kind = 'home' then public.w_condo_bonus(x.who) else 0 end), x.kind = 'home') >= public.w_attack3(s.id, x.building_id, public.w_lvl_of(x.who)),
+    public.w_power3(x.level, public.w_upower(x.who, s.id) + (case when x.kind = 'home' then public.w_condo_bonus(x.who) else 0 end) + public.w_pres_bonus(x.building_id, s.id), x.kind = 'home') >= public.w_attack3(s.id, x.building_id, public.w_lvl_of(x.who)),
     x.kind, x.who = auth.uid()
   from houses x, s
   limit 600;
@@ -3108,6 +3300,66 @@ CREATE SEQUENCE public.world_log_id_seq
 ALTER SEQUENCE public.world_log_id_seq OWNED BY public.world_log.id;
 
 --
+-- Name: world_presidi; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_presidi (
+    id text NOT NULL,
+    name text NOT NULL,
+    kind text NOT NULL,
+    lat double precision NOT NULL,
+    lon double precision NOT NULL,
+    holder uuid,
+    held_since timestamp with time zone,
+    record integer DEFAULT 0 NOT NULL,
+    ultimo_slot text,
+    perso_da uuid,
+    perso_il timestamp with time zone,
+    created_by uuid,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
+-- Name: world_presidi_guardie; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_presidi_guardie (
+    presidio_id text NOT NULL,
+    user_id uuid NOT NULL,
+    slot_id text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
+-- Name: world_presidi_tenute; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_presidi_tenute (
+    id bigint NOT NULL,
+    presidio_id text NOT NULL,
+    user_id uuid NOT NULL,
+    dal timestamp with time zone DEFAULT now() NOT NULL,
+    al timestamp with time zone
+);
+
+--
+-- Name: world_presidi_tenute_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_presidi_tenute_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_presidi_tenute_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_presidi_tenute_id_seq OWNED BY public.world_presidi_tenute.id;
+
+--
 -- Name: world_shapes; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3225,6 +3477,12 @@ ALTER TABLE ONLY public.world_gifts ALTER COLUMN id SET DEFAULT nextval('public.
 --
 
 ALTER TABLE ONLY public.world_log ALTER COLUMN id SET DEFAULT nextval('public.world_log_id_seq'::regclass);
+
+--
+-- Name: world_presidi_tenute id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_presidi_tenute ALTER COLUMN id SET DEFAULT nextval('public.world_presidi_tenute_id_seq'::regclass);
 
 --
 -- Name: world_shouts id; Type: DEFAULT; Schema: public; Owner: -
@@ -3513,6 +3771,27 @@ ALTER TABLE ONLY public.world_log
     ADD CONSTRAINT world_log_pkey PRIMARY KEY (id);
 
 --
+-- Name: world_presidi_guardie world_presidi_guardie_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_presidi_guardie
+    ADD CONSTRAINT world_presidi_guardie_pkey PRIMARY KEY (presidio_id, slot_id, user_id);
+
+--
+-- Name: world_presidi world_presidi_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_presidi
+    ADD CONSTRAINT world_presidi_pkey PRIMARY KEY (id);
+
+--
+-- Name: world_presidi_tenute world_presidi_tenute_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_presidi_tenute
+    ADD CONSTRAINT world_presidi_tenute_pkey PRIMARY KEY (id);
+
+--
 -- Name: world_shapes world_shapes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3619,6 +3898,24 @@ CREATE INDEX world_h_b ON public.world_homes USING btree (building_id, status);
 --
 
 CREATE INDEX world_log_user ON public.world_log USING btree (user_id, seen);
+
+--
+-- Name: world_presidi_holder; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_presidi_holder ON public.world_presidi USING btree (holder);
+
+--
+-- Name: world_presidi_lat; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_presidi_lat ON public.world_presidi USING btree (lat, lon);
+
+--
+-- Name: world_presidi_tenute_p; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_presidi_tenute_p ON public.world_presidi_tenute USING btree (presidio_id, dal);
 
 --
 -- Name: sponsors sponsors_guard; Type: TRIGGER; Schema: public; Owner: -
@@ -4013,6 +4310,20 @@ ALTER TABLE ONLY public.world_house_req
 
 ALTER TABLE ONLY public.world_log
     ADD CONSTRAINT world_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
+-- Name: world_presidi_guardie world_presidi_guardie_presidio_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_presidi_guardie
+    ADD CONSTRAINT world_presidi_guardie_presidio_id_fkey FOREIGN KEY (presidio_id) REFERENCES public.world_presidi(id) ON DELETE CASCADE;
+
+--
+-- Name: world_presidi_tenute world_presidi_tenute_presidio_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_presidi_tenute
+    ADD CONSTRAINT world_presidi_tenute_presidio_id_fkey FOREIGN KEY (presidio_id) REFERENCES public.world_presidi(id) ON DELETE CASCADE;
 
 --
 -- Name: world_shields world_shields_giver_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -4526,6 +4837,24 @@ ALTER TABLE public.world_house_req ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.world_log ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: world_presidi; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_presidi ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_presidi_guardie; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_presidi_guardie ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_presidi_tenute; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_presidi_tenute ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: world_shapes; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -4735,6 +5064,12 @@ REVOKE ALL ON FUNCTION public.w_median_near(p_user uuid) FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_pay(p_user uuid, p_delta integer, p_reason text, p_ref text) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_pres_tick(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_pres_tick() FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_raid_houses(p_user uuid, p_slot_t timestamp with time zone); Type: ACL; Schema: public; Owner: -
@@ -5048,6 +5383,42 @@ GRANT ALL ON FUNCTION public.world_player(p_user uuid) TO authenticated;
 --
 
 GRANT ALL ON FUNCTION public.world_prepare() TO authenticated;
+
+--
+-- Name: FUNCTION world_presidi_list(p_minlat double precision, p_minlon double precision, p_maxlat double precision, p_maxlon double precision); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_presidi_list(p_minlat double precision, p_minlon double precision, p_maxlat double precision, p_maxlon double precision) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_presidi_list(p_minlat double precision, p_minlon double precision, p_maxlat double precision, p_maxlon double precision) TO anon;
+GRANT ALL ON FUNCTION public.world_presidi_list(p_minlat double precision, p_minlon double precision, p_maxlat double precision, p_maxlon double precision) TO authenticated;
+
+--
+-- Name: FUNCTION world_presidi_seed(p jsonb); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_presidi_seed(p jsonb) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_presidi_seed(p jsonb) TO authenticated;
+
+--
+-- Name: FUNCTION world_presidio_guardia(p_id text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_presidio_guardia(p_id text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_presidio_guardia(p_id text) TO authenticated;
+
+--
+-- Name: FUNCTION world_presidio_lascia(p_id text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_presidio_lascia(p_id text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_presidio_lascia(p_id text) TO authenticated;
+
+--
+-- Name: FUNCTION world_presidio_occupa(p_id text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_presidio_occupa(p_id text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_presidio_occupa(p_id text) TO authenticated;
 
 --
 -- Name: FUNCTION world_quote(p_bid text, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -

@@ -29,7 +29,8 @@ SQL `w_attack3(orda, casa, wl)` — app `thrCalc` (p47).
 
 ## Difesa di una casa
 SQL `w_power3(livello, bonus, casa vera)` + `w_upower` + `w_condo_bonus` — app `thrCalc` (campo `def` dal server).
-`difesa = 45 + 12·livello casa + (casa vera: 5 + difese del condominio) + bonus`
+`difesa = 45 + 12·livello casa + (casa vera: 5 + difese del condominio) + presidi vicini + bonus`
+- **presidi vicini** (Fase 9b, `w_pres_bonus`): +3 per ogni presidio tenuto entro 500 m dalla casa (di chiunque sia), massimo +6; conta se era tenuto all'ora dell'orda (storia in `world_presidi_tenute`). Sta in `w_threats_of` (campo `pres`, già dentro `def`), `world_raid_status`, `world_raid_view`, `w_home_held`, `world_my_defense`.
 - **difese del condominio** (solo casa vera): `3 × somma dei livelli` delle difese comuni (`w_condo_bonus`);
 - **bonus** (`w_upower`, per l'orda): case preparate +15 · Scudo della casa vera +2 per livello (max 5) · rinforzi +5 ciascuno (max +20) · scudi degli alleati +5 (max +10) · difesa di squadra +5 (almeno 3 alleati pronti) · coinquilini pronti +3 ciascuno (max +9) · **meno** malus dei rivali (orde mandate −8 ciascuna max −16, nebbia −5 max −10, sabotaggio −15 se avevi preparato; malus totale max −25).
 
@@ -37,6 +38,12 @@ SQL `w_power3(livello, bonus, casa vera)` + `w_upower` + `w_condo_bonus` — app
 - La casa **tiene** se `difesa ≥ attacco` (`world_raid_status`, `world_raid_view`, `w_home_held`: tutte con la stessa difesa dalla Fase 6c).
 - **% mostrata** = `(difesa − attacco min + 1) / (attacco max − attacco min + 1)`, tra 0 e 100 (`w_threats_of` → `world_threats`; app `thrCalc`, `frChanceOf`). La usano fronte, pagina della casa, "Perché", Le mie case.
 - Premi dell'orda: casa che tiene `8 + 4·livello` 🧱, sfondata 2 🧱; taglia 25 🧱 per ogni rivale a cui hai mandato un'orda e che non ha tenuto (`world_raid_status`).
+
+## Orda sui presidi (Fase 9b)
+SQL `w_pres_attack`, `w_pres_def`, `w_pres_tick` — app p69 (`presChance`).
+- Attacco: `50 + r`, con `r` da 0 a 49 (diverso per ogni orda e presidio).
+- Difesa: `55 + 12 × guardie` (massimo 5 guardie: chi lo tiene, alleati, coinquilini; valgono per una sola orda).
+- Tiene se `difesa ≥ attacco`; altrimenti torna libero. % mostrata = `(difesa − 50 + 1) / 50`, tra 0 e 100.
 
 ## Punteggio Superstite (classifica)
 SQL `w_score` (ultimi 7 o 30 giorni) — l'app mostra i valori del server.

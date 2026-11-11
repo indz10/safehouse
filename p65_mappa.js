@@ -32,6 +32,8 @@ async function liveMap(el,addr,o){
   await (async()=>{try{spDemoPlace();setTimeout(()=>{spDemoPlace();spDraw(lm);},1500);}catch(e){}})();
   await (async()=>{try{attLoad().then(()=>attDraw());setTimeout(attDraw,1500);}catch(e){}})();
   await (async()=>{try{setTimeout(()=>fxLoad(),1200);}catch(e){}})();
+  /* presidi veri condivisi (Fase 9b, p69) */
+  await (async()=>{try{setTimeout(()=>presDraw(lm),1800);}catch(e){}})();
   return lm;}
 /* scheda Mappa: base (p25) + pulsante sponsor (p26) + pulsante assalti (p29) + barra "Le tue case" (p31) */
 function renderMappa(){renderMappaBase();
@@ -42,7 +44,10 @@ function renderMappa(){renderMappaBase();
   (()=>{try{mhBar();setTimeout(mhBar,1500);}catch(e){}})();
   /* 🔎 cerca un luogo in tutto il mondo (Fase 9-0): la mappa ci vola sopra e lì si comprano case come vicino a casa */
   (()=>{try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('[data-mfcerca]'))return;
-    w.insertAdjacentHTML('beforeend','<button class="mfcerca" data-mfcerca>🔎 Cerca un luogo</button>');w.querySelector('[data-mfcerca]').onclick=()=>cercaLuogo();}catch(e){}})();}
+    w.insertAdjacentHTML('beforeend','<button class="mfcerca" data-mfcerca>🔎 Cerca un luogo</button>');w.querySelector('[data-mfcerca]').onclick=()=>cercaLuogo();}catch(e){}})();
+  /* 🚩 presidi veri condivisi (Fase 9b) */
+  (()=>{try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('[data-mfpres]'))return;
+    w.insertAdjacentHTML('beforeend','<button class="mfpres" data-mfpres>🚩 Presidi</button>');w.querySelector('[data-mfpres]').onclick=()=>presList(window.__mf);}catch(e){}})();}
 const CERCA_K='zsh_cerca';
 function cercaVola(lat,lon,zoom){const lm=window.__mf;if(!lm||!lm.map)return;try{const c=lm.map.getCenter();const km=trM(c.lat,c.lng,lat,lon)/1000;
   lm.map.flyTo({center:[lon,lat],zoom:zoom||17,pitch:0,duration:km>300?4000:km>20?2500:1200});}catch(e){}}

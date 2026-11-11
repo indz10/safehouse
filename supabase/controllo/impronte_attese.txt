@@ -26,7 +26,7 @@ w_condo_bonus(uuid) ace5cd272c
 w_condo_key(uuid) 894c2d1dc3
 w_def(text, text) d1aac29e3d
 w_feed_add(text, uuid, uuid, double precision, double precision, text) 1a92b9dc6f
-w_home_held(uuid, text) 2aa8d2c61a
+w_home_held(uuid, text) 4a5251060b
 w_home_known(uuid, uuid) 401b1ac373
 w_is_npc(text) baa4920d26
 w_km(double precision, double precision, double precision, double precision) d1b3103a50
@@ -39,6 +39,11 @@ w_next_slot(timestamp with time zone) e7098146fc
 w_nick(uuid) 0f0ebfc0c0
 w_pay(uuid, integer, text, text) 5bcdcb3669
 w_power3(integer, integer, boolean) 1514872532
+w_pres_attack(text, text) 5c1cf84d42
+w_pres_bonus(text, text) 8e60934f25
+w_pres_def(text, text) 62afb9c963
+w_pres_near(uuid, double precision, double precision, double precision) 0b5d5613b0
+w_pres_tick() 6c54324f7f
 w_prev_slot(timestamp with time zone) 304fb96aeb
 w_price(double precision, double precision) 15fba21ed2
 w_price2(uuid, double precision, double precision) c076f18600
@@ -51,7 +56,8 @@ w_settle_loans(uuid) 6cc226f820
 w_shielded(uuid) e93050b23d
 w_slope(text) 0dcd67cdba
 w_slot_id(timestamp with time zone) 5fd33c951a
-w_threats_of(uuid) 6991091158
+w_slot_t(text) 3048adad4f
+w_threats_of(uuid) b4a88968be
 w_tr_dm() af3d1fb89f
 w_tr_feed() e607f3ac80
 w_upower(uuid, text) a32d619709
@@ -97,14 +103,19 @@ world_inviter(text) efefc86acc
 world_loans() ed625fbef7
 world_mine() 0376f655ab
 world_mine2() 1abdaf5ab7
-world_my_defense() 8861613253
+world_my_defense() 79f6688f20
 world_my_effects() 7e4bd22f9b
 world_player(uuid) bf00842653
 world_prepare() 6c8f3e9765
+world_presidi_list(double precision, double precision, double precision, double precision) 8bebc59d0e
+world_presidi_seed(jsonb) d192fed7e5
+world_presidio_guardia(text) 339c3076ed
+world_presidio_lascia(text) 2e26b385d7
+world_presidio_occupa(text) 339e0fdf7d
 world_quote(text, double precision, double precision) 4cee44195d
 world_raid_claim() a1afefdb0e
-world_raid_status() 98cebefc0f
-world_raid_view(double precision, double precision, double precision, double precision) 32615aa14b
+world_raid_status() 538519a6f8
+world_raid_view(double precision, double precision, double precision, double precision) 6a19f54b72
 world_rank(text, text) 7ee3678f27
 world_rank_lega(text) e575360a99
 world_reward(integer, text) cf34570f62
@@ -167,6 +178,9 @@ world_help_given 9935b169
 world_homes f606e040
 world_house_req e60b8c36
 world_log a7c8214e
+world_presidi f2b03cfd
+world_presidi_guardie 7b35dd10
+world_presidi_tenute 171e1299
 world_shapes 90c99d30
 world_shields 39ed43a6
 world_shouts 38a06241
@@ -217,5 +231,6 @@ world_homes wh_sel
 world_log wl_sel
 world_wallet ww_sel
 CRON
+zsh-presidi 3 * * * *
 zsh-push-tick */10 * * * *
 zsh-sponsor-scadenze 17 3 * * *
