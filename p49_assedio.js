@@ -75,7 +75,7 @@ function fxDraw(){(window.__zlms||[]).forEach(lm=>{try{if(!lm||!lm.map)return;(l
 zEvery(()=>{if(document.visibilityState==='visible'&&(S.tab==='mappa'||S.tab==='orda'))fxLoad();},60000);
 /* ---- 4) MESSAGGI DIRETTI ---- */
 window.DM={with:null,nick:'',t:0,timer:0};
-async function dmSheet(uid,nick){DM.with=uid;DM.nick=nick||'';const draw=async()=>{let L=[];try{const{data,error}=await SB.rpc('world_dm_list',{p_with:uid});if(error)throw error;L=(data||[]).slice().reverse();}catch(e){return openSheet('💬 Messaggi',`<p class="muted">Messaggi non disponibili (${esc(e.message||'')}). Esegui il file assedio.sql su Supabase.</p>`);}
+async function dmSheet(uid,nick){DM.with=uid;DM.nick=nick||'';const draw=async()=>{let L=[];try{const{data,error}=await SB.rpc('world_dm_list',{p_with:uid});if(error)throw error;L=(data||[]).slice().reverse();}catch(e){return openSheet('💬 Messaggi',`<p class="muted">Messaggi non disponibili (${esc(e.message||'')})${typeof SB!=='undefined'&&SB?': riprova tra poco':': l’app non è collegata al server (controlla la rete e riapri l’app)'}.</p>`);}
     const box=document.querySelector('#sheet.open .dmlist');const html=L.length?L.map(m=>`<div class="dmm ${m.mine?'mine':''}"><span>${esc(m.body)}</span><small>${socAgo(m.created_at)}</small></div>`).join(''):'<p class="muted" style="font-size:13px">Nessun messaggio. Scrivi tu per primo!</p>';
     if(box&&box.dataset.with===uid){if(box.dataset.n!==String(L.length)){box.innerHTML=html;box.dataset.n=L.length;box.scrollTop=box.scrollHeight;}return;}
     openSheet(`💬 @${esc(DM.nick)}`,`<div class="dmlist" data-with="${uid}" data-n="${L.length}">${html}</div>
@@ -86,7 +86,7 @@ async function dmSheet(uid,nick){DM.with=uid;DM.nick=nick||'';const draw=async()
       card.querySelector('[data-dms]').onclick=()=>send();inp.onkeydown=e=>{if(e.key==='Enter')send();};card.querySelectorAll('[data-dmq]').forEach(b=>b.onclick=()=>send(b.dataset.dmq));
       card.querySelector('[data-dmp]').onclick=()=>playerSheet(uid);});};
   await draw();clearInterval(DM.timer);DM.timer=setInterval(()=>{const s=document.querySelector('#sheet.open .dmlist');if(!s||s.dataset.with!==uid){clearInterval(DM.timer);return;}draw();},4000);}
-async function dmThreads(){let L=[];try{const{data,error}=await SB.rpc('world_dm_threads');if(error)throw error;L=data||[];}catch(e){return openSheet('✉️ Messaggi privati',`<p class="muted">Messaggi non disponibili (${esc(e.message||'')}). Esegui il file assedio.sql su Supabase.</p>`);}
+async function dmThreads(){let L=[];try{const{data,error}=await SB.rpc('world_dm_threads');if(error)throw error;L=data||[];}catch(e){return openSheet('✉️ Messaggi privati',`<p class="muted">Messaggi non disponibili (${esc(e.message||'')})${typeof SB!=='undefined'&&SB?': riprova tra poco':': l’app non è collegata al server (controlla la rete e riapri l’app)'}.</p>`);}
   openSheet('✉️ Messaggi privati',L.length?L.map(t=>`<button class="dmt ${t.unread>0?'un':''}" data-dmt="${t.user_id}" data-n="${esc(t.nick)}"><span class="sav">${esc((t.nick||'?')[0].toUpperCase())}</span><div><b>@${esc(t.nick)}${t.unread>0?` · ${t.unread} nuovi`:''}</b><small>${esc(t.last_body||'')}</small></div><i>${socAgo(t.last_at)}</i></button>`).join(''):'<p class="muted">Nessuna conversazione. Apri il profilo di un giocatore e tocca “💬 Scrivi”.</p>',
     card=>card.querySelectorAll('[data-dmt]').forEach(b=>b.onclick=()=>dmSheet(b.dataset.dmt,b.dataset.n)));}
 /* dove si scrive: profilo giocatore, Piazza, bacheca, sponsor */

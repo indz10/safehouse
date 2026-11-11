@@ -5,21 +5,21 @@
 # invece di pubblicare una cartella vuota (pagina "Page not found").
 [build]
   publish = "dist"
-  command = "test -f dist/index.html && test -f dist/sw.js && test -f dist/manifest.json && echo 'dist/ completa'"
+  command = "test -f dist/index.html && test -f dist/sw.js && test -f dist/manifest.json && test -f dist/supabase.js && echo 'dist/ completa'"
 
 # Stesse impostazioni, scritte esplicitamente, per il sito vero e per le anteprime:
 # così produzione e anteprima non possono più comportarsi in modo diverso.
 [context.production]
   publish = "dist"
-  command = "test -f dist/index.html && test -f dist/sw.js && test -f dist/manifest.json && echo 'dist/ completa'"
+  command = "test -f dist/index.html && test -f dist/sw.js && test -f dist/manifest.json && test -f dist/supabase.js && echo 'dist/ completa'"
 
 [context.deploy-preview]
   publish = "dist"
-  command = "test -f dist/index.html && test -f dist/sw.js && test -f dist/manifest.json && echo 'dist/ completa'"
+  command = "test -f dist/index.html && test -f dist/sw.js && test -f dist/manifest.json && test -f dist/supabase.js && echo 'dist/ completa'"
 
 [context.branch-deploy]
   publish = "dist"
-  command = "test -f dist/index.html && test -f dist/sw.js && test -f dist/manifest.json && echo 'dist/ completa'"
+  command = "test -f dist/index.html && test -f dist/sw.js && test -f dist/manifest.json && test -f dist/supabase.js && echo 'dist/ completa'"
 
 # il service worker deve arrivare sempre fresco, così l'app si aggiorna da sola
 [[headers]]

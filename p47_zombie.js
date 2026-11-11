@@ -46,7 +46,7 @@ function thrAdvise(T,budget){const sim={defs:{},level:T.level};const kinds=[...n
     if(!best)break;left-=best.c;if(best.t==='d'){const cur=sim.defs[best.k]!=null?sim.defs[best.k]:((T.defs||{})[best.k]||0);sim.defs[best.k]=cur+1;}else sim.level++;}
   return{sim,spent:budget-left};}
 async function thrSection(card,h,after){const dopo=after||(()=>houseSheet(h));await thrLoad();const T=thrOf(h);const box=card.querySelector('.thbox');if(!box)return;
-  if(!T){box.innerHTML=`<p class="muted" style="font-size:12.5px">${THR.err?'Simulatore non disponibile ('+esc(THR.err)+'). Esegui il file zombie.sql su Supabase.':'Questa casa non è ancora nel mondo.'}</p>`;return;}
+  if(!T){box.innerHTML=`<p class="muted" style="font-size:12.5px">${THR.err?'Simulatore non disponibile ('+esc(THR.err)+')'+(typeof SB!=='undefined'&&SB?': riprova tra poco':': l’app non è collegata al server (controlla la rete e riapri l’app)')+'.':'Questa casa non è ancora nel mondo.'}</p>`;return;}
   const sim={defs:{},level:T.level};const draw=()=>{box.innerHTML=thrHTML(T,sim);
     box.querySelectorAll('[data-sd]').forEach(b=>b.onclick=()=>{const k=b.dataset.sd;const cur=(T.defs||{})[k]||0;const v=(sim.defs[k]!=null?sim.defs[k]:cur)+(+b.dataset.v);sim.defs[k]=Math.max(cur,Math.min(3,v));draw();});
     box.querySelectorAll('[data-sl]').forEach(b=>b.onclick=()=>{sim.level=Math.max(T.level,Math.min(5,sim.level+(+b.dataset.sl)));draw();});

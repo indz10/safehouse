@@ -28,7 +28,7 @@ function thrViewBase(T){const r=thrCalc(T);const ev=EVN[T.ev]||EVN.calma;const s
    <div class="thrw tot"><span>Forza dell’orda</span><b>${r.amin}–${r.amax}</b></div>
    <div class="thres"><div><small>Difesa</small><b>${r.def}</b></div><div><small>Livello casa</small><b>${T.level}</b></div><div class="${chCls(r.ch)}"><small>Tiene</small><b>${r.ch}%</b></div></div>`;}
 async function allySheetBase(uid){openSheet('🤝 Alleato','<p><span class="spin"></span> Carico la sua simulazione…</p>',()=>{});let d=null;
-  try{const{data,error}=await SB.rpc('world_ally_view',{p_user:uid});if(error)throw error;d=data;}catch(e){openSheet('🤝 Alleato',`<p class="muted">Simulazione non disponibile (${esc(e.message||'')}). Esegui il file alleati_sim.sql su Supabase.</p>`);return;}
+  try{const{data,error}=await SB.rpc('world_ally_view',{p_user:uid});if(error)throw error;d=data;}catch(e){openSheet('🤝 Alleato',`<p class="muted">Simulazione non disponibile (${esc(e.message||'')})${typeof SB!=='undefined'&&SB?': riprova tra poco':': l’app non è collegata al server (controlla la rete e riapri l’app)'}.</p>`);return;}
   if(!d||!d.ok){openSheet('🤝 Alleato',`<p>${esc((d&&d.msg)||'Non disponibile')}</p>`);return;}
   const H=d.houses||[];const worst=H.length?Math.min(...H.map(T=>thrCalc(T).ch)):null;
   const draw=(open)=>openSheet(`🤝 @${esc(d.nick)}`,`<div class="alhead ${d.prepared?'ok':'ko'}"><div><b>${d.prepared?'🟢 Case preparate':'🔴 Case NON preparate'}</b><small>${agoTxt(d.seen_at)} · livello ${d.wlevel}${d.coinq?' · 🏢 coinquilino':''}</small><small>${d.asked?'🆘 Ha chiesto aiuto · ':''}rinforzi ricevuti ${d.helps_in} · scudi ${d.shields_in}/2</small></div>${worst!=null?`<div class="alw ${chCls(worst)}"><b>${worst}%</b><small>casa più a rischio</small></div>`:''}</div>
@@ -42,7 +42,7 @@ async function allySheetBase(uid){openSheet('🤝 Alleato','<p><span class="spin
   draw(H.length===1?0:-1);}
 /* ---------- l'elenco: in Superstiti (scheda "Alleati") ---------- */
 function alsHTML(L,compact){if(L==null)return'<p class="muted"><span class="spin"></span> Controllo i tuoi alleati…</p>';
-  if(ALS.err&&!L.length)return`<p class="muted" style="font-size:12.5px">Elenco non disponibile (${esc(ALS.err)}). Esegui il file alleati_sim.sql su Supabase.</p>`;
+  if(ALS.err&&!L.length)return`<p class="muted" style="font-size:12.5px">Elenco non disponibile (${esc(ALS.err)})${typeof SB!=='undefined'&&SB?': riprova tra poco':': l’app non è collegata al server (controlla la rete e riapri l’app)'}.</p>`;
   if(!L.length)return'<p class="muted" style="font-size:13px">Non hai ancora alleati. Cercane uno qui sotto o invita un amico.</p>';
   const LL=compact?L.slice(0,4):L;
   return LL.map(a=>`<div class="alrow" data-alv="${a.user_id}"><span class="sav">${esc((a.nick||'?')[0].toUpperCase())}</span><div class="alrt"><b>@${esc(a.nick)}${a.coinq?' 🏢':''}</b>
