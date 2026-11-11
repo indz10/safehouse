@@ -57,6 +57,10 @@ async def main():
         await bussola(90);await pg.wait_for_timeout(600)
         print('sei qui:',await pg.evaluate("()=>[...document.querySelectorAll('.lnlab.qui b')].map(e=>e.textContent)"))
         print('mirino:',await pg.evaluate("()=>{const a=document.querySelector('.lnaim');return a&&!a.hidden?a.textContent:null}"))
+        # due passi fuori da casa tua, verso est: il mirino prende la casa libera del vicino
+        await pg.evaluate("()=>{LENTE.pos={lat:45.3255,lon:10.6586};LENTE.gps=true;}");await pg.wait_for_timeout(900)
+        print('mie case fuori inquadratura:',await pg.evaluate("()=>[...document.querySelectorAll('.lnlab.edge')].map(e=>e.textContent)"))
+        print('mirino sul vicino:',await pg.evaluate("()=>{const a=document.querySelector('.lnaim');return a&&!a.hidden?a.textContent:null}"))
         await pg.click('.lnaim');await pg.wait_for_timeout(1500)
         print('scheda sopra la Lente:',await pg.evaluate("()=>{const s=document.querySelector('#sheet.open');return s?[(s.querySelector('h3')||{}).textContent,!!document.getElementById('lente'),/Compra/.test(s.textContent)]:null}"))
         if len(sys.argv)>1:await pg.screenshot(path=sys.argv[1]+'/lente_compra.png')
