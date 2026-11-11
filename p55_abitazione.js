@@ -31,19 +31,19 @@ function coopHTML(I){if(!I||I.err)return'';const M=I.members||[];const N=(I.neig
   let out='';
   if(M.length){const P=M.filter(m=>m.prep).length;const pts=Math.min(9,3*P);
     out+=`<div class="coop"><div class="coop-h"><b>🤝 Insieme contro l’orda</b>${ora?`<span>prossima orda alle ${ora}</span>`:''}</div>
-      <div class="coop-row">${[{nick:nkMe,prep:meP,me:1},...M].map(m=>`<div class="cp-p ${m.prep?'on':''}"><span class="cp-av">${esc((m.nick||'?')[0].toUpperCase())}</span><b>${m.me?'Tu':'@'+esc(m.nick)}</b>${stato(m.prep)}</div>`).join('')}</div>
+      <div class="coop-row">${[{nick:nkMe,prep:meP,me:1},...M].map(m=>`<div class="cp-p ${m.prep?'on':''} ${m.me?'':'cp-tap'}" ${m.me?'':`data-cpu="${m.user_id}" data-n="${esc(m.nick)}" role="button" tabindex="0"`}><span class="cp-av">${esc((m.nick||'?')[0].toUpperCase())}</span><b>${m.me?'Tu':'@'+esc(m.nick)}</b>${stato(m.prep)}${m.me?'':`<span class="cp-mini"><button class="cp-dm" data-cpdm="${m.user_id}" data-n="${esc(m.nick)}" aria-label="Scrivi a ${esc(m.nick)}">💬</button><small>scheda ›</small></span>`}</div>`).join('')}</div>
       <div class="coop-bar"><span>Difesa in più dai coinquilini pronti</span><div class="cp-bar">${[0,1,2].map(i=>`<i class="${i<P?'on':''}">${i<P?'+3':''}</i>`).join('')}</div><b>+${pts} / +9</b></div>
       <div class="coop-act">${meP?'':'<button class="btn small" data-cpprep>🛡️ Prepara anche tu (+15)</button>'}${M.filter(m=>m.prep===false).map(m=>`<button class="btn small ghost" data-cpav="${m.user_id}">📣 Avvisa @${esc(m.nick)}</button>`).join('')}</div>
-      <small class="coop-n">Casa condivisa: livello e fortificazioni sono di tutti. Ogni coinquilino pronto dà +3 di difesa a tutti (massimo +9).</small></div>`;}
+      <small class="coop-n">Tocca una persona per la sua scheda (case, difese, simulazione), 💬 per scriverle. Casa condivisa: livello e fortificazioni sono di tutti. Ogni coinquilino pronto dà +3 di difesa a tutti (massimo +9).</small></div>`;}
   if(I.kind==='condominio'){const F=[{nick:nkMe,unit:I.unit,prep:meP,me:1},...N.filter(r=>r.kind==='condominio')];const C=I.condo||{};const D=C.defs||[];const pr=F.filter(f=>f.prep).length;
     const cols=Math.min(3,Math.max(2,Math.ceil(Math.sqrt(F.length))));
     out+=`<div class="coop"><div class="coop-h"><b>🏢 Il nostro palazzo</b><span>${pr}/${F.length} famiglie pronte${ora?' · orda alle '+ora:''}</span></div>
       <div class="pal"><div class="pal-tetto">${D.map(d=>{const[ic,n]=(CD[d.kind]||['🛡️',d.kind]);return`<span title="${esc(n)}">${ic}<small>${'●'.repeat(d.level)}${'○'.repeat(3-d.level)}</small></span>`;}).join('')}</div>
-        <div class="pal-corpo" style="grid-template-columns:repeat(${cols},1fr)">${F.map(f=>`<div class="pal-fin ${f.prep?'on':''} ${f.me?'me':''}"><i></i><b>${f.me?'Tu':'@'+esc(f.nick)}</b><small>${f.unit?esc(f.unit):''}${f.prep===true?' · pronto':f.prep===false?' · non ancora':''}</small></div>`).join('')}</div>
+        <div class="pal-corpo" style="grid-template-columns:repeat(${cols},1fr)">${F.map(f=>`<div class="pal-fin ${f.prep?'on':''} ${f.me?'me':'cp-tap'}" ${f.me?'':`data-cpu="${f.user_id}" data-n="${esc(f.nick)}" role="button" tabindex="0"`}><i></i><b>${f.me?'Tu':'@'+esc(f.nick)}</b><small>${f.unit?esc(f.unit):''}${f.prep===true?' · pronto':f.prep===false?' · non ancora':''}</small>${f.me?'':`<button class="cp-dm" data-cpdm="${f.user_id}" data-n="${esc(f.nick)}" aria-label="Scrivi a ${esc(f.nick)}">💬</button>`}</div>`).join('')}</div>
         <div class="pal-porta">🚪</div></div>
       <div class="coop-bar"><span>Difese comuni: bonus a tutte le case del palazzo</span><b>+${C.bonus||0}</b></div>
       <div class="coop-act">${meP?'':'<button class="btn small" data-cpprep>🛡️ Prepara la tua casa (+15)</button>'}${F.filter(f=>!f.me&&f.prep===false).map(f=>`<button class="btn small ghost" data-cpav="${f.user_id}">📣 Avvisa @${esc(f.nick)}</button>`).join('')}</div>
-      <small class="coop-n">Finestra accesa = famiglia pronta per la prossima orda. Le difese comuni (sotto) si pagano insieme e valgono per tutti.</small></div>`;}
+      <small class="coop-n">Tocca una finestra per la scheda di quella famiglia, 💬 per scriverle. Finestra accesa = famiglia pronta per la prossima orda. Le difese comuni (sotto) si pagano insieme e valgono per tutti.</small></div>`;}
   return out;}
 function abitHTML(I){if(!I||I.err)return`<p class="muted" style="font-size:12.5px">Non disponibile${I&&I.err?' ('+esc(I.err)+')':''}${typeof SB!=='undefined'&&SB?': riprova tra poco':': l’app non è collegata al server (controlla la rete e riapri l’app)'}.</p>`;
   const[ic,n,d]=HK[I.kind]||HK.casa;const M=I.members||[],N=I.neighbors||[],R=I.requests||[];
@@ -60,6 +60,10 @@ async function abitMount(c,h){let p=c.querySelector('.abpan');if(!p){p=document.
   /* 🤝 Insieme: prepara e avvisa */
   b.querySelectorAll('[data-cpprep]').forEach(x=>x.onclick=async()=>{x.disabled=true;try{const{data,error}=await SB.rpc('world_prepare');if(error)throw error;toast('🛡️ Casa preparata: +15 di difesa');try{await orLoad(true);}catch(e){}redo();}catch(e){toast(e.message||'Non riuscito');x.disabled=false;}});
   b.querySelectorAll('[data-cpav]').forEach(x=>x.onclick=()=>alRemind(x.dataset.cpav,x));
+  /* tocco su una persona: la sua scheda da giocatore; 💬: messaggio diretto. "‹ Casa tua" per tornare */
+  const back=()=>{window.SHEET_BACK={t:'‹ Casa tua',fn:()=>houseSheet(h)};};
+  b.querySelectorAll('[data-cpdm]').forEach(x=>x.onclick=e=>{e.stopPropagation();back();dmSheet(x.dataset.cpdm,x.dataset.n);});
+  b.querySelectorAll('[data-cpu]').forEach(x=>{const apri=()=>{back();playerSheet(x.dataset.cpu);};x.onclick=apri;x.onkeydown=e=>{if(e.key==='Enter')apri();};});
   const kc=b.querySelector('[data-hkc]');if(kc)kc.onclick=()=>kindSheet(I,redo);
   /* 👁️ chi vede il mio nome sulla mia casa */
   try{const{data:V}=await SB.rpc('world_home_vis',{p_vis:null});if(V&&V.ok){const tp=b.querySelector('.hktype');tp.insertAdjacentHTML('afterend',`<div class="hkvis"><b>👁️ Chi vede il tuo nome sulla tua casa</b><small>La casa è sempre nel punto esatto sulla mappa; qui scegli chi vede anche il tuo nome sopra.</small>
