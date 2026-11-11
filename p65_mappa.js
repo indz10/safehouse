@@ -46,6 +46,16 @@ function renderMappa(){renderMappaBase();
 const CERCA_K='zsh_cerca';
 function cercaVola(lat,lon,zoom){const lm=window.__mf;if(!lm||!lm.map)return;try{const c=lm.map.getCenter();const km=trM(c.lat,c.lng,lat,lon)/1000;
   lm.map.flyTo({center:[lon,lat],zoom:zoom||17,pitch:0,duration:km>300?4000:km>20?2500:1200});}catch(e){}}
+/* due servizi gratuiti con i dati di OpenStreetMap: Nominatim e, se non risponde, Photon */
+async function cercaNominatim(q){const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=it&q='+encodeURIComponent(q),{signal:trSig(9000)});
+  if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();
+  return (d||[]).map(x=>{const p=String(x.display_name||'').split(', ');const at=x.addresstype||'';return{n:p[0]||q,d:p.slice(1,4).join(', '),lat:+x.lat,lon:+x.lon,
+    z:at==='building'||/house|building|apartments/.test(x.type||'')?18:at==='road'?17:/city|town|village|municipality/.test(at)?14:/country|state|region/.test(at)?6:16};}).filter(r=>isFinite(r.lat)&&isFinite(r.lon));}
+async function cercaPhoton(q){const r=await fetch('https://photon.komoot.io/api/?limit=6&q='+encodeURIComponent(q),{signal:trSig(9000)});
+  if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();
+  return ((d&&d.features)||[]).map(f=>{const p=f.properties||{},c=(f.geometry&&f.geometry.coordinates)||[];const t=p.type||p.osm_value||'';
+    return{n:p.name||[p.street,p.housenumber].filter(Boolean).join(' ')||q,d:[p.city,p.state,p.country].filter(Boolean).join(', '),lat:+c[1],lon:+c[0],
+      z:t==='house'||p.housenumber?18:t==='street'?17:/city|town|village/.test(t)?14:/country|state/.test(t)?6:16};}).filter(r=>isFinite(r.lat)&&isFinite(r.lon));}
 function cercaLuogo(){let ult=[];try{ult=JSON.parse(localStorage.getItem(CERCA_K)||'[]');}catch(e){}
   const riga=(r,i,k)=>`<button class="strow" data-${k}="${i}"><span class="splogo">📍</span><div><b>${esc(r.n)}</b><small>${esc(r.d||'')}</small></div><i>›</i></button>`;
   const home=myHouses().find(x=>x.home);
@@ -57,11 +67,12 @@ function cercaLuogo(){let ult=[];try{ult=JSON.parse(localStorage.getItem(CERCA_K
     const inp=card.querySelector('#cercaIn'),box=card.querySelector('[data-cercares]');
     const scegli=r=>{try{const L=[r,...ult.filter(x=>x.n!==r.n)].slice(0,5);localStorage.setItem(CERCA_K,JSON.stringify(L));}catch(e){}closeSheet();cercaVola(r.lat,r.lon,r.z);};
     const vai=async()=>{const q=inp.value.trim();if(q.length<2){inp.focus();return;}box.innerHTML='<p class="muted"><span class="spin"></span> Cerco…</p>';
-      try{const d=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=it&q='+encodeURIComponent(q),{signal:trSig(9000)}).then(x=>x.json());
-        const R=(d||[]).map(x=>{const p=String(x.display_name||'').split(', ');return{n:p[0]||q,d:p.slice(1,4).join(', '),lat:+x.lat,lon:+x.lon,z:/house|building|residential|apartments|yes/.test(x.type||'')||x.addresstype==='building'?18:x.addresstype==='road'?17:x.addresstype==='city'||x.addresstype==='town'?14:16};}).filter(r=>isFinite(r.lat)&&isFinite(r.lon));
-        if(!R.length){box.innerHTML='<p class="muted">Nessun luogo trovato: prova con città e via (es. “Broadway 1, New York”).</p>';return;}
-        box.innerHTML=R.map((r,i)=>riga(r,i,'cercar')).join('');box.querySelectorAll('[data-cercar]').forEach(b=>b.onclick=()=>scegli(R[+b.dataset.cercar]));}
-      catch(e){box.innerHTML='<p class="muted">Ricerca non riuscita: controlla la connessione e riprova.</p>';}};
+      let R=null,errs=[];
+      try{R=await cercaNominatim(q);}catch(e){errs.push('Nominatim: '+(e.message||e));}
+      if(!R||!R.length){try{const P=await cercaPhoton(q);if(P.length)R=P;}catch(e){errs.push('Photon: '+(e.message||e));}}
+      if(R&&R.length){box.innerHTML=R.map((r,i)=>riga(r,i,'cercar')).join('');box.querySelectorAll('[data-cercar]').forEach(b=>b.onclick=()=>scegli(R[+b.dataset.cercar]));return;}
+      box.innerHTML=errs.length>=2||(!R&&errs.length)?`<p class="muted">Ricerca non riuscita: controlla la connessione e riprova.</p><p class="muted" style="font-size:11.5px">(${esc(errs.join(' · '))})</p>`
+        :'<p class="muted">Nessun luogo trovato: prova con città e via (es. “Broadway 1, New York”).</p>';};
     card.querySelector('[data-cercavai]').onclick=vai;inp.onkeydown=e=>{if(e.key==='Enter')vai();};
     card.querySelectorAll('[data-cercault]').forEach(b=>b.onclick=()=>scegli(ult[+b.dataset.cercault]));
     const hb=card.querySelector('[data-cercahome]');if(hb)hb.onclick=()=>{closeSheet();cercaVola(home.lat,home.lon,17);};
