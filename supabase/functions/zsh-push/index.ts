@@ -174,6 +174,18 @@ Deno.serve(async (req) => {
         await sb.from("push_subs").update({ last_feed: new Date().toISOString() }).eq("endpoint", s.endpoint);
       }
     }
+    // messaggi della piazza (migrazione 007): al massimo un avviso ogni 30 minuti, con l'ultimo messaggio e quanti altri
+    for (const s of L) {
+      const mode = s.piazza || "zona";
+      if (mode === "no" || !s.user_id) continue;
+      const da = s.last_chat ? new Date(s.last_chat).getTime() : 0;
+      if (Date.now() - da < 30 * 60 * 1000) continue;
+      const { data: c, error: ce } = await sb.rpc("w_piazza_nuovi", { p_user: s.user_id, p_since: s.last_chat || new Date(Date.now() - 30 * 60 * 1000).toISOString(), p_mode: mode });
+      if (ce || !c || !c.n) continue;
+      const who = c.nick ? "@" + c.nick : "Un superstite";
+      sent += await sendTo(s, { title: c.zona ? "💬 Piazza della tua zona" : "💬 Piazza del Mondo", body: `${who}: «${c.body}»` + (c.n > 1 ? ` (+${c.n - 1} messaggi)` : ""), url: "/?go=social&tab=piazza", tag: "piazza" });
+      await sb.from("push_subs").update({ last_chat: new Date().toISOString() }).eq("endpoint", s.endpoint);
+    }
     return json({ ok: true, sent, rome: t, iscritti: L.length, ...geo });
   }
   return json({ ok: false, msg: "task sconosciuto" }, 400);

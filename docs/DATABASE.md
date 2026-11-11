@@ -4,7 +4,7 @@ Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sq
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
 - Tabelle: **47** · viste: **1** · indici: **14** · regole (policy): **42** · trigger: **12** · lavori programmati: **3**
-- Funzioni: **139** (139 nomi); usate (direttamente o tramite altre funzioni): **139**; **non usate: 0**
+- Funzioni: **141** (141 nomi); usate (direttamente o tramite altre funzioni): **141**; **non usate: 0**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -21,6 +21,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `is_admin` |  |  | regole | admin_link_sponsor, admin_sponsor_accounts, admin_world_exclude, world_chat_report, sponsors_guard, admin_sponsor_set | 1: ZombieSafeHouse_backend_sponsor |
 | `miei_invitati` | ✓ |  |  |  | 1: aggiornamento_ottobre |
 | `my_sponsor` |  |  | regole | redeem_coupon | 1: ZombieSafeHouse_backend_sponsor |
+| `push_piazza` | ✓ |  |  |  | 1: migr. 007_notifiche_piazza |
 | `push_subscribe` | ✓ |  |  |  | 1: push |
 | `push_unsubscribe` | ✓ |  |  |  | 1: push |
 | `redeem_coupon` | ✓ |  |  |  | 1: ZombieSafeHouse_backend_sponsor |
@@ -52,6 +53,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_next_slot` |  |  |  | world_raid_status, world_prepare, world_ask_help, world_help_list, world_send_help, world_send_attack … | 1: orda_mondo |
 | `w_nick` |  |  |  | world_view, world_quote, world_help_list, w_settle_loans, world_give, world_gifts_in … | 1: mondo_unico |
 | `w_pay` |  |  |  | w_cleanup, world_earn, world_claim_home, w_settle, world_sell, world_collect … | 2: mondo_unico → equita |
+| `w_piazza_nuovi` |  | ✓ |  |  | 1: migr. 007_notifiche_piazza |
 | `w_power3` |  |  |  | world_raid_status, world_raid_view, w_home_held | 1: mondo_v3 |
 | `w_pres_attack` |  |  |  | w_pres_tick | 1: migr. 006_presidi |
 | `w_pres_bonus` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of | 1: migr. 006_presidi |
@@ -166,7 +168,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `profili_pubblici` | ZombieSafeHouse_backend_sponsor | 1 | ✓ |
 | `push_keys` | push | 0 | ✓ |
 | `push_log` | push | 0 | ✓ |
-| `push_subs` | push | 0 | ✓ |
+| `push_subs` | push | 2 | ✓ |
 | `reviews` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `salvataggi` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `sponsor_events` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |

@@ -4,7 +4,7 @@ Due funzioni, una per cartella (`<nome>/index.ts`). Girano sul server di Supabas
 
 | funzione | cosa fa | chi la chiama | segreti necessari | "Verify JWT" |
 |---|---|---|---|---|
-| `zsh-push` | notifiche push (30 min prima dell'orda, all'orda, novità personali); ogni 90 min salva meteo vero e pendenza delle case (`world_wx`, `world_terrain`) usati nell'attacco | l'orologio del database ogni 10 min (`zsh-push-tick`, push_cron.sql); l'app per la chiave pubblica e la notifica di prova | nessuno da aggiungere (usa `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`, già presenti); le chiavi VAPID le crea da sola in `push_keys` | **spento** |
+| `zsh-push` | notifiche push (30 min prima dell'orda, all'orda, novità personali, messaggi della piazza al massimo ogni 30 min — serve la migrazione 007); ogni 90 min salva meteo vero e pendenza delle case (`world_wx`, `world_terrain`) usati nell'attacco | l'orologio del database ogni 10 min (`zsh-push-tick`, push_cron.sql); l'app per la chiave pubblica e la notifica di prova | nessuno da aggiungere (usa `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`, già presenti); le chiavi VAPID le crea da sola in `push_keys` | **spento** |
 | `zsh-api` | IA delle foto della casa e Radio Operatore (Claude), stato delle attività su Google | l'app (`functions.invoke('zsh-api')`), solo utenti registrati, max 40 richieste al giorno a testa | `ANTHROPIC_API_KEY`; facoltativo `GOOGLE_PLACES_KEY` | acceso |
 
 | `zsh-pay` | pagamento degli sponsor con Stripe (pannello del negozio → pagina di pagamento; conferma di Stripe → pacchetto, scadenza, in evidenza) — **pronta ma spenta** | pannello del negozio; Stripe (webhook) | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`; facoltativo `SITO_URL` | **spento** |
