@@ -1,7 +1,7 @@
 # MAPPA DELL'APP · fotografa tutte le schermate principali (server finto, iPhone 13) e scrive una pagina HTML
 # con le foto numerate, per controllare l'app pagina per pagina e chiedere modifiche ("Pagina 12: …").
 # Uso: python3 docs/strumenti/mappa_app.py <cartella di uscita>   → <cartella>/mappa_app.html (foto dentro la pagina)
-import asyncio,sys,os,base64,json,html,datetime
+import asyncio,sys,os,base64,json,html,datetime,re
 R=os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'));sys.path.insert(0,R)
 from playwright.async_api import async_playwright
 import t_terr
@@ -65,7 +65,7 @@ async def main():
             except Exception as e:
                 print(i,tit,'ERRORE',str(e)[:120],flush=True);foto.append((i,sez,tit,cosa,None))
         await b.close()
-    ver=open(R+'/dist/sw.js').read().split('\n')[1][:80] if os.path.exists(R+'/dist/sw.js') else ''
+    ver=(re.search(r'zsh-\d+',open(R+'/dist/sw.js').read()) or [''])[0] if os.path.exists(R+'/dist/sw.js') else ''
     oggi=datetime.date.today().strftime('%d/%m/%Y')
     sez=[];[sez.append(f[1]) for f in foto if f[1] not in sez]
     E=html.escape
