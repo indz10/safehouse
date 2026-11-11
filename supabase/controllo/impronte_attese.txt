@@ -10,7 +10,9 @@ my_sponsor(uuid) cb7138eae0
 push_subscribe(text, text, text) 1ddb9629ed
 push_unsubscribe(text) d8c7f31d16
 redeem_coupon(text, numeric) 2ae032ec11
+sponsor_pagato(uuid, text, text, numeric) 3cc3708899
 sponsor_request(jsonb) 5b2033e9ba
+sponsor_scadenze() 322b41919e
 sponsors_guard() fb6e27a43c
 w_allies_of(uuid) f79fddd6ef
 w_are_allies(uuid, uuid) 562fd9a3ca
@@ -140,6 +142,7 @@ push_subs e1e63686
 reviews bd76b4bf
 salvataggi 5098a1c4
 sponsor_events b5c39783
+sponsor_prezzi e9f81a14
 sponsor_stats_month c5ad4f54
 sponsor_users a74be6ef
 sponsors 23040d78
@@ -198,6 +201,7 @@ salvataggi ognuno crea il suo salvataggio
 salvataggi ognuno legge il suo salvataggio
 sponsor_events app registra eventi
 sponsor_events sponsor legge le sue statistiche
+sponsor_prezzi tutti leggono il listino
 sponsor_users admin gestisce utenti sponsor
 sponsor_users utente vede il proprio legame
 sponsors admin gestisce sponsor
@@ -214,3 +218,4 @@ world_log wl_sel
 world_wallet ww_sel
 CRON
 zsh-push-tick */10 * * * *
+zsh-sponsor-scadenze 17 3 * * *
