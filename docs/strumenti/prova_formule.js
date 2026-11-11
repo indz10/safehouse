@@ -4,7 +4,8 @@
 //  1) thrCalc dell'app (p47_zombie.js) dia gli stessi numeri di w_threats_of (attacco min/max, difesa, %);
 //  2) il risultato vero dell'orda (world_raid_status: potenza e tenuta) usi la stessa difesa di w_threats_of;
 //  3) l'attacco vero (w_attack3) stia nell'intervallo mostrato e la % mostrata sia vicina a quella reale su 300 orde;
-//  4) il riquadro "Perché" (world_my_defense) dia lo stesso totale della casa.
+//  4) il riquadro "Perché" (world_my_defense) dia lo stesso totale della casa;
+//  5) (Fase 9b) i presidi tenuti entro 500 m diano +3 ciascuno (max +6) in tutte le funzioni.
 // Uso: node docs/strumenti/prova_formule.js <cartella di lavoro di db_locale.sh>
 const fs=require('fs'),path=require('path'),cp=require('child_process');
 const R=path.join(__dirname,'..','..');const W=process.argv[2];if(!W){console.log('Uso: node docs/strumenti/prova_formule.js <cartella di lavoro>');process.exit(1);}
@@ -20,7 +21,8 @@ let fail=0,checks=0;const bad=(t)=>{fail++;if(fail<=15)console.log('  ✗',t);};
 for(let sc=0;sc<12;sc++){
   const ev=pick(EV),slope=pick(SL),life=pick(LIFE),hl=1+Math.floor(rnd()*5),bl=1+Math.floor(rnd()*5),condo=sc%3===0?0:1+Math.floor(rnd()*3),rs=Math.floor(rnd()*6),prep=rnd()<.5;
   const defs=b=>DK.filter(()=>rnd()<.4).map(k=>`('${b}','${k}',${1+Math.floor(rnd()*3)})`).join(',');
-  sql(`delete from world_homes; delete from world_buildings; delete from world_defs; delete from world_condo; delete from world_wallet; delete from world_terrain; delete from world_wx; delete from auth.users where id in ('${U}','${U2}');
+  const npres=sc%4;/* 0–3 presidi tenuti da U2 vicino alla casa vera (uno è lontano 2 km: non conta) */
+  sql(`delete from world_presidi; delete from world_homes; delete from world_buildings; delete from world_defs; delete from world_condo; delete from world_wallet; delete from world_terrain; delete from world_wx; delete from auth.users where id in ('${U}','${U2}');
     insert into auth.users(id,email,created_at) values ('${U}','a@x',now()-interval '60 days'),('${U2}','b@x',now()-interval '60 days');
     insert into world_wallet(user_id,lifetime,caps) values ('${U}',${life},jsonb_build_object('rs',${rs})${prep?`||jsonb_build_object('prep:'||w_slot_id(w_next_slot(now())),1,'prep:'||w_slot_id(w_prev_slot(now())),1)`:''});
     insert into world_homes(user_id,building_id,lat,lon,status,first_at,kind) values ('${U}','H1#2',45.1,10.1,'home',now()-interval '30 days','${condo?'condominio':'casa'}');
@@ -31,7 +33,12 @@ for(let sc=0;sc<12;sc++){
     insert into world_terrain(building_id,slope) values ('H1#2',${slope}),('B1',${-slope});
     insert into world_wx(building_id,slot_id,ev) select b, w_slot_id(w_next_slot(now())), '${ev}' from (values ('H1#2'),('B1')) v(b)
       union all select b, w_slot_id(w_prev_slot(now())), '${ev}' from (values ('H1#2'),('B1')) v(b);`);
+  for(let i=0;i<npres;i++){const far=i===2;sql(`insert into world_presidi(id,name,kind,lat,lon,holder,held_since) values ('osm:n${i}','P${i}','parco',${far?45.118:45.1+0.002*i},10.1,'${U2}',now()-interval '3 days');
+    insert into world_presidi_tenute(presidio_id,user_id,dal) values ('osm:n${i}','${U2}',now()-interval '3 days');`);}
+  const attesi=Math.min(6,3*Math.min(npres,2));
   const T=JSON.parse(sql(`select w_threats_of('${U}')`));
+  /* 5) presidi vicini */
+  {checks++;const t=T.find(x=>x.home);if(!t||t.pres!==attesi)bad(`scenario ${sc}: presidi vicini ${t&&t.pres} ≠ ${attesi}`);}
   /* 1) app = database */
   for(const t of T){checks++;const r=thrCalc(t);
     if(r.amin!==t.atk_min||r.amax!==t.atk_max||r.ch!==t.chance||r.def!==t.def)bad(`scenario ${sc} ${t.home?'casa vera':'comprata'}: app ${r.amin}-${r.amax} dif ${r.def} ${r.ch}% · database ${t.atk_min}-${t.atk_max} dif ${t.def} ${t.chance}%`);}

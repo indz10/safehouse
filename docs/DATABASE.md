@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **44** · viste: **1** · indici: **11** · regole (policy): **42** · trigger: **12** · lavori programmati: **2**
-- Funzioni: **128** (128 nomi); usate (direttamente o tramite altre funzioni): **128**; **non usate: 0**
+- Tabelle: **47** · viste: **1** · indici: **14** · regole (policy): **42** · trigger: **12** · lavori programmati: **3**
+- Funzioni: **139** (139 nomi); usate (direttamente o tramite altre funzioni): **139**; **non usate: 0**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -40,8 +40,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_condo_key` |  |  |  | w_condo_bonus, world_condo_give, world_house_info | 1: abitazione |
 | `w_def` |  |  |  | w_attack3, world_def_upgrade, w_threats_of | 2: zombie → zombie_alleati |
 | `w_feed_add` |  |  |  | w_tr_feed, w_tr_dm, world_house_invite, world_house_answer | 1: social |
-| `w_home_held` |  |  |  | world_raid_status, w_score | 2: mondo_v3 → abitazione |
-| `w_home_known` |  |  |  | world_view, world_quote, world_my_effects | 1: nome_casa |
+| `w_home_held` |  |  |  | world_raid_status, w_score | 3: mondo_v3 → abitazione → migr. 006_presidi |
+| `w_home_known` |  |  |  | world_view, world_quote, world_my_effects, world_presidi_list | 1: nome_casa |
 | `w_is_npc` |  |  |  | world_quote, w_tr_feed | 1: mondo_v3 |
 | `w_km` |  |  |  | w_canon, world_claim_home, world_view, world_quote, world_buy, w_price2 … | 1: mondo_unico |
 | `w_league` |  |  |  | world_rank_lega, world_status_extra | 1: equita |
@@ -53,7 +53,12 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_nick` |  |  |  | world_view, world_quote, world_help_list, w_settle_loans, world_give, world_gifts_in … | 1: mondo_unico |
 | `w_pay` |  |  |  | w_cleanup, world_earn, world_claim_home, w_settle, world_sell, world_collect … | 2: mondo_unico → equita |
 | `w_power3` |  |  |  | world_raid_status, world_raid_view, w_home_held | 1: mondo_v3 |
-| `w_prev_slot` |  |  |  | world_raid_status, world_raid_view | 1: orda_mondo |
+| `w_pres_attack` |  |  |  | w_pres_tick | 1: migr. 006_presidi |
+| `w_pres_bonus` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of | 1: migr. 006_presidi |
+| `w_pres_def` |  |  |  | w_pres_tick, world_presidi_list, world_presidio_guardia | 1: migr. 006_presidi |
+| `w_pres_near` |  |  |  | world_presidi_seed, world_presidi_list, world_presidio_occupa | 1: migr. 006_presidi |
+| `w_pres_tick` |  |  | cron | world_presidi_list, world_presidio_occupa, world_presidio_guardia | 1: migr. 006_presidi |
+| `w_prev_slot` |  |  |  | world_raid_status, world_raid_view, w_pres_tick, world_presidio_occupa | 1: orda_mondo |
 | `w_price` |  |  |  | w_price2 | 1: mondo_unico |
 | `w_price2` |  |  |  | world_quote | 2: mondo_v3 → equita |
 | `w_radius` |  |  |  | world_mine | 1: mondo_unico |
@@ -65,7 +70,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_shielded` |  |  |  | world_send_attack, world_send_curse, world_welcome, world_status_extra, world_rivals | 1: equita |
 | `w_slope` |  |  |  | w_attack3, w_threats_of | 2: zombie → zombie_alleati |
 | `w_slot_id` |  |  |  | world_raid_status, world_prepare, world_raid_view, world_ask_help, world_help_list, world_send_help … | 1: orda_mondo |
-| `w_threats_of` |  |  |  | world_threats, world_ally_view, world_allies_status | 5: alleati_sim → zombie_alleati → fortezze → abitazione → migr. 002_formule_uguali |
+| `w_slot_t` |  |  |  | w_pres_bonus | 1: migr. 006_presidi |
+| `w_threats_of` |  |  |  | world_threats, world_ally_view, world_allies_status | 6: alleati_sim → zombie_alleati → fortezze → abitazione → migr. 002_formule_uguali → migr. 006_presidi |
 | `w_tr_dm` |  |  | trigger |  | 1: assedio |
 | `w_tr_feed` |  |  | trigger |  | 4: social → aiuto_alleati → dispetti → alleanze2 |
 | `w_upower` |  |  |  | world_raid_status, world_raid_view, w_home_held, w_threats_of | 5: mondo_v3 → dispetti → alleanze2 → casavera → squadra_fix |
@@ -111,14 +117,19 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_loans` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
 | `world_mine` | ✓ |  |  | world_mine2 | 1: mondo_unico |
 | `world_mine2` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
-| `world_my_defense` | ✓ |  |  |  | 3: casavera → squadra_fix → migr. 002_formule_uguali |
+| `world_my_defense` | ✓ |  |  |  | 4: casavera → squadra_fix → migr. 002_formule_uguali → migr. 006_presidi |
 | `world_my_effects` | ✓ |  |  |  | 3: assedio → casa_abitata → nome_casa |
 | `world_player` | ✓ |  |  |  | 1: social |
 | `world_prepare` | ✓ |  |  |  | 1: orda_mondo |
+| `world_presidi_list` | ✓ |  |  |  | 1: migr. 006_presidi |
+| `world_presidi_seed` | ✓ |  |  |  | 1: migr. 006_presidi |
+| `world_presidio_guardia` | ✓ |  |  |  | 1: migr. 006_presidi |
+| `world_presidio_lascia` | ✓ |  |  |  | 1: migr. 006_presidi |
+| `world_presidio_occupa` | ✓ |  |  |  | 1: migr. 006_presidi |
 | `world_quote` | ✓ |  |  | world_buy | 5: mondo_unico → mondo_unico_agg1 → mondo_v3 → casa_abitata → nome_casa |
 | `world_raid_claim` | ✓ |  |  |  | 2: orda_mondo → mondo_v3 |
-| `world_raid_status` | ✓ |  |  | world_raid_claim | 3: orda_mondo → mondo_v3 → migr. 002_formule_uguali |
-| `world_raid_view` | ✓ |  |  |  | 3: orda_mondo → mondo_v3 → migr. 002_formule_uguali |
+| `world_raid_status` | ✓ |  |  | world_raid_claim | 4: orda_mondo → mondo_v3 → migr. 002_formule_uguali → migr. 006_presidi |
+| `world_raid_view` | ✓ |  |  |  | 4: orda_mondo → mondo_v3 → migr. 002_formule_uguali → migr. 006_presidi |
 | `world_rank` | ✓ |  |  |  | 2: social → classifica |
 | `world_rank_lega` | ✓ |  |  |  | 2: equita → classifica |
 | `world_reward` | ✓ |  |  |  | 1: premi |
@@ -183,6 +194,9 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_homes` | mondo_unico | 8 | ✓ |
 | `world_house_req` | abitazione | 0 | ✓ |
 | `world_log` | mondo_unico | 0 | ✓ |
+| `world_presidi` | supabase/migrazioni/006_presidi | 0 | ✓ |
+| `world_presidi_guardie` | supabase/migrazioni/006_presidi | 0 | ✓ |
+| `world_presidi_tenute` | supabase/migrazioni/006_presidi | 0 | ✓ |
 | `world_shapes` | supabase/migrazioni/003_forme_edifici | 0 | ✓ |
 | `world_shields` | alleanze2 | 0 | ✓ |
 | `world_shouts` | social | 0 | ✓ |
