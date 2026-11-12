@@ -51,4 +51,23 @@ function invCollega(){if(!S.user){toast('Accedi prima');return;}
           try{localStorage.setItem('zsh_inv',code);localStorage.setItem('zsh_inv_ok','1');}catch(e){}toast('🤝 Collegato a @'+x.nick+': ora siete alleati');closeSheet();try{alsLoad&&alsLoad(true);}catch(e){}}
         catch(e){toast('Non riesco a collegarti ora: riprova');b.disabled=false;}});};
     card.querySelector('[data-invq]').onclick=go2;card.querySelector('#invq').addEventListener('keydown',e=>{if(e.key==='Enter')go2();});});}
+/* 📲 INSTALLA L'APP (dopo la Fase 10): su Android Chrome la vera installazione (compare in Impostazioni → App,
+   con le sue notifiche); altrimenti i passi giusti per il telefono e il browser. Da menu ☰, Controlla il mio gioco e Notifiche. */
+function zBrowser(){const ua=navigator.userAgent||'';const os=/iPhone|iPad|iPod/.test(ua)?'ios':/Android/.test(ua)?'android':'altro';
+  const br=/SamsungBrowser/.test(ua)?'samsung':/Firefox|FxiOS/.test(ua)?'firefox':/EdgA|Edg\//.test(ua)?'edge':/CriOS|Chrome\//.test(ua)?'chrome':/Safari\//.test(ua)?'safari':'altro';return{os,br};}
+function zInstallSheet(){const w=typeof zWhere==='function'?zWhere():'browser';const{os,br}=zBrowser();const sito=ZSH_SITO+'/';
+  const dopo='<div class="bvst"><span>✓</span><div><b>Poi</b><small>Apri ZombieSafeHouse dall’<b>icona</b>, accedi con la <b>stessa email</b>, poi menu ☰ → <b>🔔 Notifiche delle orde</b> → <b>Attiva</b> → <b>Consenti</b>.</small></div></div>';
+  let body;
+  if(w==='app')body='<p class="notice">✅ Stai già usando l’app installata. Per le notifiche: menu ☰ → 🔔 Notifiche delle orde.</p>';
+  else if(w==='inapp')body=`<p style="font-weight:400">Sei dentro un’altra app (WhatsApp, Instagram…): da qui non si può installare né ricevere notifiche.</p>
+    <div class="bvst"><span>1</span><div><b>Apri il link nel browser</b><small>${os==='ios'?'Tocca <b>⋯</b> o il pulsante <b>Safari</b> in basso → <b>Apri in Safari</b>.':'Tocca <b>⋮</b> in alto a destra → <b>Apri in Chrome</b> (o “Apri nel browser”).'} Oppure copia il link e incollalo nel browser.</small>
+    <div class="invl" style="margin-top:6px"><input readonly value="${esc(sito)}"><button class="btn small" data-zicp>Copia</button></div></div></div>${dopo}`;
+  else if(BV_PROMPT)body=`<p style="font-weight:400">Il telefono può installare l’app: comparirà tra le app e nelle <b>Impostazioni</b>, con le sue notifiche.</p><button class="btn wide" data-ziinst>📲 Installa ZombieSafeHouse</button>${dopo}`;
+  else if(os==='ios')body=`<div class="bvst"><span>1</span><div><b>Usa Safari</b><small>${br==='safari'?'Sei già in Safari.':'Apri il sito in <b>Safari</b>: le notifiche su iPhone funzionano solo così.'}</small></div></div>
+    <div class="bvst"><span>2</span><div><b>Aggiungi alla schermata Home</b><small>Tocca <b>Condividi</b> (quadrato con la freccia) → scorri → <b>Aggiungi alla schermata Home</b> → <b>Aggiungi</b>.</small></div></div>${dopo}`;
+  else if(os==='android')body=`<div class="bvst"><span>1</span><div><b>${br==='samsung'?'Samsung Internet':br==='firefox'?'Firefox':'Chrome'}</b><small>${br==='samsung'?'Tocca <b>≡</b> in basso → <b>Aggiungi pagina a</b> → <b>Schermata Home</b> (se compare <b>Installa</b>, scegli quello).':br==='firefox'?'Tocca <b>⋮</b> → <b>Installa</b>.':'Tocca <b>⋮</b> in alto a destra → <b>Installa app</b>. Se vedi solo “Aggiungi a schermata Home”, toccalo e poi scegli <b>Installa</b> (non “Crea scorciatoia”).'}</small></div></div>
+    <div class="bvst"><span>2</span><div><b>Controlla</b><small>Se è installata davvero, la trovi in <b>Impostazioni → App → ZombieSafeHouse</b>. Se lì non c’è, è solo un collegamento: cancellalo e rifai il passo 1 da <b>Chrome</b>.</small></div></div>${dopo}`;
+  else body=`<p style="font-weight:400">Sul computer: nella barra dell’indirizzo tocca l’icona <b>Installa</b> (o menu → Installa ZombieSafeHouse).</p>${dopo}`;
+  openSheet('📲 Installa l’app',body,c=>{const b=c.querySelector('[data-ziinst]');if(b)b.onclick=async()=>{if(!BV_PROMPT){toast('Usa ⋮ → Installa app');return;}BV_PROMPT.prompt();try{const r=await BV_PROMPT.userChoice;if(r&&r.outcome==='accepted'){b.textContent='✅ Installata: aprila dall’icona';b.disabled=true;}}catch(e){}BV_PROMPT=null;};
+    const cp=c.querySelector('[data-zicp]');if(cp)cp.onclick=()=>{try{navigator.clipboard.writeText(sito);toast('Link copiato');}catch(e){toast('Tieni premuto sul link e copia');}};});}
 </script>
