@@ -1362,6 +1362,50 @@ body[data-tab=orda] #accFab{display:none!important}
 .trstar{border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#f3ead3);box-shadow:3px 3px 0 var(--ink);transition:transform .15s cubic-bezier(.3,1.8,.5,1)}
 .trstar.on{background:radial-gradient(circle at 35% 30%,#fff6b8,var(--moon) 55%,#e3b41f);transform:rotate(-12deg) scale(1.05)}
 .trstar:active{transform:scale(.85)}
+
+/* GRAFICA 2 · versione FORTE (richiesta 12/11: "è cambiato di pochissimo")
+   vignette appoggiate storte, inchiostro più grosso, linee di velocità, scoppi a stella, pagina col retino e i raggi */
+#app{background:radial-gradient(rgba(20,15,31,.10) 1.2px,transparent 1.4px) 0 0/8px 8px,
+  repeating-conic-gradient(from 0deg at 50% -10%,rgba(247,214,74,.10) 0 4deg,transparent 4deg 12deg),var(--paper)}
+/* pulsanti: inchiostro grosso, ombra lunga, ognuno un po' storto come incollato a mano */
+.btn{border-width:4px;box-shadow:7px 7px 0 var(--ink),inset 0 4px 0 rgba(255,255,255,.4),inset 0 -6px 0 rgba(0,0,0,.22);rotate:-1.2deg;letter-spacing:.06em}
+.btn:nth-of-type(2n){rotate:1deg}.btn.small{rotate:-1.6deg;border-width:3px}.btn.small:nth-of-type(2n){rotate:1.4deg}
+.sheet-h .btn,.trrow .btn,.invl .btn{rotate:0deg}
+.btn:not(.ghost):not(.alt){background:repeating-linear-gradient(100deg,rgba(255,255,255,.16) 0 2px,transparent 2px 9px) left/22% 100% no-repeat,
+  linear-gradient(180deg,#ff5a6e 0%,var(--blood) 50%,#9c1427 100%)}
+.btn.alt{background:repeating-linear-gradient(100deg,rgba(255,255,255,.35) 0 2px,transparent 2px 9px) left/22% 100% no-repeat,linear-gradient(180deg,#fff09a 0%,var(--moon) 50%,#dcaa12 100%)}
+.btn:active{rotate:0deg;transform:translate(5px,5px) scale(.97)}
+/* adesivi e linguette: carattere a fumetto, storti, inchiostro più deciso */
+.mfcerca,.mfpres,.mfsp,.mflente,.mfmore,.lmap .lm-3d,.schips button,.shouts button,.rivb button,.zmquick button,.hpsel button,.mhc,.pzquick button,.hkvb button,.oseg2 button,.frsel button,.whyb,.mfbar button{
+  font-family:var(--display);font-weight:400;letter-spacing:.05em;border-width:3px}
+.mfcerca,.mfpres,.mfsp,.mflente,.lmap .lm-3d{font-size:17px;rotate:-2deg;box-shadow:4px 4px 0 var(--ink)}
+.mfpres,.mflente{rotate:1.8deg}
+.schips button,.zmquick button,.hpsel button,.mhc,.pzquick button,.rivb button,.shouts button{rotate:-1.2deg}
+.schips button:nth-child(2n),.zmquick button:nth-child(2n),.hpsel button:nth-child(2n),.mhc:nth-child(2n),.pzquick button:nth-child(2n),.rivb button:nth-child(2n),.shouts button:nth-child(2n){rotate:1.2deg}
+.oseg2 button,.hkvb button{font-size:15px}.sseg.five button{font-size:13px}
+.hpsel button b,.mhc b,.frsel button b{font-family:var(--display);font-weight:400;font-size:16px;letter-spacing:.04em}
+.hact{font-family:var(--body);rotate:-.5deg;box-shadow:4px 4px 0 var(--ink);border-width:3px}.hact:nth-of-type(2n){rotate:.5deg}
+.hact b{font-family:var(--display);font-weight:400;font-size:18px;letter-spacing:.04em}
+/* grandi della homepage: ancora più grossi e storti */
+.hsbig{font-size:34px;rotate:-1.5deg;border-width:5px;box-shadow:8px 8px 0 var(--ink),inset 0 4px 0 rgba(255,255,255,.35),inset 0 -7px 0 rgba(0,0,0,.25)}
+.hsmid{font-size:25px;rotate:1.2deg;border-width:5px;box-shadow:7px 7px 0 var(--ink)}
+/* pannelli: vignette appoggiate, ombra lunga, intestazione a nastro */
+.panel{border-width:4px;box-shadow:7px 7px 0 var(--ink);rotate:-.5deg}.panel:nth-of-type(2n){rotate:.5deg}
+.panel.night{background:radial-gradient(rgba(255,255,255,.07) 1.1px,transparent 1.3px) 0 0/7px 7px,linear-gradient(160deg,#33276a,var(--night) 60%,#1b1338)}
+.sheet-h h3{font-size:26px;rotate:-2deg;box-shadow:4px 4px 0 var(--ink);border-width:3px}
+/* barra in basso: scoppio a stella sotto la scheda attiva */
+.nav button.on::before,.nav button.on::after{content:"";position:absolute;left:50%;top:50%;width:74px;height:66px;border:0;border-radius:0;box-shadow:none;
+  clip-path:polygon(50% 0%,61% 18%,82% 8%,79% 31%,100% 38%,84% 54%,96% 74%,73% 75%,68% 98%,50% 84%,32% 98%,27% 75%,4% 74%,16% 54%,0% 38%,21% 31%,18% 8%,39% 18%)}
+.nav button.on::before{z-index:-2;background:#000;transform:translate(-46%,-50%) rotate(-8deg)}
+.nav button.on::after{z-index:-1;background:var(--moon);transform:translate(-52%,-55%) rotate(-8deg)}
+.nav button.on svg{transform:scale(1.2) rotate(-8deg)}
+.nav button.on span{font-size:14px;text-shadow:1px 1px 0 #fff}
+/* barra in alto: il nome a fumetto, giallo e ripassato */
+.tb-logo b{font-size:22px;-webkit-text-stroke:1px #000;text-shadow:2px 2px 0 var(--blood)}
+.nav button.on::before,.nav button.on::after{width:84px;height:74px;top:50%}
+.nav button.on span{position:relative;z-index:1}
+.alacts .btn,.placts .btn,.placts>button{margin-bottom:4px}
+@media (prefers-reduced-motion:reduce){.btn,.panel,.hsbig,.hsmid{rotate:0deg!important}}
 </style>
 </head>
 <body>
