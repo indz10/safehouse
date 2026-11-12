@@ -78,8 +78,8 @@ async function playerSheetBase(uid){if(!S.user){loginSheet();return;}openSheet('
 /* ---------------- barra: 👥 Superstiti al posto di Io; Io sull'avatar in alto ---------------- */
 ICON.social='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="8.5" cy="8" r="3.3"/><circle cx="16.5" cy="9" r="2.7"/><path d="M2.5 20c0-3.6 2.7-6 6-6s6 2.4 6 6M14 14.6c3.4-.4 7 1.4 7 5"/></svg>';
 NAV_ACT.social='social';NAV_ACT.io='io';
-function renderNavBase(){try{document.body.dataset.tab=S.tab;}catch(e){}const items=[['home','Casa'],['mappa','Mappa'],['orda','Orda'],['social','Superstiti']];const act=NAV_ACT[S.tab]||S.tab;
-  $('#nav').innerHTML=items.map(([k,l])=>`<button class="${act===k?'on':''}" data-tab="${k}" aria-label="${l}">${ICON[k]}<span>${l}</span></button>`).join('');
+function renderNavBase(){try{document.body.dataset.tab=S.tab;}catch(e){}const items=[['home','Home'],['mappa','Mondo'],['social','Superstiti']];/* Fase 13a: Mappa e Orda unite in 🌍 Mondo (p75) */const act=NAV_ACT[S.tab]||S.tab;
+  $('#nav').innerHTML=items.map(([k,l])=>`<button class="${act===k?'on':''}" data-tab="${k}" aria-label="${l}">${ICON[k==='mappa'?'mondo':k]}<span>${l}</span></button>`).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{try{vibe();}catch(e){}go(b.dataset.tab);});socBadge();ioBtn();}
 /* in Casa: le novità dei superstiti, per entrarci ogni giorno */
 const _renderHomeSoc=renderHome;renderHome=function(){_renderHomeSoc();try{if(!S.user||!S.result||app.querySelector('.hsoc'))return;const after=app.querySelector('.hval')||app.querySelector('.hcard');if(!after)return;

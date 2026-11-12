@@ -51,6 +51,8 @@ function renderMappa(){renderMappaBase();
   /* 🤝 alleati e le loro case sulla mappa (p74) */
   (()=>{try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('[data-mfally]')||!S.user)return;
     w.insertAdjacentHTML('beforeend','<button class="mfally" data-mfally>🤝 Alleati</button>');w.querySelector('[data-mfally]').onclick=()=>alPick();}catch(e){}})();
+  /* 🌍 Mondo (Fase 13a, p75): barra dell'orda, linguette, pulsanti tondi, cassetto */
+  (()=>{try{mwMappa();}catch(e){console.warn('mondo',e);}})();
   /* 📷 Lente: realtà aumentata (Fase 10A, p70) */
   (()=>{try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('[data-mflente]'))return;
     w.insertAdjacentHTML('beforeend','<button class="mflente" data-mflente>📷 Lente</button>');w.querySelector('[data-mflente]').onclick=()=>lenteOpen();}catch(e){}})();}

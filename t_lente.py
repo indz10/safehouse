@@ -17,7 +17,7 @@ async def main():
         # presidi del server finto vicino a me (a nord-est e a nord-ovest)
         await pg.evaluate("()=>{window.__PRES=[{id:'osm:n1',name:'Parco Nord',kind:'parco',lat:45.3285,lon:10.6584,stato:'libero',record:0,guardie:0,difesa:55,vicino:true},{id:'osm:n2',name:'Piazza Est',kind:'piazza',lat:45.3256,lon:10.6622,stato:'mio',record:2,guardie:1,difesa:67,vicino:true}];SP_GEO.lx={lat:45.3240,lon:10.6582};SPONSORS.lx=SPONSORS.lx||{name:'Ferramenta Sud',logo:'FS'}}")
         print('pulsante mappa:',await pg.evaluate("()=>!!document.querySelector('[data-mflente]')"))
-        await pg.click('[data-mflente]');await pg.wait_for_timeout(3000)
+        await pg.click('[data-mwm=lente]');await pg.wait_for_timeout(3000)
         print('fotocamera:',await pg.evaluate("()=>!!(LENTE.stream&&LENTE.stream.active)"),'| filtro:',await pg.evaluate("()=>!!LENTE.G"),'| fotogrammi:',await pg.evaluate("()=>LENTE.frames>10"))
         # bussola verso nord (iPhone: webkitCompassHeading)
         async def bussola(h):

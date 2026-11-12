@@ -45,6 +45,8 @@ var renderHub=function(){
   try{const h=tmHTML();if(h){pg.insertAdjacentHTML('beforeend',h);tmBind();}}catch(e){console.warn('missioni',e);}
   /* 🧭 il tuo prossimo passo (in cima) */
   try{coPut();}catch(e){}
+  /* 🌍 Mondo (Fase 13a, p75): barra dell'orda e linguette Mappa · Orda · Lente in cima */
+  try{mwOrda(pg);}catch(e){}
   setTimeout(()=>{try{frMount();}catch(e){}},30);
   /* dati: come faceva la vecchia catena di renderHub */
   try{orLoad();}catch(e){}
