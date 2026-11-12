@@ -763,10 +763,10 @@ const invLink=()=>ZSH_SITO+'/?invito='+myCode();
 /* messaggio d'invito con le istruzioni: aprire in Safari/Chrome, creare l'account, mettere l'app sulla Home */
 const invTxt=()=>`🧟 Ti invito su ZombieSafeHouse: scopri quanto resisterebbe casa tua a un’apocalisse zombie (e come renderla più sicura davvero).
 
-1) Apri il link con Safari (iPhone) o Chrome (Android), non dentro WhatsApp: ${invLink()}
-2) Crea l’account: così siamo collegati e giochiamo nello stesso mondo
-3) Fai la valutazione della tua casa
-4) iPhone: Condividi → Aggiungi alla schermata Home (Android: menu ⋮ → Installa app)`;
+👉 Apri questo link: ${invLink()}
+
+Ti compare una pagina con 3 passi: crea l’account, installa l’app, attiva le notifiche. Seguili e giochiamo nello stesso mondo.
+Se il link si apre dentro WhatsApp, tocca “🌐 Apri in Chrome” (Android) o “Apri in Safari” (iPhone).`;
 const _zSyncInv=zSyncProfile;zSyncProfile=async function(force){await _zSyncInv(force);try{const inv=localStorage.getItem('zsh_inv');if(!inv||!S.user||inv===myCode()||localStorage.getItem('zsh_inv_ok'))return;
   const{error}=await SB.from('profili_pubblici').update({invitato_da:inv}).eq('user_id',S.user.id);if(!error)localStorage.setItem('zsh_inv_ok','1');}catch(e){}};
 async function inviteSheetBase(){if(!S.user){toast('Accedi per avere il tuo link di invito');return;}let L=[];try{const{data}=await SB.rpc('miei_invitati');L=data||[];}catch(e){}
