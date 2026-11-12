@@ -1268,6 +1268,144 @@ body[data-tab=orda] #accFab{display:none!important}
 .trlist{margin-top:6px}.trrow{display:flex;align-items:center;gap:4px}.trrow .strow{flex:1;min-width:0}
 .trstar{flex:0 0 auto;width:42px;height:42px;font-size:22px;background:#fff;border:2.5px solid var(--ink);color:var(--ink);line-height:1}.trstar.on{background:var(--moon)}
 .plhead .trstar{margin-left:auto}
+
+/* =====================================================================
+   GRAFICA 2 (anteprima) — stesso fumetto, pulsanti più "da gioco":
+   bordi disegnati a mano, retino tipografico, riflesso, scritte ripassate a china,
+   nastro d'allarme sui gialli, pressione "POW", barra in basso con il distintivo acceso.
+   Tutto qui in fondo: per tornare alla grafica di prima basta togliere questo blocco.
+   ===================================================================== */
+:root{--hand:16px 5px 18px 6px/6px 18px 5px 16px;--hand-s:11px 4px 12px 4px/4px 12px 4px 11px;
+  --dots-w:radial-gradient(rgba(255,255,255,.28) 1.1px,transparent 1.35px);--dots-k:radial-gradient(rgba(20,15,31,.16) 1.1px,transparent 1.35px)}
+.btn{position:relative;isolation:isolate;overflow:hidden;border-radius:var(--hand);
+  background:linear-gradient(180deg,#f2475d 0%,var(--blood) 52%,#a3172a 100%);
+  text-shadow:2px 2px 0 var(--ink),-1px -1px 0 var(--ink),1px -1px 0 var(--ink),-1px 1px 0 var(--ink),0 2px 0 var(--ink);
+  box-shadow:5px 5px 0 var(--ink),inset 0 3px 0 rgba(255,255,255,.38),inset 0 -5px 0 rgba(0,0,0,.2);
+  transition:transform .09s cubic-bezier(.3,1.6,.5,1),box-shadow .09s,filter .15s}
+.btn::before{content:"";position:absolute;z-index:-1;top:-40%;left:-10%;width:26%;height:180%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);transform:rotate(18deg);pointer-events:none}
+.btn::after{content:"";position:absolute;z-index:-1;inset:0;background-image:var(--dots-w);background-size:6px 6px;pointer-events:none;
+  -webkit-mask-image:linear-gradient(135deg,#000 0%,transparent 55%);mask-image:linear-gradient(135deg,#000 0%,transparent 55%)}
+.btn:active{transform:translate(4px,4px) rotate(-.6deg) scale(.985);box-shadow:1px 1px 0 var(--ink),inset 0 2px 0 rgba(255,255,255,.25),inset 0 -2px 0 rgba(0,0,0,.2);filter:brightness(1.08)}
+.btn.alt{background:linear-gradient(180deg,#ffe98a 0%,var(--moon) 50%,#e3b41f 100%);color:var(--ink);text-shadow:1px 1px 0 rgba(255,255,255,.7);padding-bottom:16px}
+.btn.alt::after{-webkit-mask-image:none;mask-image:none;background-image:repeating-linear-gradient(-45deg,var(--ink) 0 7px,transparent 7px 14px);background-size:auto;
+  top:auto;height:6px;bottom:0;border-top:2px solid var(--ink);opacity:.9}
+.btn.ghost{background:linear-gradient(180deg,#fff 0%,#fffaf0 60%,#efe4c8 100%);color:var(--ink);text-shadow:none;
+  box-shadow:4px 4px 0 var(--ink),inset 0 -4px 0 rgba(20,15,31,.08)}
+.btn.ghost::after{background-image:var(--dots-k);-webkit-mask-image:linear-gradient(315deg,#000 0%,transparent 45%);mask-image:linear-gradient(315deg,#000 0%,transparent 45%)}
+.btn.ghost::before{background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent)}
+.btn.small{border-radius:var(--hand-s);box-shadow:3px 3px 0 var(--ink),inset 0 2px 0 rgba(255,255,255,.35),inset 0 -3px 0 rgba(0,0,0,.18);text-shadow:1px 1px 0 var(--ink),-1px -1px 0 var(--ink),1px -1px 0 var(--ink),-1px 1px 0 var(--ink)}
+.btn.small.ghost{box-shadow:3px 3px 0 var(--ink),inset 0 -3px 0 rgba(20,15,31,.08);text-shadow:none}
+.btn.small.alt{padding-bottom:12px;text-shadow:1px 1px 0 rgba(255,255,255,.7)}.btn.small.alt::after{height:4px}
+.btn:active.small{transform:translate(2px,2px) scale(.98);box-shadow:1px 1px 0 var(--ink)}
+.btn[disabled]{filter:grayscale(.7);opacity:.6}
+/* il pulsante principale a tutta larghezza pulsa piano, come un'insegna al neon */
+.btn.wide:not(.ghost):not([disabled]){animation:zsGlow 2.6s ease-in-out infinite}
+@keyframes zsGlow{0%,100%{box-shadow:5px 5px 0 var(--ink),inset 0 3px 0 rgba(255,255,255,.38),inset 0 -5px 0 rgba(0,0,0,.2)}
+  50%{box-shadow:5px 5px 0 var(--ink),0 0 0 4px rgba(247,214,74,.55),inset 0 3px 0 rgba(255,255,255,.38),inset 0 -5px 0 rgba(0,0,0,.2)}}
+@media (prefers-reduced-motion:reduce){.btn.wide{animation:none!important}.btn{transition:none}}
+/* chiudi ✕ delle finestre: tondo rosso a fumetto */
+.sheet-h [data-close]{border-radius:50%;width:44px;height:44px;min-height:44px;padding:0;background:radial-gradient(circle at 35% 30%,#ff6b7d,var(--blood) 60%,#8f1424);color:#fff;
+  text-shadow:1px 1px 0 var(--ink);font-family:var(--display);font-size:22px}
+.sheet-h [data-close]::after,.sheet-h [data-close]::before{display:none}
+.sheet-h h3{background:var(--moon);border:var(--line);box-shadow:3px 3px 0 var(--ink);padding:5px 12px 3px;transform:rotate(-1.2deg);border-radius:var(--hand-s);max-width:calc(100% - 60px)}
+/* schede a linguette (Superstiti, Orda, Trova…) */
+.oseg2 button,.hkvb button{border-radius:var(--hand-s);background:linear-gradient(180deg,#fff,#f3ead3);transition:transform .08s}
+.oseg2 button.on,.hkvb button.on{background:linear-gradient(180deg,#ffe98a,var(--moon) 60%,#e3b41f);transform:translateY(-2px) rotate(-1deg);box-shadow:3px 4px 0 var(--ink)}
+.oseg2 button:active,.hkvb button:active{transform:translate(2px,2px)}
+/* barra in basso: la scheda attiva diventa un distintivo giallo con lo scoppio */
+.nav{background:var(--ink);background-image:radial-gradient(rgba(247,214,74,.09) 1px,transparent 1.2px);background-size:6px 6px;border-top:4px solid var(--moon);box-shadow:0 -3px 0 var(--ink)}
+.nav button{position:relative;transition:transform .12s cubic-bezier(.3,1.6,.5,1)}
+.nav button.on{color:var(--ink)}
+.nav button.on::before{content:"";position:absolute;z-index:-1;left:50%;top:50%;width:62px;height:52px;transform:translate(-50%,-55%) rotate(-4deg);
+  background:var(--moon);border:3px solid #000;border-radius:var(--hand);box-shadow:3px 3px 0 #000}
+.nav button.on svg{transform:scale(1.12) rotate(-6deg)}
+.nav button.on span{font-family:var(--display);font-size:15px;letter-spacing:.04em}
+.nav button:active{transform:scale(.92)}
+.nav{isolation:isolate}
+/* pannelli: un filo di retino nell'angolo, come una vignetta stampata */
+.panel{border-radius:3px 9px 4px 10px/10px 4px 9px 3px}
+.panel:not(.night)::after{content:"";position:absolute;right:0;bottom:0;width:90px;height:60px;pointer-events:none;background-image:var(--dots-k);background-size:6px 6px;
+  -webkit-mask-image:linear-gradient(315deg,#000,transparent 70%);mask-image:linear-gradient(315deg,#000,transparent 70%)}
+
+/* GRAFICA 2 · tutti gli altri pulsanti: adesivi bianchi con l'orecchia, gialli col nastro d'allarme, rossi da insegna */
+:root{--ear:linear-gradient(225deg,#d9caa3 0 8px,#b8a77c 8px 9.5px,transparent 9.5px);--hz:repeating-linear-gradient(-45deg,var(--ink) 0 5px,transparent 5px 10px)}
+.mfcerca,.mfpres,.mfmore,.lmap .lm-3d,.schips button,.shouts button,.rivb button,.zmquick button,.hpsel button,.mhc,.hact,.pzquick button,.hkvb button,.oseg2 button{
+  border-radius:var(--hand-s);background:var(--ear),linear-gradient(180deg,#fff 0%,#fbf5e6 65%,#efe3c4 100%);
+  box-shadow:3px 3px 0 var(--ink),inset 0 -3px 0 rgba(20,15,31,.07);transition:transform .09s cubic-bezier(.3,1.6,.5,1),box-shadow .09s}
+.mfcerca:active,.mfpres:active,.mfmore:active,.lmap .lm-3d:active,.schips button:active,.shouts button:active,.rivb button:active,.zmquick button:active,.hpsel button:active,.mhc:active,.hact:active,.pzquick button:active,.mfsp:active,.mflente:active,.fch:active,.frsel button:active{transform:translate(2px,2px) rotate(-.8deg);box-shadow:1px 1px 0 var(--ink)}
+.schips button.on,.zmquick button.on,.hpsel button.on,.lmap .lm-3d.on,.oseg2 button.on,.hkvb button.on,.mhc.on{background:var(--hz) bottom/100% 5px no-repeat,linear-gradient(180deg,#ffe98a,var(--moon) 60%,#e3b41f);
+  padding-bottom:9px;transform:translateY(-2px) rotate(-1deg);box-shadow:3px 4px 0 var(--ink)}
+.mfsp,.mflente,.whyb,.mfbar button{border-radius:var(--hand-s);background:var(--hz) bottom/100% 5px no-repeat,linear-gradient(180deg,#ffe98a 0%,var(--moon) 55%,#e3b41f 100%);padding-bottom:12px;
+  box-shadow:3px 3px 0 var(--ink),inset 0 2px 0 rgba(255,255,255,.6);text-shadow:1px 1px 0 rgba(255,255,255,.6)}
+.whyb,.mfbar button{padding-bottom:6px;background-size:100% 3px,auto}
+.mhc.add{background:repeating-linear-gradient(-45deg,rgba(247,214,74,.45) 0 8px,rgba(247,214,74,.15) 8px 16px),#fff;border-style:dashed}
+/* rossi grandi della homepage: insegna luminosa con la scritta ripassata a china */
+.hsbig{position:relative;overflow:hidden;border-radius:var(--hand);background:radial-gradient(rgba(255,255,255,.22) 1.1px,transparent 1.35px) 0 0/7px 7px,linear-gradient(180deg,#f2475d,var(--blood) 52%,#a3172a);
+  text-shadow:3px 3px 0 var(--ink),-1px -1px 0 var(--ink),1px -1px 0 var(--ink),-1px 1px 0 var(--ink);box-shadow:6px 6px 0 var(--ink),inset 0 4px 0 rgba(255,255,255,.35),inset 0 -6px 0 rgba(0,0,0,.22)}
+.hsbig::before{content:"";position:absolute;top:-50%;left:-30%;width:22%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:rotate(20deg);animation:zsShine 3.8s ease-in-out infinite;pointer-events:none}
+@keyframes zsShine{0%,55%{left:-30%}100%{left:130%}}
+.hsmid{border-radius:var(--hand);background:var(--hz) bottom/100% 7px no-repeat,linear-gradient(180deg,#ffe98a,var(--moon) 55%,#e3b41f);padding-bottom:16px;box-shadow:5px 5px 0 var(--ink),inset 0 3px 0 rgba(255,255,255,.6)}
+.hsbig:active,.hsmid:active{transform:translate(4px,4px) rotate(-.6deg);box-shadow:1px 1px 0 var(--ink)}
+@media (prefers-reduced-motion:reduce){.hsbig::before{animation:none;display:none}}
+/* difese della casa: gettoni tratteggiati come ritagli */
+.fch{border-radius:var(--hand-s);background:var(--ear),linear-gradient(180deg,#fff,#f7f0de);box-shadow:2px 2px 0 rgba(20,15,31,.35)}
+.fch.ok{background:var(--ear),linear-gradient(180deg,#e9f7ec,#cdebd5);border-style:solid}
+.fch.up{border-style:solid;border-color:var(--ink);background:var(--hz) bottom/100% 4px no-repeat,linear-gradient(180deg,#fff7c9,#ffe98a);padding-bottom:9px;box-shadow:3px 3px 0 var(--ink)}
+.frsel button{border-radius:var(--hand-s);background:linear-gradient(180deg,#4a3c86,#30265e);box-shadow:2px 2px 0 #000}
+.frsel button.on{background:linear-gradient(180deg,#ffe98a,var(--moon));color:var(--ink);border-color:var(--ink)}.frsel button.on small{color:#4a3f1a}
+/* menu ☰: righe che si accendono al tocco, con la freccia a fumetto */
+.zmrow{transition:background .12s,transform .08s}.zmrow:active{background:#fff3b0;transform:translateX(3px)}
+/* barra in alto: pulsanti a cuscinetto */
+.topbar button:not(.tb-logo){border-radius:var(--hand-s);transition:transform .08s}.topbar button:not(.tb-logo):active{transform:scale(.9) rotate(-4deg)}
+.nav button.on::before{width:58px;height:48px}
+.mfbar button,.lmap .lm-3d,.mfmore,.mfcerca,.mfpres{color:var(--ink)}
+.trstar{border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#f3ead3);box-shadow:3px 3px 0 var(--ink);transition:transform .15s cubic-bezier(.3,1.8,.5,1)}
+.trstar.on{background:radial-gradient(circle at 35% 30%,#fff6b8,var(--moon) 55%,#e3b41f);transform:rotate(-12deg) scale(1.05)}
+.trstar:active{transform:scale(.85)}
+
+/* GRAFICA 2 · versione FORTE (richiesta 12/11: "è cambiato di pochissimo")
+   vignette appoggiate storte, inchiostro più grosso, linee di velocità, scoppi a stella, pagina col retino e i raggi */
+#app{background:radial-gradient(rgba(20,15,31,.10) 1.2px,transparent 1.4px) 0 0/8px 8px,
+  repeating-conic-gradient(from 0deg at 50% -10%,rgba(247,214,74,.10) 0 4deg,transparent 4deg 12deg),var(--paper)}
+/* pulsanti: inchiostro grosso, ombra lunga, ognuno un po' storto come incollato a mano */
+.btn{border-width:4px;box-shadow:7px 7px 0 var(--ink),inset 0 4px 0 rgba(255,255,255,.4),inset 0 -6px 0 rgba(0,0,0,.22);rotate:-1.2deg;letter-spacing:.06em}
+.btn:nth-of-type(2n){rotate:1deg}.btn.small{rotate:-1.6deg;border-width:3px}.btn.small:nth-of-type(2n){rotate:1.4deg}
+.sheet-h .btn,.trrow .btn,.invl .btn{rotate:0deg}
+.btn:not(.ghost):not(.alt){background:repeating-linear-gradient(100deg,rgba(255,255,255,.16) 0 2px,transparent 2px 9px) left/22% 100% no-repeat,
+  linear-gradient(180deg,#ff5a6e 0%,var(--blood) 50%,#9c1427 100%)}
+.btn.alt{background:repeating-linear-gradient(100deg,rgba(255,255,255,.35) 0 2px,transparent 2px 9px) left/22% 100% no-repeat,linear-gradient(180deg,#fff09a 0%,var(--moon) 50%,#dcaa12 100%)}
+.btn:active{rotate:0deg;transform:translate(5px,5px) scale(.97)}
+/* adesivi e linguette: carattere a fumetto, storti, inchiostro più deciso */
+.mfcerca,.mfpres,.mfsp,.mflente,.mfmore,.lmap .lm-3d,.schips button,.shouts button,.rivb button,.zmquick button,.hpsel button,.mhc,.pzquick button,.hkvb button,.oseg2 button,.frsel button,.whyb,.mfbar button{
+  font-family:var(--display);font-weight:400;letter-spacing:.05em;border-width:3px}
+.mfcerca,.mfpres,.mfsp,.mflente,.lmap .lm-3d{font-size:17px;rotate:-2deg;box-shadow:4px 4px 0 var(--ink)}
+.mfpres,.mflente{rotate:1.8deg}
+.schips button,.zmquick button,.hpsel button,.mhc,.pzquick button,.rivb button,.shouts button{rotate:-1.2deg}
+.schips button:nth-child(2n),.zmquick button:nth-child(2n),.hpsel button:nth-child(2n),.mhc:nth-child(2n),.pzquick button:nth-child(2n),.rivb button:nth-child(2n),.shouts button:nth-child(2n){rotate:1.2deg}
+.oseg2 button,.hkvb button{font-size:15px}.sseg.five button{font-size:13px}
+.hpsel button b,.mhc b,.frsel button b{font-family:var(--display);font-weight:400;font-size:16px;letter-spacing:.04em}
+.hact{font-family:var(--body);rotate:-.5deg;box-shadow:4px 4px 0 var(--ink);border-width:3px}.hact:nth-of-type(2n){rotate:.5deg}
+.hact b{font-family:var(--display);font-weight:400;font-size:18px;letter-spacing:.04em}
+/* grandi della homepage: ancora più grossi e storti */
+.hsbig{font-size:34px;rotate:-1.5deg;border-width:5px;box-shadow:8px 8px 0 var(--ink),inset 0 4px 0 rgba(255,255,255,.35),inset 0 -7px 0 rgba(0,0,0,.25)}
+.hsmid{font-size:25px;rotate:1.2deg;border-width:5px;box-shadow:7px 7px 0 var(--ink)}
+/* pannelli: vignette appoggiate, ombra lunga, intestazione a nastro */
+.panel{border-width:4px;box-shadow:7px 7px 0 var(--ink);rotate:-.5deg}.panel:nth-of-type(2n){rotate:.5deg}
+.panel.night{background:radial-gradient(rgba(255,255,255,.07) 1.1px,transparent 1.3px) 0 0/7px 7px,linear-gradient(160deg,#33276a,var(--night) 60%,#1b1338)}
+.sheet-h h3{font-size:26px;rotate:-2deg;box-shadow:4px 4px 0 var(--ink);border-width:3px}
+/* barra in basso: scoppio a stella sotto la scheda attiva */
+.nav button.on::before,.nav button.on::after{content:"";position:absolute;left:50%;top:50%;width:74px;height:66px;border:0;border-radius:0;box-shadow:none;
+  clip-path:polygon(50% 0%,61% 18%,82% 8%,79% 31%,100% 38%,84% 54%,96% 74%,73% 75%,68% 98%,50% 84%,32% 98%,27% 75%,4% 74%,16% 54%,0% 38%,21% 31%,18% 8%,39% 18%)}
+.nav button.on::before{z-index:-2;background:#000;transform:translate(-46%,-50%) rotate(-8deg)}
+.nav button.on::after{z-index:-1;background:var(--moon);transform:translate(-52%,-55%) rotate(-8deg)}
+.nav button.on svg{transform:scale(1.2) rotate(-8deg)}
+.nav button.on span{font-size:14px;text-shadow:1px 1px 0 #fff}
+/* barra in alto: il nome a fumetto, giallo e ripassato */
+.tb-logo b{font-size:22px;-webkit-text-stroke:1px #000;text-shadow:2px 2px 0 var(--blood)}
+.nav button.on::before,.nav button.on::after{width:84px;height:74px;top:50%}
+.nav button.on span{position:relative;z-index:1}
+.alacts .btn,.placts .btn,.placts>button{margin-bottom:4px}
+@media (prefers-reduced-motion:reduce){.btn,.panel,.hsbig,.hsmid{rotate:0deg!important}}
 </style>
 </head>
 <body>
