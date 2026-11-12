@@ -16,7 +16,8 @@ Se una funzione manca l'app non si rompe: senza `zsh-api` le foto e la Radio usa
 2. Se la funzione c'è già: aprila → scheda **Code** → seleziona tutto e incolla il nuovo `index.ts` → **Deploy**.
    Se non c'è: **Deploy a new function** → **Via Editor** → nome esatto (`zsh-push` o `zsh-api`) → incolla `index.ts` → **Deploy function**.
 3. Nella funzione → **Details** (o Settings) → **Verify JWT with legacy secret**: spento per `zsh-push`, acceso per `zsh-api` → **Save**.
-4. Segreti: **Edge Functions → Secrets** → **Add new secret** → nome (es. `ANTHROPIC_API_KEY`) e valore. Il valore si incolla solo lì: **mai in chat**.
+4. Dopo il Deploy: **Logs** della funzione → non deve comparire `BOOT_ERROR`. Le librerie hanno la **versione fissa** (`supabase-js@2.45.4`, `web-push@3.6.7`): il 12/11 con `supabase-js@2` il Deploy ha preso una versione nuova e la funzione non partiva più (BOOT_ERROR, niente notifiche). Controllo: `supabase/controllo/003_notifiche_messaggi.sql`.
+5. Segreti: **Edge Functions → Secrets** → **Add new secret** → nome (es. `ANTHROPIC_API_KEY`) e valore. Il valore si incolla solo lì: **mai in chat**.
 
 ## Accendere i pagamenti (quando ci sono partita IVA e account Stripe)
 1. stripe.com → crea l'account con partita IVA e IBAN; resta in **modalità test** per le prove.

@@ -4,7 +4,7 @@
 // (Open-Meteo) e li salva in world_wx e world_terrain: il server li usa per calcolare l'attacco degli zombie.
 // Le chiavi VAPID vengono create alla prima chiamata e salvate in public.push_keys.
 // Impostazioni della funzione: "Verify JWT" SPENTO (la chiama l'orologio del database).
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import webpush from "npm:web-push@3.6.7";
 
 const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
