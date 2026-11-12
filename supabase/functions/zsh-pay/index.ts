@@ -5,7 +5,7 @@
 // 2) webhook di Stripe (header "stripe-signature"): quando il pagamento è confermato chiama sponsor_pagato
 //    (pacchetto, scadenza, in evidenza, abbonamento). La firma di Stripe viene verificata.
 // Impostazioni della funzione: "Verify JWT" SPENTO (Stripe non manda il token dell'utente: lo controlliamo qui).
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const URL_SB = Deno.env.get("SUPABASE_URL")!;
 const sb = createClient(URL_SB, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);

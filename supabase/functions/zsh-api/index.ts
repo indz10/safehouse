@@ -5,7 +5,7 @@
 //                     (chiave GOOGLE_PLACES_KEY, facoltativa)
 // Le chiavi restano qui sul server: nell'app non compaiono mai.
 // Solo utenti registrati, massimo 40 richieste al giorno a testa.
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
