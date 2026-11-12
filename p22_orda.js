@@ -1,4 +1,6 @@
 <script>
+/* risorse nei premi dell'orda (migrazione 012): " + 🪵 4 🥫 6 ⛽ 10" */
+function resTxt(o){if(!o)return'';const L=[o.legno?'🪵 '+o.legno:'',o.cibo?'🥫 '+o.cibo:'',o.carb?'⛽ '+o.carb:''].filter(Boolean);return L.length?' + '+L.join(' '):'';}
 /* =========================================================
    L'ORDA DEL MONDO (semplice da usare, stesso concetto)
    - ogni giorno alle 9:00 e alle 21:00 un'orda attacca tutte le
@@ -22,7 +24,7 @@ function orPanelHTML(){const s=OR.s;
   if(!s||!s.next_at)return`<div class="panel opan"><b class="disp opt">🧟 L’orda del mondo</b><p class="osub"><span class="spin"></span> Controllo quando arriva… (serve il blocco SQL “orda del mondo” su Supabase)</p></div>`;
   const live=orLive(),ch=orChance();const nH=s.total||0;
   const last=nH?`<div class="olast ${s.held===s.total?'ok':''}"><b>Ultima orda · ore ${orTime(s.prev_at)}</b><span>${s.held===s.total?'🛡️ Tutte le tue case hanno tenuto!':`🛡️ ${s.held} ${s.held===1?'tenuta':'tenute'} · 💥 ${s.total-s.held} ${s.total-s.held===1?'sfondata':'sfondate'}`}</span>
-     ${s.claimed?'<small>✅ Premi riscattati</small>':`<button class="btn" data-ocl>🎁 ${s.bounty?'🎯 taglie incluse · ':''}Riscatta: 🧱 ${s.mattoni+6*s.held}${s.held===s.total?' + 💎 2':''}</button>`}</div>`:'';
+     ${s.claimed?'<small>✅ Premi riscattati</small>':`<button class="btn" data-ocl>🎁 ${s.bounty?'🎯 taglie incluse · ':''}Riscatta: 🧱 ${s.mattoni+6*s.held}${resTxt(s)}${s.held===s.total?' + 💎 2':''}</button>`}</div>`:'';
   return`<div class="panel opan ${live?'live':''}"><div class="row spread"><b class="disp opt">🧟 L’orda del mondo</b>${live?'<span class="olive">● IN CORSO</span>':''}</div>
    <div class="onext"><span>${s.next_bonus?`<span class="rbon">${s.next_bonus>0?'+':''}${s.next_bonus} difesa da aiuti/orde</span> `:''}Prossima orda</span><b>${orTime(s.next_at)}</b><small>tra ${orLeft(s.next_at)}</small></div>
    <div class="ostep"><div class="${s.prepared?'done':''}"><i>1</i><b>Prepara</b>${s.prepared?'<small>✅ Case pronte (+15 difesa)</small>':'<button class="btn small" data-oprep>🛡️ Prepara le case</button>'}</div>
@@ -33,7 +35,7 @@ function orPanelHTML(){const s=OR.s;
 function orBind(root){const p=(root||document).querySelector('.opan');if(!p)return;
   const pr=p.querySelector('[data-oprep]');if(pr)pr.onclick=async()=>{pr.disabled=true;try{const{data}=await SB.rpc('world_prepare');toast(data&&data.ok?'🛡️ Case preparate: +15 difesa per la prossima orda':'Non riuscito');}catch(e){toast('Non riuscito');}orLoad(true);};
   const cl=p.querySelector('[data-ocl]');if(cl)cl.onclick=async()=>{cl.disabled=true;try{const{data}=await SB.rpc('world_raid_claim');
-      if(data&&data.ok){if(typeof G!=='undefined'&&G.type){G.coins+=30*data.held;if(data.held===data.total)G.gems+=2;G.spins=(G.spins||0)+1;}try{saveLocal();sfx('coin');vibe();}catch(e){}toast(`🎁 +🧱 ${data.mattoni+6*data.held}${data.held===data.total?' · +💎 2':''} · +1 giro di ruota 🎡`);if(typeof wMine==='function')wMine(true);}
+      if(data&&data.ok){if(typeof G!=='undefined'&&G.type){G.coins+=30*data.held;if(data.held===data.total)G.gems+=2;G.spins=(G.spins||0)+1;}try{saveLocal();sfx('coin');vibe();}catch(e){}toast(`🎁 +🧱 ${data.mattoni+6*data.held}${resTxt(data)}${data.held===data.total?' · +💎 2':''} · +1 giro di ruota 🎡`);if(typeof wMine==='function')wMine(true);}
       else toast(data&&data.msg||'Non riuscito');}catch(e){toast('Non riuscito');}orLoad(true);};
   const f=p.querySelector('[data-ofort]');if(f)f.onclick=()=>orFortify();
   const wa=p.querySelector('[data-owatch]');if(wa)wa.onclick=()=>orWatch();

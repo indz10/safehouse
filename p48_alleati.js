@@ -35,8 +35,9 @@ async function allySheetBase(uid){openSheet('🤝 Alleato','<p><span class="spin
     ${!d.prepared?'<p class="altip">Non ha preparato le case: senza il suo +15 rischia di più. Mandagli rinforzi o uno scudo, oppure ricordaglielo.</p>':''}
     ${alActs({...d,user_id:uid},true)}
     <h4 class="hh">🏠 Le sue case alla prossima orda</h4>
+    ${H.length?'<button class="btn small alt" data-ahmap>🗺️ Vedi le sue case sulla mappa</button>':''}
     ${H.length?H.map((T,i)=>{const c=thrCalc(T).ch;return`<div class="alhouse"><button class="alhb" data-ah="${i}"><span>${T.home?'❤️ Casa vera':'🔑 Casa '+i}</span><small>livello ${T.level} · ${(EVN[T.ev]||EVN.calma)[0]}</small><b class="${chCls(c)}">${c}%</b><i>${open===i?'▲':'▼'}</i></button>${open===i?`<div class="alhd">${thrView(T)}</div>`:''}</div>`;}).join(''):'<p class="muted">Non ha ancora case nel mondo.</p>'}
-    <p class="muted" style="font-size:12px;margin-top:8px">Ogni rinforzo vale secondo il tuo mezzo (a piedi +4 … fuoristrada +10, +1 per dotazione) e arriva solo entro la sua portata; ogni scudo +5 (max 2). La % si aggiorna dopo l’invio.</p>`,card=>{alBindActs(card);
+    <p class="muted" style="font-size:12px;margin-top:8px">Ogni rinforzo vale secondo il tuo mezzo (a piedi +4 … fuoristrada +10, +1 per dotazione) e arriva solo entro la sua portata; ogni scudo +5 (max 2). La % si aggiorna dopo l’invio.</p>`,card=>{alBindActs(card);const hm=card.querySelector('[data-ahmap]');if(hm)hm.onclick=()=>alMapShow(uid);
       card.querySelectorAll('[data-ah]').forEach(b=>b.onclick=()=>{const i=+b.dataset.ah;draw(open===i?-1:i);});
       card.querySelectorAll('[data-alh],[data-als]').forEach(b=>{const o=b.onclick;b.onclick=async e=>{await o(e);setTimeout(()=>allySheet(uid),900);};});});
   draw(H.length===1?0:-1);}
@@ -48,9 +49,10 @@ function alsHTML(L,compact){if(L==null)return'<p class="muted"><span class="spin
   return LL.map(a=>`<div class="alrow" data-alv="${a.user_id}"><span class="sav">${esc((a.nick||'?')[0].toUpperCase())}</span><div class="alrt"><b>@${esc(a.nick)}${a.coinq?' 🏢':''}</b>
      <small><span class="${a.prepared?'okt':'kot'}">${a.prepared?'🟢 pronto':'🔴 non pronto'}</span> · ${agoTxt(a.seen_at)}${a.asked?' · 🆘 chiede aiuto':''}</small></div>
      <div class="alpc ${chCls(a.worst)}"><b>${a.worst!=null?a.worst+'%':'—'}</b><small>${a.houses} ${a.houses===1?'casa':'case'}</small></div>
+     ${a.houses?`<button class="btn small ghost almapb" data-almap="${a.user_id}" aria-label="Le sue case sulla mappa">🗺️</button>`:''}
      ${compact?'':alActs(a,false)}</div>`).join('')+(compact&&L.length>4?`<button class="btn small ghost" data-alall>Tutti gli alleati (${L.length}) ›</button>`:'');}
 function alsRefresh(){alsLoad().then(()=>{document.querySelectorAll('.alsbox').forEach(b=>{const c=b.classList.contains('cmp');b.innerHTML=alsHTML(ALS.L,c);alsBind(b);});});}
-function alsBind(b){b.querySelectorAll('[data-alv]').forEach(r=>r.onclick=e=>{if(e.target.closest('button'))return;allySheet(r.dataset.alv);});alBindActs(b);
+function alsBind(b){b.querySelectorAll('[data-almap]').forEach(x=>x.onclick=e=>{e.stopPropagation();alMapShow(x.dataset.almap);});b.querySelectorAll('[data-alv]').forEach(r=>r.onclick=e=>{if(e.target.closest('button'))return;allySheet(r.dataset.alv);});alBindActs(b);
   const all=b.querySelector('[data-alall]');if(all)all.onclick=()=>{SOC.tab='squadra';go('social');};}
 /* ---------- in breve nella scheda Orda ---------- */
 function alsPutOrda(){try{if(S.tab!=='orda'||!S.user)return;const pg=app.querySelector('.page');if(!pg)return;let p=pg.querySelector(':scope > .alsorda');

@@ -56,5 +56,14 @@ SQL `w_pres_attack`, `w_pres_def`, `w_pres_tick` — app p69 (`presChance`).
 SQL `w_score` (ultimi 7 o 30 giorni) — l'app mostra i valori del server.
 Difesa (case tenute, max 300) + Fortezza (fortificazioni e livelli, max 200) + Casa vera (indice, max 150) + Squadra (aiuti dati e alleati, max 150) + Costanza (giorni attivi, max 100) + Crescita (Mattoni guadagnati giocando, max 100).
 
+## Risorse e ricompense (migrazione 012)
+Risorse 🪵 Legno, 🥫 Cibo, ⛽ Carburante accanto ai 🧱 Mattoni; le dà solo il server (`w_res`), max **400 al giorno** per risorsa.
+- Orda, casa che tiene: 🧱 **10 + 6 × livello** della casa, più 🪵 4 e 🥫 6; casa sfondata 🧱 3 (`world_raid_status`).
+- Orda mandata a un rivale la cui casa cade: 🧱 **35** e ⛽ 10.
+- Rinforzi a un alleato: 🧱 **10** e 🥫 5 (max 5 al giorno).
+- Presidio tenuto a ogni orda (`w_pres_rendita`): 20 + 2 × orde di fila (max +20) della sua risorsa — parco/sport 🪵, piazza/centro/chiesa 🥫, stazione/polizia/pompieri ⛽; municipio/scuola/biblioteca/ospedale 🧱 15 + orde di fila (max +15).
+- Accesso del giorno: 🧱 20 + 🪵 10 🥫 10 ⛽ 5. Casa vera valutata: 🧱 200 + 🪵 50 🥫 50 ⛽ 30.
+- 🔄 Mercato (`world_trade`): 20 di una risorsa = 🧱 10, max 🧱 100 al giorno.
+
 ## Mattoni
 Accrediti solo dal server (`w_pay`): premi del giorno con limiti (`world_earn`), premi vari max 300 al giorno (`world_reward`), spinta di recupero +50% sotto il livello medio della zona (`w_boost`), padrino +10% a chi ti ha invitato per 14 giorni.

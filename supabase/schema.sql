@@ -810,6 +810,23 @@ CREATE FUNCTION public.w_pres_near(p_user uuid, p_lat double precision, p_lon do
 $$;
 
 --
+-- Name: w_pres_rendita(uuid, text, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_pres_rendita(p_user uuid, p_kind text, p_record integer) RETURNS void
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare a int := 20 + least(20, 2 * greatest(coalesce(p_record,1),1));
+begin
+  if p_user is null then return; end if;
+  if p_kind in ('parco','sport') then perform public.w_res(p_user, a, 0, 0);
+  elsif p_kind in ('piazza','centro','chiesa') then perform public.w_res(p_user, 0, a, 0);
+  elsif p_kind in ('stazione','polizia','pompieri') then perform public.w_res(p_user, 0, 0, a);
+  else perform public.w_pay(p_user, 15 + least(15, greatest(coalesce(p_record,1),1)), 'Presidio tenuto'); end if;
+end $$;
+
+--
 -- Name: w_pres_tick(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -822,6 +839,7 @@ begin
   for p in select * from public.world_presidi where holder is not null and coalesce(ultimo_slot, '') < pid and held_since < pt for update skip locked loop
     if public.w_pres_def(p.id, pid) >= public.w_pres_attack(pid, p.id) then
       update public.world_presidi set ultimo_slot = pid, record = record + 1 where id = p.id;
+      perform public.w_pres_rendita(p.holder, p.kind, p.record + 1);
     else
       update public.world_presidi set ultimo_slot = pid, holder = null, held_since = null, record = 0, perso_da = p.holder, perso_il = pt where id = p.id;
       update public.world_presidi_tenute set al = pt where presidio_id = p.id and al is null;
@@ -893,6 +911,32 @@ CREATE FUNCTION public.w_raid_houses(p_user uuid, p_slot_t timestamp with time z
   select b.building_id, b.lat, b.lon, b.level, false from public.world_buildings b
     where b.owner = p_user and b.bought_at is not null and b.bought_at <= p_slot_t;
 $$;
+
+--
+-- Name: w_res(uuid, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_res(p_user uuid, p_legno integer, p_cibo integer, p_carb integer) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare w public.world_wallet; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD');
+  gl int; gc int; gf int;
+begin
+  if p_user is null then return json_build_object('legno',0,'cibo',0,'carb',0); end if;
+  w := public.w_wallet(p_user);
+  gl := least(greatest(coalesce(p_legno,0),0), 400 - coalesce((w.caps->>('res:legno:'||day))::int,0));
+  gc := least(greatest(coalesce(p_cibo,0),0),  400 - coalesce((w.caps->>('res:cibo:'||day))::int,0));
+  gf := least(greatest(coalesce(p_carb,0),0),  400 - coalesce((w.caps->>('res:carb:'||day))::int,0));
+  gl := greatest(gl,0); gc := greatest(gc,0); gf := greatest(gf,0);
+  if gl + gc + gf = 0 then return json_build_object('legno',0,'cibo',0,'carb',0); end if;
+  update public.world_wallet set legno = legno + gl, cibo = cibo + gc, carb = carb + gf,
+    caps = caps || jsonb_build_object('res:legno:'||day, coalesce((w.caps->>('res:legno:'||day))::int,0) + gl,
+                                      'res:cibo:'||day,  coalesce((w.caps->>('res:cibo:'||day))::int,0) + gc,
+                                      'res:carb:'||day,  coalesce((w.caps->>('res:carb:'||day))::int,0) + gf)
+    where user_id = p_user;
+  return json_build_object('legno',gl,'cibo',gc,'carb',gf);
+end $$;
 
 --
 -- Name: w_room(text); Type: FUNCTION; Schema: public; Owner: -
@@ -1186,7 +1230,10 @@ CREATE TABLE public.world_wallet (
     mattoni integer DEFAULT 0 NOT NULL,
     lifetime integer DEFAULT 0 NOT NULL,
     caps jsonb DEFAULT '{}'::jsonb NOT NULL,
-    last_rent timestamp with time zone DEFAULT now() NOT NULL
+    last_rent timestamp with time zone DEFAULT now() NOT NULL,
+    legno integer DEFAULT 0 NOT NULL,
+    cibo integer DEFAULT 0 NOT NULL,
+    carb integer DEFAULT 0 NOT NULL
 );
 
 --
@@ -1732,11 +1779,13 @@ begin
     update public.world_wallet set caps = jsonb_set(caps, array[k], to_jsonb(n+1)) where user_id = me;
     perform public.w_pay(me, amt, case p_reason when 'notte' then 'Notte vinta' when 'missione' then 'Missione del giorno' else 'Accesso del giorno' end);
     got := amt;
+    if p_reason = 'login' then perform public.w_res(me, 10, 10, 5); end if;
   elsif p_reason = 'verifica' then
     -- valutazione della casa (una volta)
     if coalesce((w.caps->>'valutazione')::int,0) = 0 and exists (select 1 from public.profili_pubblici where user_id = me and indice is not null) then
       update public.world_wallet set caps = jsonb_set(caps, '{valutazione}', '1') where user_id = me;
       perform public.w_pay(me, 200, 'Casa vera valutata'); got := got + 200;
+      perform public.w_res(me, 50, 50, 30);
     end if;
     -- codici sconto usati davvero in negozio
     select count(*) into c from public.coupons where user_id = me and redeemed_at is not null;
@@ -2409,7 +2458,7 @@ CREATE FUNCTION public.world_raid_claim() RETURNS json
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-declare me uuid := auth.uid(); w public.world_wallet; s json; pid text;
+declare me uuid := auth.uid(); w public.world_wallet; s json; pid text; r json;
 begin
   if me is null then return json_build_object('ok',false,'msg','Accedi'); end if;
   s := public.world_raid_status(); pid := s->>'prev_id';
@@ -2418,8 +2467,10 @@ begin
   if (s->>'total')::int = 0 and (s->>'bounty')::int = 0 then return json_build_object('ok',false,'msg','Nessuna tua casa era nel mondo durante questa orda'); end if;
   update public.world_wallet set caps = jsonb_set(caps, array['raid:'||pid], '1') where user_id = me;
   perform public.w_pay(me, (s->>'mattoni')::int, 'Orda del mondo: premi');
+  r := public.w_res(me, coalesce((s->>'legno')::int,0), coalesce((s->>'cibo')::int,0), coalesce((s->>'carb')::int,0));
   update public.world_log set seen = true where user_id = me and reason = 'Orda del mondo: premi' and not seen;
-  return json_build_object('ok',true,'held',(s->>'held')::int,'total',(s->>'total')::int,'mattoni',(s->>'mattoni')::int,'bounty',(s->>'bounty')::int);
+  return json_build_object('ok',true,'held',(s->>'held')::int,'total',(s->>'total')::int,'mattoni',(s->>'mattoni')::int,'bounty',(s->>'bounty')::int,
+    'legno',coalesce((r->>'legno')::int,0),'cibo',coalesce((r->>'cibo')::int,0),'carb',coalesce((r->>'carb')::int,0));
 end $$;
 
 --
@@ -2439,14 +2490,15 @@ begin
            'attack',public.w_attack3(pid,x.building_id,lvl),'power',public.w_power3(x.level,bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id,pid),x.home),
            'held',public.w_power3(x.level,bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id,pid),x.home) >= public.w_attack3(pid,x.building_id,lvl))),'[]'::json),
          count(*) filter (where public.w_power3(x.level,bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id,pid),x.home) >= public.w_attack3(pid,x.building_id,lvl)), count(*),
-         coalesce(sum(case when public.w_power3(x.level,bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id,pid),x.home) >= public.w_attack3(pid,x.building_id,lvl) then 8 + 4*x.level else 2 end),0)
+         coalesce(sum(case when public.w_power3(x.level,bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id,pid),x.home) >= public.w_attack3(pid,x.building_id,lvl) then 10 + 6*x.level else 3 end),0)
     into res, held, tot, matt
     from public.w_raid_houses(me, pt) x;
-  select 25 * count(*) into bounty from public.world_attack_given a where a.attacker = me and a.slot_id = pid and public.w_home_held(a.target, pid) = false;
+  select 35 * count(*) into bounty from public.world_attack_given a where a.attacker = me and a.slot_id = pid and public.w_home_held(a.target, pid) = false;
   return json_build_object('next_at', nt, 'next_id', nid, 'prev_at', pt, 'prev_id', pid, 'wlevel', lvl,
     'prepared', coalesce((w.caps->>('prep:'||nid))::int,0) = 1, 'prev_prepared', coalesce((w.caps->>('prep:'||pid))::int,0) = 1,
     'claimed', coalesce((w.caps->>('raid:'||pid))::int,0) = 1, 'houses', res, 'held', held, 'total', tot,
     'mattoni', matt + coalesce(bounty,0), 'bounty', coalesce(bounty,0),
+    'legno', 4*coalesce(held,0), 'cibo', 6*coalesce(held,0), 'carb', 10*(coalesce(bounty,0)/35),
     'asked', exists (select 1 from public.world_help where user_id = me and slot_id = nid),
     'helpers', (select count(*) from public.world_help_given where target = me and slot_id = nid),
     'attacks_in', (select count(*) from public.world_attack_given where target = me and slot_id = nid),
@@ -2514,6 +2566,22 @@ CREATE FUNCTION public.world_rank_lega(p_period text) RETURNS TABLE(pos bigint, 
     (select case when p.visibile then p.comune end from public.profili_pubblici p where p.user_id = r.user_id), r.user_id = auth.uid()
   from r where r.pos <= 20 or r.user_id = auth.uid() order by r.pos;
 $$;
+
+--
+-- Name: world_resources(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_resources() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); w public.world_wallet; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD');
+begin
+  if me is null then return json_build_object('ok',false); end if;
+  w := public.w_wallet(me);
+  return json_build_object('ok',true,'mattoni',w.mattoni,'legno',w.legno,'cibo',w.cibo,'carb',w.carb,
+    'mercato_left', 100 - coalesce((w.caps->>('mercato:'||day))::int,0));
+end $$;
 
 --
 -- Name: world_reward(integer, text); Type: FUNCTION; Schema: public; Owner: -
@@ -2683,11 +2751,12 @@ begin
   w := public.w_wallet(me); k := 'aiuti:' || to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD'); n := coalesce((w.caps->>k)::int,0);
   if n < 5 then
     update public.world_wallet set caps = jsonb_set(caps, array[k], to_jsonb(n+1)) where user_id = me;
-    perform public.w_pay(me, 5, 'Rinforzi mandati a un alleato');
+    perform public.w_pay(me, 10, 'Rinforzi mandati a un alleato');
+    perform public.w_res(me, 0, 5, 0);
     update public.world_log set seen = true where user_id = me and reason = 'Rinforzi mandati a un alleato' and not seen;
   end if;
-  return json_build_object('ok',true,'msg','Rinforzi in viaggio: arrivano tra ' || eta || ' min, ' || quando || '. +' || v || ' alla sua difesa' || case when n < 5 then ', +5 Mattoni a te' else '' end,
-    'got', case when n < 5 then 5 else 0 end, 'eta_min', eta, 'slot', sid, 'pts', v);
+  return json_build_object('ok',true,'msg','Rinforzi in viaggio: arrivano tra ' || eta || ' min, ' || quando || '. +' || v || ' alla sua difesa' || case when n < 5 then ', +10 Mattoni e 🥫 5 a te' else '' end,
+    'got', case when n < 5 then 10 else 0 end, 'eta_min', eta, 'slot', sid, 'pts', v);
 end $$;
 
 --
@@ -2864,6 +2933,35 @@ CREATE FUNCTION public.world_threats() RETURNS json
     AS $$
   select public.w_threats_of(auth.uid());
 $$;
+
+--
+-- Name: world_trade(text, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_trade(p_kind text, p_n integer) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); w public.world_wallet; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD');
+  have int; done int; m int; n int;
+begin
+  if me is null then return json_build_object('ok',false,'msg','Accedi'); end if;
+  if p_kind not in ('legno','cibo','carb') then return json_build_object('ok',false,'msg','Risorsa sconosciuta'); end if;
+  w := public.w_wallet(me);
+  have := case p_kind when 'legno' then w.legno when 'cibo' then w.cibo else w.carb end;
+  done := coalesce((w.caps->>('mercato:'||day))::int,0);
+  n := (least(greatest(coalesce(p_n,0),0), have) / 20) * 20;
+  m := least(n / 2, 100 - done); n := m * 2;
+  if n <= 0 then return json_build_object('ok',false,'msg', case when done >= 100 then 'Oggi hai già scambiato il massimo (100 Mattoni)' else 'Servono almeno 20 di quella risorsa' end); end if;
+  update public.world_wallet set
+    legno = legno - case when p_kind = 'legno' then n else 0 end,
+    cibo  = cibo  - case when p_kind = 'cibo'  then n else 0 end,
+    carb  = carb  - case when p_kind = 'carb'  then n else 0 end,
+    caps = jsonb_set(caps, array['mercato:'||day], to_jsonb(done + m))
+    where user_id = me;
+  perform public.w_pay(me, m, 'Mercato: risorse scambiate');
+  return json_build_object('ok',true,'dato',n,'mattoni',m,'mercato_left',100 - done - m);
+end $$;
 
 --
 -- Name: world_upgrade(text); Type: FUNCTION; Schema: public; Owner: -
@@ -5456,6 +5554,12 @@ REVOKE ALL ON FUNCTION public.w_pay(p_user uuid, p_delta integer, p_reason text,
 REVOKE ALL ON FUNCTION public.w_piazza_nuovi(p_user uuid, p_since timestamp with time zone, p_mode text) FROM PUBLIC;
 
 --
+-- Name: FUNCTION w_pres_rendita(p_user uuid, p_kind text, p_record integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_pres_rendita(p_user uuid, p_kind text, p_record integer) FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_pres_tick(); Type: ACL; Schema: public; Owner: -
 --
 
@@ -5466,6 +5570,12 @@ REVOKE ALL ON FUNCTION public.w_pres_tick() FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_raid_houses(p_user uuid, p_slot_t timestamp with time zone) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_res(p_user uuid, p_legno integer, p_cibo integer, p_carb integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_res(p_user uuid, p_legno integer, p_cibo integer, p_carb integer) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_score(p_user uuid, p_week boolean); Type: ACL; Schema: public; Owner: -
@@ -5897,6 +6007,13 @@ GRANT ALL ON FUNCTION public.world_rank(p_scope text, p_period text) TO authenti
 GRANT ALL ON FUNCTION public.world_rank_lega(p_period text) TO authenticated;
 
 --
+-- Name: FUNCTION world_resources(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_resources() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_resources() TO authenticated;
+
+--
 -- Name: FUNCTION world_reward(p_amount integer, p_reason text); Type: ACL; Schema: public; Owner: -
 --
 
@@ -6000,6 +6117,13 @@ GRANT ALL ON FUNCTION public.world_team_bonus() TO authenticated;
 --
 
 GRANT ALL ON FUNCTION public.world_threats() TO authenticated;
+
+--
+-- Name: FUNCTION world_trade(p_kind text, p_n integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_trade(p_kind text, p_n integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_trade(p_kind text, p_n integer) TO authenticated;
 
 --
 -- Name: FUNCTION world_upgrade(p_bid text); Type: ACL; Schema: public; Owner: -

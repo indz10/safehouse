@@ -41,11 +41,12 @@ function mhFly(h,open){const lm=window.__mf;if(!lm||!lm.map)return;try{lm.map.fl
 /* ---------------- ACQUISTO IN APP (Mattoni e gemme) ---------------- */
 function shopSheet(miss){openSheet('🛒 Bottega',`${miss?`<p class="notice">Ti mancano <b>🧱 ${wNum(miss)} Mattoni</b>. Puoi guadagnarli giocando oppure comprarli.</p>`:''}
   <div class="mzbox"></div>
+  <div class="mktbox"></div>
   <h4 class="hh">🧱 Mattoni</h4><div class="shopg">${[['🧱 500','1,99 €'],['🧱 1.500','4,99 €'],['🧱 4.000','9,99 €']].map(([a,b])=>`<div><b>${a}</b><small>${b}</small><button class="btn small ghost" disabled>Presto</button></div>`).join('')}</div>
   <h4 class="hh">💎 Gemme</h4><div class="shopg">${[['💎 80','0,99 €'],['💎 450','4,99 €'],['💎 1.000','9,99 €']].map(([a,b])=>`<div><b>${a}</b><small>${b}</small><button class="btn small ghost" disabled>Presto</button></div>`).join('')}</div>
   <div class="passx" style="margin-top:10px"><b>⭐ Pass del Superstite · 4,99 €/mese</b><small>Case preparate in automatico · +20% affitti · 1 casa in più · premi doppi nelle missioni</small></div>
   <p class="muted" style="font-size:12.5px;margin-top:10px">Gli acquisti si attivano quando l’app sarà su App Store e Google Play (lo richiedono le loro regole). Intanto: <b>Mattoni</b> con orde, missioni, affitti, codici sconto usati in negozio e amici invitati; <b>gemme</b> con premio del giorno, ruota, gratta e vinci e scrigni.</p>
   <div class="row" style="gap:8px;margin-top:8px"><button class="btn small" data-sg="orda">🧟 Vai a guadagnarli</button><button class="btn small ghost" data-sg="inv">📨 Invita (+150 🧱)</button></div>`,c=>{
-  try{mzFill(c);}catch(e){}c.querySelector('[data-sg=orda]').onclick=()=>{closeSheet();G.ss='oggi';go('orda');};c.querySelector('[data-sg=inv]').onclick=()=>{closeSheet();if(!S.user)return loginSheet();inviteSheet();};});}
+  try{mzFill(c);}catch(e){}try{if(typeof mktFill==='function')mktFill(c);}catch(e){}c.querySelector('[data-sg=orda]').onclick=()=>{closeSheet();G.ss='oggi';go('orda');};c.querySelector('[data-sg=inv]').onclick=()=>{closeSheet();if(!S.user)return loginSheet();inviteSheet();};});}
 /* il menu porta anche a "La mia casa" */
 </script>

@@ -1269,6 +1269,15 @@ body[data-tab=orda] #accFab{display:none!important}
 .trstar{flex:0 0 auto;width:42px;height:42px;font-size:22px;background:#fff;border:2.5px solid var(--ink);color:var(--ink);line-height:1}.trstar.on{background:var(--moon)}
 .plhead .trstar{margin-left:auto}
 
+.mfally{position:absolute;left:10px;top:208px;z-index:6;background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-weight:800;font-size:13.5px;padding:7px 10px;color:var(--ink)}
+.mapfull:has(.oplay) .mfally{top:268px}.mapfull:has(.oplay) .almapbar{top:322px}
+.lm.lm-ally{display:flex;align-items:center;gap:4px;background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:3px 7px;font-weight:800;font-size:12px;color:var(--ink);cursor:pointer;white-space:nowrap;border-radius:10px 4px 10px 4px}
+.lm.lm-ally b{font-size:16px}.lm.lm-ally i{font-style:normal;background:var(--ink);color:#fff;padding:0 5px;border-radius:6px}
+.lm.lm-ally.ok i{background:#2f9e44}.lm.lm-ally.mid i{background:#e8590c}.lm.lm-ally.ko i{background:var(--blood)}
+.almapbar{position:absolute;left:10px;right:10px;top:262px;z-index:7;display:flex;align-items:center;gap:6px;background:var(--moon);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:7px 9px;font-weight:800;font-size:13.5px;color:var(--ink)}
+.almapbar span{flex:1;min-width:0}.almapbar button{background:#fff;border:2px solid var(--ink);font-weight:800;font-size:13px;padding:4px 8px;color:var(--ink)}
+.alprow{display:flex;align-items:center;gap:8px;padding:8px 2px;border-top:1px dashed rgba(20,15,31,.25)}.alprow .alrt{flex:1;min-width:0;display:flex;flex-direction:column}.alprow .alrt small{font-size:12px;color:#5a5470}
+.almapb{min-height:36px;padding:4px 8px;font-size:16px}
 /* =====================================================================
    GRAFICA 2 (anteprima) — stesso fumetto, pulsanti più "da gioco":
    bordi disegnati a mano, retino tipografico, riflesso, scritte ripassate a china,
@@ -1406,6 +1415,11 @@ body[data-tab=orda] #accFab{display:none!important}
 .nav button.on span{position:relative;z-index:1}
 .alacts .btn,.placts .btn,.placts>button{margin-bottom:4px}
 @media (prefers-reduced-motion:reduce){.btn,.panel,.hsbig,.hsmid{rotate:0deg!important}}
+.resc{border-radius:14px;padding:3px 9px;font-weight:800;font-size:12px;border:2px solid #c9a46a;background:rgba(20,15,31,.82);color:#fff}
+.mktgrid{display:flex;flex-direction:column;gap:6px}.mktr{display:flex;align-items:center;gap:10px;background:#fff;border:2.5px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:7px 9px;border-radius:var(--hand-s,6px)}
+.mktr .mki{font-size:26px}.mktr div{flex:1;display:flex;flex-direction:column;min-width:0}.mktr b{font-size:14.5px}.mktr small{font-size:11.5px;color:#5a5470}
+.mfally{border-radius:var(--hand-s);background:var(--ear),linear-gradient(180deg,#fff 0%,#fbf5e6 65%,#efe3c4 100%);font-family:var(--display);font-weight:400;letter-spacing:.05em;font-size:17px;rotate:-1.6deg;box-shadow:4px 4px 0 var(--ink)}
+.mfally:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
 </style>
 </head>
 <body>
