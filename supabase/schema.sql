@@ -311,6 +311,19 @@ CREATE FUNCTION public.w_allies_of(p_user uuid) RETURNS SETOF uuid
 $$;
 
 --
+-- Name: w_ally_state(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_ally_state(a uuid, b uuid) RETURNS text
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select case when public.w_are_allies(a, b) then 'ok'
+    when exists (select 1 from public.world_allies x where x.requester = a and x.target = b and x.status = 'pending') then 'out'
+    when exists (select 1 from public.world_allies x where x.requester = b and x.target = a and x.status = 'pending') then 'in'
+    else 'none' end; $$;
+
+--
 -- Name: w_are_allies(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1704,6 +1717,43 @@ begin
 end $$;
 
 --
+-- Name: world_fav_set(uuid, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_fav_set(p_user uuid, p_on boolean) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+begin
+  if auth.uid() is null then return json_build_object('ok',false,'msg','Accedi'); end if;
+  if p_user is null or p_user = auth.uid() then return json_build_object('ok',false,'msg','Non puoi salvare te stesso'); end if;
+  if p_on then
+    if (select count(*) from public.world_favs where user_id = auth.uid()) >= 200 then
+      return json_build_object('ok',false,'msg','Hai già 200 preferiti'); end if;
+    if not exists (select 1 from public.profili_pubblici where user_id = p_user) then
+      return json_build_object('ok',false,'msg','Superstite non trovato'); end if;
+    insert into public.world_favs(user_id, fav) values (auth.uid(), p_user) on conflict do nothing;
+  else
+    delete from public.world_favs where user_id = auth.uid() and fav = p_user;
+  end if;
+  return json_build_object('ok',true,'on',p_on);
+end $$;
+
+--
+-- Name: world_favs_list(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_favs_list() RETURNS TABLE(user_id uuid, nick text, wlevel integer, comune text, ally text, seen_at timestamp with time zone)
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select p.user_id, p.nick, public.w_lvl_of(p.user_id), case when p.visibile then p.comune end,
+         public.w_ally_state(auth.uid(), p.user_id), p.seen_at
+  from public.world_favs f join public.profili_pubblici p on p.user_id = f.fav
+  where f.user_id = auth.uid()
+  order by p.nick; $$;
+
+--
 -- Name: world_feed_list(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2075,6 +2125,31 @@ CREATE FUNCTION public.world_my_effects() RETURNS json
     'lon', case when public.w_home_known(auth.uid(), e.u) then hs.lon else round(hs.lon::numeric * 350) / 350 end)), '[]'::json)
   from e join hs on hs.u = e.u;
 $$;
+
+--
+-- Name: world_near_survivors(double precision, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_near_survivors(p_lat double precision, p_lon double precision, p_km double precision DEFAULT 20) RETURNS TABLE(user_id uuid, nick text, wlevel integer, comune text, km numeric, ally text, fav boolean)
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  with mie as (select lat, lon from public.world_homes where user_id = auth.uid()
+               union all select lat, lon from public.world_buildings where owner = auth.uid()),
+       ok as (select 1 from mie where public.w_km(mie.lat, mie.lon, p_lat, p_lon) <= 0.5 limit 1),
+       r as (select least(20, greatest(1, coalesce(p_km, 20))) as km)
+  select p.user_id, p.nick, public.w_lvl_of(p.user_id), p.comune,
+         round(public.w_km(p_lat, p_lon, p.lat_r, p.lon_r)::numeric, 1),
+         public.w_ally_state(auth.uid(), p.user_id),
+         exists (select 1 from public.world_favs f where f.user_id = auth.uid() and f.fav = p.user_id)
+  from public.profili_pubblici p, r
+  where auth.uid() is not null and exists (select 1 from ok)
+    and p.user_id <> auth.uid() and p.visibile and p.lat_r is not null and p.lon_r is not null
+    and abs(p.lat_r - p_lat) < 0.2 and abs(p.lon_r - p_lon) < 0.3
+    and public.w_km(p_lat, p_lon, p.lat_r, p.lon_r) <= r.km
+    and not exists (select 1 from public.world_blocks b where (b.user_id = auth.uid() and b.blocked = p.user_id) or (b.user_id = p.user_id and b.blocked = auth.uid()))
+  order by 5, p.nick
+  limit 80; $$;
 
 --
 -- Name: world_player(uuid); Type: FUNCTION; Schema: public; Owner: -
@@ -3369,6 +3444,16 @@ CREATE TABLE public.world_excluded (
 );
 
 --
+-- Name: world_favs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_favs (
+    user_id uuid NOT NULL,
+    fav uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
 -- Name: world_feed; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3940,6 +4025,13 @@ ALTER TABLE ONLY public.world_dm
 
 ALTER TABLE ONLY public.world_excluded
     ADD CONSTRAINT world_excluded_pkey PRIMARY KEY (building_id);
+
+--
+-- Name: world_favs world_favs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_favs
+    ADD CONSTRAINT world_favs_pkey PRIMARY KEY (user_id, fav);
 
 --
 -- Name: world_feed world_feed_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -5015,6 +5107,12 @@ ALTER TABLE public.world_dm ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.world_excluded ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: world_favs; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_favs ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: world_feed; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -5205,6 +5303,12 @@ REVOKE ALL ON FUNCTION public.sponsor_scadenze() FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_allies_of(p_user uuid) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_ally_state(a uuid, b uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_ally_state(a uuid, b uuid) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_are_allies(a uuid, b uuid); Type: ACL; Schema: public; Owner: -
@@ -5504,6 +5608,20 @@ GRANT ALL ON FUNCTION public.world_dm_threads() TO authenticated;
 GRANT ALL ON FUNCTION public.world_earn(p_reason text) TO authenticated;
 
 --
+-- Name: FUNCTION world_fav_set(p_user uuid, p_on boolean); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_fav_set(p_user uuid, p_on boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_fav_set(p_user uuid, p_on boolean) TO authenticated;
+
+--
+-- Name: FUNCTION world_favs_list(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_favs_list() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_favs_list() TO authenticated;
+
+--
 -- Name: FUNCTION world_feed_list(p_scope text); Type: ACL; Schema: public; Owner: -
 --
 
@@ -5618,6 +5736,13 @@ GRANT ALL ON FUNCTION public.world_my_defense() TO authenticated;
 --
 
 GRANT ALL ON FUNCTION public.world_my_effects() TO authenticated;
+
+--
+-- Name: FUNCTION world_near_survivors(p_lat double precision, p_lon double precision, p_km double precision); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_near_survivors(p_lat double precision, p_lon double precision, p_km double precision) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_near_survivors(p_lat double precision, p_lon double precision, p_km double precision) TO authenticated;
 
 --
 -- Name: FUNCTION world_player(p_user uuid); Type: ACL; Schema: public; Owner: -
