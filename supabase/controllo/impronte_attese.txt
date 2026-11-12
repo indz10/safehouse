@@ -17,6 +17,7 @@ sponsor_scadenze() 322b41919e
 sponsors_guard() fb6e27a43c
 w_allies_of(uuid) f79fddd6ef
 w_are_allies(uuid, uuid) 562fd9a3ca
+w_atk_pts(uuid, uuid) 2031640ee7
 w_attack3(text, text, integer) 4deba51e53
 w_bad(text) 2115eb8cd1
 w_boost(uuid) 23b0f9792c
@@ -26,6 +27,8 @@ w_coinq(uuid, uuid) 53655bd8e4
 w_condo_bonus(uuid) ace5cd272c
 w_condo_key(uuid) 894c2d1dc3
 w_def(text, text) d1aac29e3d
+w_dist_km(uuid, uuid) 981d88669d
+w_dot(uuid) 2eda15dce6
 w_feed_add(text, uuid, uuid, double precision, double precision, text) 1a92b9dc6f
 w_home_held(uuid, text) 4a5251060b
 w_home_known(uuid, uuid) 401b1ac373
@@ -36,6 +39,12 @@ w_level(integer) b510960b5d
 w_lvl_of(uuid) 584babf18f
 w_max(integer) 76812ad5cd
 w_median_near(uuid) 1ef0515265
+w_mezzo(uuid) 8e0e3b4af6
+w_mz_atk(text) 4213b8f4f1
+w_mz_help(text) 3b86cf9951
+w_mz_range(text) 995efd4498
+w_mz_rank(text) 0c32d9db64
+w_mz_speed(text) 54122832f6
 w_next_slot(timestamp with time zone) e7098146fc
 w_nick(uuid) 0f0ebfc0c0
 w_pay(uuid, integer, text, text) 5bcdcb3669
@@ -62,7 +71,7 @@ w_slot_t(text) 3048adad4f
 w_threats_of(uuid) b4a88968be
 w_tr_dm() af3d1fb89f
 w_tr_feed() e607f3ac80
-w_upower(uuid, text) a32d619709
+w_upower(uuid, text) 2974e0963a
 w_wallet(uuid) 27de1a6e90
 w_wxev(text, text) 042a705ec9
 w_zm(text, numeric, text, integer) 94a9eab19e
@@ -77,6 +86,7 @@ world_ally_view(uuid) ef33f8ac73
 world_ask_help() eaa8fd1b52
 world_block(uuid, boolean) d5c18b09f9
 world_buy(text, double precision, double precision) c1440ed06d
+world_buy_mezzo(text) 18d40e73af
 world_chat_list(text, bigint) ffb3c046c7
 world_chat_report(bigint) 89cee22a5d
 world_chat_send(text, text) 8c7ba570ba
@@ -103,11 +113,12 @@ world_house_leave() b719c91511
 world_house_log(text) 43ff9091a4
 world_inviter(text) efefc86acc
 world_loans() ed625fbef7
+world_mezzo() 75bdd91ccd
 world_mine() 0376f655ab
 world_mine2() 1abdaf5ab7
-world_my_defense() 79f6688f20
+world_my_defense() ca43f36e52
 world_my_effects() 7e4bd22f9b
-world_player(uuid) bf00842653
+world_player(uuid) a87883892e
 world_prepare() 6c8f3e9765
 world_presidi_list(double precision, double precision, double precision, double precision) 8bebc59d0e
 world_presidi_seed(jsonb) d192fed7e5
@@ -125,10 +136,11 @@ world_rivals() 9b44911f45
 world_score(uuid, text) 1190c1faef
 world_seen() ce2347cdff
 world_sell(text) 75a73e6d6f
-world_send_attack(uuid) e507fc5a24
+world_send_attack(uuid) 19c42d1e57
 world_send_curse(uuid, text) bbdf70a979
-world_send_help(uuid) 2b987cb8df
+world_send_help(uuid) bab3182bf0
 world_set_home(text, text) f3eb706e13
+world_set_mezzo_vero(text, integer) a344e73057
 world_set_realshield(integer) 9aae268eb7
 world_shape_get(text, text) 9835883569
 world_shape_put(text, text, jsonb) c184167164
@@ -161,7 +173,7 @@ sponsor_users a74be6ef
 sponsors 23040d78
 subscriptions 43d90a91
 world_allies 9e7a3019
-world_attack_given d12f9512
+world_attack_given cb6a22cb
 world_blocks c89fb2f6
 world_bonus fa82d7ad
 world_buildings 2b1feaf6
@@ -176,7 +188,7 @@ world_excluded 67a6a429
 world_feed a78458ad
 world_gifts 2ccdb3dc
 world_help 84c102f5
-world_help_given 9935b169
+world_help_given b0775a2b
 world_homes f606e040
 world_house_req e60b8c36
 world_log a7c8214e

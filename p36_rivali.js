@@ -47,7 +47,7 @@ zEvery(()=>{try{const b=document.querySelector('.mfsp');if(!b)return;const n=Obj
 /* nella scheda casa: se non ci sono sponsor entro 50 km, le attività della zona */
 
 /* ---- 2) 😈 RIVALI ---- */
-const DISP=[['orda','🧟','Manda un’orda','−8 alla sua difesa · taglia di 25 🧱 se la sua casa cade',30,'mat'],['nebbia','🌫️','Nebbia','−5 alla sua difesa',15,'gem'],['sabotaggio','🔨','Sabotaggio','annulla il suo “Prepara le case” (−15)',25,'gem']];
+const DISP=[['orda','🧟','Manda un’orda','più forte col tuo livello e il tuo mezzo, meno contro le sue barricate · solo entro 20 km · taglia di 25 🧱 se la sua casa cade',30,'mat'],['nebbia','🌫️','Nebbia','−5 alla sua difesa',15,'gem'],['sabotaggio','🔨','Sabotaggio','annulla il suo “Prepara le case” (−15)',25,'gem']];
 async function doDisp(uid,nick,k){const d=DISP.find(x=>x[0]===k);if(!d)return;
   if(d[5]==='gem'&&((typeof G!=='undefined'&&G.gems)||0)<d[4]){shopSheet(0);toast(`Servono 💎 ${d[4]} gemme`);return;}
   if(!confirm(`${d[1]} ${d[2]} a @${nick}? Costa ${d[5]==='gem'?'💎':'🧱'} ${d[4]}.`))return;

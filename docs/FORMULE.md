@@ -32,12 +32,19 @@ SQL `w_power3(livello, bonus, casa vera)` + `w_upower` + `w_condo_bonus` — app
 `difesa = 45 + 12·livello casa + (casa vera: 5 + difese del condominio) + presidi vicini + bonus`
 - **presidi vicini** (Fase 9b, `w_pres_bonus`): +3 per ogni presidio tenuto entro 500 m dalla casa (di chiunque sia), massimo +6; conta se era tenuto all'ora dell'orda (storia in `world_presidi_tenute`). Sta in `w_threats_of` (campo `pres`, già dentro `def`), `world_raid_status`, `world_raid_view`, `w_home_held`, `world_my_defense`.
 - **difese del condominio** (solo casa vera): `3 × somma dei livelli` delle difese comuni (`w_condo_bonus`);
-- **bonus** (`w_upower`, per l'orda): case preparate +15 · Scudo della casa vera +2 per livello (max 5) · rinforzi +5 ciascuno (max +20) · scudi degli alleati +5 (max +10) · difesa di squadra +5 (almeno 3 alleati pronti) · coinquilini pronti +3 ciascuno (max +9) · **meno** malus dei rivali (orde mandate −8 ciascuna max −16, nebbia −5 max −10, sabotaggio −15 se avevi preparato; malus totale max −25).
+- **bonus** (`w_upower`, per l'orda): case preparate +15 · Scudo della casa vera +2 per livello (max 5) · rinforzi col loro valore (max +24: mezzo a piedi +4 · bici +5 · moto +6 · auto +8 · fuoristrada +10, +1 per dotazione della valutazione: kit medico, radio, scorte) · scudi degli alleati +5 (max +10) · difesa di squadra +5 (almeno 3 alleati pronti) · coinquilini pronti +3 ciascuno (max +9) · **meno** malus dei rivali (orde mandate col loro valore, max −30; nebbia −5 max −10; sabotaggio −15 se avevi preparato; malus totale max −35).
 
 ## Risultato e % di tenere
 - La casa **tiene** se `difesa ≥ attacco` (`world_raid_status`, `world_raid_view`, `w_home_held`: tutte con la stessa difesa dalla Fase 6c).
 - **% mostrata** = `(difesa − attacco min + 1) / (attacco max − attacco min + 1)`, tra 0 e 100 (`w_threats_of` → `world_threats`; app `thrCalc`, `frChanceOf`). La usano fronte, pagina della casa, "Perché", Le mie case.
 - Premi dell'orda: casa che tiene `8 + 4·livello` 🧱, sfondata 2 🧱; taglia 25 🧱 per ogni rivale a cui hai mandato un'orda e che non ha tenuto (`world_raid_status`).
+
+## Mezzi, distanza e assalti dei rivali (migrazione 009)
+SQL `w_mezzo`, `w_dist_km`, `w_atk_pts`, `world_send_help`, `world_send_attack` — app p71 (`mzRigaHTML`, Bottega).
+- **Mezzo** = il migliore tra quello della valutazione (al massimo l'auto) e quello comprato (moto 300, auto 600, fuoristrada 1.200 Mattoni).
+- **Portata**: a piedi 2 km, bici 5, moto 12, auto e fuoristrada 20. Aiuti e orde solo verso chi ha una casa entro la portata (distanza tra le case più vicine); orde mai oltre 20 km. I dispetti non hanno limite.
+- **Viaggio**: minuti = distanza / velocità (5, 15, 40, 50, 45 km/h); vale per l'orda che arriva dopo l'arrivo.
+- **Forza di un'orda di un rivale** = `max(3, (6 + 0,5·livello di chi attacca) × mezzo × (1 − min(0,6; 0,1·(barricate+recinto+fossato della casa attaccata))))`, mezzo ×0,8 / 0,9 / 1 / 1,2 / 1,3.
 
 ## Orda sui presidi (Fase 9b)
 SQL `w_pres_attack`, `w_pres_def`, `w_pres_tick` — app p69 (`presChance`).

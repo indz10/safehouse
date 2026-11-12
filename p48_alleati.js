@@ -36,7 +36,7 @@ async function allySheetBase(uid){openSheet('🤝 Alleato','<p><span class="spin
     ${alActs({...d,user_id:uid},true)}
     <h4 class="hh">🏠 Le sue case alla prossima orda</h4>
     ${H.length?H.map((T,i)=>{const c=thrCalc(T).ch;return`<div class="alhouse"><button class="alhb" data-ah="${i}"><span>${T.home?'❤️ Casa vera':'🔑 Casa '+i}</span><small>livello ${T.level} · ${(EVN[T.ev]||EVN.calma)[0]}</small><b class="${chCls(c)}">${c}%</b><i>${open===i?'▲':'▼'}</i></button>${open===i?`<div class="alhd">${thrView(T)}</div>`:''}</div>`;}).join(''):'<p class="muted">Non ha ancora case nel mondo.</p>'}
-    <p class="muted" style="font-size:12px;margin-top:8px">Ogni rinforzo vale +5 alla sua difesa, ogni scudo +5 (max 2). La % si aggiorna dopo l’invio.</p>`,card=>{alBindActs(card);
+    <p class="muted" style="font-size:12px;margin-top:8px">Ogni rinforzo vale secondo il tuo mezzo (a piedi +4 … fuoristrada +10, +1 per dotazione) e arriva solo entro la sua portata; ogni scudo +5 (max 2). La % si aggiorna dopo l’invio.</p>`,card=>{alBindActs(card);
       card.querySelectorAll('[data-ah]').forEach(b=>b.onclick=()=>{const i=+b.dataset.ah;draw(open===i?-1:i);});
       card.querySelectorAll('[data-alh],[data-als]').forEach(b=>{const o=b.onclick;b.onclick=async e=>{await o(e);setTimeout(()=>allySheet(uid),900);};});});
   draw(H.length===1?0:-1);}

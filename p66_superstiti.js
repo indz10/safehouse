@@ -99,7 +99,9 @@ async function playerSheet(uid){await playerSheetBase(uid);
   c.querySelector('[data-alsim]').onclick=()=>allySheet(uid);}catch(e){}})();
   await (async()=>{try{const c=document.querySelector('#sheet.open .sheet-b');if(!c||c.querySelector('[data-pdm]')||/Questo sei tu/.test(c.textContent))return;if(S.user&&uid===S.user.id)return;
   const nick=((c.querySelector('.plhead .disp')||{}).textContent||'').replace('@','');const ac=c.querySelector('.placts')||c;ac.insertAdjacentHTML('afterbegin',`<button class="btn small" data-pdm>💬 Scrivi</button>`);
-  c.querySelector('[data-pdm]').onclick=()=>dmSheet(uid,nick);}catch(e){}})();}
+  c.querySelector('[data-pdm]').onclick=()=>dmSheet(uid,nick);}catch(e){}})();
+  await (async()=>{try{const p=window.PLX;const c=document.querySelector('#sheet.open .sheet-b');if(!p||p.me||p.user_id!==uid||!c||c.querySelector('.plmz')||p.dist_km==null)return;
+    c.querySelector('.plhead').insertAdjacentHTML('afterend',mzRigaHTML(p));}catch(e){}})();}
 /* pagina Superstiti: base (p26) + Piazza (p27) + Rivali (p36) + "Alleati" (p48) */
 function renderSocial(){renderSocialBase();
   (()=>{try{const seg=app.querySelector('.sseg');if(seg&&!seg.querySelector('[data-st=piazza]')){

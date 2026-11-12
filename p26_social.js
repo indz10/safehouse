@@ -60,7 +60,7 @@ function socPaintBase(){const B=app.querySelector('#socBody');if(!B)return;
 /* ---------------- scheda del giocatore (da ovunque) ---------------- */
 document.addEventListener('click',e=>{const n=e.target.closest&&e.target.closest('[data-pl]');if(!n||!n.dataset.pl)return;e.preventDefault();e.stopPropagation();playerSheet(n.dataset.pl);},true);
 async function playerSheetBase(uid){if(!S.user){loginSheet();return;}openSheet('👤 Superstite','<p><span class="spin"></span> Carico…</p>',()=>{});let p;
-  try{p=await socRpc('world_player',{p_user:uid});}catch(e){openSheet('👤 Superstite',`<p class="notice">${esc(e.message)}</p>`);return;}
+  try{p=await socRpc('world_player',{p_user:uid});window.PLX=p;}catch(e){openSheet('👤 Superstite',`<p class="notice">${esc(e.message)}</p>`);return;}
   const allyBtn=p.me?'':p.ally==='ok'?'<span class="rok2">🤝 Siete alleati</span>':p.ally==='out'?'<span class="muted">Proposta inviata: aspetta che accetti</span>':p.ally==='in'?'<button class="btn" data-pa="yes">✅ Accetta l’alleanza</button>':'<button class="btn" data-pa="req">🤝 Proponi alleanza</button>';
   openSheet('👤 Superstite',`<div class="plhead"><span class="sav big">${esc((p.nick||'?')[0].toUpperCase())}</span><div><b class="disp" style="font-size:26px">@${esc(p.nick)}</b><small>Livello mondo ${p.wlevel} · ${p.houses} ${p.houses===1?'casa comprata':'case comprate'}${p.comune?' · '+esc(p.comune):''}</small></div></div>
     ${p.me?'<p class="muted">Questo sei tu.</p>':`<div class="placts">${allyBtn}
