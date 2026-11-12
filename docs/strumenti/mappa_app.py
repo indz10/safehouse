@@ -10,7 +10,7 @@ SETUP="""async()=>{SB=__mockSB;S.user={id:'me',nick:'ale'};S.pubOk=true;zSyncPro
  S.zone=await analyzeZone('A');await rmFetch('A');S.answers={...SAMPLE};S.result=computeScore(S.answers,S.zone);G.tourAsked=1;G.tourDone=1;G.howSeen=1;
  __W.b['B1']={owner:'me',lat:45.3262,lon:10.6600,level:2,paid:320};try{await wMine(true);}catch(e){}}"""
 FUNZ=r"""()=>{const vis=e=>{const r=e.getBoundingClientRect();const st=getComputedStyle(e);return r.width>4&&r.height>4&&st.visibility!=='hidden'&&st.display!=='none'&&!e.closest('[hidden]');};
- const top=document.getElementById('lente')||((document.getElementById('zmenu')&&vis(document.getElementById('zmenu')))?document.getElementById('zmenu'):null)||document.querySelector('#sheet.open .card, #sheet.open')||document.getElementById('fumetto')||document.querySelector('#app');
+ const top=document.getElementById('lente')||document.querySelector('#bvpage .bvcard,#bvnot .bvcard')||((document.getElementById('zmenu')&&vis(document.getElementById('zmenu')))?document.getElementById('zmenu'):null)||document.querySelector('#sheet.open .card, #sheet.open')||document.getElementById('fumetto')||document.querySelector('#app');
  const out=[],seen=new Set();const add=t=>{t=(t||'').replace(/\s*\n+\s*/g,' · ').replace(/\s+/g,' ').trim();if(/^(Chiudi|‹ .*)$/.test(t))return;t=t.replace(/^(\S{1,4}) · /u,'$1 ');if(!t||t.length<2||t.length>70||seen.has(t))return;seen.add(t);out.push(t);};
  top.querySelectorAll('button,a[href],select,input,textarea,[data-pres],[data-spk],[data-mh],[data-cs],.lnlab,.zmrow,[role=button]').forEach(e=>{if(!vis(e))return;
    if(e.tagName==='INPUT'||e.tagName==='TEXTAREA'){if(e.type==='checkbox')add('☑️ '+((e.closest('label')||{}).textContent||'casella'));else{const lb=e.labels&&e.labels[0]?e.labels[0].innerText:'';add('✏️ campo: '+(lb||e.placeholder||e.name||'testo').replace(/\s*\*$/,''));}return;}
@@ -18,7 +18,7 @@ FUNZ=r"""()=>{const vis=e=>{const r=e.getBoundingClientRect();const st=getComput
    const t=e.getAttribute('aria-label')||e.innerText||e.textContent;if(/^[✕×x]$/.test((t||'').trim()))return;add(t);});
  if(top.id!=='lente'&&top.id!=='zmenu'&&top.matches&&top.matches('#app')){/* barra in alto e in basso: uguali ovunque, le salto */}
  return out.slice(0,22);}"""
-RESET="()=>{try{lenteClose()}catch(e){};document.querySelectorAll('#fumetto,.otour').forEach(e=>e.remove());try{zmClose()}catch(e){};window.SHEET_BACK=null;closeSheet();}"
+RESET="()=>{try{lenteClose()}catch(e){};document.querySelectorAll('#fumetto,.otour,#bvpage,#bvnot').forEach(e=>e.remove());try{zmClose()}catch(e){};window.SHEET_BACK=null;closeSheet();}"
 # (sezione, titolo, cosa c'è, js da eseguire, attesa ms)
 P=[
  ('Barra in basso','🏠 Casa (homepage)','La prima schermata: la tua casa, l’orda di oggi, i pulsanti principali.',"()=>go('home')",1800),
@@ -41,7 +41,14 @@ P=[
  ('Orda','🔮 Simula la prossima orda','Cosa succederebbe se l’orda arrivasse adesso.',"()=>assalto('sim')",3500),
  ('Orda','🧭 Giro guidato','Il tour che spiega l’Orda passo per passo.',"()=>{go('orda');setTimeout(()=>{try{orTour(0)}catch(e){}},700)}",2500),
  ('Superstiti','👤 Scheda di un superstite','Il profilo di un altro giocatore: livello, punteggio, alleanza.',"()=>playerSheet('x1')",2000),
+ ('Superstiti','🔎 Trova superstiti · Vicino','Scegli una delle tue case: i superstiti entro 20 km, con distanza e ☆ per i preferiti.',"()=>{TR.tab='casa';TR.hi=0;trovaSheet()}",1800),
+ ('Superstiti','🔤 Trova superstiti · Per nome','Cerca un superstite per nome (almeno 2 lettere).',"async()=>{TR.tab='nome';TR.q='gi';await trovaSheet(true);}",1800),
+ ('Superstiti','⭐ Preferiti','I superstiti salvati, anche non alleati: li vedi solo tu.',"async()=>{__mkFav={x1:'mario',u8:'gina'};TR.tab='fav';await trovaSheet(true);}",1800),
+ ('Superstiti','💬 Messaggi privati','La chat diretta con un superstite (dalla scheda o dalla notifica).',"()=>dmSheet('x1','mario')",1800),
  ('Superstiti','📨 Invita amici e vicini','Il tuo link d’invito e i premi.',"()=>inviteSheet()",1800),
+ ('Inviti e app','👋 Benvenuto dal link d’invito','Chi apre il tuo link: 3 passi (account, installa, notifiche) con “Apri in Safari/Chrome”.',"async()=>{localStorage.setItem('zsh_inv','abcd1234');const u=S.user;S.user=null;await bvShow(true);S.user=u;}",1500),
+ ('Inviti e app','🔔 Ultimo passo: notifiche','Aperta l’app dall’icona con l’account: la richiesta di attivare le notifiche.',"()=>{const z=zWhere;zWhere=()=>'app';try{Object.defineProperty(Notification,'permission',{get:()=>'default',configurable:true});}catch(e){}localStorage.removeItem('zsh_bvnot');bvNotifCheck();zWhere=z;}",1200),
+ ('Inviti e app','📲 Installa l’app','I passi per installare l’app sul telefono (Android, iPhone, WhatsApp).',"()=>zInstallSheet()",1200),
  ('Menu ☰','☰ Menu','Tutte le voci del menu.',"()=>zmOpen()",900),
  ('Menu ☰','📅 Oggi','Ora, meteo vero e calendario delle orde.',"()=>oggiSheet()",2500),
  ('Menu ☰','💎 Bottega','Cosa si compra con i Mattoni.',"()=>shopSheet(0)",1200),
