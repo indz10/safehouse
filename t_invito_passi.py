@@ -26,10 +26,11 @@ async def main():
         pg,e=await apri(p,b,'Pixel 5',WA);E+=e
         print('whatsapp:',await pg.evaluate("()=>{const P=document.getElementById('bvpage');if(!P)return 'nessuna pagina';return [/Sei dentro/.test(P.textContent),[...P.querySelectorAll('a.btn')].some(x=>/Apri in Chrome/.test(x.textContent)&&/^intent:/.test(x.getAttribute('href')))]}"))
         # app installata (iPhone, dall'icona) con l'account: ultimo passo notifiche
-        pg,e=await apri(p,b,'iPhone 13',IOS,"Object.defineProperty(navigator,'standalone',{get:()=>true});window.PushManager=window.PushManager||function(){};");E+=e
-        await pg.evaluate("()=>{SB=__mockSB;localStorage.setItem('zsh_kit_me','1');S.user={id:'me',nick:'ale'};S.pubOk=true;zSyncProfile.asked=1;G.tourAsked=1;G.tourDone=1;G.howSeen=1;closeSheet();window.__PE=0;pushEnable=()=>{window.__PE=1};bvNotifCheck()}")
+        pg,e=await apri(p,b,'iPhone 13',IOS,"Object.defineProperty(navigator,'standalone',{get:()=>true});window.PushManager=window.PushManager||function(){};try{Object.defineProperty(Notification,'permission',{get:()=>'default'});}catch(e){window.Notification=function(){};window.Notification.permission='default';}");E+=e
+        await pg.evaluate("()=>{SB=__mockSB;localStorage.setItem('zsh_kit_me','1');S.user={id:'me',nick:'ale'};S.pubOk=true;zSyncProfile.asked=1;G.tourAsked=1;G.tourDone=1;G.howSeen=1;closeSheet();window.__PE=0;pushEnable=()=>{window.__PE=1};document.querySelectorAll('#bvpage,.zbanner').forEach(x=>x.remove());closeSheet();localStorage.removeItem('zsh_bvnot');bvNotifCheck()}")
         await pg.wait_for_timeout(400)
-        print('ultimo passo:',await pg.evaluate("()=>{const P=document.getElementById('bvnot');return P?[/Ultimo passo/.test(P.textContent),getComputedStyle(P).position]:'nessuno'}"))
+        print('ultimo passo:',await pg.evaluate("()=>{const P=document.getElementById('bvnot');return P?[/Ultimo passo/.test(P.textContent),getComputedStyle(P).position]:['nessuno',zWhere(),Notification.permission,pushOk(),!!document.querySelector('#sheet.open'),!!SB]}"))
+        if not await pg.evaluate("()=>!!document.getElementById('bvnot')"): raise SystemExit('ultimo passo mancante')
         await pg.click('#bvnot [data-bvnon]');await pg.wait_for_timeout(200)
         print('attiva:',await pg.evaluate("()=>[window.__PE,!document.getElementById('bvnot')]"))
         await pg.evaluate("()=>bvNotifCheck()")
