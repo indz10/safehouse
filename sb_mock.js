@@ -33,9 +33,9 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_buy':{if(st(a.p_bid)!=='free')return{data:{ok:false,msg:'occupata'},error:null};M.b[a.p_bid]={owner:'me',lat:a.p_lat,lon:a.p_lon,level:1,paid:price};M.wallet.mattoni-=price;return{data:{ok:true,msg:'Casa comprata',price},error:null};}
   case'world_raid_status':{const now=new Date();const p=new Date(now.getTime()-3600e3),n=new Date(now.getTime()+3*3600e3);M.prep=M.prep||false;
      const H=[{bid:'w1',lat:45.3255,lon:10.6582,level:1,home:true,attack:70,power:62,held:false},{bid:'w9',lat:45.326,lon:10.659,level:2,home:false,attack:50,power:69,held:true}];
-     return{data:{next_at:n.toISOString(),prev_at:p.toISOString(),prepared:M.prep,claimed:!!M.claimed,houses:H,held:1,total:2,mattoni:18},error:null};}
+     return{data:{next_at:n.toISOString(),prev_at:p.toISOString(),prepared:M.prep,claimed:!!M.claimed,houses:H,held:1,total:2,mattoni:18,legno:4,cibo:6,carb:0},error:null};}
   case'world_prepare':M.prep=true;return{data:{ok:true,msg:'Case preparate per la prossima orda'},error:null};
-  case'world_raid_claim':M.claimed=true;M.wallet.mattoni+=18;return{data:{ok:true,held:1,total:2,mattoni:18},error:null};
+  case'world_raid_claim':M.claimed=true;M.wallet.mattoni+=18;return{data:{ok:true,held:1,total:2,mattoni:18,legno:4,cibo:6,carb:0},error:null};
   case'world_raid_view':return{data:[{building_id:'w1',lat:45.3255,lon:10.6582,held:false,kind:'home',mine:true},{building_id:'w9',lat:45.326,lon:10.659,held:true,kind:'owned',mine:true},{building_id:'x2',lat:45.3248,lon:10.6575,held:true,kind:'home',mine:false}],error:null};
   case'world_raid_status':{const now=Date.now();return{data:{next_at:new Date(now+2*3600e3+14*6e4).toISOString(),next_id:'n',prev_at:new Date(now-9*3600e3).toISOString(),prev_id:'p',prepared:!!M.prep,prev_prepared:false,claimed:!!M.claimed,total:2,held:1,mattoni:22,houses:[]},error:null};}
   case'world_prepare':M.prep=1;return{data:{ok:true},error:null};
@@ -68,6 +68,8 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_ally_shield':M.shout=(M.shout||[]).concat([a.p_target]);return{data:{ok:true,msg:'Scudo dato: +5 alla sua difesa alla prossima orda'},error:null};
   case'world_my_defense':return{data:{prep:15,realshield:3,realshield_pts:6,helps:2,helps_pts:10,shields:1,shields_pts:5,squad:3,squad_pts:5,coinq:1,coinq_pts:3,attacks:1,fog:0,sab:0,malus:8,bonus:36,attack_min:46,attack_max:105,wlevel:4,houses:[{bid:'home',home:true,level:1,total:98},{bid:'g45.32600_10.65900',home:false,level:2,total:105}]},error:null};
   case'world_set_realshield':M.rs=a.p_lvl;return{data:{ok:true,rs:a.p_lvl},error:null};
+  case'world_resources':{const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});return{data:{ok:true,mattoni:1000,legno:R.legno,cibo:R.cibo,carb:R.carb,mercato_left:R.left},error:null};}
+  case'world_trade':{const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});if(R[a.p_kind]<20)return{data:{ok:false,msg:'Servono almeno 20 di quella risorsa'},error:null};R[a.p_kind]-=20;R.left-=10;return{data:{ok:true,dato:20,mattoni:10,mercato_left:R.left},error:null};}
   case'world_near_survivors':window.__mkNear=a;return{data:[{user_id:'u2',nick:'giangy',wlevel:3,comune:'Volta',km:3.2,ally:'ok',fav:false},{user_id:'u9',nick:'rino',wlevel:1,comune:'Cereta',km:11.5,ally:'none',fav:false}],error:null};
   case'world_favs_list':{const F=window.__mkFav||(window.__mkFav={});return{data:Object.keys(F).map(k=>({user_id:k,nick:F[k],wlevel:1,comune:null,ally:'none'})),error:null};}
   case'world_fav_set':{const F=window.__mkFav||(window.__mkFav={});if(a.p_on)F[a.p_user]=a.p_user==='u9'?'rino':a.p_user==='u8'?'gina':'mario';else delete F[a.p_user];return{data:{ok:true,on:a.p_on},error:null};}
