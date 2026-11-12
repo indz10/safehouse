@@ -16,6 +16,7 @@ sponsor_request(jsonb) 5b2033e9ba
 sponsor_scadenze() 322b41919e
 sponsors_guard() fb6e27a43c
 w_allies_of(uuid) f79fddd6ef
+w_ally_state(uuid, uuid) cf9a34567a
 w_are_allies(uuid, uuid) 562fd9a3ca
 w_atk_pts(uuid, uuid) 2031640ee7
 w_attack3(text, text, integer) 4deba51e53
@@ -71,6 +72,8 @@ w_slot_t(text) 3048adad4f
 w_threats_of(uuid) b4a88968be
 w_tr_dm() af3d1fb89f
 w_tr_feed() e607f3ac80
+w_tr_feed_push() 17e63bafcd
+w_tr_invite_join() bee6d00589
 w_upower(uuid, text) 2974e0963a
 w_wallet(uuid) 27de1a6e90
 w_wxev(text, text) 042a705ec9
@@ -99,6 +102,8 @@ world_dm_list(uuid) 83e7aeaa85
 world_dm_send(uuid, text) 8750519757
 world_dm_threads() 3560c66838
 world_earn(text) d18bb31d86
+world_fav_set(uuid, boolean) acc675b82b
+world_favs_list() 0a73e68a58
 world_feed_list(text) 8c091dbd22
 world_find(text) ade7145174
 world_gift_claim(bigint) 2023464b42
@@ -118,6 +123,7 @@ world_mine() 0376f655ab
 world_mine2() 1abdaf5ab7
 world_my_defense() ca43f36e52
 world_my_effects() 7e4bd22f9b
+world_near_survivors(double precision, double precision, double precision) 479ebf94cf
 world_player(uuid) a87883892e
 world_prepare() 6c8f3e9765
 world_presidi_list(double precision, double precision, double precision, double precision) 8bebc59d0e
@@ -185,6 +191,7 @@ world_curses 203cd63e
 world_defs 9c26ecac
 world_dm 42f21988
 world_excluded 67a6a429
+world_favs 8f232d3a
 world_feed a78458ad
 world_gifts 2ccdb3dc
 world_help 84c102f5

@@ -101,7 +101,9 @@ async function playerSheet(uid){await playerSheetBase(uid);
   const nick=((c.querySelector('.plhead .disp')||{}).textContent||'').replace('@','');const ac=c.querySelector('.placts')||c;ac.insertAdjacentHTML('afterbegin',`<button class="btn small" data-pdm>💬 Scrivi</button>`);
   c.querySelector('[data-pdm]').onclick=()=>dmSheet(uid,nick);}catch(e){}})();
   await (async()=>{try{const p=window.PLX;const c=document.querySelector('#sheet.open .sheet-b');if(!p||p.me||p.user_id!==uid||!c||c.querySelector('.plmz')||p.dist_km==null)return;
-    c.querySelector('.plhead').insertAdjacentHTML('afterend',mzRigaHTML(p));}catch(e){}})();}
+    c.querySelector('.plhead').insertAdjacentHTML('afterend',mzRigaHTML(p));}catch(e){}})();
+  /* ⭐ preferito anche se non è alleato (p72, migrazione 010) */
+  await (async()=>{try{if(typeof trFavDecorate==='function')await trFavDecorate(uid);}catch(e){}})();}
 /* pagina Superstiti: base (p26) + Piazza (p27) + Rivali (p36) + "Alleati" (p48) */
 function renderSocial(){renderSocialBase();
   (()=>{try{const seg=app.querySelector('.sseg');if(seg&&!seg.querySelector('[data-st=piazza]')){
@@ -113,7 +115,9 @@ function renderSocial(){renderSocialBase();
     const sq=seg.querySelector('[data-st=squadra]');(sq||seg.lastElementChild).insertAdjacentHTML('afterend','<button data-st="rivali">😈 Rivali</button>');seg.classList.remove('four');seg.classList.add('five');
     const cl=seg.querySelector('[data-st=classifiche]');if(cl)cl.innerHTML='🏆 Classifica';
     seg.querySelectorAll('[data-st]').forEach(b=>{b.classList.toggle('on',b.dataset.st===SOC.tab);b.onclick=()=>{SOC.tab=b.dataset.st;seg.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));socPaint();socFetchTab();};});}}catch(e){}})();
-  (()=>{try{const b=app.querySelector('.sseg [data-st=squadra]');if(b)b.innerHTML='🤝 Alleati';}catch(e){}})();}
+  (()=>{try{const b=app.querySelector('.sseg [data-st=squadra]');if(b)b.innerHTML='🤝 Alleati';}catch(e){}})();
+  /* 🔎 Trova superstiti (p72): vicino a una mia casa, per nome, ⭐ preferiti */
+  (()=>{try{if(typeof trovaBtn==='function')trovaBtn();}catch(e){}})();}
 /* alleati in Squadra: base (p23) + regali e prestiti (p24) */
 function alHTML(){const h=alHTMLBase();return h?h.replace('<button class="btn ghost small" data-ainv',ayHTML()+'<button class="btn ghost small" data-ainv'):h;}
 function alBind(){alBindBase();ayBind();ayLoad();}

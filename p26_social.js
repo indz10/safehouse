@@ -12,7 +12,7 @@ function socNick(id,nick){return`<b class="snick" data-pl="${esc(id||'')}">@${es
 function socLineBase(f){const a=socNick(f.actor,f.actor_nick),t=f.target?socNick(f.target,f.target_nick):'';const where=f.comune?` <span class="scom">· ${esc(f.comune)}</span>`:'';
   const K={join:['🏠',`${a} è entrato nel mondo${where}`],buy:['🔑',`${a} ha comprato una casa${f.info==='npc'?' da un superstite simulato':''}${where}`],ask:['🆘',`${a} chiede aiuto per la prossima orda${where}`],
     help:['🛡️',`${a} ha mandato rinforzi a ${t}`],attack:['🧟',`${a} ha mandato un’orda contro ${t}`],gift:['🎁',`${a} ha ${f.info==='prestito'?'prestato Mattoni':'fatto un regalo'} a ${t}`],
-    ally:['🤝',`${a} e ${t} sono alleati`],ally_req:['🤝',`${a} propone un’alleanza a ${t}`],shout:['💬',`${a} → ${t}: «${esc((SHOUTS[+f.info]||'').replace(/^\S+\s/,''))}»`]};
+    ally:['🤝',`${a} e ${t} sono alleati`],ally_req:['🤝',`${a} propone un’alleanza a ${t}`],invite_join:['🎉',`${a} è entrato con l’invito di ${t}`],shout:['💬',`${a} → ${t}: «${esc((SHOUTS[+f.info]||'').replace(/^\S+\s/,''))}»`]};
   const k=K[f.kind]||['📣',a];const act=f.kind==='ask'&&f.actor!==(S.user&&S.user.id)?`<button class="btn small" data-shelp="${esc(f.actor)}">Manda rinforzi</button>`:'';
   return`<div class="sitem"><span class="sic">${k[0]}</span><div class="stx">${k[1]}<small>${socAgo(f.created_at)}</small></div>${act}</div>`;}
 async function socLoad(what,force){const key=what+(what==='feed'?SOC.scope:what==='rank'?SOC.rs+SOC.rp:'');if(!force&&Date.now()-(SOC.t[key]||0)<30000)return;SOC.t[key]=Date.now();

@@ -76,7 +76,9 @@ async function pushPzBind(c){const B=[...c.querySelectorAll('[data-pz]')];const 
   B.forEach(b=>b.onclick=async()=>{const m=b.dataset.pz;try{const{data,error}=await SB.rpc('push_piazza',{p_endpoint:ep,p_mode:m});if(error)throw error;if(!data.ok)throw new Error(data.msg);mark(data.piazza);
     toast(m==='no'?'💬 Niente avvisi dalla piazza':m==='zona'?'💬 Ti avviso dei messaggi della tua zona':'💬 Ti avviso dei messaggi della tua zona e del Mondo');}catch(e){toast(e.message||'Non riuscito');}});}
 /* un tocco sulla notifica apre il posto giusto */
-function zGoUrl(u){try{const q=new URL(u,location.href).searchParams;if(q.get('assalto'))setTimeout(()=>assalto(q.get('assalto')==='sim'?'sim':'last'),300);else if(q.get('go')){const g=q.get('go');if(g==='social')SOC.tab=q.get('tab')==='piazza'?'piazza':'bacheca';if(g==='orda')G.ss='oggi';go(g);}}catch(e){}}
+function zGoUrl(u){try{const q=new URL(u,location.href).searchParams;if(q.get('assalto'))setTimeout(()=>assalto(q.get('assalto')==='sim'?'sim':'last'),300);else if(q.get('go')){const g=q.get('go');if(g==='social'){const tb=q.get('tab');SOC.tab=tb==='piazza'?'piazza':tb==='squadra'?'squadra':'bacheca';}if(g==='orda')G.ss='oggi';go(g);
+    /* notifica di un messaggio privato: apre subito la chat con chi ha scritto (migrazione 011) */
+    const dm=q.get('dm');if(g==='social'&&dm&&/^[0-9a-f-]{36}$/i.test(dm))setTimeout(async()=>{let n='';try{const{data}=await SB.from('profili_pubblici').select('nick').eq('user_id',dm).maybeSingle();n=data&&data.nick||'';}catch(e){}try{dmSheet(dm,n);}catch(e){}},700);}}catch(e){}}
 try{navigator.serviceWorker&&navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.zgo)zGoUrl(e.data.zgo);});}catch(e){}
 setTimeout(()=>{try{if(/[?&](assalto|go)=/.test(location.search)){const u=location.href;history.replaceState(null,'',location.pathname);zGoUrl(u);}}catch(e){}},1800);
 </script>

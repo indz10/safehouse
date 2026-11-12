@@ -1222,7 +1222,7 @@ body[data-tab=orda] #accFab{display:none!important}
 .zstbtn{width:100%}
 
 /* pagina di benvenuto (invito) */
-#bvpage{position:fixed;inset:0;z-index:9000;background:rgba(20,15,31,.88);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 12px calc(env(safe-area-inset-bottom,0px) + 14px)}
+#bvpage,#bvnot{position:fixed;inset:0;z-index:9000;background:rgba(20,15,31,.88);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 12px calc(env(safe-area-inset-bottom,0px) + 14px)}
 .bvcard{width:100%;max-width:460px;background:#f3e9d2;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px}
 .bvhead{display:flex;gap:10px;align-items:center;margin-bottom:10px}.bvhead img{width:58px;height:58px;border:2.5px solid var(--ink);border-radius:12px}
 .bvhead div{display:flex;flex-direction:column}.bvhead b{font-size:24px;line-height:1.05}.bvhead small{font-size:12.5px;color:#5a5470;margin-top:3px}
@@ -1260,6 +1260,14 @@ body[data-tab=orda] #accFab{display:none!important}
 #fumetto.fx-pioggia .fpan::after,#fumetto.fx-neve .fpan::after{animation:none!important}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01s!important;animation-iteration-count:1!important;transition:none!important}}
 .mhart{width:100%;height:74px;overflow:hidden;border:2px solid var(--ink);background:#2b2160;margin-bottom:4px;display:grid;place-items:center}.mhart svg{width:100%;height:100%;display:block}
+/* 🔎 Trova superstiti e ⭐ preferiti (p72) */
+.trbtn{display:flex;flex-direction:column;align-items:center;gap:2px;margin:10px 0}.trbtn small{font-size:12px;font-weight:600;opacity:.85}
+.trtabs button{font-size:12.5px;padding:7px 4px}
+.trlab{font-size:13px;font-weight:600;margin:10px 0 6px}
+.trcase{display:flex;gap:6px;flex-wrap:wrap}.trcase button{border:2.5px solid var(--ink);background:#fff;padding:6px 10px;font-weight:800;font-size:13px;color:var(--ink)}.trcase button.on{background:var(--moon);box-shadow:2px 2px 0 var(--ink)}
+.trlist{margin-top:6px}.trrow{display:flex;align-items:center;gap:4px}.trrow .strow{flex:1;min-width:0}
+.trstar{flex:0 0 auto;width:42px;height:42px;font-size:22px;background:#fff;border:2.5px solid var(--ink);color:var(--ink);line-height:1}.trstar.on{background:var(--moon)}
+.plhead .trstar{margin-left:auto}
 </style>
 </head>
 <body>

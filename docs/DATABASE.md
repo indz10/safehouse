@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **47** · viste: **1** · indici: **14** · regole (policy): **42** · trigger: **12** · lavori programmati: **3**
-- Funzioni: **153** (153 nomi); usate (direttamente o tramite altre funzioni): **153**; **non usate: 0**
+- Tabelle: **48** · viste: **1** · indici: **14** · regole (policy): **42** · trigger: **14** · lavori programmati: **3**
+- Funzioni: **159** (159 nomi); usate (direttamente o tramite altre funzioni): **159**; **non usate: 0**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -30,6 +30,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `sponsor_scadenze` |  |  | cron |  | 1: migr. 005_sponsor_pagamenti |
 | `sponsors_guard` |  |  | trigger |  | 1: migr. 004_sponsor_iscrizione |
 | `w_allies_of` |  |  |  | w_upower, w_tr_feed, world_allies, world_team_bonus, world_my_defense, world_allies_status … | 2: aiuto_alleati → alleanze2 |
+| `w_ally_state` |  |  |  | world_favs_list, world_near_survivors | 1: migr. 010_trova_preferiti |
 | `w_are_allies` |  |  |  | world_quote, world_send_help, world_send_attack, world_give, world_feed_list, world_player … | 3: mondo_v4 → social → alleanze2 |
 | `w_atk_pts` |  |  |  | world_send_attack, world_player | 1: migr. 009_mezzi_assalti |
 | `w_attack3` |  |  |  | world_raid_status, world_raid_view, w_home_held | 4: mondo_v3 → zombie → zombie_alleati → fortezze |
@@ -85,6 +86,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_threats_of` |  |  |  | world_threats, world_ally_view, world_allies_status | 6: alleati_sim → zombie_alleati → fortezze → abitazione → migr. 002_formule_uguali → migr. 006_presidi |
 | `w_tr_dm` |  |  | trigger |  | 1: assedio |
 | `w_tr_feed` |  |  | trigger |  | 4: social → aiuto_alleati → dispetti → alleanze2 |
+| `w_tr_feed_push` |  |  | trigger |  | 1: migr. 011_notifiche_subito |
+| `w_tr_invite_join` |  |  | trigger |  | 1: migr. 011_notifiche_subito |
 | `w_upower` |  |  |  | world_raid_status, world_raid_view, w_home_held, w_threats_of | 6: mondo_v3 → dispetti → alleanze2 → casavera → squadra_fix → migr. 009_mezzi_assalti |
 | `w_wallet` |  |  |  | w_pay, world_earn, world_claim_home, world_collect, world_mine, world_raid_status … | 1: mondo_unico |
 | `w_wxev` |  |  |  | w_attack3, w_threats_of | 2: zombie → zombie_alleati |
@@ -113,6 +116,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_dm_send` | ✓ |  |  |  | 1: assedio |
 | `world_dm_threads` | ✓ |  |  |  | 1: assedio |
 | `world_earn` | ✓ |  |  |  | 1: mondo_unico |
+| `world_fav_set` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
+| `world_favs_list` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
 | `world_feed_list` | ✓ |  |  |  | 1: social |
 | `world_find` | ✓ |  |  |  | 1: squadra_fix |
 | `world_gift_claim` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
@@ -132,6 +137,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_mine2` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
 | `world_my_defense` | ✓ |  |  |  | 5: casavera → squadra_fix → migr. 002_formule_uguali → migr. 006_presidi → migr. 009_mezzi_assalti |
 | `world_my_effects` | ✓ |  |  |  | 3: assedio → casa_abitata → nome_casa |
+| `world_near_survivors` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
 | `world_player` | ✓ |  |  |  | 2: social → migr. 009_mezzi_assalti |
 | `world_prepare` | ✓ |  |  |  | 1: orda_mondo |
 | `world_presidi_list` | ✓ |  |  |  | 1: migr. 006_presidi |
@@ -201,6 +207,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_defs` | zombie | 2 | ✓ |
 | `world_dm` | assedio | 0 | ✓ |
 | `world_excluded` | mondo_unico | 0 | ✓ |
+| `world_favs` | supabase/migrazioni/010_trova_preferiti | 0 | ✓ |
 | `world_feed` | social | 0 | ✓ |
 | `world_gifts` | mondo_v4 | 0 | ✓ |
 | `world_help` | mondo_v3 | 0 | ✓ |

@@ -125,6 +125,51 @@ async function terrainTask() {
   return { terrain: rows.length };
 }
 
+// NOVITÀ PERSONALI (migrazione 011): ogni novità con il suo titolo e la sua pagina; al massimo 3 notifiche
+// per giro (la terza dice quante altre ce ne sono). La chiama il giro dei 10 minuti e, subito, il database
+// (task "feed") quando arriva una novità per qualcuno con le notifiche attive.
+const SHOUTS = ["", "👋 Ciao vicino!", "🛡️ Ti copro io stanotte", "🙏 Grazie dei rinforzi!", "🧟 Attento, arriva l’orda!", "🤝 Facciamo squadra?", "💪 Bella difesa!", "😈 Ci vediamo all’orda…", "🎁 Grazie del regalo!", "🏠 Bella casa!", "🆘 Mi serve aiuto!", "🔥 Che assalto!", "🌙 Buona guardia stanotte"];
+// deno-lint-ignore no-explicit-any
+function feedMsg(f: any, who: string, id: string): { title: string; body: string; url: string } {
+  const so = "/?go=social", al = "/?go=social&tab=squadra";
+  switch (f.kind) {
+    case "dm": return { title: `💬 Messaggio da ${who}`, body: f.info ? `«${f.info}»` : "Ti ha scritto un messaggio", url: `/?go=social&dm=${id}` };
+    case "ally_req": return { title: "🤝 Proposta di alleanza", body: `${who} ti propone un’alleanza: tocca per accettare`, url: al };
+    case "ally": return { title: "🤝 Nuovo alleato", body: `${who} è ora tuo alleato`, url: al };
+    case "house_req": return { title: "🏠 Richiesta di coinquilino", body: `${who} dice che vivete nella stessa casa: tocca per confermare`, url: so };
+    case "house_ok": return { title: "🏠 Ora abitate insieme", body: `${who} ha confermato: siete coinquilini`, url: so };
+    case "invite_join": return { title: "🎉 Il tuo invito ha funzionato", body: `${who} è entrato con il tuo link: ora siete alleati`, url: al };
+    case "help": return { title: "🛡️ Rinforzi in arrivo", body: `${who} ti ha mandato rinforzi per l’orda`, url: "/?go=orda" };
+    case "attack": return { title: "🧟 Ti hanno mandato un’orda!", body: `${who} ti ha mandato un’orda contro: prepara le case`, url: "/?go=orda" };
+    case "curse": return { title: "😈 Dispetto!", body: `${who} ti ha fatto un dispetto: chiedi aiuto agli alleati`, url: "/?go=orda" };
+    case "shield": return { title: "🛡️ Scudo ricevuto", body: `${who} ti ha dato uno scudo: +5 alla prossima orda`, url: "/?go=orda" };
+    case "gift": return { title: "🎁 Regalo", body: `${who} ti ha ${f.info === "prestito" ? "prestato dei Mattoni" : "fatto un regalo"}`, url: so };
+    case "ask_ally": return { title: "🆘 Un alleato chiede aiuto", body: `${who} chiede il tuo aiuto per la prossima orda`, url: so };
+    case "shout": return { title: `📣 ${who}`, body: SHOUTS[+f.info] || "ti ha salutato", url: so };
+    default: return { title: "🔔 ZombieSafeHouse", body: `${who} ti cerca`, url: so };
+  }
+}
+// deno-lint-ignore no-explicit-any
+async function feedFor(L: any[]): Promise<number> {
+  let sent = 0;
+  for (const s of L) {
+    if (!s.user_id) continue;
+    const { data: f } = await sb.from("world_feed").select("id,kind,actor,created_at,info").eq("target", s.user_id).gt("created_at", s.last_feed).order("created_at", { ascending: false }).limit(10);
+    if (!f || !f.length) continue;
+    // segna subito come avvisate, così il giro dei 10 minuti e la chiamata del database non mandano due volte
+    await sb.from("push_subs").update({ last_feed: f[0].created_at }).eq("endpoint", s.endpoint);
+    const show = f.slice(0, 3);
+    for (let i = 0; i < show.length; i++) {
+      const x = show[i];
+      const { data: p } = await sb.from("profili_pubblici").select("nick").eq("user_id", x.actor).maybeSingle();
+      const m = feedMsg(x, p?.nick ? "@" + p.nick : "Un superstite", x.actor || "");
+      const more = i === show.length - 1 && f.length > show.length ? ` (+${f.length - show.length} novità)` : "";
+      sent += await sendTo(s, { title: m.title, body: m.body + more, url: m.url, tag: "zsh-" + x.kind + "-" + x.id });
+    }
+  }
+  return sent;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   // deno-lint-ignore no-explicit-any
@@ -142,6 +187,12 @@ Deno.serve(async (req) => {
     if (!s) return json({ ok: false, msg: "telefono non iscritto" });
     const ok = await sendTo(s, { title: "✅ Notifiche attive", body: "Ti avviseremo 30 minuti prima di ogni orda e quando ti cercano.", url: "/?go=orda" });
     return json({ ok: !!ok });
+  }
+
+  if (body.task === "feed") {
+    if (body.secret !== K.cron_secret) return json({ ok: false }, 401);
+    const { data: subs } = await sb.from("push_subs").select("*").eq("user_id", body.user);
+    return json({ ok: true, sent: await feedFor(subs || []) });
   }
 
   if (body.task === "tick") {
@@ -162,18 +213,8 @@ Deno.serve(async (req) => {
         for (const s of L) sent += await sendTo(s, { title: `🧟 L’orda delle ${hh}:00 sta attaccando!`, body: "Guarda l’assalto sulle tue case e riscatta i premi.", url: "/?assalto=last" });
       }
     }
-    // novità personali: alleanze, rinforzi, orde ricevute, regali, saluti
-    const NAMES: Record<string, string> = { dm: "ti ha scritto un messaggio", shield: "ti ha dato uno scudo: +5 alla prossima orda", curse: "ti ha fatto un dispetto! Chiedi aiuto agli alleati", ask_ally: "chiede il tuo aiuto per la prossima orda!", ally_req: "ti propone un’alleanza", ally: "è ora tuo alleato", help: "ti ha mandato rinforzi", attack: "ti ha mandato un’orda contro!", gift: "ti ha fatto un regalo", shout: "ti ha salutato" };
-    for (const s of L) {
-      const { data: f } = await sb.from("world_feed").select("kind,actor,created_at,info").eq("target", s.user_id).gt("created_at", s.last_feed).order("created_at", { ascending: false }).limit(5);
-      if (f && f.length) {
-        const { data: p } = await sb.from("profili_pubblici").select("nick").eq("user_id", f[0].actor).maybeSingle();
-        const who = p?.nick ? "@" + p.nick : "Un superstite";
-        const msg = (f[0].kind === "dm" && f[0].info ? `${who}: «${f[0].info}»` : `${who} ${NAMES[f[0].kind] || "ti cerca"}`) + (f.length > 1 ? ` (+${f.length - 1} novità)` : "");
-        sent += await sendTo(s, { title: "🔔 ZombieSafeHouse", body: msg, url: "/?go=social" });
-        await sb.from("push_subs").update({ last_feed: new Date().toISOString() }).eq("endpoint", s.endpoint);
-      }
-    }
+    // novità personali: messaggi, alleanze, rinforzi, orde ricevute, regali, saluti, inviti (feedFor)
+    sent += await feedFor(L);
     // messaggi della piazza (migrazione 007): al massimo un avviso ogni 30 minuti, con l'ultimo messaggio e quanti altri
     for (const s of L) {
       const mode = s.piazza || "zona";
