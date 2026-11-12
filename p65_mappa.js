@@ -48,6 +48,9 @@ function renderMappa(){renderMappaBase();
   /* 🚩 presidi veri condivisi (Fase 9b) */
   (()=>{try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('[data-mfpres]'))return;
     w.insertAdjacentHTML('beforeend','<button class="mfpres" data-mfpres>🚩 Presidi</button>');w.querySelector('[data-mfpres]').onclick=()=>presList(window.__mf);}catch(e){}})();
+  /* 🤝 alleati e le loro case sulla mappa (p74) */
+  (()=>{try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('[data-mfally]')||!S.user)return;
+    w.insertAdjacentHTML('beforeend','<button class="mfally" data-mfally>🤝 Alleati</button>');w.querySelector('[data-mfally]').onclick=()=>alPick();}catch(e){}})();
   /* 📷 Lente: realtà aumentata (Fase 10A, p70) */
   (()=>{try{const w=app.querySelector('.mapfull');if(!w||w.querySelector('[data-mflente]'))return;
     w.insertAdjacentHTML('beforeend','<button class="mflente" data-mflente>📷 Lente</button>');w.querySelector('[data-mflente]').onclick=()=>lenteOpen();}catch(e){}})();}
