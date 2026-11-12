@@ -1113,6 +1113,47 @@ begin
 end $$;
 
 --
+-- Name: w_tr_feed_push(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_tr_feed_push() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare s text;
+begin
+  if new.target is null or new.target = new.actor then return new; end if;
+  if not exists (select 1 from public.push_subs where user_id = new.target) then return new; end if;
+  begin
+    select cron_secret into s from public.push_keys where id = 1;
+    if s is null then return new; end if;
+    perform net.http_post(
+      url := 'https://wmweptdpfworispqjhto.supabase.co/functions/v1/zsh-push',
+      headers := '{"Content-Type":"application/json"}'::jsonb,
+      body := jsonb_build_object('task','feed','user',new.target,'secret',s));
+  exception when others then null; -- mai bloccare l'azione del giocatore: ci pensa il giro dei 10 minuti
+  end;
+  return new;
+end $$;
+
+--
+-- Name: w_tr_invite_join(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_tr_invite_join() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare inv uuid;
+begin
+  if new.invitato_da is null or (tg_op = 'UPDATE' and old.invitato_da is not distinct from new.invitato_da) then return new; end if;
+  select u.id into inv from auth.users u where left(u.id::text, 8) = new.invitato_da and u.id <> new.user_id limit 1;
+  if inv is null then return new; end if;
+  insert into public.world_feed(kind, actor, target, info) values ('invite_join', new.user_id, inv, null);
+  return new;
+end $$;
+
+--
 -- Name: w_upower(uuid, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4230,6 +4271,12 @@ CREATE INDEX world_presidi_lat ON public.world_presidi USING btree (lat, lon);
 CREATE INDEX world_presidi_tenute_p ON public.world_presidi_tenute USING btree (presidio_id, dal);
 
 --
+-- Name: profili_pubblici profili_invite_join; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER profili_invite_join AFTER INSERT OR UPDATE OF invitato_da ON public.profili_pubblici FOR EACH ROW EXECUTE FUNCTION public.w_tr_invite_join();
+
+--
 -- Name: sponsors sponsors_guard; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -4300,6 +4347,12 @@ CREATE TRIGGER tr_feed AFTER INSERT ON public.world_shields FOR EACH ROW EXECUTE
 --
 
 CREATE TRIGGER tr_feed AFTER INSERT ON public.world_shouts FOR EACH ROW EXECUTE FUNCTION public.w_tr_feed();
+
+--
+-- Name: world_feed world_feed_push; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER world_feed_push AFTER INSERT ON public.world_feed FOR EACH ROW EXECUTE FUNCTION public.w_tr_feed_push();
 
 --
 -- Name: admins admins_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -5449,6 +5502,18 @@ REVOKE ALL ON FUNCTION public.w_slope(p_bid text) FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_threats_of(p_user uuid) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_tr_feed_push(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_tr_feed_push() FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_tr_invite_join(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_tr_invite_join() FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_upower(p_user uuid, p_slot text); Type: ACL; Schema: public; Owner: -

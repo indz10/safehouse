@@ -72,6 +72,8 @@ w_slot_t(text) 3048adad4f
 w_threats_of(uuid) b4a88968be
 w_tr_dm() af3d1fb89f
 w_tr_feed() e607f3ac80
+w_tr_feed_push() 17e63bafcd
+w_tr_invite_join() bee6d00589
 w_upower(uuid, text) 2974e0963a
 w_wallet(uuid) 27de1a6e90
 w_wxev(text, text) 042a705ec9
