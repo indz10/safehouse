@@ -103,7 +103,9 @@ async function playerSheet(uid){await playerSheetBase(uid);
   await (async()=>{try{const p=window.PLX;const c=document.querySelector('#sheet.open .sheet-b');if(!p||p.me||p.user_id!==uid||!c||c.querySelector('.plmz')||p.dist_km==null)return;
     c.querySelector('.plhead').insertAdjacentHTML('afterend',mzRigaHTML(p));}catch(e){}})();
   /* ⭐ preferito anche se non è alleato (p72, migrazione 010) */
-  await (async()=>{try{if(typeof trFavDecorate==='function')await trFavDecorate(uid);}catch(e){}})();}
+  await (async()=>{try{if(typeof trFavDecorate==='function')await trFavDecorate(uid);}catch(e){}})();
+  /* 🏢 vicino di condominio: Rompi / Fai pace (p77, migrazione 013) */
+  await (async()=>{try{if(typeof cdPlayer==='function')await cdPlayer(uid);}catch(e){}})();}
 /* pagina Superstiti: base (p26) + Piazza (p27) + Rivali (p36) + "Alleati" (p48) */
 function renderSocial(){renderSocialBase();
   (()=>{try{const seg=app.querySelector('.sseg');if(seg&&!seg.querySelector('[data-st=piazza]')){

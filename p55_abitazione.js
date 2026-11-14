@@ -16,7 +16,7 @@ function kindSheet(I,after){let k=(I&&I.kind_set&&I.kind)||'casa';const draw=()=
   <button class="btn wide" data-hks>Salva</button>`,card=>{card.querySelectorAll('[data-hk]').forEach(b=>b.onclick=()=>{k=b.dataset.hk;draw();});
     card.querySelector('[data-hks]').onclick=async e=>{const u=(card.querySelector('#hkU')||{}).value||'';e.target.disabled=true;try{const{data,error}=await SB.rpc('world_set_home',{p_kind:k,p_unit:u});if(error)throw error;
       if(!data.ok){toast(data.msg);e.target.disabled=false;return;}toast('🏘️ '+data.msg);await wMine(true);await thrLoad(true);if(after)after();}catch(x){toast(x.message||'Non riuscito');e.target.disabled=false;}};});draw();}
-function condoHTML(C){if(!C)return'';return`<div class="cdpan"><h4 class="hh">🏢 Difese del condominio <small style="font-weight:400;font-size:12px">· +3 di difesa per livello a tutte le case del palazzo · ora <b>+${C.bonus}</b></small></h4>
+function condoHTML(C){if(!C)return'';return`<div class="cdpan"><h4 class="hh">🏢 Difese del condominio <small style="font-weight:400;font-size:12px">· +3 di difesa per livello a chi ha versato nel mese · a te ora <b>+${C.bonus}</b></small></h4>
   ${(C.defs||[]).map(d=>{const[ic,n]=CD[d.kind];const pct=d.next?Math.round(d.pot/d.next*100):100;return`<div class="cdrow"><div class="cdt"><b>${ic} ${n}</b><span>${'●'.repeat(d.level)}${'○'.repeat(3-d.level)}</span></div>
     ${d.next?`<div class="cdbar"><i style="width:${pct}%"></i><small>🧱 ${wNum(d.pot)} / ${wNum(d.next)} per il livello ${d.level+1}</small></div>
     <div class="cdbtn">${[20,50,100].map(v=>`<button class="btn small ghost" data-cdg="${d.kind}" data-v="${v}">+🧱 ${v}</button>`).join('')}</div>`:'<small class="muted">Al massimo</small>'}
@@ -60,6 +60,8 @@ async function abitMount(c,h){let p=c.querySelector('.abpan');if(!p){p=document.
   /* 🤝 Insieme: prepara e avvisa */
   b.querySelectorAll('[data-cpprep]').forEach(x=>x.onclick=async()=>{x.disabled=true;try{const{data,error}=await SB.rpc('world_prepare');if(error)throw error;toast('🛡️ Casa preparata: +15 di difesa');try{await orLoad(true);}catch(e){}redo();}catch(e){toast(e.message||'Non riuscito');x.disabled=false;}});
   b.querySelectorAll('[data-cpav]').forEach(x=>x.onclick=()=>alRemind(x.dataset.cpav,x));
+  /* 🏢 condominio (p77): amministratore, chi ha versato, vicini che rompono o fanno pace */
+  try{cdExtra(b,redo);}catch(e){}
   /* tocco su una persona: la sua scheda da giocatore; 💬: messaggio diretto. "‹ Casa tua" per tornare */
   const back=()=>{window.SHEET_BACK={t:'‹ Casa tua',fn:()=>houseSheet(h)};};
   b.querySelectorAll('[data-cpdm]').forEach(x=>x.onclick=e=>{e.stopPropagation();back();dmSheet(x.dataset.cpdm,x.dataset.n);});

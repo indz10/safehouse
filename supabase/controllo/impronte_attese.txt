@@ -17,16 +17,17 @@ sponsor_scadenze() 322b41919e
 sponsors_guard() fb6e27a43c
 w_allies_of(uuid) f79fddd6ef
 w_ally_state(uuid, uuid) cf9a34567a
-w_are_allies(uuid, uuid) 562fd9a3ca
+w_are_allies(uuid, uuid) 167bf22cdd
 w_atk_pts(uuid, uuid) 2031640ee7
 w_attack3(text, text, integer) 4deba51e53
 w_bad(text) 2115eb8cd1
 w_boost(uuid) 23b0f9792c
 w_canon(text, double precision, double precision) a8cd798858
 w_cleanup() ce8e6152f0
-w_coinq(uuid, uuid) 53655bd8e4
-w_condo_bonus(uuid) ace5cd272c
+w_coinq(uuid, uuid) 76c0c56af5
+w_condo_bonus(uuid) 2616f24def
 w_condo_key(uuid) 894c2d1dc3
+w_condo_vicini(uuid, uuid) f4443a8150
 w_def(text, text) d1aac29e3d
 w_dist_km(uuid, uuid) 981d88669d
 w_dot(uuid) 2eda15dce6
@@ -63,6 +64,7 @@ w_price2(uuid, double precision, double precision) c076f18600
 w_radius(integer) d64febc04f
 w_raid_houses(uuid, timestamp with time zone) 81af815347
 w_res(uuid, integer, integer, integer) 6de01c39a5
+w_rift(uuid, uuid) 79ca44e7de
 w_room(text) ab86838fbb
 w_score(uuid, boolean) 836191a166
 w_settle(uuid) 59bad382a9
@@ -97,7 +99,10 @@ world_chat_report(bigint) 89cee22a5d
 world_chat_send(text, text) 8c7ba570ba
 world_claim_home(text, double precision, double precision) 0feb434a8a
 world_collect() 722919a3e5
+world_condo_break(uuid) d50c77df62
 world_condo_give(text, integer) 11b65adf25
+world_condo_info() e4a850203f
+world_condo_peace(uuid) 388d9d7b53
 world_coresidents() f6b396fcc0
 world_def_upgrade(text, text) 17ee5d8a24
 world_dm_list(uuid) 83e7aeaa85
@@ -191,6 +196,7 @@ world_chat 36d8e2a6
 world_chat_reports bb8b38ef
 world_condo 7c5e55f9
 world_condo_gifts 17d3c1e4
+world_condo_rifts 16de30cd
 world_curses 203cd63e
 world_defs 9c26ecac
 world_dm 42f21988

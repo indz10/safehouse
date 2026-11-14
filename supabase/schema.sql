@@ -331,13 +331,12 @@ CREATE FUNCTION public.w_are_allies(a uuid, b uuid) RETURNS boolean
     LANGUAGE sql STABLE SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-  select a <> b and (
+  select a <> b and not public.w_rift(a, b) and (
     exists (select 1 from public.world_allies x where x.status = 'ok' and ((x.requester = a and x.target = b) or (x.requester = b and x.target = a)))
     or exists (select 1 from public.world_help_given g where ((g.helper = a and g.target = b) or (g.helper = b and g.target = a)) and g.created_at > now() - interval '30 days')
     or exists (select 1 from public.profili_pubblici p where p.user_id = b and p.invitato_da = left(a::text,8))
     or exists (select 1 from public.profili_pubblici p where p.user_id = a and p.invitato_da = left(b::text,8))
-    or public.w_coinq(a, b));
-$$;
+    or public.w_coinq(a, b)); $$;
 
 --
 -- Name: w_atk_pts(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
@@ -436,9 +435,8 @@ CREATE FUNCTION public.w_coinq(p_a uuid, p_b uuid) RETURNS boolean
     LANGUAGE sql STABLE SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-  select coalesce(p_a <> p_b and exists (select 1 from public.world_homes a, public.world_homes b where a.user_id = p_a and b.user_id = p_b
-    and (a.building_id = b.building_id or public.w_km(a.lat,a.lon,b.lat,b.lon) < 0.025)), false);
-$$;
+  select coalesce(p_a <> p_b and not public.w_rift(p_a, p_b) and exists (select 1 from public.world_homes a, public.world_homes b where a.user_id = p_a and b.user_id = p_b
+    and (a.building_id = b.building_id or public.w_km(a.lat,a.lon,b.lat,b.lon) < 0.025)), false); $$;
 
 --
 -- Name: w_condo_bonus(uuid); Type: FUNCTION; Schema: public; Owner: -
@@ -448,8 +446,9 @@ CREATE FUNCTION public.w_condo_bonus(p_user uuid) RETURNS integer
     LANGUAGE sql STABLE SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-  select coalesce(3 * sum(level), 0)::int from public.world_condo where ckey = public.w_condo_key(p_user);
-$$;
+  with k as (select public.w_condo_key(p_user) as ck)
+  select case when exists (select 1 from public.world_condo_gifts g, k where g.ckey = k.ck and g.user_id = p_user and g.created_at > now() - interval '30 days')
+    then coalesce((select 3 * sum(c.level) from public.world_condo c, k where c.ckey = k.ck), 0)::int else 0 end; $$;
 
 --
 -- Name: w_condo_key(uuid); Type: FUNCTION; Schema: public; Owner: -
@@ -463,6 +462,19 @@ CREATE FUNCTION public.w_condo_key(p_user uuid) RETURNS text
     on o.kind = 'condominio' and (split_part(o.building_id,'#',1) = split_part(m.building_id,'#',1) or public.w_km(o.lat,o.lon,m.lat,m.lon) < 0.025)
   where m.user_id = p_user and m.kind = 'condominio';
 $$;
+
+--
+-- Name: w_condo_vicini(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_condo_vicini(p_a uuid, p_b uuid) RETURNS boolean
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select p_a <> p_b and public.w_condo_key(p_a) is not null and public.w_condo_key(p_a) = public.w_condo_key(p_b)
+    and coalesce((select lower(btrim(coalesce(h.unit,''))) from public.world_homes h where h.user_id = p_a), '') is distinct from
+        coalesce((select lower(btrim(coalesce(h.unit,''))) from public.world_homes h where h.user_id = p_b), '')
+    and coalesce((select lower(btrim(coalesce(h.unit,''))) from public.world_homes h where h.user_id = p_a), '') <> ''; $$;
 
 --
 -- Name: w_def(text, text); Type: FUNCTION; Schema: public; Owner: -
@@ -937,6 +949,16 @@ begin
     where user_id = p_user;
   return json_build_object('legno',gl,'cibo',gc,'carb',gf);
 end $$;
+
+--
+-- Name: w_rift(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_rift(p_a uuid, p_b uuid) RETURNS boolean
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select exists (select 1 from public.world_condo_rifts r where (r.a = p_a and r.b = p_b) or (r.a = p_b and r.b = p_a)); $$;
 
 --
 -- Name: w_room(text); Type: FUNCTION; Schema: public; Owner: -
@@ -1639,6 +1661,25 @@ begin
 end $$;
 
 --
+-- Name: world_condo_break(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_condo_break(p_user uuid) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid();
+begin
+  if me is null then return json_build_object('ok',false,'msg','Accedi'); end if;
+  if not public.w_condo_vicini(me, p_user) then
+    return json_build_object('ok',false,'msg','Si può rompere solo con un vicino di un altro appartamento dello stesso condominio (scala e interno diversi)'); end if;
+  if public.w_rift(me, p_user) then return json_build_object('ok',false,'msg','Avete già rotto'); end if;
+  insert into public.world_condo_rifts(a, b) values (me, p_user) on conflict do nothing;
+  delete from public.world_allies where (requester = me and target = p_user) or (requester = p_user and target = me);
+  return json_build_object('ok',true,'msg','Avete rotto: ora siete rivali. Puoi fare pace quando vuoi');
+end $$;
+
+--
 -- Name: world_condo_give(text, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1664,6 +1705,51 @@ begin
   update public.world_condo set level = c.level, pot = c.pot where ckey = k and kind = p_kind;
   return json_build_object('ok',true,'level',c.level,'pot',c.pot,'up',ups,
     'msg', case when ups > 0 then 'Il condominio sale al livello '||c.level||'!' else 'Grazie! Contributo versato' end);
+end $$;
+
+--
+-- Name: world_condo_info(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_condo_info() RETURNS json
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  with k as (select public.w_condo_key(auth.uid()) as ck),
+  v as (select g.user_id, sum(g.amount)::int as tot from public.world_condo_gifts g, k where g.ckey = k.ck and g.created_at > now() - interval '30 days' and g.user_id is not null group by g.user_id),
+  nb as (select distinct h.user_id, h.unit from public.world_homes h, k where k.ck is not null and h.kind = 'condominio' and h.user_id <> auth.uid()
+           and public.w_condo_key(h.user_id) = k.ck)
+  select case when auth.uid() is null or (select ck from k) is null then json_build_object('ok', false)
+  else json_build_object('ok', true,
+    'admin', (select json_build_object('user_id', v.user_id, 'nick', public.w_nick(v.user_id), 'tot', v.tot) from v order by v.tot desc, v.user_id limit 1),
+    'versati', coalesce((select json_agg(json_build_object('nick', public.w_nick(v.user_id), 'tot', v.tot, 'me', v.user_id = auth.uid()) order by v.tot desc) from v), '[]'::json),
+    'me_tot', coalesce((select tot from v where user_id = auth.uid()), 0),
+    'bonus', public.w_condo_bonus(auth.uid()),
+    'vicini', coalesce((select json_agg(json_build_object('user_id', nb.user_id, 'nick', public.w_nick(nb.user_id), 'unit', nb.unit,
+        'rotto', public.w_rift(auth.uid(), nb.user_id),
+        'rotto_da_me', exists (select 1 from public.world_condo_rifts r where r.a = auth.uid() and r.b = nb.user_id),
+        'pace_chiesta', exists (select 1 from public.world_condo_rifts r where (r.a = auth.uid() and r.b = nb.user_id and r.b_wants_peace) or (r.a = nb.user_id and r.b = auth.uid() and r.b_wants_peace)),
+        'puo_rompere', public.w_condo_vicini(auth.uid(), nb.user_id)) order by nb.unit) from nb), '[]'::json)) end; $$;
+
+--
+-- Name: world_condo_peace(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_condo_peace(p_user uuid) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); r public.world_condo_rifts;
+begin
+  if me is null then return json_build_object('ok',false,'msg','Accedi'); end if;
+  select * into r from public.world_condo_rifts where (a = me and b = p_user) or (a = p_user and b = me);
+  if r.a is null then return json_build_object('ok',false,'msg','Non avete rotto'); end if;
+  if r.a = me then
+    delete from public.world_condo_rifts where a = me and b = p_user;
+    return json_build_object('ok',true,'peace',true,'msg','Pace fatta: siete di nuovo alleati');
+  end if;
+  update public.world_condo_rifts set b_wants_peace = true where a = p_user and b = me;
+  return json_build_object('ok',true,'peace',false,'msg','Proposta di pace inviata: quando accetta tornate alleati');
 end $$;
 
 --
@@ -3519,6 +3605,17 @@ CREATE SEQUENCE public.world_condo_gifts_id_seq
 ALTER SEQUENCE public.world_condo_gifts_id_seq OWNED BY public.world_condo_gifts.id;
 
 --
+-- Name: world_condo_rifts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_condo_rifts (
+    a uuid NOT NULL,
+    b uuid NOT NULL,
+    b_wants_peace boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
 -- Name: world_curses; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -4136,6 +4233,13 @@ ALTER TABLE ONLY public.world_condo_gifts
 
 ALTER TABLE ONLY public.world_condo
     ADD CONSTRAINT world_condo_pkey PRIMARY KEY (ckey, kind);
+
+--
+-- Name: world_condo_rifts world_condo_rifts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_condo_rifts
+    ADD CONSTRAINT world_condo_rifts_pkey PRIMARY KEY (a, b);
 
 --
 -- Name: world_curses world_curses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -5234,6 +5338,12 @@ ALTER TABLE public.world_condo ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.world_condo_gifts ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: world_condo_rifts; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_condo_rifts ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: world_curses; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -5505,6 +5615,12 @@ REVOKE ALL ON FUNCTION public.w_condo_bonus(p_user uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.w_condo_key(p_user uuid) FROM PUBLIC;
 
 --
+-- Name: FUNCTION w_condo_vicini(p_a uuid, p_b uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_condo_vicini(p_a uuid, p_b uuid) FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_def(p_bid text, p_kind text); Type: ACL; Schema: public; Owner: -
 --
 
@@ -5576,6 +5692,12 @@ REVOKE ALL ON FUNCTION public.w_raid_houses(p_user uuid, p_slot_t timestamp with
 --
 
 REVOKE ALL ON FUNCTION public.w_res(p_user uuid, p_legno integer, p_cibo integer, p_carb integer) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_rift(p_a uuid, p_b uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_rift(p_a uuid, p_b uuid) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_score(p_user uuid, p_week boolean); Type: ACL; Schema: public; Owner: -
@@ -5741,10 +5863,31 @@ GRANT ALL ON FUNCTION public.world_claim_home(p_bid text, p_lat double precision
 GRANT ALL ON FUNCTION public.world_collect() TO authenticated;
 
 --
+-- Name: FUNCTION world_condo_break(p_user uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_condo_break(p_user uuid) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_condo_break(p_user uuid) TO authenticated;
+
+--
 -- Name: FUNCTION world_condo_give(p_kind text, p_amount integer); Type: ACL; Schema: public; Owner: -
 --
 
 GRANT ALL ON FUNCTION public.world_condo_give(p_kind text, p_amount integer) TO authenticated;
+
+--
+-- Name: FUNCTION world_condo_info(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_condo_info() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_condo_info() TO authenticated;
+
+--
+-- Name: FUNCTION world_condo_peace(p_user uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_condo_peace(p_user uuid) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_condo_peace(p_user uuid) TO authenticated;
 
 --
 -- Name: FUNCTION world_coresidents(); Type: ACL; Schema: public; Owner: -
