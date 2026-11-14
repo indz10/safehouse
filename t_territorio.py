@@ -46,7 +46,7 @@ async def main():
         await pg.evaluate("async()=>{closeSheet();PRES.L=[{id:'osm:n1',name:'Parco Vero',kind:'parco',lat:45.3262,lon:10.6589,stato:'altro',difesa:55,guardie:0,record:2}];presSheet('osm:n1');}");await pg.wait_for_timeout(3000)
         print('presidio · assalto:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .trrpan [data-trk]')].map(b=>b.dataset.trk)"))
         # scheda del giocatore: saccheggio e carburante
-        await pg.evaluate("async()=>{closeSheet();await playerSheet('u9');}");await pg.wait_for_timeout(3000)
+        await pg.evaluate("async()=>{closeSheet();await playerSheet('u8');}");await pg.wait_for_timeout(3000)
         print('giocatore incustodito:',await pg.evaluate("()=>!!document.querySelector('#sheet.open [data-trsac]')"))
         await pg.evaluate("async()=>{closeSheet();await playerSheet('u7');}");await pg.wait_for_timeout(3000)
         print('giocatore custodito:',await pg.evaluate("()=>[!document.querySelector('#sheet.open [data-trsac]'),/intoccabile/.test((document.querySelector('#sheet.open .plmz')||{}).textContent||'')]"))

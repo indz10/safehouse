@@ -21,7 +21,7 @@ function mzRigaHTML(p){const m=MZ[p.mezzo]||MZ.piedi;const dentro=p.dist_km<=p.r
   return`<div class="plmz ${dentro?'ok':'no'}"><b>📍 a ${d} km da te</b>
     <span>${m[0]} ${m[1]}: ${dentro?`arrivi in <b>${p.eta_min} min</b>${p.carb_cost?` · ⛽ ${p.carb_cost}`:''} · rinforzi <b>+${p.help_pts}</b>${p.ally!=='ok'?` · la tua orda <b>−${p.atk_pts}</b>`:''}`:lontano?'oltre 20 km: niente rinforzi né orde (solo dispetti)':`arrivi fino a ${p.range_km} km: ${senza?'serve carburante':'serve un mezzo più veloce'}`}</span>
     ${senza?`<span class="plfuel">⛽ Senza carburante vai ${m[1].toLowerCase()}: ${mp[0]} ${mp[1]} servono ⛽ ${p.carb_pieno} (ne hai ${p.carb||0})</span>`:''}
-    ${p.ally!=='ok'&&p.home?(p.saccheggiabile?`<button class="btn small trsac" data-trsac="${esc(p.user_id)}">⚔️ Saccheggia: casa incustodita da più di 7 giorni</button>`:p.custodita===true?'<span class="plfuel">❤️ Casa vera intoccabile: ci passa almeno una volta a settimana</span>':''):''}
+    ${p.ally!=='ok'&&p.home?(p.saccheggiabile&&dentro?`<button class="btn small trsac" data-trsac="${esc(p.user_id)}">⚔️ Saccheggia: casa incustodita da più di 7 giorni</button>`:p.custodita===true?'<span class="plfuel">❤️ Casa vera intoccabile: ci passa almeno una volta a settimana</span>':''):''}
     ${!dentro&&!lontano&&!senza?'<button class="btn small ghost" data-mzshop>🛒 Mezzi in Bottega</button>':''}</div>`;}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-mzshop]');if(!b)return;window.SHEET_BACK=null;shopSheet(0);});
 /* Bottega: il tuo mezzo e quelli in vendita */
