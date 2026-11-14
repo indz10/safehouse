@@ -1383,6 +1383,19 @@ begin
 end $$;
 
 --
+-- Name: w_tr_casa_pos(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_tr_casa_pos() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+begin
+  update public.profili_pubblici set lat_r = lat_r where user_id = new.user_id and lat_r is not null;
+  return new;
+end $$;
+
+--
 -- Name: w_tr_dm(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1459,6 +1472,25 @@ begin
   select u.id into inv from auth.users u where left(u.id::text, 8) = new.invitato_da and u.id <> new.user_id limit 1;
   if inv is null then return new; end if;
   insert into public.world_feed(kind, actor, target, info) values ('invite_join', new.user_id, inv, null);
+  return new;
+end $$;
+
+--
+-- Name: w_tr_pos_casa(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_tr_pos_casa() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare h record;
+begin
+  if new.lat_r is null or new.lon_r is null then return new; end if;
+  select lat, lon into h from public.world_homes where user_id = new.user_id and status in ('home','pending');
+  if found then
+    new.lat_r := round((round(h.lat / 0.002) * 0.002)::numeric, 4);
+    new.lon_r := round((round(h.lon / 0.0028) * 0.0028)::numeric, 4);
+  end if;
   return new;
 end $$;
 
@@ -4940,6 +4972,12 @@ CREATE INDEX world_presidi_tenute_p ON public.world_presidi_tenute USING btree (
 CREATE TRIGGER profili_invite_join AFTER INSERT OR UPDATE OF invitato_da ON public.profili_pubblici FOR EACH ROW EXECUTE FUNCTION public.w_tr_invite_join();
 
 --
+-- Name: profili_pubblici profili_pos_casa; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER profili_pos_casa BEFORE INSERT OR UPDATE OF lat_r, lon_r ON public.profili_pubblici FOR EACH ROW EXECUTE FUNCTION public.w_tr_pos_casa();
+
+--
 -- Name: sponsors sponsors_guard; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -5016,6 +5054,12 @@ CREATE TRIGGER tr_feed AFTER INSERT ON public.world_shouts FOR EACH ROW EXECUTE 
 --
 
 CREATE TRIGGER world_feed_push AFTER INSERT ON public.world_feed FOR EACH ROW EXECUTE FUNCTION public.w_tr_feed_push();
+
+--
+-- Name: world_homes world_homes_pos; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER world_homes_pos AFTER INSERT OR UPDATE OF lat, lon, status ON public.world_homes FOR EACH ROW EXECUTE FUNCTION public.w_tr_casa_pos();
 
 --
 -- Name: admins admins_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -6257,6 +6301,12 @@ REVOKE ALL ON FUNCTION public.w_target(p_bid text, p_lat double precision, p_lon
 REVOKE ALL ON FUNCTION public.w_threats_of(p_user uuid) FROM PUBLIC;
 
 --
+-- Name: FUNCTION w_tr_casa_pos(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_tr_casa_pos() FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_tr_feed_push(); Type: ACL; Schema: public; Owner: -
 --
 
@@ -6267,6 +6317,12 @@ REVOKE ALL ON FUNCTION public.w_tr_feed_push() FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_tr_invite_join() FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_tr_pos_casa(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_tr_pos_casa() FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_upower(p_user uuid, p_slot text); Type: ACL; Schema: public; Owner: -

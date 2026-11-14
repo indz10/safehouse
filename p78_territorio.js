@@ -59,7 +59,16 @@ function trrRepaint(force){try{let pc='';try{pc=myHouses().map(h=>frChanceOf(h))
   const sig=[S.tab,JSON.stringify(RES.d||{}),trrMat(),OR.s&&OR.s.custodita,OR.s&&OR.s.presente_at,OR.s&&OR.s.claimed,pc].join('|');
   if(!force&&sig===TRR.sig&&(S.tab!=='orda'||document.getElementById('mwdock')))return;TRR.sig=sig;
   if(S.tab==='orda')trrDockPaint();else{const d=document.getElementById('mwdock');if(d)d.remove();document.body.classList.remove('hasdock');}
-  if(S.tab==='mappa'&&typeof MW!=='undefined'&&!MW.open){const dr=app.querySelector('.mwdrawer');if(dr)mwDrawerPaint(dr);}}catch(e){}}
+  if(S.tab==='mappa'&&typeof mwRefresh==='function')mwRefresh();}catch(e){}}
+/* ---------- le tue case segnate sulla Mappa: ❤️/🔑, nome e % di tenere; tocco → pagina della casa ---------- */
+TRR.mk=[];
+function trrMyMarks(){try{if(S.tab!=='mappa'||!S.user||typeof maplibregl==='undefined')return;const lm=window.__mf;if(!lm||!lm.map||!document.body.contains(lm.map.getContainer()))return;
+  const H=myHouses().filter(h=>h.lat!=null&&h.lon!=null);const ch=h=>{try{return frChanceOf(h);}catch(e){return null;}};
+  const sig=H.map(h=>h.lat+','+h.lon+','+ch(h)).join('|');if(TRR.mkSig===sig&&TRR.mkMap===lm.map)return;
+  TRR.mk.forEach(m=>{try{m.remove();}catch(e){}});TRR.mk=[];TRR.mkSig=sig;TRR.mkMap=lm.map;
+  H.forEach(h=>{const c=ch(h);const el=elDiv('lm-ally lm-mine'+(c!=null?' '+chCls(c):''),`<b>${h.home?'❤️':'🔑'}</b><span>${esc(h.home?'Casa tua':h.label)}</span>${c!=null?`<i>${c}%</i>`:''}`);
+    el.title=(h.home?'Casa tua':h.label)+(c!=null?' · '+c+'% di tenere':'');el.style.zIndex='6';el.onclick=e=>{e.stopPropagation();window.SHEET_BACK=null;houseSheet(h);};
+    try{TRR.mk.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([h.lon,h.lat]).addTo(lm.map));}catch(e){}});}catch(e){}}
 /* ---------- all'apertura della Mappa: le tue case inquadrate ---------- */
 function trrFit(){if(TRR.fit)return;TRR.fit=true;alMapWait().then(lm=>{try{if(!lm||!lm.map||(typeof ALM!=='undefined'&&ALM.on))return;
   const H=myHouses().filter(h=>h.lat!=null&&h.lon!=null);if(!H.length)return;
@@ -116,5 +125,5 @@ document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.c
 try{TRR.presT=0;}catch(e){}
 zEvery(()=>{try{if(document.hidden||!S.user)return;
   if(!TRR.presT){try{TRR.presT=+localStorage.getItem('zsh_pres_t_'+S.user.id)||1;}catch(e){TRR.presT=1;}}
-  if(myHouses().some(h=>h.home))trrPresenza(false);trrRepaint();}catch(e){}},1500,'territorio');
+  if(myHouses().some(h=>h.home))trrPresenza(false);trrRepaint();trrMyMarks();}catch(e){}},1500,'territorio');
 </script>

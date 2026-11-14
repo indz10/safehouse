@@ -473,12 +473,16 @@ window.ZUSERS=window.ZUSERS||[];
 const rLat=v=>Math.round(v/0.002)*0.002,rLon=v=>Math.round(v/0.0028)*0.0028;
 async function zLoadUsers(){try{const sb=await waitSB();if(!sb)return;const{data,error}=await sb.from('profili_pubblici').select('user_id,nick,lat_r,lon_r,comune,indice,livello,seen_at').limit(2000);
   if(error||!data)return;window.ZUSERS=data.filter(u=>u.lat_r!=null);(window.__zlms||[]).forEach(lm=>{try{zDrawUsers(lm);}catch(e){}});}catch(e){}}
-async function zSyncProfile(force){try{const sb=typeof SB!=='undefined'&&SB;if(!sb||!S.user||!S.user.id)return;const R=S.zone&&S.zone.real;
+async function zSyncProfile(force){try{const sb=typeof SB!=='undefined'&&SB;if(!sb||!S.user||!S.user.id)return;
+  /* posizione pubblica: sempre dalla casa nel mondo (non dal posto dell'ultima valutazione); il server la ricalcola comunque (migrazione 015) */
+  const HM=(window.W&&W.m&&W.m.home&&W.m.home.lat!=null)?W.m.home:null;const ZR=S.zone&&S.zone.real;const R=HM?{lat:HM.lat,lon:HM.lon}:ZR;
   if(S.pubOk===undefined&&R&&!zSyncProfile.asked){zSyncProfile.asked=1;setTimeout(zAskPublic,1200);}
   /* presenza: sempre (serve per contare chi è online); posizione solo se ha accettato */
   const vis=S.pubOk===true;const row={user_id:S.user.id,nick:S.user.nick,seen_at:new Date().toISOString(),updated_at:new Date().toISOString(),visibile:vis,
     indice:S.result?S.result.idx:null,livello:(typeof G!=='undefined'&&G.type)?G.level:null,lat_r:null,lon_r:null,comune:null};
-  if(vis&&R){row.lat_r=+rLat(R.lat).toFixed(4);row.lon_r=+rLon(R.lon).toFixed(4);row.comune=((S.zone.address||'').split(',').slice(-1)[0]||'').trim();}
+  if(vis&&R){row.lat_r=+rLat(R.lat).toFixed(4);row.lon_r=+rLon(R.lon).toFixed(4);
+    /* il comune solo se la zona valutata è quella di casa; altrimenti resta quello di prima */
+    if(ZR&&(!HM||trM(HM.lat,HM.lon,ZR.lat,ZR.lon)<1500))row.comune=((S.zone.address||'').split(',').slice(-1)[0]||'').trim();else delete row.comune;}
   await sb.from('profili_pubblici').upsert(row,{onConflict:'user_id'});if(force)zLoadUsers();zStats();}catch(e){}}
 /* numeri veri in alto: utenti registrati e online negli ultimi 5 minuti */
 async function zStats(){try{const sb=await waitSB(4000);if(!sb)return;const{data,error}=await sb.rpc('zsh_stats');if(error||!data)return;
