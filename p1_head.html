@@ -1503,6 +1503,33 @@ body.ophome{--nav-h:0px}
 .mktr .mki{font-size:26px}.mktr div{flex:1;display:flex;flex-direction:column;min-width:0}.mktr b{font-size:14.5px}.mktr small{font-size:11.5px;color:#5a5470}
 .mfally{border-radius:var(--hand-s);background:var(--ear),linear-gradient(180deg,#fff 0%,#fbf5e6 65%,#efe3c4 100%);font-family:var(--display);font-weight:400;letter-spacing:.05em;font-size:17px;rotate:-1.6deg;box-shadow:4px 4px 0 var(--ink)}
 .mfally:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+
+/* 🏴 TERRITORIO (migrazione 014, p78): scorte e case in basso nel Mondo, presenza a casa, assalti e difese */
+.mwscorte{display:flex;gap:6px;align-items:center;padding:6px 2px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.mwres{flex:0 0 auto;display:flex;gap:8px;background:var(--ink);color:#fff;border:2.5px solid var(--ink);border-radius:10px;padding:4px 9px;font-weight:800;font-size:13px;box-shadow:2px 2px 0 #c9a46a}
+.mwres span{white-space:nowrap}
+.mwpres{flex:0 0 auto;border:2.5px solid var(--ink);border-radius:10px;padding:4px 8px;font-weight:800;font-size:12.5px;background:#d3f9d8;color:var(--ink);white-space:nowrap;box-shadow:2px 2px 0 var(--ink)}
+.mwpres.mid{background:var(--moon)}.mwpres.ko{background:var(--blood);color:#fff;animation:trrpulse 1.4s ease-in-out infinite}
+@keyframes trrpulse{50%{transform:scale(1.05)}}
+#mwdock{position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:520px;margin:0 auto;background:var(--paper);border-top:4px solid var(--ink);border-radius:18px 18px 0 0;box-shadow:0 -4px 0 rgba(0,0,0,.25);padding:2px 10px calc(8px + env(safe-area-inset-bottom,0px))}
+body.hasdock #app{padding-bottom:120px}
+body.nonav.hasdock[data-tab=orda] .mwlente{bottom:calc(122px + env(safe-area-inset-bottom,0px))}
+.trruso{display:flex;gap:10px;align-items:flex-start;border:2.5px solid var(--ink);border-radius:10px;background:#fff;padding:8px 10px;margin:0 0 8px}
+.trruso>span{font-size:28px;line-height:1}.trruso b{font-size:15px}.trruso small{display:block;font-size:12.5px;margin-top:2px}.trruso small b{font-size:12.5px}
+.trrstato{border:3px solid var(--ink);border-radius:12px;padding:10px 12px;margin:0 0 10px;background:#d3f9d8}.trrstato.mid{background:#fff3bf}.trrstato.ko{background:#ffc9c9}
+.trrstato b{display:block;font-size:18px}.trrstato small{font-size:13px}
+.trrpan{margin-top:12px}
+.trrhead{display:flex;gap:10px;align-items:flex-start;margin:4px 0 8px}.trrhead>span{font-size:28px;line-height:1}.trrhead b{display:block;font-size:15px}
+.trrtag{display:inline-block;margin-top:4px;font-size:12.5px;font-weight:700;padding:2px 7px;border-radius:7px;border:2px solid var(--ink)}.trrtag.ok{background:#d3f9d8}.trrtag.ko{background:#ffc9c9}
+.trrnext{display:flex;flex-wrap:wrap;gap:4px 10px;border:2.5px dashed var(--ink);border-radius:10px;padding:8px 10px;background:#fff;font-size:13px}
+.trrnext b{flex:1 0 100%;font-size:14px}.trrnext i{font-style:normal;font-weight:800}
+.trrnet{flex:1 0 100%;font-weight:800}.trrnet.ok{color:#2b8a3e}.trrnet.ko{color:var(--blood)}
+.trrwhy{font-size:12.5px;margin:6px 0 0;font-weight:600}.trrlast{font-size:13px;font-weight:800;margin:8px 0 0;padding:6px 8px;background:#fff3bf;border:2px solid var(--ink);border-radius:8px}
+.trracts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.trract{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px}.trract b{font-size:15px}.trract small{font-size:12px;font-weight:600;opacity:.9}
+.trract.red{background:var(--blood);color:#fff}
+.plfuel{font-size:12.5px;font-weight:700}
+.trsac{background:var(--blood);color:#fff;align-self:flex-start}
 </style>
 </head>
 <body>

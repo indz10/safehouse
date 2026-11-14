@@ -33,7 +33,7 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_buy':{if(st(a.p_bid)!=='free')return{data:{ok:false,msg:'occupata'},error:null};M.b[a.p_bid]={owner:'me',lat:a.p_lat,lon:a.p_lon,level:1,paid:price};M.wallet.mattoni-=price;return{data:{ok:true,msg:'Casa comprata',price},error:null};}
   case'world_raid_status':{const now=new Date();const p=new Date(now.getTime()-3600e3),n=new Date(now.getTime()+3*3600e3);M.prep=M.prep||false;
      const H=[{bid:'w1',lat:45.3255,lon:10.6582,level:1,home:true,attack:70,power:62,held:false},{bid:'w9',lat:45.326,lon:10.659,level:2,home:false,attack:50,power:69,held:true}];
-     return{data:{next_at:n.toISOString(),prev_at:p.toISOString(),prepared:M.prep,claimed:!!M.claimed,houses:H,held:1,total:2,mattoni:18,legno:4,cibo:6,carb:0},error:null};}
+     const TP=window.__mkTrr||{};return{data:{next_at:n.toISOString(),prev_at:p.toISOString(),prepared:M.prep,claimed:!!M.claimed,houses:H,held:1,total:2,mattoni:18,legno:4,cibo:6,carb:0,custodita:TP.custodita!==false,presente_at:TP.presente_at||new Date(now.getTime()-2*864e5).toISOString()},error:null};}
   case'world_prepare':M.prep=true;return{data:{ok:true,msg:'Case preparate per la prossima orda'},error:null};
   case'world_raid_claim':M.claimed=true;M.wallet.mattoni+=18;return{data:{ok:true,held:1,total:2,mattoni:18,legno:4,cibo:6,carb:0},error:null};
   case'world_raid_view':return{data:[{building_id:'w1',lat:45.3255,lon:10.6582,held:false,kind:'home',mine:true},{building_id:'w9',lat:45.326,lon:10.659,held:true,kind:'owned',mine:true},{building_id:'x2',lat:45.3248,lon:10.6575,held:true,kind:'home',mine:false}],error:null};
@@ -53,7 +53,7 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_ally_request':return{data:{ok:true,msg:'Proposta di alleanza inviata'},error:null};
   case'world_rank':return{data:[{pos:1,user_id:'u3',nick:'mario',wlevel:5,punti:2400,comune:'Valeggio',me:false},{pos:2,user_id:'me',nick:'ale',wlevel:4,punti:1600,comune:'Volta Mantovana',me:true}],error:null};
   case'world_allies':return{data:[{user_id:'u2',nick:'giangy',wlevel:2,dist_km:3,coinq:false},{user_id:'u5',nick:'vicina',wlevel:3,dist_km:0,coinq:true}],error:null};
-  case'world_player':return{data:{user_id:a.p_user,nick:a.p_user==='u2'?'giangy':'mario',wlevel:3,comune:'Volta Mantovana',houses:2,home:true,me:false,ally:a.p_user==='u2'?'ok':'none',asked:true,helped:false,attacked:false,protected:false,dist_km:a.p_user==='u9'?8.4:3.2,mezzo:M.mz||'bici',range_km:M.mz?20:5,eta_min:13,help_pts:6,atk_pts:7},error:null};
+  case'world_player':return{data:{user_id:a.p_user,nick:a.p_user==='u2'?'giangy':'mario',wlevel:3,comune:'Volta Mantovana',houses:2,home:true,me:false,ally:a.p_user==='u2'?'ok':'none',asked:true,helped:false,attacked:false,protected:false,dist_km:a.p_user==='u9'?8.4:3.2,mezzo:M.mz||'bici',mezzo_pieno:M.mz||'bici',carb_cost:0,carb_pieno:0,carb:25,range_km:M.mz?20:5,eta_min:13,help_pts:6,atk_pts:7,custodita:a.p_user!=='u9',saccheggiabile:a.p_user==='u9',scudo:false},error:null};
   case'world_shout':M.shouts=(M.shouts||0)+1;return{data:{ok:true,msg:'Saluto inviato'},error:null};
   case'world_chat_list':{M.chat=M.chat||[{id:1,user_id:'u2',nick:'giangy',wlevel:2,body:'Stanotte ho tenuto tutto 💪',created_at:new Date(Date.now()-6e5).toISOString(),mine:false}];return{data:M.chat.filter(m=>m.id>(a.p_after||0)).slice().reverse(),error:null};}
   case'world_chat_send':{if(/porco dio|ti ammazzo/i.test(a.p_body))return{data:{ok:false,msg:'Non inviato: niente bestemmie, insulti pesanti o minacce.'},error:null};M.chat=M.chat||[];M.chat.push({id:M.chat.length+1,user_id:'me',nick:'ale',wlevel:4,body:a.p_body,created_at:new Date().toISOString(),mine:true});return{data:{ok:true},error:null};}
@@ -72,6 +72,21 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
     vicini:[{user_id:'u9',nick:'gina',unit:'B 3',rotto:!!C.rift.u9,rotto_da_me:!!C.rift.u9,pace_chiesta:false,puo_rompere:true},{user_id:'u7',nick:'mamma',unit:'A 1',rotto:false,rotto_da_me:false,pace_chiesta:false,puo_rompere:false}]},error:null};}
   case'world_condo_break':{const C=window.__mkCd||(window.__mkCd={me:0,rift:{}});C.rift[a.p_user]=1;return{data:{ok:true,msg:'Avete rotto: ora siete rivali. Puoi fare pace quando vuoi'},error:null};}
   case'world_condo_peace':{const C=window.__mkCd||(window.__mkCd={me:0,rift:{}});delete C.rift[a.p_user];return{data:{ok:true,peace:true,msg:'Pace fatta: siete di nuovo alleati'},error:null};}
+  /* territorio (migrazione 014) */
+  case'world_edificio_info':{const T=window.__mkTrr||(window.__mkTrr={});const mio=/^w/.test(a.p_bid);const al=a.p_bid==='al1';const pres=/^pres:/.test(a.p_bid);
+    const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});const k=a.p_bid;const e=(T[k]||(T[k]={atk:0,aiuto:0,assi:0}));
+    const tipo=pres?'pres':(a.p_bid==='w1'?'home':'owned');
+    return{data:{tipo,bid:k,level:1,mio,alleato:al,nick:mio?'ale':al?'giangy':'mario',owner:mio?'me':'u7',scudo:false,custodita:tipo==='home'?T.custodita!==false:null,fort:1,rendita:tipo==='owned'?14:null,slot:'2026-11-14-21',
+      assalti:e.atk?1:0,assalti_pts:e.atk,aiuti:e.aiuto?1:0,aiuti_pts:e.aiuto,assi_pts:e.assi,ultimo:null,
+      atk:(mio||al)?{ok:false,msg:mio?'È tua':'È di un tuo alleato: puoi solo difenderla'}:e.atk?{ok:false,msg:'La tua squadra è già in viaggio'}:{ok:true,pts:9,carb:3,cibo:10,mezzo:'auto',mezzo_pieno:'auto',eta_min:2,in_tempo:true},
+      aiuto:al?(e.aiuto?{ok:false,msg:'Sei già in viaggio per difenderla'}:{ok:true,pts:8,carb:3,mezzo:'auto',eta_min:2,in_tempo:true}):{ok:false,msg:'Si difendono solo gli alleati'},
+      assi:(mio||al)?(e.assi>=18?{ok:false,msg:'Già 3 file di assi per questa orda (+18)'}:R.legno<20?{ok:false,msg:'Servono 🪵 20 di legno'}:{ok:true,pts:6,legno:20}):{ok:false,msg:'Le assi si inchiodano solo sulle tue case e su quelle degli alleati'}},error:null};}
+  case'world_assalta':case'world_difendi':case'world_assi':{const T=window.__mkTrr||(window.__mkTrr={});const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});const e=(T[a.p_bid]||(T[a.p_bid]={atk:0,aiuto:0,assi:0}));
+    if(fn==='world_assalta'){e.atk=9;R.cibo-=10;R.carb-=3;return{data:{ok:true,msg:'⚔️ Squadra partita in auto: arriva tra 2 min'},error:null};}
+    if(fn==='world_difendi'){e.aiuto=8;R.carb-=3;return{data:{ok:true,msg:'🛡️ In viaggio in auto'},error:null};}
+    e.assi+=6;R.legno-=20;return{data:{ok:true,msg:'🪵 Assi inchiodate: +6'},error:null};}
+  case'world_presenza':{const T=window.__mkTrr||(window.__mkTrr={});T.custodita=true;T.presente_at=new Date().toISOString();return{data:{ok:true,carb:10,msg:'📍 Sei a casa: rifugio intoccabile per 7 giorni'},error:null};}
+  case'world_saccheggia':return{data:{ok:true,msg:'⚔️ Squadra partita'},error:null};
   case'world_resources':{const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});return{data:{ok:true,mattoni:1000,legno:R.legno,cibo:R.cibo,carb:R.carb,mercato_left:R.left},error:null};}
   case'world_trade':{const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});if(R[a.p_kind]<20)return{data:{ok:false,msg:'Servono almeno 20 di quella risorsa'},error:null};R[a.p_kind]-=20;R.left-=10;return{data:{ok:true,dato:20,mattoni:10,mercato_left:R.left},error:null};}
   case'world_near_survivors':window.__mkNear=a;return{data:[{user_id:'u2',nick:'giangy',wlevel:3,comune:'Volta',km:3.2,ally:'ok',fav:false},{user_id:'u9',nick:'rino',wlevel:1,comune:'Cereta',km:11.5,ally:'none',fav:false}],error:null};

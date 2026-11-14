@@ -56,7 +56,7 @@ function presSheet(id){const p=PRES.L.find(x=>x.id===id);if(!p)return;const k=PR
   const g=Math.min(5,p.guardie||0);const tiene=p.stato==='mio'||p.stato==='alleato';
   openSheet(`${k[0]} ${esc(p.name)}`,`<p class="muted" style="margin:0 0 6px">${k[1]} · presidio pubblico</p>
    <div class="pres-st s-${p.stato}">${presStato(p)}</div>
-   <p style="font-weight:400;font-size:14px;margin:8px 0">Chi tiene un presidio dà <b>+3 di difesa a tutte le case entro 500 m</b>, anche a quelle dei vicini (massimo +6 per casa).</p>
+   <p style="font-weight:400;font-size:14px;margin:8px 0">Chi tiene un presidio dà <b>+3 di difesa a tutte le case entro 500 m</b> (<b>+5</b> se lo tiene da almeno 7 giorni), anche a quelle dei vicini (massimo +10 per casa). I rivali possono assaltarlo e conquistarlo.</p>
    ${p.stato!=='libero'?`<div class="pres-orda"><b>🧟 Prossima orda</b><span>Difesa <b>${p.difesa}</b> (55 + 12 per guardia · guardie ${g}/5) contro un attacco da 50 a 99</span>
      <span>Tiene nel <b>${ch}%</b> dei casi. Se cade torna libero.</span></div>`:''}
    <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:10px">
@@ -71,7 +71,8 @@ function presSheet(id){const p=PRES.L.find(x=>x.id===id);if(!p)return;const k=PR
     catch(e){toast('Non riesco a contattare il server: riprova');b.disabled=false;}};
     const o=card.querySelector('[data-pocc]');if(o)o.onclick=()=>act('world_presidio_occupa',o);
     const gu=card.querySelector('[data-pgua]');if(gu)gu.onclick=()=>act('world_presidio_guardia',gu);
-    const l=card.querySelector('[data-plas]');if(l)l.onclick=()=>{if(confirm('Lasci il presidio? Torna libero subito.'))act('world_presidio_lascia',l);};});}
+    const l=card.querySelector('[data-plas]');if(l)l.onclick=()=>{if(confirm('Lasci il presidio? Torna libero subito.'))act('world_presidio_lascia',l);};
+    if(p.stato!=='libero')try{trrSection(card.querySelector('.sheet-b'),'pres:'+id,p.lat,p.lon);}catch(e){}});}
 /* elenco dei presidi intorno al centro della mappa */
 async function presList(lm){lm=lm||window.__mf;openSheet('🚩 Presidi','<p><span class="spin"></span> Cerco i presidi qui intorno…</p>',()=>{});
   let d=null;try{if(lm&&lm.map&&lm.map.getZoom()<13)lm.map.setZoom(14.5);d=lm&&await presLoad(lm);

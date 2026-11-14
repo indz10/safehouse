@@ -149,3 +149,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 8 | fatta | #30 | .github/workflows/prove.yml: App + Database |
 | 9 | 9-0, 9a-1, 9a-2, 9b fatte (#31–#37; Stripe pronto ma spento) | #31–#37 | 9c store: le considerazioni si riprendono a prodotto finito (decisione di Alessandro 11/11) |
 | 10 | 10A fatta (#38) | #38 | mappa dell'app pronta (`docs/strumenti/mappa_app.py`): ora modifiche pagina per pagina chieste da Alessandro; 10B dopo gli store |
+| 11–16 | fatte (#39–#57; migrazioni 007–013) | #39–#57 | notifiche, coop, mezzi, invito, Trova, risorse, alleati sulla mappa, Mondo, Capitano Kilo, condominio, Trova sulla mappa (dettagli in CLAUDE.md) |
+| 17 | in revisione (migrazione 014) | — | Territorio: presenza settimanale a casa, case comprate e presidi assaltabili e conquistabili, saccheggio delle case vere incustodite, ⛽ carburante per i viaggi, 🪵 assi, scorte e case in basso nel Mondo |

@@ -29,8 +29,9 @@ SQL `w_attack3(orda, casa, wl)` — app `thrCalc` (p47).
 
 ## Difesa di una casa
 SQL `w_power3(livello, bonus, casa vera)` + `w_upower` + `w_condo_bonus` — app `thrCalc` (campo `def` dal server).
-`difesa = 45 + 12·livello casa + (casa vera: 5 + difese del condominio) + presidi vicini + bonus`
-- **presidi vicini** (Fase 9b, `w_pres_bonus`): +3 per ogni presidio tenuto entro 500 m dalla casa (di chiunque sia), massimo +6; conta se era tenuto all'ora dell'orda (storia in `world_presidi_tenute`). Sta in `w_threats_of` (campo `pres`, già dentro `def`), `world_raid_status`, `world_raid_view`, `w_home_held`, `world_my_defense`.
+`difesa = 45 + 12·livello casa + (casa vera: 5 + difese del condominio) + presidi vicini + edificio + bonus`
+- **edificio** (migrazione 014, `w_casa_extra`, campo `extra` di `w_threats_of`, già dentro `def`): per l'orda in cui arrivano, `min(18, assi) + min(24, difese degli alleati) − min(40, assalti)` su quella casa o presidio.
+- **presidi vicini** (Fase 9b, `w_pres_bonus`): +3 per ogni presidio tenuto entro 500 m dalla casa (di chiunque sia), **+5 se tenuto da almeno 7 giorni** (migrazione 014), massimo +10; conta se era tenuto all'ora dell'orda (storia in `world_presidi_tenute`). Sta in `w_threats_of` (campo `pres`, già dentro `def`), `world_raid_status`, `world_raid_view`, `w_home_held`, `world_my_defense`.
 - **difese del condominio** (solo casa vera): `3 × somma dei livelli` delle difese comuni (`w_condo_bonus`), **solo se hai versato nel condominio negli ultimi 30 giorni** (migrazione 013), altrimenti 0;
 - **bonus** (`w_upower`, per l'orda): case preparate +15 · Scudo della casa vera +2 per livello (max 5) · rinforzi col loro valore (max +24: mezzo a piedi +4 · bici +5 · moto +6 · auto +8 · fuoristrada +10, +1 per dotazione della valutazione: kit medico, radio, scorte) · scudi degli alleati +5 (max +10) · difesa di squadra +5 (almeno 3 alleati pronti) · coinquilini pronti +3 ciascuno (max +9) · **meno** malus dei rivali (orde mandate col loro valore, max −30; nebbia −5 max −10; sabotaggio −15 se avevi preparato; malus totale max −35).
 
@@ -46,10 +47,19 @@ SQL `w_mezzo`, `w_dist_km`, `w_atk_pts`, `world_send_help`, `world_send_attack` 
 - **Viaggio**: minuti = distanza / velocità (5, 15, 40, 50, 45 km/h); vale per l'orda che arriva dopo l'arrivo.
 - **Forza di un'orda di un rivale** = `max(3, (6 + 0,5·livello di chi attacca) × mezzo × (1 − min(0,6; 0,1·(barricate+recinto+fossato della casa attaccata))))`, mezzo ×0,8 / 0,9 / 1 / 1,2 / 1,3.
 
+## Territorio: presenza, assalti, conquiste, carburante (migrazione 014)
+SQL `w_custodita`, `world_presenza`, `w_azione`, `world_assalta`, `world_difendi`, `world_assi`, `world_saccheggia`, `w_assalti_tick`, `w_pres_tick` — app p78 (`trrSection`, `trrPresenza`).
+- **Presenza**: la casa vera è intoccabile se `presente_at` (GPS entro 200 m + precisione fino a 100 m) è negli ultimi 7 giorni, o se la casa è in conferma. La prima presenza del giorno dà ⛽ 10.
+- **Assalto** (case comprate, presidi tenuti, casa vera incustodita): costa 🥫 10 + carburante, max 3 al giorno; non agli alleati, ai nuovi arrivati (15 giorni di scudo), a chi ha più di 3 livelli meno di te. Forza `max(3, (6 + 0,5·livello) × mezzo × (1 − min(0,6; 0,1·(barricate+recinto+fossato dell'edificio))))` (presidi: senza fortificazioni). Gli assalti di più giocatori si sommano (max −40).
+- **Difesa di un alleato** su un edificio: rinforzi del mezzo (+4…+10, +1 per dotazione), solo carburante (max +24); 🧱 10 (max 5 al giorno, insieme ai rinforzi). **Assi**: 🪵 20 = +6, max +18 per orda, dal padrone e dagli alleati.
+- **Risultato** (dopo l'orda, `w_assalti_tick`): casa comprata che cade con almeno un assalto → passa a chi ha assaltato di più (se ha posto per una casa, `w_max`; altrimenti 🧱 40 + 🪵 20 di bottino); il vecchio padrone riceve metà di prezzo + migliorie pagate; chi ha assaltato insieme 🧱 20. Casa vera incustodita che cade → saccheggio: il primo prende il 25% di 🪵🥫⛽ (max 60 ciascuna) e il 10% dei 🧱 (max 50) della vittima. Presidio che cade con un assalto → a chi ha assaltato di più (se ne tiene meno di 3), altrimenti libero.
+- **Carburante** di un viaggio: `ceil(km × 1 / 1,5 / 2)` per moto / auto / fuoristrada; a piedi e in bici 0. Senza carburante si va a piedi (in bici se è il mezzo della valutazione). Vale per rinforzi, orde, assalti, difese.
+- **Affitto** di una casa comprata al giorno: `5 + 5·livello + prezzo della zona / 100` (`w_price`: 200–2.000, più alto dove ci sono più case comprate).
+
 ## Orda sui presidi (Fase 9b)
 SQL `w_pres_attack`, `w_pres_def`, `w_pres_tick` — app p69 (`presChance`).
 - Attacco: `50 + r`, con `r` da 0 a 49 (diverso per ogni orda e presidio).
-- Difesa: `55 + 12 × guardie` (massimo 5 guardie: chi lo tiene, alleati, coinquilini; valgono per una sola orda).
+- Difesa: `55 + 12 × guardie` (massimo 5 guardie: chi lo tiene, alleati, coinquilini; valgono per una sola orda) + assi + difese − assalti (migrazione 014).
 - Tiene se `difesa ≥ attacco`; altrimenti torna libero. % mostrata = `(difesa − 50 + 1) / 50`, tra 0 e 100.
 
 ## Punteggio Superstite (classifica)
