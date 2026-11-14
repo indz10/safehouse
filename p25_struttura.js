@@ -6,7 +6,7 @@
    Nessuna funzione tolta: cambia solo dove sta.
    ========================================================= */
 ICON.io='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
-const NAV_ACT={home:'home',valuta:'home',gioco:'home',mappa:'mappa',orda:'orda',io:'io',radio:'io',contatti:'io',sponsor:'io',guida:'io'};
+const NAV_ACT={home:'home',valuta:'home',gioco:'home',mappa:'mappa',orda:'mappa',io:'io',radio:'io',contatti:'io',sponsor:'io',guida:'io'};
 
 /* ---------------- 🏠 CASA: la valutazione è qui dentro ---------------- */
 const _renderHomeS=renderHome;renderHome=function(){_renderHomeS();try{
@@ -25,7 +25,8 @@ const _renderHomeS=renderHome;renderHome=function(){_renderHomeS();try{
   }catch(e){console.warn('casa',e);}};
 
 /* ---------------- 🗺️ MAPPA: una sola, a tutto schermo ---------------- */
-S.mf=S.mf||{case:true,spons:true,serv:false,vac:false,all:false};
+S.mf=S.mf||{case:true,spons:true,serv:true,vac:false,all:false};
+/* 12/11: le attività vere (negozi, bar, farmacie, servizi) si vedono anche vicino a casa; una volta sola le riaccendo a chi le aveva spente in partenza */
 const MF=[['case','🏠','Case'],['spons','⭐','Sponsor'],['serv','🏥','Servizi'],['vac','🧳','Vacanza'],['all','🤝','Alleati']];
 function renderMappaBase(){S.zv='mondo';const addr=S.zone&&S.zone.address;
   if(!addr){app.innerHTML=`<div class="page dots"><div class="panel night" style="margin-top:12px"><b class="disp" style="font-size:24px;color:var(--moon)">🗺️ Il mondo vero</b>
@@ -40,7 +41,7 @@ function renderMappaBase(){S.zv='mondo';const addr=S.zone&&S.zone.address;
   app.querySelectorAll('[data-mf]').forEach(b=>b.onclick=()=>{const k=b.dataset.mf;S.mf[k]=!S.mf[k];b.classList.toggle('on',S.mf[k]);mfApply();});
   app.querySelector('[data-mfmore]').onclick=mfMore;
   app.querySelector('[data-mfraid]').onclick=()=>{try{orPlay(window.__mf);}catch(e){}};}
-function mfApply(){const lm=window.__mf;const box=app.querySelector('.mapfull');if(!box)return;const f=S.mf;
+function mfApply(){const lm=window.__mf;const box=app.querySelector('.mapfull');if(!box)return;S.mf=S.mf||{case:true,spons:true,serv:true,vac:false,all:false};if(!S.mfServSet){S.mf.serv=true;S.mfServSet=1;}const f=S.mf;
   box.classList.toggle('f-case-off',!f.case);box.classList.toggle('f-spons-off',!f.spons);box.classList.toggle('f-serv-off',!f.serv);box.classList.toggle('f-vac-off',!f.vac);box.classList.toggle('f-all-off',!f.all);
   if(!lm||!lm.map)return;
   /* Fase 9-0d: lontano da casa (oltre 3 km: un'altra città, Londra, New York…) attività e servizi pubblici si vedono sempre,
@@ -55,7 +56,7 @@ async function mfVacanza(lm){try{const D=await zStruct(S.zone);const V=(D.items|
 function mfMore(){const lm=window.__mf;const box=app.querySelector('.mapfull .lmap');const night=box&&box.classList.contains('night');
   openSheet('⋯ Mappa',`<div class="mfmenu">
     <button data-mm="mode">${night?'☀️ Giorno':'🌙 Notte'}</button><button data-mm="3d">🏙️ Vista 3D</button><button data-mm="10">🔭 Guarda 10 km</button><button data-mm="home">📍 Torna a casa mia</button>
-    <button data-mm="raid">🧟 Rivedi l’ultimo assalto</button><button data-mm="zona">ℹ️ Vivere qui: la mia zona</button><button data-mm="comm">👥 Aree della community</button></div>
+    <button data-mm="raid">🧟 Rivedi l’ultimo assalto</button><button data-mm="zona">ℹ️ Vivere qui: la mia zona</button><button data-mm="comm">👥 Aree della community</button><button data-mm="serv">${S.mf&&S.mf.serv?'🏪 Nascondi attività':'🏪 Mostra attività'}</button></div>
     <button class="btn wide" data-mm="cerca" style="margin-top:10px">🔎 Cerca un luogo nel mondo</button>`,card=>{
     const click=sel=>{const b=document.querySelector('.mapfull '+sel);if(b)b.click();};
     card.querySelectorAll('[data-mm]').forEach(b=>b.onclick=async()=>{const k=b.dataset.mm;
@@ -64,6 +65,7 @@ function mfMore(){const lm=window.__mf;const box=app.querySelector('.mapfull .lm
       if(k==='raid'){closeSheet();try{if(typeof orPlay==='function')orPlay(lm);}catch(e){}return;}
       if(k==='comm'){closeSheet();try{lm.setLayer('comm',!lm._commOn);lm._commOn=!lm._commOn;}catch(e){}return;}
       if(k==='zona'){mfZona();return;}
+      if(k==='serv'){closeSheet();S.mf.serv=!S.mf.serv;try{saveLocal();}catch(e){}mfApply();toast(S.mf.serv?'🏪 Attività e servizi visibili':'Attività nascoste');return;}
       if(k==='cerca'){cercaLuogo();return;}});});}
 async function mfZona(){openSheet('ℹ️ Vivere qui','<p><span class="spin"></span> Raccolgo i servizi veri della zona…</p>',()=>{});
   try{const D=await zStruct(S.zone);const L=typeof stLive==='function'?stLive(S.zone,D):null;const near=k=>(D.items||[]).filter(x=>x.g===k).sort((a,b)=>a.d-b.d)[0];

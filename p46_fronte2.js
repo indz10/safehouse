@@ -31,7 +31,7 @@ frMount=async function(){const R=frR();if(!R||!FR.node)return;const H=myHouses()
   const key=F.lat.toFixed(4)+','+F.lon.toFixed(4)+'|'+H.length;frSel(H,F);frHeader();
   if(FR.lm&&FR.key===key){try{FR.lm.map.resize();}catch(e){}frLoop();frRings();return;}
   if(FR.busy)return;FR.busy=true;frStop();try{
-  if(!FR.lm){try{const nx=oggiNext();let addr=S.zone&&S.zone.address;if(!addr){addr='__casa';RM.cache=RM.cache||{};if(!RM.cache[addr])RM.cache[addr]={lat:R.lat,lon:R.lon,els:[1]};}FR.lm=await liveMap(FR.node.querySelector('.frmap'),addr,{zoom:15.4,night:zIsNight(R.lat,R.lon)});}catch(e){FR.node.querySelector('.frmap').innerHTML='<p class="muted" style="padding:20px">Mappa non disponibile ora.</p>';return;}}
+  if(!FR.lm){try{const nx=oggiNext();let addr=S.zone&&S.zone.address;if(!addr){addr='__casa';RM.cache=RM.cache||{};if(!RM.cache[addr])RM.cache[addr]={lat:R.lat,lon:R.lon,els:[1]};}FR.lm=await liveMap(FR.node.querySelector('.frmap'),addr,{zoom:15.4,night:zIsNight(R.lat,R.lon),biz:true,pub:true});}catch(e){FR.node.querySelector('.frmap').innerHTML='<p class="muted" style="padding:20px">Mappa non disponibile ora.</p>';return;}}
   try{FR.lm.map.jumpTo({center:[F.lon,F.lat],zoom:F.home?15.4:15.6});}catch(e){}
   (FR.homes||[]).forEach(m=>{try{m.remove();}catch(e){}});FR.homes=[];FR.homeEls=[];(FR.zs||[]).forEach(z=>{try{z.mk.remove();}catch(e){}});FR.zs=[];
   const dests=H.filter(h=>trM(F.lat,F.lon,h.lat,h.lon)<1500);if(!dests.includes(F))dests.unshift(F);dests.sort((a,b)=>(a===F?-1:b===F?1:0));FR.dests=dests;

@@ -17,7 +17,7 @@ async def main():
               await pg.evaluate("()=>[...document.querySelectorAll('.lm-pres')].map(e=>e.className.replace('lm lm-pres ',''))"))
         await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(400)
         if len(sys.argv)>1:await pg.screenshot(path=sys.argv[1]+'/pres_mappa.png')
-        await pg.click('[data-mfpres]');await pg.wait_for_timeout(1200)
+        await pg.click('.mwside [data-mws=pres]');await pg.wait_for_timeout(1200)
         print('elenco:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .pres-row b')].map(b=>b.textContent)"))
         await pg.evaluate("()=>document.querySelector('#sheet.open [data-pr=\"osm:n1\"]').click()");await pg.wait_for_timeout(600)
         print('scheda:',await pg.evaluate("()=>(document.querySelector('#sheet.open .pres-st')||{}).textContent"),'| indietro:',await pg.evaluate("()=>!!document.querySelector('#sheet.open .sheet-back, #sheet.open [data-sback]')"))
