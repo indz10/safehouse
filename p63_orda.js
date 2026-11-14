@@ -143,7 +143,7 @@ function tmBind(){tmBindBase();try{const p=app.querySelector('.tmp');if(!p||!G.t
     const t=m.k==='gold'?app.querySelector('.fronte'):app.querySelector('.opan');if(t){t.scrollIntoView({behavior:'smooth',block:'start'});t.classList.remove('flashme');void t.offsetWidth;t.classList.add('flashme');}
     toast(m.k==='prep'?'🛡️ Tocca “Prepara le case”':m.k==='claim'?'🎁 Tocca “Riscatta” quando l’orda è passata':'💰 Cerca lo zombie d’oro sul fronte e toccalo');};});}catch(e){}}
 /* le 4 caselle di "Premi e fortuna" (p38, con i messaggi di p40) */
-function luckTopBind(){const p=app.querySelector('.lpan');if(!p)return;p.querySelectorAll('[data-lt]').forEach(b=>b.onclick=()=>{const k=b.dataset.lt;
+function luckTopBind(){const p=app.querySelector('.lpan');if(!p)return;p.querySelectorAll('[data-lt]').forEach(b=>b.onclick=()=>{const k=b.dataset.lt;if(k==='all')return premiSheet();
   if(k==='daily')return dailySheet();if(k==='jar')return jarSheet();
   if(k==='wheel'){if(G.spins>0)wheelSheet();else toast('Niente giri: riscatta l’orda o completa le missioni');return;}
   if(k==='scratch'){if(G.scratch>0)scratchSheet();else toast('Niente biglietti: aiuta un alleato o completa le missioni');return;}});}

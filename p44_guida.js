@@ -56,10 +56,21 @@ function coSteps(){const s=OR.s||{},m=window.W&&W.m,L=[];const add=(id,ic,t,why,
   if(td&&td.allies===0)add('ally','🤝','Fatti un alleato','Invita un amico: quando valuta la casa ti dà 🧱 150 e 💎 5, e diventate alleati.',false,()=>inviteSheet());
   return L;}
 function coGoOrda(sel){go('orda');setTimeout(()=>{const t=app.querySelector(sel);if(t){t.scrollIntoView({behavior:'smooth',block:'start'});t.classList.remove('flashme');void t.offsetWidth;t.classList.add('flashme');}},600);}
-function coHTML(compact){const L=coSteps();const todo=L.filter(x=>!x.done);const done=L.length-todo.length;const s=todo[0];
+/* Fase 14: 📅 il giro di oggi (4 caselle) per chi ha già valutato la casa e ha l'account */
+function coGiro(){const s=OR.s||{};const al=(typeof ALS!=='undefined'&&ALS.L)||[];let lr=0;try{lr=luckReady();}catch(e){}
+  return[{id:'prep',ic:'🌅',t:'Prepara le case',done:!!s.prepared,go:()=>coGoOrda('.opan')},
+    {id:'aiuto',ic:'🤝',t:al.length?'Aiuta un alleato':'Chiedi aiuto',done:!!s.asked||al.some(a=>a.helped_by_me),go:()=>coGoOrda(al.length?'.alsorda':'.opan')},
+    {id:'orda',ic:'🌙',t:'Riscatta l’orda',done:!(s.total>0&&!s.claimed),go:()=>coGoOrda('.opan')},
+    {id:'premi',ic:'🎁',t:'Premi di oggi',done:lr===0,go:()=>premiSheet()}];}
+function coHTML(compact){if(S.result&&S.user){const G4=coGiro();const n=G4.filter(x=>x.done).length;const nx=G4.find(x=>!x.done);
+    return`<div class="coach giro ${compact?'cmp':''}"><div class="cohd">📅 Il giro di oggi<small>${n}/4 fatti</small></div>
+      <div class="girow">${G4.map(x=>`<button class="girs ${x.done?'ok':''}" data-gir="${x.id}"><span>${x.done?'✅':x.ic}</span><small>${x.t}</small></button>`).join('')}</div>
+      <div class="cobt">${nx?`<button class="btn small" data-cogo="g:${nx.id}">${nx.ic} ${nx.t}</button>`:'<b class="girdone">✅ Giro di oggi completato!</b>'}<button class="btn small ghost" data-coall>Tutti i passi</button></div></div>`;}
+  const L=coSteps();const todo=L.filter(x=>!x.done);const done=L.length-todo.length;const s=todo[0];
   if(!s)return`<div class="coach ${compact?'cmp':''}"><div class="cohd">🧭 Il tuo prossimo passo<small>${done}/${L.length}</small></div><b>✅ Tutto fatto per ora!</b><small>Guarda il fronte o torna dopo l’orda per riscattare i premi.</small><div class="cobt"><button class="btn small" data-cogo="fronte">🗺️ Il fronte</button><button class="btn small ghost" data-coall>Tutti i passi</button></div></div>`;
   return`<div class="coach ${compact?'cmp':''}"><div class="cohd">🧭 Il tuo prossimo passo<small>${done}/${L.length} fatti</small></div><b>${s.ic} ${esc(s.t)}</b><small>${esc(s.why)}</small><div class="cobt"><button class="btn small" data-cogo="${s.id}">Fammelo fare</button><button class="btn small ghost" data-coall>Tutti i passi</button></div></div>`;}
-function coBind(root){root.querySelectorAll('[data-cogo]').forEach(b=>b.onclick=()=>{const id=b.dataset.cogo;if(id==='fronte')return coGoOrda('.fronte');const s=coSteps().find(x=>x.id===id);if(s)s.go();});
+function coBind(root){root.querySelectorAll('[data-gir]').forEach(b=>b.onclick=()=>{const g=coGiro().find(x=>x.id===b.dataset.gir);if(g)g.go();});
+  root.querySelectorAll('[data-cogo]').forEach(b=>b.onclick=()=>{const id=b.dataset.cogo;if(id==='fronte')return coGoOrda('.fronte');if(id.startsWith('g:')){const g=coGiro().find(x=>x.id===id.slice(2));if(g)g.go();return;}const s=coSteps().find(x=>x.id===id);if(s)s.go();});
   root.querySelectorAll('[data-coall]').forEach(b=>b.onclick=coAll);}
 function coAll(){const L=coSteps();openSheet('🧭 I tuoi passi',`<p style="font-weight:400;margin:0 0 8px">In ordine di importanza. Tocca un passo per farlo.</p>${L.map(s=>`<button class="costep ${s.done?'ok':''}" data-cs="${s.id}"><span>${s.done?'✅':s.ic}</span><div><b>${esc(s.t)}</b><small>${esc(s.why)}</small></div>${s.done?'':'<i>›</i>'}</button>`).join('')}
    <button class="btn ghost small" data-cotour style="margin-top:8px">🧭 Rifai il giro guidato completo</button>`,card=>{card.querySelectorAll('[data-cs]').forEach(b=>b.onclick=()=>{const s=L.find(x=>x.id===b.dataset.cs);if(s&&!s.done){closeSheet();s.go();}});

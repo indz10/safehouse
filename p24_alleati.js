@@ -21,13 +21,20 @@ function ayBind(){app.querySelectorAll('[data-agive]').forEach(b=>b.onclick=()=>
 /* aiutare un alleato regala anche un biglietto del gratta e vinci */
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-asend]');if(!b||typeof G==='undefined')return;setTimeout(()=>{G.scratch=(G.scratch||0)+1;try{saveLocal();}catch(x){}},800);},true);
 /* ---- PREMI E FORTUNA, in alto nel gioco ---- */
-function luckTopHTML(){try{luckInit();}catch(e){}const ds=(typeof dailyState==='function')?dailyState():null;const tot=(typeof jarTotal==='function')?jarTotal():0;const goal=(G.jar&&G.jar.goal)||60;
-  return`<div class="panel lpan"><b class="disp" style="font-size:22px">🎁 Premi e fortuna</b>
-   <div class="lgrid">
-    <button data-lt="daily" class="${ds&&!ds.claimed?'hot':''}"><span>📅</span><b>Premio del giorno</b><small>${ds?(ds.claimed?'riscosso · torna domani':'giorno '+ds.next+' di 7: riscuoti!'):''}</small></button>
-    <button data-lt="wheel" class="${G.spins>0?'hot':''}"><span>🎡</span><b>Ruota</b><small>${G.spins||0} ${G.spins===1?'giro':'giri'}</small></button>
-    <button data-lt="scratch" class="${G.scratch>0?'hot':''}"><span>🎟️</span><b>Gratta e vinci</b><small>${G.scratch||0} ${G.scratch===1?'biglietto':'biglietti'}</small></button>
-    <button data-lt="jar"><span>🫙</span><b>Barattolo</b><small>${Math.min(tot,goal)}/${goal}</small></button></div>
-   <p class="muted" style="font-size:12px;margin:8px 0 0">Giri e biglietti si guadagnano riscattando l’orda, vincendo notti e aiutando gli alleati.</p></div>`;}
+function luckTiles(){const ds=(typeof dailyState==='function')?dailyState():null;const tot=(typeof jarTotal==='function')?jarTotal():0;const goal=(G.jar&&G.jar.goal)||60;
+  return[['daily','📅','Premio del giorno',ds?(ds.claimed?'riscosso · torna domani':'giorno '+ds.next+' di 7: riscuoti!'):'',!!(ds&&!ds.claimed)],
+    ['wheel','🎡','Ruota',`${G.spins||0} ${G.spins===1?'giro':'giri'}`,G.spins>0],['scratch','🎟️','Gratta e vinci',`${G.scratch||0} ${G.scratch===1?'biglietto':'biglietti'}`,G.scratch>0],
+    ['jar','🫙','Barattolo',`${Math.min(tot,goal)}/${goal}`,tot>=goal]];}
+function luckReady(){try{luckInit();}catch(e){}return luckTiles().filter(t=>t[4]).length;}
+/* Fase 14: un solo riquadro "🎁 Premi di oggi" (premio del giorno, ruota, gratta e vinci, barattolo) → premiSheet */
+function luckTopHTML(){const n=luckReady();
+  return`<div class="panel lpan"><button class="lone ${n?'hot':''}" data-lt="all"><span>🎁</span><div><b>Premi di oggi</b><small>${n?n+(n===1?' premio pronto da aprire':' premi pronti da aprire'):'Premio del giorno, ruota, gratta e vinci, barattolo'}</small></div><i>${n?n:'›'}</i></button></div>`;}
+function premiSheet(){try{luckInit();}catch(e){}const T=luckTiles();
+  openSheet('🎁 Premi di oggi',`<div class="lgrid">${T.map(([k,ic,t,sub,hot])=>`<button data-lt="${k}" class="${hot?'hot':''}"><span>${ic}</span><b>${t}</b><small>${sub}</small></button>`).join('')}</div>
+   <p class="muted" style="font-size:12px;margin:8px 0 0">Giri e biglietti si guadagnano riscattando l’orda, completando le missioni e aiutando gli alleati.</p>`,c=>{
+   c.querySelectorAll('[data-lt]').forEach(b=>b.onclick=()=>{const k=b.dataset.lt;window.SHEET_BACK={t:'‹ Premi di oggi',fn:premiSheet};
+     if(k==='daily')return dailySheet();if(k==='jar')return jarSheet();
+     if(k==='wheel'){if(G.spins>0)wheelSheet();else{window.SHEET_BACK=null;toast('Niente giri: riscatta l’orda o completa le missioni');}return;}
+     if(k==='scratch'){if(G.scratch>0)scratchSheet();else{window.SHEET_BACK=null;toast('Niente biglietti: aiuta un alleato o completa le missioni');}}});});}
 /* manuale */
 </script>

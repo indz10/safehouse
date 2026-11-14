@@ -37,9 +37,9 @@ async def main():
         out['zombie_alleato']=await pg.evaluate("()=>{const c=document.querySelector('#sheet.open');return c?c.textContent.replace(/\\s+/g,' ').replace(/\\d\\d:\\d\\d/g,'HH').trim().slice(0,500):null}")
         # fortuna: giri finiti
         await pg.evaluate("()=>{closeSheet();G.spins=0;G.scratch=0;go('orda')}");await pg.wait_for_timeout(1200)
-        await pg.evaluate("()=>{__T.length=0;document.querySelector('[data-lt=wheel]').click();document.querySelector('[data-lt=scratch]').click();}")
+        await pg.evaluate("()=>{__T.length=0;premiSheet();document.querySelector('#sheet.open [data-lt=wheel]').click();document.querySelector('#sheet.open [data-lt=scratch]').click();}")  # Fase 14: premi in una finestra
         out['fortuna_vuota']=await pg.evaluate("()=>__T.slice()")
-        await pg.evaluate("()=>{G.spins=1;G.scratch=1;document.querySelector('[data-lt=wheel]').click()}");await pg.wait_for_timeout(300)
+        await pg.evaluate("()=>{G.spins=1;G.scratch=1;closeSheet();premiSheet();document.querySelector('#sheet.open [data-lt=wheel]').click()}");await pg.wait_for_timeout(300)
         out['ruota']=await pg.evaluate("()=>{const h=document.querySelector('#sheet.open h3');return h&&h.textContent}")
         # missioni
         await pg.evaluate("()=>{closeSheet();go('orda')}");await pg.wait_for_timeout(1200)

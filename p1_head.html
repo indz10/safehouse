@@ -1302,6 +1302,14 @@ body[data-tab=mappa] .obanner{display:none!important}
 .mwchip{flex:0 0 auto;background:#fff;border:2.5px solid var(--ink);border-radius:9px 3px 9px 3px;box-shadow:2px 2px 0 var(--ink);font-weight:800;font-size:13px;padding:5px 9px;color:var(--ink);white-space:nowrap}
 .mwchip b{padding:0 4px;border-radius:5px;color:#fff;background:#555}.mwchip b.ok{background:#2f9e44}.mwchip b.mid{background:#e8590c}.mwchip b.ko{background:var(--blood)}.mwchip.hot{background:var(--moon)}
 .mwbody{padding-top:6px}
+/* Fase 14: giro di oggi e premi in un riquadro */
+.girow{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0 8px}
+.girs{display:flex;flex-direction:column;align-items:center;gap:2px;background:#fff;border:2.5px solid var(--ink);box-shadow:2px 2px 0 var(--ink);border-radius:10px 4px 10px 4px;padding:6px 2px;color:var(--ink);min-width:0}
+.girs span{font-size:22px;line-height:1}.girs small{font-size:10.5px;font-weight:800;line-height:1.15;text-align:center}.girs.ok{background:#d9f2df}
+.girdone{align-self:center}
+.lone{display:flex;align-items:center;gap:10px;width:100%;background:#fff;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);border-radius:12px 4px 14px 5px;padding:10px 12px;color:var(--ink);text-align:left}
+.lone span{font-size:32px}.lone div{flex:1;display:flex;flex-direction:column;min-width:0}.lone b{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.03em}.lone small{font-size:12.5px;color:#5a5470}
+.lone i{font-style:normal;font-weight:900;min-width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:2.5px solid var(--ink)}.lone.hot{background:linear-gradient(180deg,#fff7c9,var(--moon))}.lone.hot i{background:var(--blood);color:#fff}
 /* =====================================================================
    GRAFICA 2 (anteprima) — stesso fumetto, pulsanti più "da gioco":
    bordi disegnati a mano, retino tipografico, riflesso, scritte ripassate a china,
