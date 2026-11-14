@@ -16,7 +16,7 @@ function zmItems(){const L=zmItemsBase();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
   if(g)g[1].splice(1,0,['📷','Lente: guarda con la fotocamera','lente']);})();
   /* Fase 15a: la Home si apre dal menu (la barra in basso non c'è più per chi gioca già) */
-  (()=>{const g=L[0];if(g)g[1].unshift(['🏠','Home','hpage'],['🌍','Mondo: mappa e orda','mondo']);})();
+  (()=>{const g=L[0];if(g)g[1].unshift(['🏠','Home','hpage'],['🌍','Mondo: mappa e orda','mondo'],['🧭','Cosa fare ora (guida)','guida']);})();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
   if(g)g[1]=g[1].map(r=>r[2]==='g:difendi'?['⚔️','Gioca la notte','g:difendi']:r);})();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
@@ -34,7 +34,7 @@ function zmDoRun(k,b){
   if(k==='g:difendi'||k==='g:oggi'||k==='g:impero'){zmClose();go('orda');setTimeout(()=>{const t=k==='g:difendi'?app.querySelector('.odplay'):app.querySelector('.fronte');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},400);return;}
   if(k==='oggi'){zmClose();oggiSheet();return;}
   if(k==='lente'){zmClose();lenteOpen();return;}
-  if(k==='hpage'){zmClose();MW.userNav=1;go('home');return;}if(k==='mondo'){zmClose();S.zv='mondo';go('mappa');return;}
+  if(k==='hpage'){zmClose();MW.userNav=1;go('home');return;}if(k==='mondo'){zmClose();S.zv='mondo';go('mappa');return;}if(k==='guida'){gdSheet();return;}
   if(k==='inst'){zmClose();zInstallSheet();return;}
   if(k==='casa'){zmClose();go('casa');return;}if(k==='manual'){zmClose();openSheet('📚 Tutte le regole',rulesHTML());return;}if(k==='shop'){zmClose();shopSheet(0);return;}
   if(k==='home'&&b&&/Piano/.test(b.textContent)){zmClose();go('casa');return;}
@@ -63,7 +63,8 @@ function manualHTML(){let h=manualHTMLBase();
     <p><b>🔑 Case comprate e 🚩 presidi</b> si possono <b>⚔️ assaltare</b> (🥫 10 di cibo più il carburante del viaggio, massimo 3 al giorno). Se all’orda cadono, passano a chi le ha assaltate di più; al vecchio padrone torna metà della spesa. Più rivali possono assaltare insieme: i loro assalti si sommano.</p>
     <p><b>Difendersi:</b> barricate, recinto e fossato tolgono fino al 60% della forza degli assalti; gli <b>alleati</b> vengono a difendere (🛡️) e tu o loro potete inchiodare le <b>🪵 assi</b> (20 legno = +6, fino a +18 per orda). Prima di allargarti, fai alleanze e potenzia le case.</p>
     <div class="mtab"><div><span>🧱</span><b>Mattoni</b><small>case, fortificazioni, mezzi</small></div><div><span>🪵</span><b>Legno</b><small>assi: +6 per 20</small></div><div><span>🥫</span><b>Cibo</b><small>squadra d’assalto: 10</small></div><div><span>⛽</span><b>Carburante</b><small>moto 1, auto 1,5, fuoristrada 2 al km; senza si va a piedi</small></div></div>
-    <p>Le case in <b>zone care</b> rendono più affitto; i presidi tenuti da almeno 7 giorni danno +5 alle case vicine. Chi è appena arrivato ha <b>15 giorni di scudo</b>.</p></div></details>`;
+    <p>Le case in <b>zone care</b> rendono più affitto. I <b>🚩 presidi</b> si occupano fino a <b>5 km</b> da una tua casa e a ogni orda retta rendono <b>40 + 4 per orda di fila</b> della loro risorsa (fino a 80); tenuti da almeno 7 giorni danno +5 alle case vicine. Nel condominio l’<b>🏅 amministratore</b> (chi versa di più nel mese) ha le difese comuni doppie e il 10% dei versamenti degli altri. Chi è appena arrivato ha <b>15 giorni di scudo</b>.</p>
+    <p><b>🧭 Cosa fare</b> (in alto nel Mondo e nel menu ☰): l’elenco delle mosse migliori adesso, con costi e premi; basta toccare il pulsante.</p></div></details>`;
   try{const i=h.indexOf('🧟 L’orda del mondo (la cosa principale)');const j=i<0?-1:h.indexOf('</details>',i);if(j>0)h=h.slice(0,j+10)+TER+h.slice(j+10);else h=h.replace('<details class="man"',TER+'<details class="man"');}catch(e){}
   return h;}
 </script>

@@ -19,16 +19,16 @@ function presKind(t){const a=t.amenity,l=t.leisure;
 function presChance(p){const a0=(PRES.d&&PRES.d.attacco_min)||50,a1=(PRES.d&&PRES.d.attacco_max)||99;return Math.max(0,Math.min(100,Math.round((p.difesa-a0+1)/(a1-a0+1)*100)));}
 /* l'app manda al server i luoghi pubblici vicino alle mie case (una volta a settimana per zona di ~2 km) */
 async function presSeed(lat,lon){if(!S.user||(typeof SB==='undefined'||!SB))return 0;
-  const near=myHouses().some(h=>h.lat!=null&&trM(h.lat,h.lon,lat,lon)<2500);if(!near)return 0;
+  const near=myHouses().some(h=>h.lat!=null&&trM(h.lat,h.lon,lat,lon)<5000);if(!near)return 0;
   const key=Math.round(lat*50)+'|'+Math.round(lon*50);let M={};try{M=JSON.parse(localStorage.getItem('zsh_pres_seed')||'{}');}catch(e){}
   if(M[key]&&Date.now()-M[key]<7*864e5)return 0;
-  const A=`(around:1500,${lat.toFixed(5)},${lon.toFixed(5)})`;
+  const A=`(around:${presSeed.r||1500},${lat.toFixed(5)},${lon.toFixed(5)})`;
   const q=`[out:json][timeout:20];(nwr["leisure"~"^(park|garden|playground|sports_centre|stadium)$"]["name"]${A};nwr["place"="square"]["name"]${A};nwr["railway"="station"]["name"]${A};nwr["amenity"~"^(townhall|library|school|hospital|fire_station|police|place_of_worship|community_centre)$"]["name"]${A};);out center 150;`;
   let els=[];try{els=await trOverpass(q,20000,4);}catch(e){return 0;}
   const L=els.map(e=>{const t=e.tags||{};const k=presKind(t);const la=e.lat!=null?e.lat:e.center&&e.center.lat,lo=e.lon!=null?e.lon:e.center&&e.center.lon;
     return k&&la!=null&&t.name?{id:'osm:'+e.type[0]+e.id,name:String(t.name).slice(0,80),kind:k,lat:+la.toFixed(6),lon:+lo.toFixed(6),d:trM(lat,lon,la,lo)}:null;}).filter(Boolean);
   /* i più vicini, e non due dello stesso tipo a meno di 150 m (es. parco giochi dentro un parco) */
-  L.sort((a,b)=>a.d-b.d);const P=[];L.forEach(x=>{if(P.length<40&&!P.some(y=>y.kind===x.kind&&trM(x.lat,x.lon,y.lat,y.lon)<150))P.push(x);});
+  L.sort((a,b)=>a.d-b.d);const P=[];L.forEach(x=>{if(P.length<60&&!P.some(y=>y.kind===x.kind&&trM(x.lat,x.lon,y.lat,y.lon)<150))P.push(x);});
   let n=0;try{const{data}=await SB.rpc('world_presidi_seed',{p:P.map(({d,...x})=>x)});n=(data&&data.nuovi)||0;M[key]=Date.now();localStorage.setItem('zsh_pres_seed',JSON.stringify(M));}catch(e){}
   return n;}
 /* presidi nel riquadro della mappa */
@@ -56,11 +56,11 @@ function presSheet(id){const p=PRES.L.find(x=>x.id===id);if(!p)return;const k=PR
   const g=Math.min(5,p.guardie||0);const tiene=p.stato==='mio'||p.stato==='alleato';
   openSheet(`${k[0]} ${esc(p.name)}`,`<p class="muted" style="margin:0 0 6px">${k[1]} · presidio pubblico</p>
    <div class="pres-st s-${p.stato}">${presStato(p)}</div>
-   <p style="font-weight:400;font-size:14px;margin:8px 0">Chi tiene un presidio dà <b>+3 di difesa a tutte le case entro 500 m</b> (<b>+5</b> se lo tiene da almeno 7 giorni), anche a quelle dei vicini (massimo +10 per casa). I rivali possono assaltarlo e conquistarlo.</p>
+   <p style="font-weight:400;font-size:14px;margin:8px 0">Chi tiene un presidio dà <b>+3 di difesa a tutte le case entro 500 m</b> (<b>+5</b> se lo tiene da almeno 7 giorni), anche a quelle dei vicini (massimo +10 per casa), e a ogni orda retta riceve la sua risorsa: <b>40 + 4 per ogni orda di fila</b> (fino a 80). Si occupa se hai una casa entro 5 km, viaggiando col tuo mezzo (⛽). I rivali possono assaltarlo e conquistarlo.</p>
    ${p.stato!=='libero'?`<div class="pres-orda"><b>🧟 Prossima orda</b><span>Difesa <b>${p.difesa}</b> (55 + 12 per guardia · guardie ${g}/5) contro un attacco da 50 a 99</span>
      <span>Tiene nel <b>${ch}%</b> dei casi. Se cade torna libero.</span></div>`:''}
    <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:10px">
-    ${p.stato==='libero'?(S.user?(p.vicino?`<button class="btn" data-pocc>🚩 Occupa il presidio</button>`:`<p class="notice" style="margin:0">Per occuparlo serve una tua casa (vera o comprata) entro 1 km.</p>`):`<p class="notice" style="margin:0">Accedi per occupare i presidi.</p>`):''}
+    ${p.stato==='libero'?(S.user?`<button class="btn" data-pocc>🚩 Occupa il presidio</button>`:`<p class="notice" style="margin:0">Accedi per occupare i presidi.</p>`):''}
     ${tiene&&!p.io_guardia?`<button class="btn" data-pgua>🛡️ Fai la guardia (+12)</button>`:''}
     ${tiene&&p.io_guardia?`<span class="tag">🛡️ Sei di guardia per la prossima orda</span>`:''}
     ${p.stato==='mio'?`<button class="btn ghost small" data-plas>Lascia</button>`:''}
@@ -84,4 +84,22 @@ async function presList(lm){lm=lm||window.__mf;openSheet('🚩 Presidi','<p><spa
     ${L.length?L.map(p=>{const k=PRES_K[p.kind]||['🚩','Presidio'];return`<button class="pres-row s-${p.stato}" data-pr="${esc(p.id)}"><span class="pi">${k[0]}</span><span class="pt"><b>${esc(p.name)}</b><small>${presStato(p)} · ${dist(p.dist)}</small></span><span class="pc">${p.stato==='libero'?'Libero':presChance(p)+'%'}</span></button>`;}).join('')
      :`<p class="notice">Qui non ci sono ancora presidi. Compaiono vicino alle case dei superstiti: avvicinati a una tua casa sulla mappa.</p>`}`,
    card=>card.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{window.SHEET_BACK={t:'‹ Presidi',fn:()=>presList(lm)};presSheet(b.dataset.pr);}));}
+</script>
+<script>
+/* 🚩 Presidi entro 5 km dalle tue case (migrazione 016): l'elenco cerca intorno alla casa (o al centro della mappa), li scopre su OpenStreetMap
+   nel raggio di 5 km e li mette in ordine di distanza; si occupano col proprio mezzo (⛽) e a ogni orda retta rendono il doppio */
+async function presList5(lm){lm=lm||window.__mf;openSheet('🚩 Presidi entro 5 km','<p><span class="spin"></span> Cerco i presidi entro 5 km…</p>',()=>{});
+  let H=[];try{H=myHouses().filter(h=>h.lat!=null);}catch(e){}const c0=lm&&lm.map?lm.map.getCenter():null;const o=H.find(h=>h.home)||H[0]||(c0?{lat:c0.lat,lon:c0.lng}:null);
+  if(!o||typeof SB==='undefined'||!SB){return presList(lm);}
+  const k=Math.round(o.lat*50)+'|'+Math.round(o.lon*50)+'|5';let M={};try{M=JSON.parse(localStorage.getItem('zsh_pres_seed')||'{}');}catch(e){}
+  if(!M[k]||Date.now()-M[k]>7*864e5){presSeed.r=5000;try{await presSeed(o.lat,o.lon);}catch(e){}presSeed.r=0;try{M=JSON.parse(localStorage.getItem('zsh_pres_seed')||'{}');M[k]=Date.now();localStorage.setItem('zsh_pres_seed',JSON.stringify(M));}catch(e){}}
+  let d=null;try{const{data,error}=await SB.rpc('world_presidi_list',{p_minlat:o.lat-0.046,p_minlon:o.lon-0.065,p_maxlat:o.lat+0.046,p_maxlon:o.lon+0.065});if(!error)d=data;}catch(e){}
+  if(!d){return presList(lm);}PRES.d=d;PRES.L=d.presidi||[];
+  const near=p=>Math.min(...(H.length?H:[o]).map(h=>trM(h.lat,h.lon,p.lat,p.lon)));
+  const L=PRES.L.map(p=>({...p,dist:near(p)})).filter(p=>p.dist<=5000).sort((a,b)=>(a.stato==='mio'?-1:0)-(b.stato==='mio'?-1:0)||a.dist-b.dist).slice(0,40);
+  const dist=m=>m<1000?Math.round(m/10)*10+' m':(m/1000).toFixed(1).replace('.',',')+' km';
+  openSheet('🚩 Presidi entro 5 km',`<p style="font-weight:400;margin:0 0 8px">Luoghi pubblici veri entro <b>5 km</b> dalle tue case. Chi li tiene dà <b>+3 di difesa</b> alle case entro 500 m e a ogni orda retta riceve la sua risorsa: <b>🪵/🥫/⛽ 40 + 4 per orda di fila</b> (fino a 80), 🧱 30+ per municipio, scuole, biblioteche e ospedali. Si occupano viaggiando col tuo mezzo (⛽).${S.user?` Ne tieni <b>${d.miei}/${d.max}</b>.`:''}</p>
+    ${L.length?L.map(p=>{const kk=PRES_K[p.kind]||['🚩','Presidio'];return`<button class="pres-row s-${p.stato}" data-pr="${esc(p.id)}"><span class="pi">${kk[0]}</span><span class="pt"><b>${esc(p.name)}</b><small>${presStato(p)} · ${dist(p.dist)}</small></span><span class="pc">${p.stato==='libero'?'Libero':presChance(p)+'%'}</span></button>`;}).join('')
+     :'<p class="notice">Qui intorno non ho trovato presidi: riprova tra poco (la ricerca su OpenStreetMap a volte è lenta).</p>'}`,
+   card=>card.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{window.SHEET_BACK={t:'‹ Presidi',fn:()=>presList5(lm)};const p=PRES.L.find(x=>x.id===b.dataset.pr);if(p&&lm&&lm.map)try{lm.map.flyTo({center:[p.lon,p.lat],zoom:16});}catch(e){}presSheet(b.dataset.pr);}));}
 </script>
