@@ -116,6 +116,8 @@ function renderSocial(){renderSocialBase();
     const cl=seg.querySelector('[data-st=classifiche]');if(cl)cl.innerHTML='🏆 Classifica';
     seg.querySelectorAll('[data-st]').forEach(b=>{b.classList.toggle('on',b.dataset.st===SOC.tab);b.onclick=()=>{SOC.tab=b.dataset.st;seg.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));socPaint();socFetchTab();};});}}catch(e){}})();
   (()=>{try{const b=app.querySelector('.sseg [data-st=squadra]');if(b)b.innerHTML='🤝 Alleati';}catch(e){}})();
+  /* 🌍 Mondo (Fase 15a, p75): barra dell'orda e linguette in cima anche nei Superstiti */
+  (()=>{try{mwSocial();}catch(e){}})();
   /* 🔎 Trova superstiti (p72): vicino a una mia casa, per nome, ⭐ preferiti */
   (()=>{try{if(typeof trovaBtn==='function')trovaBtn();}catch(e){}})();}
 /* alleati in Squadra: base (p23) + regali e prestiti (p24) */
