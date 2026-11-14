@@ -1310,6 +1310,46 @@ body[data-tab=mappa] .obanner{display:none!important}
 .lone{display:flex;align-items:center;gap:10px;width:100%;background:#fff;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);border-radius:12px 4px 14px 5px;padding:10px 12px;color:var(--ink);text-align:left}
 .lone span{font-size:32px}.lone div{flex:1;display:flex;flex-direction:column;min-width:0}.lone b{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.03em}.lone small{font-size:12.5px;color:#5a5470}
 .lone i{font-style:normal;font-weight:900;min-width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:2.5px solid var(--ink)}.lone.hot{background:linear-gradient(180deg,#fff7c9,var(--moon))}.lone.hot i{background:var(--blood);color:#fff}
+/* Fase 15a: schermata unica */
+body.nonav{--nav-h:0px}body.nonav #nav{display:none!important}
+.mwlente{display:none;position:fixed;right:14px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:55;width:78px;height:78px;border-radius:50%;flex-direction:column;align-items:center;justify-content:center;gap:0;
+  background:radial-gradient(circle at 35% 30%,#fff6b8,var(--moon) 55%,#e3b41f);border:4px solid var(--ink);box-shadow:4px 4px 0 var(--ink),0 0 0 4px rgba(247,214,74,.45);color:var(--ink);padding:0;animation:zsGlowL 2.4s ease-in-out infinite}
+.mwlente span{font-size:30px;line-height:1}.mwlente b{font-family:var(--display);font-weight:400;font-size:15px;letter-spacing:.04em}
+.mwlente:active{transform:scale(.9)}
+@keyframes zsGlowL{0%,100%{box-shadow:4px 4px 0 var(--ink),0 0 0 4px rgba(247,214,74,.45)}50%{box-shadow:4px 4px 0 var(--ink),0 0 0 10px rgba(247,214,74,.25)}}
+body.nonav[data-tab=mappa] .mwlente,body.nonav[data-tab=orda] .mwlente,body.nonav[data-tab=social] .mwlente{display:flex}
+body.nonav[data-tab=mappa] .mwlente{bottom:calc(132px + env(safe-area-inset-bottom,0px))}
+body.mwopen .mwlente,body.inbattle .mwlente,#lente~.mwlente{display:none!important}
+@media (prefers-reduced-motion:reduce){.mwlente{animation:none}}
+/* Fase 15b: Capitano Kilo, il Radio Operatore */
+body.ophome #nav,body.ophome #accFab,body.opon #accFab,body.opon #accBar{display:none!important}
+body.ophome{--nav-h:0px}
+.ophomep{min-height:calc(100svh - var(--tb-h) - env(safe-area-inset-top));display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px 16px calc(28px + env(safe-area-inset-bottom));
+  background:radial-gradient(rgba(255,255,255,.07) 1.2px,transparent 1.4px) 0 0/9px 9px,radial-gradient(circle at 80% 8%,rgba(247,214,74,.35),transparent 30%),linear-gradient(180deg,#1b1338,var(--night) 55%,#140f1f)}
+.oplogo{display:flex;flex-direction:column;align-items:center;margin:8px 0 0;line-height:.85;transform:rotate(-3deg)}
+.oplogo span{font-family:var(--display);font-weight:400;font-size:66px;letter-spacing:.03em;color:#fff;-webkit-text-stroke:2px var(--ink);text-shadow:5px 5px 0 var(--blood),8px 8px 0 var(--ink)}
+.oplogo span+span{color:var(--moon);font-size:58px}
+.opsub{color:#e9e2f5;text-align:center;font-weight:700;font-size:15px;max-width:330px;margin:0}
+.ophero{display:flex;align-items:center;gap:12px;align-self:stretch}
+.opface{position:relative;flex:0 0 auto;width:84px;height:84px;border-radius:50%;border:4px solid var(--ink);box-shadow:4px 4px 0 var(--ink);
+  background:radial-gradient(circle at 35% 30%,#ffe98a,var(--moon) 45%,#e3b41f 70%,#b8860b);display:grid;place-items:center}
+.opman{font-size:50px;line-height:1}.opset{position:absolute;top:-6px;left:-6px;font-size:26px;transform:rotate(-15deg)}.opradio{position:absolute;right:-8px;bottom:-6px;font-size:28px;transform:rotate(10deg)}
+.opname{display:flex;flex-direction:column;background:var(--blood);border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:5px 10px;transform:rotate(-2deg);border-radius:10px 3px 10px 3px}
+.opname b{font-family:var(--display);font-weight:400;font-size:24px;letter-spacing:.05em;color:#fff;text-shadow:2px 2px 0 var(--ink)}.opname small{color:#ffe;font-size:11.5px;font-weight:800}
+.opbub{position:relative;align-self:stretch;background:#fff;border:3px solid var(--ink);border-radius:20px;box-shadow:4px 4px 0 var(--ink);padding:12px 14px;
+  background-image:radial-gradient(rgba(20,15,31,.07) 1px,transparent 1.2px);background-size:6px 6px}
+.opbub p{margin:0;font-size:16px;line-height:1.45;font-weight:700;color:var(--ink);min-height:3em;cursor:pointer}
+.opbub:before{content:"";position:absolute;left:34px;top:-15px;width:22px;height:18px;background:#fff;border-left:3px solid var(--ink);border-top:3px solid var(--ink);transform:skewX(30deg) rotate(15deg)}
+.opbtns{align-self:stretch;display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.opsmall{background:none;border:0;color:var(--moon);font-weight:800;font-size:14px;text-decoration:underline;padding:4px}
+#opdock{position:fixed;left:50%;transform:translateX(-50%);width:calc(100% - 16px);max-width:504px;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 8px);z-index:70;
+  background:var(--paper);border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink);border-radius:16px 6px 18px 6px;padding:8px 10px 10px;display:flex;flex-direction:column;gap:8px}
+#opdock .opface{width:56px;height:56px}#opdock .opman{font-size:32px}#opdock .opset{font-size:18px}#opdock .opradio{font-size:20px}#opdock .opname b{font-size:18px}
+#opdock .opbub p{font-size:14.5px;min-height:0}
+.opdh{display:flex;align-items:center;gap:8px}.opdh .ophero{flex:1}
+.opmin{width:36px;height:36px;border-radius:50%;border:3px solid var(--ink);background:#fff;font-weight:900;color:var(--ink)}
+.opdb{display:flex;gap:6px;flex-wrap:wrap}
+#opdock.min .opbub,#opdock.min .opdb{display:none}
 /* =====================================================================
    GRAFICA 2 (anteprima) — stesso fumetto, pulsanti più "da gioco":
    bordi disegnati a mano, retino tipografico, riflesso, scritte ripassate a china,

@@ -15,6 +15,8 @@ function zmItems(){const L=zmItemsBase();
   /* Fase 10A: la Lente (fotocamera a fumetto) */
   (()=>{const g=L.find(x=>x[0]==='Gioco');
   if(g)g[1].splice(1,0,['📷','Lente: guarda con la fotocamera','lente']);})();
+  /* Fase 15a: la Home si apre dal menu (la barra in basso non c'è più per chi gioca già) */
+  (()=>{const g=L[0];if(g)g[1].unshift(['🏠','Home','hpage'],['🌍','Mondo: mappa e orda','mondo']);})();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
   if(g)g[1]=g[1].map(r=>r[2]==='g:difendi'?['⚔️','Gioca la notte','g:difendi']:r);})();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
@@ -32,6 +34,7 @@ function zmDoRun(k,b){
   if(k==='g:difendi'||k==='g:oggi'||k==='g:impero'){zmClose();go('orda');setTimeout(()=>{const t=k==='g:difendi'?app.querySelector('.odplay'):app.querySelector('.fronte');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},400);return;}
   if(k==='oggi'){zmClose();oggiSheet();return;}
   if(k==='lente'){zmClose();lenteOpen();return;}
+  if(k==='hpage'){zmClose();MW.userNav=1;go('home');return;}if(k==='mondo'){zmClose();S.zv='mondo';go('mappa');return;}
   if(k==='inst'){zmClose();zInstallSheet();return;}
   if(k==='casa'){zmClose();go('casa');return;}if(k==='manual'){zmClose();openSheet('📚 Tutte le regole',rulesHTML());return;}if(k==='shop'){zmClose();shopSheet(0);return;}
   if(k==='home'&&b&&/Piano/.test(b.textContent)){zmClose();go('casa');return;}
@@ -46,7 +49,7 @@ function zmOpen(){const r=zmOpenBase.apply(this,arguments);
 /* barra in alto: logo, 🔔, ☰ (p28) + pulsante audio (p33) */
 function zTopbar(){zTopbarBase();zSoundBtn();}
 /* barra in basso (p26) + barra in alto (p28) */
-function renderNav(){renderNavBase();zTopbar();}
+function renderNav(){renderNavBase();zTopbar();try{mwNoNav();}catch(e){}}
 /* istruzioni: base (p20) + capitoli mondo unico (p21), orda del mondo (p22), alleati e rivali (p23), regali (p24) + testo di p32 */
 function manualHTML(){let h=manualHTMLBase();
   h=h.replace('<details class="man"',`<details class="man"><summary>🌍 Il mondo unico</summary><div class="man-b"><p>Tutti gli utenti registrati giocano nello <b>stesso mondo vero</b>. La tua casa è tua (si conferma in due giorni). Con i <b>🧱 Mattoni</b> compri le case libere vere: prima vicino a casa, poi, salendo di livello, sempre più lontano, fino al mondo intero.</p><p>Ogni casa rende <b>affitti</b> ogni giorno e si può potenziare fino al livello 5. Se l’abitante vero si iscrive, la casa passa a lui e tu ricevi indietro tutto il valore più un bonus (25%, 75% se l’avevi invitato tu).</p><p><b>Mattoni</b>: notti vinte, missioni, accesso del giorno, casa valutata, codici usati in negozio, amici invitati, affitti. Ogni giorno c’è un tetto. Le case di chi non gioca da 30 giorni tornano libere (rimborso 50%).</p><p>Nel quartiere del gioco gli edifici veri comprati nel mondo sono tuoi edifici da difendere; quelli di altri giocatori o abitati sono segnati e non si comprano.</p></div></details><details class="man"`);

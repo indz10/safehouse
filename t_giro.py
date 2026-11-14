@@ -13,7 +13,7 @@ async def main():
         pg=await (await b.new_context(**p.devices['iPhone 13'])).new_page();pg.on('pageerror',lambda e:E.append(str(e)[:160]))
         await pg.route('**/*',t_terr.route);await pg.add_init_script(path=D+'/sb_mock.js');await pg.add_init_script(path=D+'/ml_stub.js');await pg.add_init_script('window.__noHello=1')
         await pg.goto('file://'+D+'/app.html');await pg.wait_for_timeout(800);await pg.evaluate(SETUP)
-        await pg.evaluate("()=>{closeSheet();go('home')}");await pg.wait_for_timeout(1500)
+        await pg.evaluate("()=>{closeSheet();MW.userNav=1;go('home')}");await pg.wait_for_timeout(1500)  # Home come dal menu ☰ (Fase 15a)
         print('giro:',await pg.evaluate("()=>{const c=document.querySelector('.coach.giro');return c?[c.querySelectorAll('.girs').length,c.querySelector('.cohd').textContent.replace(/\\s+/g,' ')]:'manca'}"))
         await pg.evaluate("()=>document.querySelector('.coach.giro [data-gir=prep]').click()");await pg.wait_for_timeout(1500)
         print('casella prepara → orda:',await pg.evaluate("()=>S.tab"))

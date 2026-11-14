@@ -13,12 +13,12 @@ function mwPct(){try{const h=myHouses().find(x=>x.home);return h?frChanceOf(h):n
 function mwTopHTML(mode){const s=OR.s||{};const next=s.next_at||vNextSlot();const pc=mwPct();const pr=!!s.prepared;
   return`<div class="mwtop"><div class="mwbar"><span class="mwz">🧟</span><div class="mwt"><b>Orda tra <span data-oleft>${orLeft(next)}</span></b><small>${pr?'✅ Case preparate: +15':'Prepara: +15 di difesa'}</small></div>
     ${pc!=null?`<span class="mwpc ${chCls(pc)}">${pc}%</span>`:''}<button class="mwprep" data-mwprep ${pr||!S.user?'disabled':''}>🛡️ ${pr?'Pronte':'Prepara'}</button></div>
-    <div class="mwmodes"><button data-mwm="mappa" class="${mode==='mappa'?'on':''}">🗺️ Mappa</button><button data-mwm="orda" class="${mode==='orda'?'on':''}">🧟 Orda</button><button data-mwm="lente">📷 Lente</button></div></div>`;}
+    <div class="mwmodes"><button data-mwm="mappa" class="${mode==='mappa'?'on':''}">🗺️ Mappa</button><button data-mwm="orda" class="${mode==='orda'?'on':''}">🧟 Orda</button><button data-mwm="social" class="${mode==='social'?'on':''}">👥 Superstiti</button></div></div>`;}
 function mwTopBind(root){const pr=root.querySelector('[data-mwprep]');if(pr)pr.onclick=async()=>{if(!S.user){loginSheet();return;}pr.disabled=true;
     try{const{data,error}=await SB.rpc('world_prepare');if(error)throw error;toast('🛡️ '+((data&&data.msg)||'Case preparate: +15 difesa'));}catch(e){toast('Non riuscito');pr.disabled=false;}
     try{await orLoad(true);}catch(e){}mwRefresh();};
-  root.querySelectorAll('[data-mwm]').forEach(b=>b.onclick=()=>{const m=b.dataset.mwm;if(m==='lente'){try{lenteOpen();}catch(e){}return;}if(m==='orda'&&S.tab!=='orda')go('orda');else if(m==='mappa'&&S.tab!=='mappa'){S.zv='mondo';go('mappa');}});}
-function mwRefresh(){const t=app.querySelector('.mwtop');if(!t)return;const mode=S.tab==='orda'?'orda':'mappa';t.outerHTML=mwTopHTML(mode);const n=app.querySelector('.mwtop');if(n)mwTopBind(n);
+  root.querySelectorAll('[data-mwm]').forEach(b=>b.onclick=()=>{const m=b.dataset.mwm;if(m==='lente'){try{lenteOpen();}catch(e){}return;}if(m==='orda'&&S.tab!=='orda')go('orda');else if(m==='social'&&S.tab!=='social')go('social');else if(m==='mappa'&&S.tab!=='mappa'){S.zv='mondo';go('mappa');}});}
+function mwRefresh(){const t=app.querySelector('.mwtop');if(!t)return;const mode=S.tab==='orda'?'orda':S.tab==='social'?'social':'mappa';t.outerHTML=mwTopHTML(mode);const n=app.querySelector('.mwtop');if(n)mwTopBind(n);
   if(S.tab==='mappa'){const d=app.querySelector('.mwdrawer');if(d&&!MW.open)mwDrawerPaint(d);}}
 /* ---- Mappa ---- */
 function mwMappa(){const w=app.querySelector('.mapfull');if(!w||w.querySelector('.mwtop'))return;w.classList.add('mw');
@@ -38,6 +38,7 @@ function mwDrawerPaint(d){const H=(()=>{try{return myHouses();}catch(e){return[]
     <div class="mwdh" data-mwg><b>${MW.open?'🧟 La tua orda':'🧟 Orda · 🏠 Le tue case'}</b><i>${MW.open?'▼':'▲'}</i></div>
     <div class="mwchips">${chips||'<small class="muted">Valuta la casa per entrare nel mondo</small>'}</div>
     ${MW.open?'<div class="mwbody"></div>':''}`;
+  document.body.classList.toggle('mwopen',MW.open);
   d.querySelectorAll('[data-mwg]').forEach(x=>x.onclick=()=>{MW.open=!MW.open;mwDrawerPaint(d);});
   d.querySelectorAll('[data-mwh]').forEach(x=>x.onclick=()=>{const h=myHouses()[+x.dataset.mwh];if(h){window.SHEET_BACK=null;houseSheet(h);}});
   const c=d.querySelector('[data-mwc]');if(c)c.onclick=()=>{MW.open=true;mwDrawerPaint(d);setTimeout(()=>{const x=d.querySelector('[data-ocl]');if(x)x.scrollIntoView({behavior:'smooth',block:'center'});},200);};
@@ -50,6 +51,18 @@ function mwDrawerPaint(d){const H=(()=>{try{return myHouses();}catch(e){return[]
 /* ---- Orda (modalità orda): stessa barra in cima ---- */
 function mwOrda(pg){if(!pg||pg.querySelector('.mwtop'))return;pg.insertAdjacentHTML('afterbegin',mwTopHTML('orda'));mwTopBind(pg);}
 /* la barra si aggiorna quando arrivano i dati dell'orda */
-zEvery(()=>{try{if(document.hidden||!['mappa','orda'].includes(S.tab))return;const t=app.querySelector('.mwtop');if(!t)return;const pc=mwPct();const e=t.querySelector('.mwpc');
+zEvery(()=>{try{if(document.hidden||!['mappa','orda','social'].includes(S.tab))return;const t=app.querySelector('.mwtop');if(!t)return;const pc=mwPct();const e=t.querySelector('.mwpc');
   if(pc!=null&&(!e||e.textContent!==pc+'%'))mwRefresh();}catch(e){}},3000,'mondo');
+/* ---- Fase 15a: schermata unica per chi ha l'account e la casa valutata ---- */
+function mwOk(){return !!(S.user&&S.result);}
+/* Superstiti: stessa barra in cima */
+function mwSocial(){if(!mwOk())return;const pg=app.querySelector('.page')||app.firstElementChild;if(!pg||pg.querySelector('.mwtop'))return;pg.insertAdjacentHTML('afterbegin',mwTopHTML('social'));mwTopBind(pg);}
+/* niente barra in basso: si naviga con le linguette, la Lente e il menu ☰ (dove c'è la Home) */
+function mwNoNav(){const on=mwOk();document.body.classList.toggle('nonav',on);
+  if(on&&!document.querySelector('.mwlente')){document.body.insertAdjacentHTML('beforeend','<button class="mwlente" data-mwlente aria-label="Lente: guarda con la fotocamera"><span>📷</span><b>Lente</b></button>');
+    document.querySelector('.mwlente').onclick=()=>{try{lenteOpen();}catch(e){}};}}
+/* all'apertura dell'app: se hai account e casa valutata si va dritti al Mondo (non se hai scelto tu la Home dal menu) */
+MW.t0=Date.now();
+zEvery(()=>{try{mwNoNav();if(MW.auto||MW.userNav)return;if(Date.now()-MW.t0>20000){MW.auto=1;return;}
+  if(mwOk()&&S.tab==='home'&&!document.querySelector('#sheet.open')&&!/[?&](go|assalto|invito)=/.test(location.search)){MW.auto=1;S.zv='mondo';go('mappa');}}catch(e){}},1000,'mondo-avvio');
 </script>
