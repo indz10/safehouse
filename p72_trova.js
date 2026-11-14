@@ -21,7 +21,7 @@ async function trFavSet(uid,on){try{const r=await socRpc('world_fav_set',{p_user
 const trAlly=a=>a==='ok'?'🤝 alleato':a==='out'?'⏳ proposta inviata':a==='in'?'📩 ti ha proposto l’alleanza':'';
 function trRow(x){const fav=TR.favs&&TR.favs.has(x.user_id);const bits=[`livello ${x.wlevel||1}`];if(x.km!=null)bits.push('a '+kmTxt(+x.km));if(x.comune)bits.push(esc(x.comune));const al=trAlly(x.ally);if(al)bits.push(al);
   return`<div class="trrow"><button class="strow" data-trp="${esc(x.user_id)}"><span class="splogo">${esc((x.nick||'?').slice(0,1).toUpperCase())}</span><div><b>@${esc(x.nick||'superstite')}</b><small>${bits.join(' · ')}</small></div><i>›</i></button>
-    <button class="trstar ${fav?'on':''}" data-trs="${esc(x.user_id)}" aria-label="${fav?'Togli dai preferiti':'Salva tra i preferiti'}">${fav?'⭐':'☆'}</button></div>`;}
+    <button class="trmap" data-trm="${esc(x.user_id)}" aria-label="Sulla mappa">🗺️</button><button class="trstar ${fav?'on':''}" data-trs="${esc(x.user_id)}" aria-label="${fav?'Togli dai preferiti':'Salva tra i preferiti'}">${fav?'⭐':'☆'}</button></div>`;}
 function trBody(){const H=myHouses();const tabs=`<div class="hkvb trtabs"><button data-trt="casa" class="${TR.tab==='casa'?'on':''}">🏠 Vicino</button><button data-trt="nome" class="${TR.tab==='nome'?'on':''}">🔤 Per nome</button><button data-trt="fav" class="${TR.tab==='fav'?'on':''}">⭐ Preferiti${TR.favs&&TR.favs.size?' ('+TR.favs.size+')':''}</button></div>`;
   let top='',list='';
   if(TR.tab==='casa'){
@@ -31,7 +31,7 @@ function trBody(){const H=myHouses();const tabs=`<div class="hkvb trtabs"><butto
   else top='<p class="trlab">I superstiti che hai salvato: li vedi solo tu.</p>';
   if(TR.busy)list='<p><span class="spin"></span> Cerco…</p>';
   else if(TR.err)list=`<p class="muted">${esc(TR.err)}</p>`;
-  else if(TR.L)list=TR.L.length?TR.L.map(trRow).join(''):`<p class="muted">${TR.tab==='casa'?'Nessun superstite visibile entro 20 km. Invita amici e vicini!':TR.tab==='fav'?'Ancora nessun preferito: tocca ☆ accanto a un nome.':'Nessuno con questo nome.'}</p>`;
+  else if(TR.L)list=TR.L.length?`<button class="btn small alt trall" data-trall>🗺️ Tutti sulla mappa (${TR.L.length})</button>`+TR.L.map(trRow).join(''):`<p class="muted">${TR.tab==='casa'?'Nessun superstite visibile entro 20 km. Invita amici e vicini!':TR.tab==='fav'?'Ancora nessun preferito: tocca ☆ accanto a un nome.':'Nessuno con questo nome.'}</p>`;
   return tabs+top+`<div class="trlist">${list}</div>`;}
 function trPaint(){const c=document.querySelector('#sheet.open .trbox');if(!c)return;c.innerHTML=trBody();trBind(c);}
 async function trFetch(){TR.err=null;TR.busy=true;TR.L=null;trPaint();
@@ -46,6 +46,8 @@ function trBind(c){
   c.querySelectorAll('[data-trh]').forEach(b=>b.onclick=()=>{TR.hi=+b.dataset.trh;trFetch();});
   const q=c.querySelector('#trq'),qb=c.querySelector('[data-trq]');if(q){const go_=()=>{TR.q=q.value;trFetch();};qb.onclick=go_;q.onkeydown=e=>{if(e.key==='Enter')go_();};if(!TR.L&&!TR.busy)setTimeout(()=>{try{q.focus();}catch(e){}},50);}
   c.querySelectorAll('[data-trp]').forEach(b=>b.onclick=()=>{window.SHEET_BACK={t:'‹ Trova superstiti',fn:()=>trovaSheet(true)};playerSheet(b.dataset.trp);});
+  c.querySelectorAll('[data-trm]').forEach(b=>b.onclick=()=>trMapShow((TR.L||[]).filter(x=>x.user_id===b.dataset.trm)));
+  const ta=c.querySelector('[data-trall]');if(ta)ta.onclick=()=>trMapShow(TR.L||[]);
   c.querySelectorAll('[data-trs]').forEach(b=>b.onclick=async()=>{const uid=b.dataset.trs;const on=!(TR.favs&&TR.favs.has(uid));b.disabled=true;
     if(await trFavSet(uid,on)){if(TR.tab==='fav'&&!on)TR.L=(TR.L||[]).filter(x=>x.user_id!==uid);trPaint();}else b.disabled=false;});}
 async function trovaSheet(keep){if(!S.user){toast('Accedi per trovare i superstiti');try{loginSheet();}catch(e){}return;}
@@ -57,4 +59,19 @@ async function trFavDecorate(uid){const c=document.querySelector('#sheet.open .s
   if(/Questo sei tu/.test(c.textContent))return;if(!TR.favs)await trFavLoad();const h=c.querySelector('.plhead');if(!h)return;
   const on=TR.favs&&TR.favs.has(uid);h.insertAdjacentHTML('beforeend',`<button class="trstar ${on?'on':''}" data-pfav aria-label="Preferito">${on?'⭐':'☆'}</button>`);
   const b=c.querySelector('[data-pfav]');b.onclick=async()=>{const now=!(TR.favs&&TR.favs.has(uid));b.disabled=true;if(await trFavSet(uid,now)){b.textContent=now?'⭐':'☆';b.classList.toggle('on',now);}b.disabled=false;};}
+/* 🗺️ sulla mappa: posizione approssimata (~200 m, già pubblica in profili_pubblici e solo per chi è visibile);
+   un alleato da solo → le sue case vere (alMapShow, p74) */
+async function trMapShow(L){if(!L||!L.length)return;if(L.length===1&&L[0].ally==='ok'){try{closeSheet();}catch(e){}return alMapShow(L[0].user_id);}
+  let P=[];try{const{data}=await SB.from('profili_pubblici').select('user_id,nick,lat_r,lon_r,livello').in('user_id',L.map(x=>x.user_id));P=(data||[]).filter(p=>p.lat_r!=null&&p.lon_r!=null&&L.some(x=>x.user_id===p.user_id));}catch(e){}
+  if(!P.length){toast(L.length===1?'Non è visibile sulla mappa: ha scelto di nascondere la posizione':'Nessuno di loro è visibile sulla mappa');return;}
+  try{closeSheet();}catch(e){}if(S.tab!=='mappa'){S.zv='mondo';go('mappa');}
+  const lm=await alMapWait();if(!lm){toast('Mappa non pronta: riprova');return;}alMapClear();ALM.on='trova';
+  P.forEach(p=>{const x=L.find(y=>y.user_id===p.user_id)||{};const el=elDiv('lm-surv'+(x.ally==='ok'?' al':''),`<b>${x.ally==='ok'?'🤝':'👤'}</b><span>@${esc(p.nick||x.nick||'')}</span><i>~200 m</i>`);
+    el.title=`@${p.nick} · posizione approssimata`;el.style.zIndex='7';el.onclick=e=>{e.stopPropagation();window.SHEET_BACK=null;playerSheet(p.user_id);};
+    try{ALM.mk.push(new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([p.lon_r,p.lat_r]).addTo(lm.map));}catch(e){}});
+  try{if(P.length===1||!lm.map.fitBounds)(lm.map.flyTo||lm.map.jumpTo).call(lm.map,{center:[P[0].lon_r,P[0].lat_r],zoom:15.5});
+    else{const la=P.map(p=>p.lat_r),lo=P.map(p=>p.lon_r);lm.map.fitBounds([[Math.min(...lo),Math.min(...la)],[Math.max(...lo),Math.max(...la)]],{padding:80,maxZoom:15.5,duration:1500});}}catch(e){}
+  const w=app.querySelector('.mapfull');if(w){const o=w.querySelector('.almapbar');if(o)o.remove();
+    w.insertAdjacentHTML('beforeend',`<div class="almapbar"><span>👥 ${P.length===1?'@'+esc(P[0].nick||''):'Superstiti trovati ('+P.length+')'} · posizione approssimata</span><button data-trback>🔎 Elenco</button><button data-almx aria-label="Chiudi">✕</button></div>`);
+    const bar=w.querySelector('.almapbar');bar.querySelector('[data-almx]').onclick=alMapClear;bar.querySelector('[data-trback]').onclick=()=>trovaSheet(true);}}
 </script>
