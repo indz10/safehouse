@@ -1,6 +1,6 @@
 import os;D=os.path.dirname(os.path.abspath(__file__))  # cartella del repository
 # TERRITORIO (migrazione 014): scorte 🧱🪵🥫⛽ e case nella barra in basso del Mondo (Mappa e Orda), presenza a casa
-# (casa intoccabile / saccheggiabile, "📍 Sono a casa"), scheda degli edifici con ⚔️ Assalta, 🛡️ Difendi, 🪵 assi,
+# (casa intoccabile / saccheggiabile, "📍 Sono a casa"), le mie case segnate sulla mappa, scorte in alto sulla Mappa, scheda degli edifici con ⚔️ Assalta, 🛡️ Difendi, 🪵 assi,
 # presidi assaltabili, ⚔️ Saccheggia e carburante nella scheda del giocatore.
 import asyncio,sys
 sys.path.insert(0,D)
@@ -17,7 +17,8 @@ async def main():
                           "S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');S.answers={...SAMPLE};S.result=computeScore(S.answers,S.zone);"
                           "__W.b.w9={owner:'me',lat:45.326,lon:10.659,level:2,paid:300};await wMine(true);closeSheet();await resLoad(true);await orLoad(true);S.zv='mondo';go('mappa');}")
         await pg.wait_for_timeout(3500)
-        print('mappa · scorte nel cassetto:',await pg.evaluate("()=>{const s=document.querySelector('.mwdrawer .mwscorte');return s?[s.querySelectorAll('.mwres span').length,!!s.querySelector('[data-trpres]')]:null}"))
+        print('mappa · scorte in alto:',await pg.evaluate("()=>{const s=document.querySelector('.mapfull .mwtop .mwscorte');return s?[s.querySelectorAll('.mwres span').length,!!s.querySelector('[data-trpres]')]:null}"))
+        print('mappa · mie case segnate:',await pg.evaluate("()=>[...document.querySelectorAll('.lm-mine')].map(e=>e.textContent.replace(/\\s+/g,' ').trim())"))
         print('mappa · case nel cassetto:',await pg.evaluate("()=>document.querySelectorAll('.mwdrawer .mwchip[data-mwh]').length"))
         await pg.evaluate("()=>document.querySelector('[data-mwm=orda]').click()");await pg.wait_for_timeout(3000)
         print('orda · barra in basso:',await pg.evaluate("()=>{const d=document.getElementById('mwdock');return d?[!!d.querySelector('.mwscorte'),d.querySelectorAll('[data-trh]').length,getComputedStyle(d).position]:null}"))

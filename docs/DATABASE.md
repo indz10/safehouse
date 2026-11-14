@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **51** · viste: **1** · indici: **15** · regole (policy): **42** · trigger: **14** · lavori programmati: **3**
-- Funzioni: **185** (185 nomi); usate (direttamente o tramite altre funzioni): **184**; **non usate: 1**
+- Tabelle: **51** · viste: **1** · indici: **15** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
+- Funzioni: **187** (187 nomi); usate (direttamente o tramite altre funzioni): **186**; **non usate: 1**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -99,10 +99,12 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_slot_t` |  |  |  | w_pres_bonus | 1: migr. 006_presidi |
 | `w_target` |  |  |  | w_azione, world_edificio_info | 1: migr. 014_territorio |
 | `w_threats_of` |  |  |  | world_threats, world_ally_view, world_allies_status | 7: alleati_sim → zombie_alleati → fortezze → abitazione → migr. 002_formule_uguali → migr. 006_presidi → migr. 014_territorio |
+| `w_tr_casa_pos` |  |  | trigger |  | 1: migr. 015_posizione_casa |
 | `w_tr_dm` |  |  | trigger |  | 1: assedio |
 | `w_tr_feed` |  |  | trigger |  | 4: social → aiuto_alleati → dispetti → alleanze2 |
 | `w_tr_feed_push` |  |  | trigger |  | 1: migr. 011_notifiche_subito |
 | `w_tr_invite_join` |  |  | trigger |  | 1: migr. 011_notifiche_subito |
+| `w_tr_pos_casa` |  |  | trigger |  | 1: migr. 015_posizione_casa |
 | `w_upower` |  |  |  | world_raid_status, world_raid_view, w_home_held, w_threats_of, w_assalti_tick | 6: mondo_v3 → dispetti → alleanze2 → casavera → squadra_fix → migr. 009_mezzi_assalti |
 | `w_wallet` |  |  |  | w_pay, world_earn, world_claim_home, world_collect, world_mine, world_raid_status … | 1: mondo_unico |
 | `w_wxev` |  |  |  | w_attack3, w_threats_of | 2: zombie → zombie_alleati |
