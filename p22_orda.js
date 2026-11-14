@@ -78,8 +78,9 @@ async function orPlay(lm){if(!lm||!lm.map||lm._playing)return;lm._playing=true;c
 function orWatch(){S.zv='mondo';go('mappa');let n=0;const t=setInterval(()=>{const lm=(window.__zlms||[]).slice(-1)[0];n++;if(lm&&lm.map&&document.body.contains(lm.map.getContainer())){clearInterval(t);setTimeout(()=>orPlay(lm),900);}if(n>40)clearInterval(t);},300);}
 /* ---- giro guidato (facoltativo) ---- */
 const OT=[
- {tab:()=>{S.zv='mondo';go('mappa');},sel:'.lmap',t:'Questa è la <b>mappa vera</b>. La casetta rossa <b>TU</b> è casa tua: nel mondo unico è tua e nessuno può comprarla.'},
- {tab:null,sel:'.lmap',t:'Tocca una <b>casa qualsiasi</b>: se è libera la compri con i <b>🧱 Mattoni</b>. Se un giorno chi ci abita si iscrive, a te torna tutto, più un bonus.'},
+ {tab:()=>{S.zv='mondo';go('mappa');},sel:'.lmap',t:'Questa è la <b>mappa vera</b>. La casetta rossa <b>TU</b> è casa tua: nessuno può comprarla, ed è <b>intoccabile</b> se ci apri l’app almeno una volta a settimana.'},
+ {tab:null,sel:'.mwscorte',t:'In basso le tue <b>case</b> e le <b>scorte</b>: 🧱 Mattoni, 🪵 legno per le assi, 🥫 cibo per le squadre d’assalto, ⛽ carburante per viaggiare in moto e in auto.'},
+ {tab:null,sel:'.lmap',t:'Tocca una <b>casa qualsiasi</b>: se è libera la compri con i <b>🧱 Mattoni</b>. Se è di un rivale puoi <b>⚔️ assaltarla</b>: se all’orda cade, diventa tua. Le tue difendile con le assi e con gli alleati.'},
  {tab:null,sel:'.lm-orda',t:'Con <b>🧟 Orda</b> guardi l’ultimo assalto sulla mappa: 🛡️ case che hanno tenuto, 💥 case sfondate. Anche quelle degli altri.'},
  {tab:()=>go('orda'),sel:'.fronte',t:'Questo è il <b>fronte</b>: gli zombie che arrivano sulla tua zona, con le strade vere (in salita sono più lenti). Tocca uno zombie per vederlo.'},
  {tab:()=>{G.sub='q';go('orda');},sel:'.opan',t:'Ogni giorno alle <b>9</b> e alle <b>21</b> arriva l’<b>orda del mondo</b>, da sola. Qui vedi quando.'},
