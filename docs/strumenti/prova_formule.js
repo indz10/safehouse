@@ -6,7 +6,8 @@
 //  3) l'attacco vero (w_attack3) stia nell'intervallo mostrato e la % mostrata sia vicina a quella reale su 300 orde;
 //  4) il riquadro "Perché" (world_my_defense) dia lo stesso totale della casa;
 //  5) (Fase 9b) i presidi tenuti entro 500 m diano +3 ciascuno (max +6) in tutte le funzioni;
-//  6) (migrazione 009) rinforzi e orde dei rivali contino col loro valore (pts) ovunque allo stesso modo.
+//  6) (migrazione 009) rinforzi e orde dei rivali contino col loro valore (pts) ovunque allo stesso modo;
+//  7) (migrazione 014) assi, difese e assalti sul singolo edificio contino ovunque allo stesso modo.
 // Uso: node docs/strumenti/prova_formule.js <cartella di lavoro di db_locale.sh>
 const fs=require('fs'),path=require('path'),cp=require('child_process');
 const R=path.join(__dirname,'..','..');const W=process.argv[2];if(!W){console.log('Uso: node docs/strumenti/prova_formule.js <cartella di lavoro>');process.exit(1);}
@@ -42,6 +43,10 @@ for(let sc=0;sc<12;sc++){
     insert into world_help_given(helper,target,slot_id,pts) select '${U2}','${U}',s,8 from (values (w_slot_id(w_next_slot(now()))),(w_slot_id(w_prev_slot(now())))) v(s);
     insert into world_attack_given(attacker,target,slot_id,pts) select '${U2}','${U}',s,11 from (values (w_slot_id(w_next_slot(now()))),(w_slot_id(w_prev_slot(now())))) v(s);`);
   else sql(`delete from world_help_given; delete from world_attack_given;`);
+  /* migrazione 014: assi, difese e assalti sul singolo edificio (casa comprata e casa vera) */
+  sql(`delete from world_assalti;`);
+  if(sc%3===2)sql(`insert into world_assalti(bid,user_id,slot_id,kind,pts) select b,'${U2}',s,k,p from (values (w_slot_id(w_next_slot(now()))),(w_slot_id(w_prev_slot(now())))) v(s),
+    (values ('B1','atk',${7+sc}),('B1','assi',12),('H1#2','aiuto',8),('H1#2','atk',50)) x(b,k,p);`);
   const T=JSON.parse(sql(`select w_threats_of('${U}')`));
   /* 5) presidi vicini */
   {checks++;const t=T.find(x=>x.home);if(!t||t.pres!==attesi)bad(`scenario ${sc}: presidi vicini ${t&&t.pres} ≠ ${attesi}`);}

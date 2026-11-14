@@ -118,7 +118,9 @@ async function wSheet(bid,lat,lon){
     ${R.length?R.map(r=>`<div class="alrow"><span class="sav">${esc((r.nick||'?')[0].toUpperCase())}</span><div class="alrt"><b>@${esc(r.nick)}</b><small>${r.status==='pending'?'⏳ in conferma':'🏠 abita qui'}${r.ally?' · 🤝 alleato':''}</small></div>
       <div class="alacts" style="width:auto"><button class="btn small ghost" data-abp="${r.user_id}">👤 Profilo</button><button class="btn small" data-abm="${r.user_id}" data-n="${esc(r.nick)}">💬 Scrivi</button></div></div>`).join('')
      :'<p class="muted" style="font-size:12.5px">Per la privacy, il nome di chi abita qui lo vedono solo i suoi alleati e i suoi coinquilini. Sulla mappa i superstiti compaiono in una posizione approssimata.</p>'}`,
-    card=>{card.querySelectorAll('[data-abp]').forEach(b=>b.onclick=()=>playerSheet(b.dataset.abp));card.querySelectorAll('[data-abm]').forEach(b=>b.onclick=()=>dmSheet(b.dataset.abm,b.dataset.n));});}
+    card=>{card.querySelectorAll('[data-abp]').forEach(b=>b.onclick=()=>playerSheet(b.dataset.abp));card.querySelectorAll('[data-abm]').forEach(b=>b.onclick=()=>dmSheet(b.dataset.abm,b.dataset.n));});
+  /* casa vera incustodita: si può saccheggiare (migrazione 014, p78) */
+  try{await trrSection(document.querySelector('#sheet.open .sheet-b'),bid,lat,lon);}catch(e){}}
 async function wSheetEdificio(bid,lat,lon){
   const h=myHouses().find(x=>(x.bid&&x.bid===bid)||(Math.abs(x.lat-lat)<.0002&&Math.abs(x.lon-lon)<.0003));let r;
   if(h&&S.user)r=await houseSheet(h);else{await wSheetBase(bid,lat,lon);
@@ -126,6 +128,8 @@ async function wSheetEdificio(bid,lat,lon){
     const box=document.querySelector('#sheet.open .bzc');if(box&&!box.querySelector('.npcn'))box.insertAdjacentHTML('afterend','<p class="npcn muted" style="font-size:12.5px;margin:8px 0 0">È un <b>personaggio del gioco</b>, non una persona: tiene vivo il mondo finché arrivano giocatori veri. Puoi comprargli la casa (+30%). Se l’abitante vero si iscrive, la casa passa a lui con le regole di sempre.</p>');}}catch(e){}})();}
   await (async()=>{try{const c=document.querySelector('#sheet.open .sheet-b');const buy=c&&[...c.querySelectorAll('button')].find(b=>/^\s*(🛒|🔑|🏠)?\s*Compra/.test(b.textContent));if(c&&!c.querySelector('.hshead')&&buy&&EQ.s&&EQ.s.houses>0&&!c.querySelector('.eqpr'))
   buy.insertAdjacentHTML('beforebegin',`<p class="eqpr">Hai già ${EQ.s.houses} ${EQ.s.houses===1?'casa':'case'} comprate: il prezzo è +${EQ.s.houses*10}% (chi ha più case paga di più, così il mondo resta aperto ai nuovi).</p>`);}catch(e){}})();
+  /* casa comprata da un altro: assalti e difese (migrazione 014, p78) */
+  if(!(h&&S.user))await (async()=>{try{await trrSection(document.querySelector('#sheet.open .sheet-b'),bid,lat,lon);}catch(e){}})();
   return r;}
 /* scheda di un'attività: base (p20) + dati online (p20) + "segnala" (p20) + missione (p20) */
 function bizSheet(b,z){bizSheetBase(b,z);

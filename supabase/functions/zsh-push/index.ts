@@ -144,6 +144,12 @@ function feedMsg(f: any, who: string, id: string): { title: string; body: string
     case "curse": return { title: "😈 Dispetto!", body: `${who} ti ha fatto un dispetto: chiedi aiuto agli alleati`, url: "/?go=orda" };
     case "shield": return { title: "🛡️ Scudo ricevuto", body: `${who} ti ha dato uno scudo: +5 alla prossima orda`, url: "/?go=orda" };
     case "gift": return { title: "🎁 Regalo", body: `${who} ti ha ${f.info === "prestito" ? "prestato dei Mattoni" : "fatto un regalo"}`, url: so };
+    case "assalto": return { title: "⚔️ Ti stanno assaltando!", body: `${who} ha mandato una squadra contro ${f.info === "pres" ? "il tuo presidio" : f.info === "home" ? "la tua casa (incustodita)" : "una tua casa"}: inchioda le assi e chiama gli alleati`, url: "/?go=mappa" };
+    case "conquista": return { title: "🏴 Hai perso un edificio", body: `${who} ha conquistato ${String(f.info || "").startsWith("presidio") ? "il tuo presidio" : "una tua casa: ti torna metà della spesa"}`, url: "/?go=mappa" };
+    case "saccheggio": return { title: "💰 Saccheggio!", body: `${who} ha saccheggiato le tue scorte. Passa da casa almeno una volta a settimana per renderla intoccabile`, url: "/?go=mappa" };
+    case "respinto": return { title: "🛡️ Assalto respinto", body: `${who} ha respinto il tuo assalto`, url: "/?go=mappa" };
+    case "difesa": return { title: "🛡️ Un alleato ti difende", body: `${who} sta arrivando a difendere un tuo edificio`, url: "/?go=mappa" };
+    case "assi": return { title: "🪵 Assi inchiodate", body: `${who} ha rinforzato una tua casa con le assi`, url: "/?go=mappa" };
     case "ask_ally": return { title: "🆘 Un alleato chiede aiuto", body: `${who} chiede il tuo aiuto per la prossima orda`, url: so };
     case "shout": return { title: `📣 ${who}`, body: SHOUTS[+f.info] || "ti ha salutato", url: so };
     default: return { title: "🔔 ZombieSafeHouse", body: `${who} ti cerca`, url: so };

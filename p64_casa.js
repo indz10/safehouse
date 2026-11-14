@@ -163,7 +163,7 @@ async function houseSheet(h){const tok=++HS.tok;
   hsHide(card);
   const reveal=()=>{body.style.visibility='';const l=card.querySelector('.hsload');if(l)l.remove();};const t=setTimeout(reveal,HS_MAXMS);
   HS.art=null;
-  for(const f of [hs_mattoni,hs_attivita,hs_equita,hs_tipo,hs_tenuta,hs_zombie,hs_fortezze,hs_pagina,hs_residenti,hs_abitazione,hs_valutazione]){if(tok!==HS.tok||!body.isConnected)break;try{await f(h);}catch(e){console.warn('pagina casa',f.name,e);}}
+  for(const f of [hs_mattoni,hs_attivita,hs_equita,hs_tipo,hs_tenuta,hs_territorio,hs_zombie,hs_fortezze,hs_pagina,hs_residenti,hs_abitazione,hs_valutazione]){if(tok!==HS.tok||!body.isConnected)break;try{await f(h);}catch(e){console.warn('pagina casa',f.name,e);}}
   /* se il disegno è quasi pronto lo aspetto un attimo, così compare già con la pagina */
   if(HS.art)await Promise.race([HS.art,new Promise(r=>setTimeout(r,1500))]);
   clearTimeout(t);if(body.isConnected)reveal();}

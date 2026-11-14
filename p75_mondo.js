@@ -28,7 +28,8 @@ function mwMappa(){const w=app.querySelector('.mapfull');if(!w||w.querySelector(
     <div class="mwdrawer"></div>`);
   w.querySelectorAll('[data-mws]').forEach(b=>b.onclick=()=>{const k=b.dataset.mws;if(k==='cerca')cercaLuogo();else if(k==='pres')presList(window.__mf);else if(k==='ally')alPick();else if(k==='spons')spList(window.__mf);else mfMore();});
   MW.open=false;mwDrawerPaint(w.querySelector('.mwdrawer'));
-  if(S.user&&!OR.s)try{orLoad().then(mwRefresh);}catch(e){}}
+  if(S.user&&!OR.s)try{orLoad().then(mwRefresh);}catch(e){}
+  try{trrFit();}catch(e){}}
 function mwDrawerPaint(d){const H=(()=>{try{return myHouses();}catch(e){return[];}})();const s=OR.s||{};
   const claim=S.user&&s.total>0&&!s.claimed;const nal=(typeof ALS!=='undefined'&&ALS.L)?ALS.L.length:null;
   const chips=H.map((h,i)=>{let c=null;try{c=frChanceOf(h);}catch(e){}return`<button class="mwchip" data-mwh="${i}">${h.home?'❤️':'🔑'} ${esc(h.home?'Casa tua':h.label)}${c!=null?` <b class="${chCls(c)}">${c}%</b>`:''}</button>`;}).join('')
@@ -36,9 +37,9 @@ function mwDrawerPaint(d){const H=(()=>{try{return myHouses();}catch(e){return[]
   d.classList.toggle('open',MW.open);
   d.innerHTML=`<button class="mwgrip" data-mwg aria-label="${MW.open?'Chiudi':'Apri'} il cassetto"><span></span></button>
     <div class="mwdh" data-mwg><b>${MW.open?'🧟 La tua orda':'🧟 Orda · 🏠 Le tue case'}</b><i>${MW.open?'▼':'▲'}</i></div>
-    <div class="mwchips">${chips||'<small class="muted">Valuta la casa per entrare nel mondo</small>'}</div>
+    ${typeof trrScorteHTML==='function'?trrScorteHTML():''}<div class="mwchips">${chips||'<small class="muted">Valuta la casa per entrare nel mondo</small>'}</div>
     ${MW.open?'<div class="mwbody"></div>':''}`;
-  document.body.classList.toggle('mwopen',MW.open);
+  document.body.classList.toggle('mwopen',MW.open);try{trrScorteBind(d);}catch(e){}
   d.querySelectorAll('[data-mwg]').forEach(x=>x.onclick=()=>{MW.open=!MW.open;mwDrawerPaint(d);});
   d.querySelectorAll('[data-mwh]').forEach(x=>x.onclick=()=>{const h=myHouses()[+x.dataset.mwh];if(h){window.SHEET_BACK=null;houseSheet(h);}});
   const c=d.querySelector('[data-mwc]');if(c)c.onclick=()=>{MW.open=true;mwDrawerPaint(d);setTimeout(()=>{const x=d.querySelector('[data-ocl]');if(x)x.scrollIntoView({behavior:'smooth',block:'center'});},200);};
