@@ -31,7 +31,7 @@ SQL `w_attack3(orda, casa, wl)` — app `thrCalc` (p47).
 SQL `w_power3(livello, bonus, casa vera)` + `w_upower` + `w_condo_bonus` — app `thrCalc` (campo `def` dal server).
 `difesa = 45 + 12·livello casa + (casa vera: 5 + difese del condominio) + presidi vicini + bonus`
 - **presidi vicini** (Fase 9b, `w_pres_bonus`): +3 per ogni presidio tenuto entro 500 m dalla casa (di chiunque sia), massimo +6; conta se era tenuto all'ora dell'orda (storia in `world_presidi_tenute`). Sta in `w_threats_of` (campo `pres`, già dentro `def`), `world_raid_status`, `world_raid_view`, `w_home_held`, `world_my_defense`.
-- **difese del condominio** (solo casa vera): `3 × somma dei livelli` delle difese comuni (`w_condo_bonus`);
+- **difese del condominio** (solo casa vera): `3 × somma dei livelli` delle difese comuni (`w_condo_bonus`), **solo se hai versato nel condominio negli ultimi 30 giorni** (migrazione 013), altrimenti 0;
 - **bonus** (`w_upower`, per l'orda): case preparate +15 · Scudo della casa vera +2 per livello (max 5) · rinforzi col loro valore (max +24: mezzo a piedi +4 · bici +5 · moto +6 · auto +8 · fuoristrada +10, +1 per dotazione della valutazione: kit medico, radio, scorte) · scudi degli alleati +5 (max +10) · difesa di squadra +5 (almeno 3 alleati pronti) · coinquilini pronti +3 ciascuno (max +9) · **meno** malus dei rivali (orde mandate col loro valore, max −30; nebbia −5 max −10; sabotaggio −15 se avevi preparato; malus totale max −35).
 
 ## Risultato e % di tenere
