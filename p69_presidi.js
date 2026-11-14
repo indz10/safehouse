@@ -67,7 +67,11 @@ function presSheet(id){const p=PRES.L.find(x=>x.id===id);if(!p)return;const k=PR
    </div>
    <p class="muted" style="font-size:12px;margin-top:10px">${p.stato==='mio'?'Chiedi agli alleati di fare la guardia: ognuno aggiunge +12. ':''}Si tengono al massimo ${(PRES.d&&PRES.d.max)||3} presidi a testa${PRES.d&&S.user?` (ora ne tieni ${PRES.d.miei})`:''}. Le guardie valgono per una sola orda (9:00 e 21:00).</p>`,
   card=>{const act=async(fn,b)=>{b.disabled=true;try{const{data,error}=await SB.rpc(fn,{p_id:id});if(error)throw error;toast((data&&data.msg)||'Fatto');
-      if(data&&data.ok){const lm=(window.__zlms||[]).find(x=>x&&x.map&&x.map.getContainer().isConnected);if(lm)await presLoad(lm);presRefresh();presSheet(id);}else b.disabled=false;}
+      if(data&&data.ok){const lm=(window.__zlms||[]).find(x=>x&&x.map&&x.map.getContainer().isConnected);const keep=PRES.L.slice();if(lm)await presLoad(lm);
+      /* il presidio può essere fuori dalla parte di mappa visibile (elenco entro 5 km): lo ricarico da solo */
+      try{const{data:d2}=await SB.rpc('world_presidi_list',{p_minlat:p.lat-0.002,p_minlon:p.lon-0.003,p_maxlat:p.lat+0.002,p_maxlon:p.lon+0.003});const q=d2&&(d2.presidi||[]).find(x=>x.id===id);
+        PRES.L=PRES.L.filter(x=>x.id!==id).concat(keep.filter(x=>x.id!==id&&!PRES.L.some(y=>y.id===x.id)));if(q)PRES.L.push(q);if(d2)PRES.d=Object.assign({},PRES.d||{},{miei:d2.miei,max:d2.max});}catch(e){}
+      presRefresh();presSheet(id);}else b.disabled=false;}
     catch(e){toast('Non riesco a contattare il server: riprova');b.disabled=false;}};
     const o=card.querySelector('[data-pocc]');if(o)o.onclick=()=>act('world_presidio_occupa',o);
     const gu=card.querySelector('[data-pgua]');if(gu)gu.onclick=()=>act('world_presidio_guardia',gu);
