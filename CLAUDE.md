@@ -65,6 +65,7 @@ PWA in un solo file `index.html`: valuta la sicurezza della casa vera e la trasf
 - Alessandro usa **Claude Code nel browser** (claude.ai/code) o dall'app Claude sull'iPhone: il suo Mac è troppo vecchio per l'app desktop.
 - Ogni lavoro = un ramo + una **pull request** con titolo "Fase N — …" e descrizione in italiano: cosa cambia, cosa controllare sul telefono (max 5 punti), eventuali blocchi SQL con istruzioni passo passo.
 - Alessandro controlla (anteprima Netlify se presente) e preme **Merge**. Se qualcosa va storto: **Revert** sulla PR.
+- **Zip per tornare indietro** (richiesta di Alessandro 14/11): a ogni pull request mandargli con SendUserFile lo zip del ramo main di quel momento (`git archive --format=zip --prefix=safehouse-prima-della-NN/ origin/main`), cioè la versione prima delle modifiche.
 - Segui **ROADMAP.md**, una fase alla volta, e aggiorna la tabella "Stato".
 
 ## Pubblicare
