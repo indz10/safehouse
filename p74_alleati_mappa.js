@@ -39,7 +39,7 @@ async function alPick(){if(!S.user){toast('Accedi per vedere gli alleati');retur
   openSheet('🤝 I tuoi alleati',A.length?`<p class="muted" style="font-size:13px;margin:0 0 8px">Tocca 🗺️ per vedere le sue case sulla mappa, con la % di tenere alla prossima orda.</p>
     <button class="btn wide alt" data-alpt>🗺️ Tutti sulla mappa (${A.length})</button>
     ${A.map(a=>`<div class="alprow"><span class="sav">${esc((a.nick||'?')[0].toUpperCase())}</span><div class="alrt"><b>@${esc(a.nick)}${a.coinq?' 🏢':''}</b><small>${a.prepared?'🟢 pronto':'🔴 non pronto'} · ${a.houses} ${a.houses===1?'casa':'case'}${a.worst!=null?' · '+a.worst+'%':''}</small></div>
-      <button class="btn small" data-alpm="${esc(a.user_id)}">🗺️</button><button class="btn small ghost" data-alps="${esc(a.user_id)}">🔍</button></div>`).join('')}`
+      <button class="btn small ghost" data-dmr="${esc(a.user_id)}" data-n="${esc(a.nick)}" aria-label="Scrivi">💬</button><button class="btn small" data-alpm="${esc(a.user_id)}">🗺️</button><button class="btn small ghost" data-alps="${esc(a.user_id)}">🔍</button></div>`).join('')}`
     :'<p class="muted">Non hai ancora alleati. Superstiti → 🔎 Trova superstiti, oppure 📨 Invita un amico.</p>',card=>{
     const t=card.querySelector('[data-alpt]');if(t)t.onclick=()=>alMapShow('tutti');
     card.querySelectorAll('[data-alpm]').forEach(b=>b.onclick=()=>alMapShow(b.dataset.alpm));

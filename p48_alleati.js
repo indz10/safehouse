@@ -49,6 +49,7 @@ function alsHTML(L,compact){if(L==null)return'<p class="muted"><span class="spin
   return LL.map(a=>`<div class="alrow" data-alv="${a.user_id}"><span class="sav">${esc((a.nick||'?')[0].toUpperCase())}</span><div class="alrt"><b>@${esc(a.nick)}${a.coinq?' 🏢':''}</b>
      <small><span class="${a.prepared?'okt':'kot'}">${a.prepared?'🟢 pronto':'🔴 non pronto'}</span> · ${agoTxt(a.seen_at)}${a.asked?' · 🆘 chiede aiuto':''}</small></div>
      <div class="alpc ${chCls(a.worst)}"><b>${a.worst!=null?a.worst+'%':'—'}</b><small>${a.houses} ${a.houses===1?'casa':'case'}</small></div>
+     <button class="btn small ghost almapb" data-dmr="${a.user_id}" data-n="${esc(a.nick)}" aria-label="Scrivi a @${esc(a.nick)}">💬</button>
      ${a.houses?`<button class="btn small ghost almapb" data-almap="${a.user_id}" aria-label="Le sue case sulla mappa">🗺️</button>`:''}
      ${compact?'':alActs(a,false)}</div>`).join('')+(compact&&L.length>4?`<button class="btn small ghost" data-alall>Tutti gli alleati (${L.length}) ›</button>`:'');}
 function alsRefresh(){alsLoad().then(()=>{document.querySelectorAll('.alsbox').forEach(b=>{const c=b.classList.contains('cmp');b.innerHTML=alsHTML(ALS.L,c);alsBind(b);});});}
