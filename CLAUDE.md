@@ -67,6 +67,8 @@ PWA in un solo file `index.html`: valuta la sicurezza della casa vera e la trasf
 - Ogni lavoro = un ramo + una **pull request** con titolo "Fase N — …" e descrizione in italiano: cosa cambia, cosa controllare sul telefono (max 5 punti), eventuali blocchi SQL con istruzioni passo passo.
 - Alessandro controlla (anteprima Netlify se presente) e preme **Merge**. Se qualcosa va storto: **Revert** sulla PR.
 - **Zip per tornare indietro** (richiesta di Alessandro 14/11): a ogni pull request mandargli con SendUserFile lo zip del ramo main di quel momento (`git archive --format=zip --prefix=safehouse-prima-della-NN/ origin/main`), cioè la versione prima delle modifiche.
+- **Regole sempre aggiornate** (richiesta di Alessandro 15/11): a ogni miglioria del gioco aggiornare nella stessa PR anche ☰ → Come si gioca / regole (`manualHTML` in p67, capitoli in `manualHTMLBase` di p20), il giro guidato (`OT` in p22) e le risposte del Capitano (`FAQ` in `opAsk`, p76) se toccano la novità; scriverlo nella descrizione della PR.
+- **Blocchi SQL**: finché la PR non è unita il file è solo sul ramo: nella PR dare il link diretto al file sul ramo (…/blob/<ramo>/supabase/migrazioni/NNN….sql) e mandarlo anche con SendUserFile.
 - Segui **ROADMAP.md**, una fase alla volta, e aggiorna la tabella "Stato".
 
 ## Pubblicare
