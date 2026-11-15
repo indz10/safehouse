@@ -52,7 +52,7 @@ async function onLogin(u,fresh){
   if(u)localStorage.setItem(OWN_K,u.id);}catch(e){}
   const r=await onLoginBase(u,fresh);
   window.ZADMIN=null;zSyncProfile();zLoadUsers();
-  setTimeout(async()=>{await wMine();await wEarn('login');await wEarn('verifica');wClaim(false);},1500);
+  setTimeout(async()=>{await wMine();await wEarn('login');await wEarn('verifica');wClaim(false,false,true);},1500);
   try{renderNav();if(S.tab==='social')renderSocial();}catch(e){}
   return r;}
 /* le mie case dal server (p21) → doni ricevuti (p24) → kit e leghe (p37) → difesa e prossimo passo (p44) → Mattoni in attesa (p52) */

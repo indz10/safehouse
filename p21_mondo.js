@@ -25,9 +25,9 @@ function wRefresh(){try{const p=app.querySelector('.wpan');if(p){const n=documen
 /* ---- la tua casa nel mondo: conferma in 2 giorni (contro i furbi) ---- */
 /* force = l'ha chiesto il giocatore: se l'edificio non è in memoria lo cerco dalla posizione della valutazione
    (o, se dice di essere a casa, dal GPS) e mostro sempre la risposta del server (prima gli errori sparivano: case mai registrate) */
-async function wClaim(force,gps){if(!S.user)return null;const R=S.zone&&S.zone.real;const H0=R&&R.house;
+async function wClaim(force,gps,cerca){if(!S.user)return null;const R=S.zone&&S.zone.real;const H0=R&&R.house;
   let H=(H0&&H0.bid)?H0:(window.__homeG?{bid:__homeG.bid,clat:__homeG.lat,clon:__homeG.lon}:null);
-  if((!H||!H.bid)&&force){const p=gps&&S.geo&&S.geo.lat!=null?S.geo:R&&R.lat!=null?R:null;
+  if((!H||!H.bid)&&(force||cerca)){const p=gps&&S.geo&&S.geo.lat!=null?S.geo:R&&R.lat!=null?R:null;
     if(p){try{const b=await wIdentify(p.lat,p.lon);if(b&&b.bid)H={bid:b.bid,clat:b.lat,clon:b.lon};}catch(e){}}}
   if(!H||!H.bid){if(force)toast('🏠 Non trovo l’edificio di casa tua: rifai la valutazione con l’indirizzo giusto, oppure tocca “Sono a casa adesso”');return null;}
   const la=H.clat!=null?H.clat:R&&R.lat,lo=H.clon!=null?H.clon:R&&R.lon;
@@ -99,13 +99,16 @@ function wFromTile(feats,lat,lon){for(const f of feats||[]){const g=f.geometry;c
 function wInRing(r,x,y){let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const[xi,yi]=r[i],[xj,yj]=r[j];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;}
 function wPick(els,lat,lon){let best=null,bd=1e9;(els||[]).forEach(e=>{if(e.type!=='way'||!e.geometry||e.geometry.length<3||(e.tags&&!e.tags.building))return;
     const R=e.geometry.map(p=>[p.lon,p.lat]);const c=e.geometry.reduce((q,p)=>[q[0]+p.lat/e.geometry.length,q[1]+p.lon/e.geometry.length],[0,0]);
-    const d=wInRing(R,lon,lat)?-1:trM(lat,lon,c[0],c[1]);if(d<bd){bd=d;best={bid:'w'+e.id,lat:+c[0].toFixed(6),lon:+c[1].toFixed(6),d};}});return best&&best.d<15?best:null;}
+    const d=wInRing(R,lon,lat)?-1:wEdgeM(e.geometry,lat,lon);if(d<bd){bd=d;best={bid:'w'+e.id,lat:+c[0].toFixed(6),lon:+c[1].toFixed(6),d};}});return best&&best.d<30?best:null;}
+/* distanza in metri dal bordo più vicino di un edificio (per i condomini grandi il centro può essere a 40 m dalla strada) */
+function wEdgeM(G,lat,lon){const k=Math.cos(lat*Math.PI/180);const P=G.map(p=>[(p.lon-lon)*111320*k,(p.lat-lat)*110540]);let m=1e9;
+  for(let i=0;i<P.length;i++){const[ax,ay]=P[i],[bx,by]=P[(i+1)%P.length];const dx=bx-ax,dy=by-ay;const t=Math.max(0,Math.min(1,-(ax*dx+ay*dy)/((dx*dx+dy*dy)||1)));m=Math.min(m,Math.hypot(ax+t*dx,ay+t*dy));}return m;}
 async function wIdentify(lat,lon){
   /* 1) edifici già in memoria (la tua zona e quelle già viste): istantaneo, senza server */
   const pools=Object.values(RM.cache||{}).map(m=>m&&m.els);try{Object.keys(localStorage).filter(k=>k.startsWith('zsh_rm2_')).forEach(k=>{try{pools.push(JSON.parse(localStorage.getItem(k)).m.els);}catch(e){}});}catch(e){}
   for(const els of pools){const b=wPick(els,lat,lon);if(b)return b;}
   /* 2) chiedo al server delle mappe, con riserva e un secondo tentativo */
-  for(let t=0;t<2;t++){try{const els=await trOverpass(`[out:json][timeout:12];way["building"](around:12,${lat},${lon});out ids tags geom;`,12000,4);const b=wPick(els.map(e=>({...e,type:'way'})),lat,lon);if(b)return b;return null;}catch(e){if(t===0)await new Promise(r=>setTimeout(r,2500));}}
+  for(let t=0;t<2;t++){try{const els=await trOverpass(`[out:json][timeout:12];way["building"](around:35,${lat},${lon});out ids tags geom;`,12000,4);const b=wPick(els.map(e=>({...e,type:'way'})),lat,lon);if(b)return b;return null;}catch(e){if(t===0)await new Promise(r=>setTimeout(r,2500));}}
   throw new Error('occupato');}
 /* ---- il quartiere del gioco usa il mondo unico ---- */
 async function wHood(){if(!W.on||!HQ.map||!HQ.map.lotsB)return;const m=RM.cache[S.zone&&S.zone.address];if(!m)return;

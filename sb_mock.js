@@ -21,6 +21,9 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_sup_equip':{const U=window.__SUP;U.equip[a.p_k]=(U.equip[a.p_k]||0)+1;return{data:{ok:true,livello:U.equip[a.p_k],msg:'Costruito!'},error:null};}
   case'world_sup_serie':{const U=window.__SUP;U.serie_oggi=true;U.serie++;return{data:{ok:true,serie:U.serie,giorno:U.serie,legno:15,cibo:15,carb:9,xp:30,energia:1,mattoni:0},error:null};}
   case'world_sup_share':{const U=window.__SUP;window.__SHARE=(window.__SHARE||[]).concat(a.p_dove);if(U.share_oggi)return{data:{ok:false,msg:'Uno al giorno'},error:null};U.share_oggi=true;return{data:{ok:true,xp:20,energia:1,msg:'Grazie per la condivisione: ⭐ +20 e ⚡ +1'},error:null};}
+  case'world_caccia_inizia':{const U=window.__SUP;if(U&&U.energia<1)return{data:{ok:false,msg:'Serve ⚡ 1'},error:null};if(U)U.energia-=1;window.__CAC={t:Date.now()};
+    return{data:{ok:true,id:7,n:3,rimaste:9,danno:1,zombie:[{k:'lento',hp:2,b:0,dt:0},{k:'corridore',hp:2,b:10,dt:0.5},{k:'bruto',hp:4,b:-90,dt:1}]},error:null};}
+  case'world_caccia_fine':{window.__CACF=a;const u=Math.min(3,a.p_uccisi);return{data:{ok:true,uccisi:u,n:3,xp:5*u+(u===3?10:0),legno:3,cibo:3,carb:0,tutti:u===3,grado:3,salito:false},error:null};}
   case'world_seen':return{data:null,error:null};
   case'sponsor_request':{window.__SPREQ=a.p;return{data:a.p&&a.p.name?{ok:true,id:'sp1',msg:'Richiesta inviata'}:{ok:false,msg:'Scrivi il nome'},error:null};}
   case'world_presidi_list':{const P=window.__PRES=window.__PRES||[];if(!P.length&&!window.__PRES_VUOTO){const la=(a.p_minlat+a.p_maxlat)/2,lo=(a.p_minlon+a.p_maxlon)/2;

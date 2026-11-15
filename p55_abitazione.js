@@ -84,4 +84,23 @@ async function abitMount(c,h){let p=c.querySelector('.abpan');if(!p){p=document.
   b.querySelectorAll('[data-cdg]').forEach(x=>x.onclick=async()=>{const v=+x.dataset.v;if(((W.m&&W.m.mattoni)||0)<v){toast(`Servono 🧱 ${v}`);return;}x.disabled=true;try{const{data,error}=await SB.rpc('world_condo_give',{p_kind:x.dataset.cdg,p_amount:v});if(error)throw error;toast((data.ok?'🏢 ':'')+data.msg);await wMine(true);await thrLoad(true);redo();}catch(e){toast(e.message||'Non riuscito');x.disabled=false;}});}
 /* bacheca: richieste di vivere insieme */
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-hkopen]');if(!b)return;const home=myHouses().find(x=>x.home);if(home)houseSheet(home);});
+/* 🏠 CASA NON REGISTRATA NEL MONDO (Fase 22, condomini): l'app prova da sola a registrarla (ogni 5 minuti, se si è valutata
+   la casa ma il server non ce l'ha); se non riesce, la guida 🧭 e la notifica "casa_manca" (migrazione 021) portano qui. */
+const CREG={t:0,n:0};
+const cregManca=()=>!!(S.user&&window.W&&W.m&&!W.m.home);
+function casaRegSheet(){const R=S.zone&&S.zone.real;
+  openSheet('🏠 Registra la tua casa',`<div class="abclaim"><b>La tua casa non è ancora nel mondo</b><small>Succede soprattutto nei <b>condomini</b>: l’indirizzo cade sulla strada e l’app non capiva quale palazzo è il tuo. Senza la casa registrata le orde non la contano, i coinquilini e i vicini non ti vedono e non puoi fare alleanze.</small></div>
+    <h4 class="hh">Come si fa (basta una volta)</h4>
+    <ol class="cregol"><li>${R?'Tocca <b>🏠 Registra la mia casa</b>: uso l’indirizzo della tua valutazione.':'Non hai ancora valutato la casa su questo telefono: usa il GPS qui sotto o rifai la valutazione.'}</li>
+      <li>Se non va, <b>vai a casa</b> e tocca <b>📍 Sono a casa adesso</b>: uso il GPS e trovo il palazzo.</li>
+      <li>Domani riapri l’app: la casa si conferma da sola. Nel condominio poi scegli <b>“Che tipo di casa è?” → Condominio</b> e il tuo interno: ognuno ha il suo appartamento e le difese comuni del palazzo.</li></ol>
+    ${R?'<button class="btn wide" data-creg>🏠 Registra la mia casa</button>':''}<button class="btn wide ${R?'ghost':''}" data-creg="gps">📍 Sono a casa adesso</button><button class="btn wide ghost" data-crval>📷 Rifai la valutazione</button>`,c=>{
+    c.querySelectorAll('[data-creg]').forEach(x=>x.onclick=async()=>{x.disabled=true;const gps=x.dataset.creg==='gps';
+      if(gps){try{await new Promise((ok,ko)=>navigator.geolocation.getCurrentPosition(q=>{S.geo=Object.assign({},S.geo||{},{lat:q.coords.latitude,lon:q.coords.longitude,acc:q.coords.accuracy,src:'gps'});ok();},ko,{enableHighAccuracy:true,timeout:15000}));}catch(e){toast('📍 Posizione non disponibile: permettila nelle impostazioni');x.disabled=false;return;}}
+      const r=await wClaim(true,gps);if(r&&r.ok!==false){try{await wMine(true);}catch(e){}closeSheet();const h=myHouses().find(z=>z.home);if(h)setTimeout(()=>houseSheet(h),400);}else x.disabled=false;});
+    c.querySelector('[data-crval]').onclick=()=>{closeSheet();go('valuta');};});}
+/* tentativo automatico, in silenzio: ogni 5 minuti finché la casa non c'è (max 6 volte per apertura) */
+zEvery(()=>{try{if(document.hidden||!cregManca()||!(S.zone&&S.zone.real)||Date.now()-CREG.t<300000||CREG.n>=6)return;CREG.t=Date.now();CREG.n++;wClaim(false,false,true);}catch(e){}},15000,'casa-registra');
+/* dalla notifica: /?go=mappa&reg=1 */
+const _zGoReg=zGoUrl;zGoUrl=function(u){_zGoReg(u);try{if(new URL(u,location.href).searchParams.get('reg'))setTimeout(()=>{if(cregManca())casaRegSheet();else{const h=myHouses().find(x=>x.home);if(h)houseSheet(h);}},1500);}catch(e){}};
 </script>

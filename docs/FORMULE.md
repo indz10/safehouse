@@ -88,5 +88,9 @@ Solo nel server (`w_sped_calc` e dintorni); l'app (`supCalc` in p82) copia la fo
 - **Attrezzi** (livelli 1–3): livello n costa 🪵 30 × n + 🧱 50 × n.
 - **Serie**: giorno g = ((giorni di fila − 1) mod 7) + 1 → 🪵 5g 🥫 5g ⛽ 3g, ⭐ 10g, ⚡ 1 (il 7° ⚡ 3 e 🧱 50).
 
+## Caccia nella Lente (migrazione 021)
+- Costo ⚡ 1, max 10 al giorno. Zombie: n = min(6, 3 + ⌊grado / 5⌋); ognuno bruto con probabilità min(0,4, 0,1 + 0,02 × grado) (4 colpi), altrimenti corridore 35% (2 colpi, 8 s per arrivare) o lento (2 colpi, 14 s); bruto 19 s. Danno a tocco 1 (2 con Arma ≥ 2).
+- Fine (`world_caccia_fine`): abbattuti = min(dichiarati, n, ⌊(secondi − 3) / 1,2⌋), zero oltre 10 minuti. ⭐ = round(5 × abbattuti × (1 + 0,1 × Combattente)) + 10 se tutti. Scorta per zombie abbattuto: 3 (bruto 6) di 🥫 40% / 🪵 35% / ⛽ 25% (passa da `w_res`).
+
 ## Mattoni
 Accrediti solo dal server (`w_pay`): premi del giorno con limiti (`world_earn`), premi vari max 300 al giorno (`world_reward`), spinta di recupero +50% sotto il livello medio della zona (`w_boost`), padrino +10% a chi ti ha invitato per 14 giorni.

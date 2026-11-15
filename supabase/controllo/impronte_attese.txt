@@ -32,6 +32,7 @@ w_bad(text) 2115eb8cd1
 w_boost(uuid) 23b0f9792c
 w_canon(text, double precision, double precision) a8cd798858
 w_casa_extra(text, text) d8d69de76d
+w_casa_manca_tick() 395b46963e
 w_cleanup() ce8e6152f0
 w_coinq(uuid, uuid) 76c0c56af5
 w_condo_admin(text) af12b59522
@@ -151,6 +152,8 @@ world_assi(text, double precision, double precision) 3f866c9d5a
 world_block(uuid, boolean) d5c18b09f9
 world_buy(text, double precision, double precision) c1440ed06d
 world_buy_mezzo(text) 18d40e73af
+world_caccia_fine(bigint, integer) 578ccf45de
+world_caccia_inizia() 2f03ec55ac
 world_chat_list(text, bigint) ffb3c046c7
 world_chat_report(bigint) 89cee22a5d
 world_chat_send(text, text) 8c7ba570ba
@@ -269,6 +272,7 @@ world_attack_given cb6a22cb
 world_blocks c89fb2f6
 world_bonus fa82d7ad
 world_buildings 2b1feaf6
+world_cacce 713a63d8
 world_chat 36d8e2a6
 world_chat_reports bb8b38ef
 world_condo 7c5e55f9

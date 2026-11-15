@@ -18,6 +18,8 @@ const GD_TIPO={home:'la tua casa',owned:'una tua casa',pres:'il tuo presidio'};
 /* le azioni possibili, con priorità (più alta = più importante) */
 function gdItems(d){d=d||{};const I=[];const R=Object.assign({},RES.d||{},d.risorse||{});const s=OR.s||{};let H=[];try{H=myHouses();}catch(e){}
   const rpc=(fn,a)=>async()=>{const{data,error}=await SB.rpc(fn,a||{});if(error)throw error;return data;};
+  /* 🏠 casa non registrata nel mondo (condomini) */
+  if(typeof cregManca==='function'&&cregManca())I.push({p:110,ic:'🏠',t:'Registra la tua casa nel mondo',why:'Non risulta ancora: senza, le orde non la contano e i vicini non ti vedono. Succede spesso nei condomini.',acts:[{b:'🏠 Registra',run:async()=>{casaRegSheet();return{skip:1};}}]});
   /* 📍 casa vera */
   if(H.some(h=>h.home)&&s.custodita===false)I.push({p:100,ic:'📍',t:'Torna a casa: ora è saccheggiabile',why:'Non apri l’app da casa da più di 7 giorni: i rivali possono rubarti le scorte.',acts:[{b:'📍 Sono a casa',run:async()=>{await trrPresenza(true);return null;}}]});
   else{const gg=typeof trrGg==='function'?trrGg():null;if(gg!=null&&gg>=4&&H.some(h=>h.home))I.push({p:45,ic:'📍',t:`Passa da casa entro ${Math.max(0,7-gg)} giorni`,why:'Così resta intoccabile. La prima presenza del giorno fa il pieno: ⛽ +10.',gain:'⛽ +10',acts:[{b:'📍 Sono a casa',run:async()=>{await trrPresenza(true);return null;}}]});}
