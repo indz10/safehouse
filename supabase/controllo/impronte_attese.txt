@@ -155,6 +155,7 @@ world_ask_help() eaa8fd1b52
 world_assalta(text, double precision, double precision) 8f9023dba2
 world_assi(text, double precision, double precision) 3f866c9d5a
 world_block(uuid, boolean) d5c18b09f9
+world_bottega_compra(text) 9c218790d7
 world_buy(text, double precision, double precision) c1440ed06d
 world_buy_mezzo(text) 18d40e73af
 world_caccia_fine(bigint, integer) 578ccf45de
@@ -172,6 +173,9 @@ world_consigli() 4d91cb3c39
 world_coresidents() f6b396fcc0
 world_def_upgrade(text, text) 17ee5d8a24
 world_difendi(text, double precision, double precision) 243f32d609
+world_difesa_bomba(bigint) 625d7efc64
+world_difesa_fine(bigint, integer, boolean) d3b79a0a58
+world_difesa_inizia(boolean) d9fe26361a
 world_dm_list(uuid) 83e7aeaa85
 world_dm_send(uuid, text) 8750519757
 world_dm_threads() 3560c66838
@@ -239,6 +243,7 @@ world_sped_raccogli(bigint) d1d4a6be0c
 world_status_extra() b12cc9499a
 world_sup_abilita(text) dd94b1074a
 world_sup_equip(text) d386c01004
+world_sup_extra() a9fc9d8d31
 world_sup_info() c031b79efe
 world_sup_serie() a2c797e540
 world_sup_share(text) a63a45dd52
@@ -300,6 +305,7 @@ world_help_given b0775a2b
 world_homes df7624c7
 world_house_req e60b8c36
 world_log a7c8214e
+world_partite 49661f40
 world_pres_defs 8a272827
 world_presidi f2b03cfd
 world_presidi_guardie 7b35dd10
@@ -310,7 +316,7 @@ world_shapes 90c99d30
 world_shields 39ed43a6
 world_shouts 38a06241
 world_spedizioni b0030b49
-world_superstite f024ce2b
+world_superstite 3b3a0d2c
 world_terrain b6c5b216
 world_wallet 0fde9277
 world_wx 6b1c15c8

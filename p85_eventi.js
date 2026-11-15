@@ -76,7 +76,7 @@ function evtGdItems(I){
 function nowTop(){try{const I=gdItems(GD.d);return{I,x:I[0]||null};}catch(e){return{I:[],x:null};}}
 function nowSig(){const{I,x}=nowTop();return x?x.t+'|'+I.length:'0';}
 function nowHTML(){if(!S.user)return'';const{I,x}=nowTop();
-  if(!x)return`<div class="mwnow ok"><span>✅</span><div><small>ADESSO</small><b>Tutto fatto per adesso</b><em>Se vuoi giocare: 🎒 spedizione col tuo superstite o 🔫 caccia nella Lente.</em></div><button class="btn" data-nowsup>🎒 Spedizione</button></div>`;
+  if(!x)return`<div class="mwnow ok"><span>✅</span><div><small>ADESSO</small><b>Tutto fatto per adesso</b><em>Se vuoi giocare: 🎮 difendi la casa, 🎒 spedizione col tuo superstite o 🔫 caccia nella Lente.</em></div><button class="btn" data-nowsup>🎮 Gioca</button></div>`;
   const a=(x.acts||[])[0];
   return`<div class="mwnow ${x.p>=80?'urg':''}"><span>${x.ic}</span><div><small>ADESSO</small><b>${x.t}</b>${x.why?`<em>${x.why}</em>`:''}</div>${a?`<button class="btn" data-nowgo>${a.b}${x.cost?` · ${x.cost}`:''}</button>`:''}</div>
     ${I.length>1?`<button class="mwnowall" data-nowall>🧭 Altre ${I.length-1} cose da fare ›</button>`:''}`;}
@@ -85,7 +85,7 @@ function nowBind(root){const{x}=nowTop();const g=root.querySelector('[data-nowgo
     try{const r=await a.run();if(r&&!r.skip){toast(r.msg||(r.got?`🧱 +${wNum(r.got)}`:'Fatto'));try{sfx(r.ok===false?'lose':'win');}catch(e){}}}catch(e){toast('Non riuscito: '+(e.message||e));}
     RES.t=0;try{await Promise.all([gdLoad(true),resLoad(true),orLoad(true)]);}catch(e){}try{wMine(true);supLoad(true);}catch(e){}trrRepaint(true);};
   const al=root.querySelector('[data-nowall]');if(al)al.onclick=()=>{window.SHEET_BACK=null;gdSheet();};
-  const sp=root.querySelector('[data-nowsup]');if(sp)sp.onclick=()=>{window.SHEET_BACK=null;supSheet('sped');};}
+  const sp=root.querySelector('[data-nowsup]');if(sp)sp.onclick=()=>{window.SHEET_BACK=null;difOpen();};}
 /* ---------- avvio, giro, notifiche ---------- */
 const _zGoEvt=zGoUrl;zGoUrl=function(u){_zGoEvt(u);try{const q=new URL(u,location.href).searchParams;if(q.get('evt'))setTimeout(()=>evtSheet(q.get('evt')),1500);if(q.get('sfida'))setTimeout(sfidaSheet,1500);}catch(e){}};
 zEvery(()=>{try{if(document.hidden||!S.user||!['mappa','orda','social'].includes(S.tab))return;

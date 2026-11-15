@@ -1703,7 +1703,9 @@ CREATE TABLE public.world_superstite (
     share_day date,
     inviti_reg integer,
     inviti_val integer,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    bombe integer DEFAULT 0 NOT NULL,
+    scudi integer DEFAULT 0 NOT NULL
 );
 
 --
@@ -2591,6 +2593,39 @@ begin
 end $$;
 
 --
+-- Name: world_bottega_compra(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_bottega_compra(p_item text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); w public.world_wallet; s public.world_superstite; c int; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD'); n int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if p_item not in ('energia','bomba','scudo') then return json_build_object('ok', false, 'msg', 'Oggetto sconosciuto'); end if;
+  w := public.w_wallet(me); s := public.w_sup(me);
+  c := case p_item when 'energia' then 60 else 25 end;
+  if w.mattoni < c then return json_build_object('ok', false, 'msg', format('Servono 🧱 %s', c)); end if;
+  if p_item = 'energia' then
+    n := coalesce((w.caps->>('energia_comprata:' || day))::int, 0);
+    if n >= 2 then return json_build_object('ok', false, 'msg', 'Oggi hai già comprato energia 2 volte'); end if;
+    update public.world_wallet set caps = jsonb_set(caps, array['energia_comprata:' || day], to_jsonb(n + 1)) where user_id = me;
+    update public.world_superstite set energia = least(public.w_en_max(abil) + 5, energia + 5) where user_id = me;
+  elsif p_item = 'bomba' then
+    if s.bombe >= 5 then return json_build_object('ok', false, 'msg', 'Puoi tenere al massimo 5 bombe'); end if;
+    update public.world_superstite set bombe = bombe + 1 where user_id = me;
+  else
+    if s.scudi >= 5 then return json_build_object('ok', false, 'msg', 'Puoi tenere al massimo 5 scudi'); end if;
+    update public.world_superstite set scudi = scudi + 1 where user_id = me;
+  end if;
+  perform public.w_pay(me, -c, 'Bottega: ' || p_item);
+  s := public.w_sup(me);
+  return json_build_object('ok', true, 'msg', case p_item when 'energia' then '⚡ +5 energia' when 'bomba' then '💣 Bomba pronta' else '🛡️ Scudo pronto' end,
+    'energia', s.energia, 'bombe', s.bombe, 'scudi', s.scudi);
+end $$;
+
+--
 -- Name: world_buy(text, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3084,6 +3119,99 @@ begin
   quando := case when (a->>'in_tempo')::boolean then 'in tempo per l’orda delle ' || right(a->>'slot',2) || ':00' else 'troppo tardi: vale per l’orda delle ' || right(a->>'slot',2) || ':00' end;
   return json_build_object('ok',true,'pts',(a->>'pts')::int,'msg','🛡️ In viaggio ' || public.w_mz_nome(a->>'mezzo') || ': arrivi tra ' || (a->>'eta_min') || ' min, ' || quando || '. +' || (a->>'pts') || ' alla difesa'
     || case when (a->>'carb')::int > 0 then ' · ⛽ −' || (a->>'carb') else '' end || case when n < 5 then ' · +10 Mattoni a te' else '' end);
+end $$;
+
+--
+-- Name: world_difesa_bomba(bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_difesa_bomba(p_id bigint) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); n int;
+begin
+  if me is null then return json_build_object('ok', false); end if;
+  if not exists (select 1 from public.world_partite where id = p_id and user_id = me and fine_at is null) then return json_build_object('ok', false, 'msg', 'Partita finita'); end if;
+  update public.world_superstite set bombe = bombe - 1 where user_id = me and bombe > 0 returning bombe into n;
+  if n is null then return json_build_object('ok', false, 'msg', 'Non hai bombe: le trovi in 🛒 Bottega'); end if;
+  update public.world_partite set bombe = bombe + 1 where id = p_id;
+  return json_build_object('ok', true, 'bombe', n);
+end $$;
+
+--
+-- Name: world_difesa_fine(bigint, integer, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_difesa_fine(p_id bigint, p_uccisi integer, p_resistita boolean) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); p public.world_partite; s public.world_superstite; w public.world_wallet; el numeric; u int; xp int; q int; r numeric;
+  l int := 0; f int := 0; k int := 0; mt int := 0; i int; got json; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD'); fatti int; g0 int; res boolean;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  select * into p from public.world_partite where id = p_id and user_id = me for update;
+  if p.id is null or p.fine_at is not null then return json_build_object('ok', false, 'msg', 'Partita già chiusa'); end if;
+  el := extract(epoch from (now() - p.start_at));
+  -- al massimo 4 zombie al secondo (più quelli spazzati dalle bombe), e la partita dura 45 secondi
+  u := greatest(0, least(coalesce(p_uccisi, 0), floor(el * 4)::int + p.bombe * 12, 260));
+  if el > 300 then u := 0; end if;
+  res := coalesce(p_resistita, false) and el >= 40;
+  s := public.w_sup(me); g0 := public.w_grado(s.xp);
+  xp := 2 * u + case when res then 15 else 0 end;
+  q := u / 2;
+  for i in 1..q loop r := random(); if r < 0.4 then f := f + 2; elsif r < 0.75 then l := l + 2; else k := k + 2; end if; end loop;
+  got := public.w_res(me, l, f, k);
+  perform public.w_xp(me, xp);
+  if res then
+    w := public.w_wallet(me); fatti := coalesce((w.caps->>('partite_mt:' || day))::int, 0);
+    if fatti < 50 then mt := least(5, 50 - fatti);
+      update public.world_wallet set caps = jsonb_set(caps, array['partite_mt:' || day], to_jsonb(fatti + mt)) where user_id = me;
+      perform public.w_pay(me, mt, 'Difendi la casa: casa salva');
+    end if;
+  end if;
+  update public.world_partite set fine_at = now(), uccisi = u, resistita = res,
+    esito = jsonb_build_object('xp', xp, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int, 'mattoni', mt) where id = p_id;
+  s := public.w_sup(me);
+  return json_build_object('ok', true, 'uccisi', u, 'resistita', res, 'xp', xp, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int,
+    'mattoni', mt, 'grado', public.w_grado(s.xp), 'salito', public.w_grado(s.xp) > g0,
+    'record', u > coalesce((select max(uccisi) from public.world_partite where user_id = me and id <> p_id), 0));
+end $$;
+
+--
+-- Name: world_difesa_inizia(boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_difesa_inizia(p_scudo boolean) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); s public.world_superstite; w public.world_wallet; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD');
+  fatte int; g int; lv int; v int; gr boolean; nid bigint; sc boolean := false;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  w := public.w_wallet(me); s := public.w_sup(me); g := public.w_grado(s.xp);
+  fatte := coalesce((w.caps->>('partite:' || day))::int, 0);
+  if fatte >= 15 then return json_build_object('ok', false, 'msg', 'Oggi hai giocato 15 partite: gli zombie si riposano fino a domani'); end if;
+  update public.world_partite set fine_at = now(), uccisi = 0, resistita = false, esito = '{"scaduta":true}'::jsonb
+    where user_id = me and fine_at is null and start_at < now() - interval '5 minutes';
+  if exists (select 1 from public.world_partite where user_id = me and fine_at is null) then
+    update public.world_partite set fine_at = now(), uccisi = 0, resistita = false, esito = '{"abbandonata":true}'::jsonb where user_id = me and fine_at is null;
+  end if;
+  gr := fatte = 0;
+  if not gr and s.energia < 1 then return json_build_object('ok', false, 'msg', format('Serve ⚡ 1: si ricarica una ogni %s min (o compra energia in 🛒 Bottega)', public.w_en_ric(s.abil))); end if;
+  if not gr then
+    update public.world_superstite set energia = energia - 1,
+      energia_at = case when energia >= public.w_en_max(abil) then now() else energia_at end where user_id = me;
+  end if;
+  if coalesce(p_scudo, false) and s.scudi > 0 then sc := true; update public.world_superstite set scudi = scudi - 1 where user_id = me; end if;
+  lv := coalesce((select b.level from public.world_homes h join public.world_buildings b on b.building_id = h.building_id where h.user_id = me), 1);
+  v := least(8, lv + 2) + case when sc then 2 else 0 end;
+  update public.world_wallet set caps = jsonb_set(caps, array['partite:' || day], to_jsonb(fatte + 1)) where user_id = me;
+  insert into public.world_partite(user_id, vite, ondate, gratis, scudo) values (me, v, least(6, 3 + g / 4), gr, sc) returning id into nid;
+  return json_build_object('ok', true, 'id', nid, 'vite', v, 'ondate', least(6, 3 + g / 4), 'durata', 45, 'gratis', gr, 'scudo', sc,
+    'bombe', s.bombe, 'velocita', round(1 + 0.04 * least(g, 20), 2), 'rimaste', 14 - fatte);
 end $$;
 
 --
@@ -4693,6 +4821,23 @@ begin
 end $$;
 
 --
+-- Name: world_sup_extra(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_sup_extra() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); s public.world_superstite; w public.world_wallet; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD');
+begin
+  if me is null then return json_build_object('ok', false); end if;
+  s := public.w_sup(me); w := public.w_wallet(me);
+  return json_build_object('ok', true, 'bombe', s.bombe, 'scudi', s.scudi, 'energia', s.energia,
+    'partite', coalesce((w.caps->>('partite:' || day))::int, 0), 'energia_comprata', coalesce((w.caps->>('energia_comprata:' || day))::int, 0),
+    'record', coalesce((select max(uccisi) from public.world_partite where user_id = me), 0));
+end $$;
+
+--
 -- Name: world_sup_info(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5847,6 +5992,42 @@ CREATE SEQUENCE public.world_log_id_seq
 ALTER SEQUENCE public.world_log_id_seq OWNED BY public.world_log.id;
 
 --
+-- Name: world_partite; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_partite (
+    id bigint NOT NULL,
+    user_id uuid NOT NULL,
+    start_at timestamp with time zone DEFAULT now() NOT NULL,
+    vite integer NOT NULL,
+    ondate integer NOT NULL,
+    gratis boolean DEFAULT false NOT NULL,
+    bombe integer DEFAULT 0 NOT NULL,
+    scudo boolean DEFAULT false NOT NULL,
+    uccisi integer,
+    resistita boolean,
+    fine_at timestamp with time zone,
+    esito jsonb
+);
+
+--
+-- Name: world_partite_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_partite_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_partite_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_partite_id_seq OWNED BY public.world_partite.id;
+
+--
 -- Name: world_pres_defs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -6128,6 +6309,12 @@ ALTER TABLE ONLY public.world_gifts ALTER COLUMN id SET DEFAULT nextval('public.
 --
 
 ALTER TABLE ONLY public.world_log ALTER COLUMN id SET DEFAULT nextval('public.world_log_id_seq'::regclass);
+
+--
+-- Name: world_partite id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_partite ALTER COLUMN id SET DEFAULT nextval('public.world_partite_id_seq'::regclass);
 
 --
 -- Name: world_presidi_tenute id; Type: DEFAULT; Schema: public; Owner: -
@@ -6505,6 +6692,13 @@ ALTER TABLE ONLY public.world_log
     ADD CONSTRAINT world_log_pkey PRIMARY KEY (id);
 
 --
+-- Name: world_partite world_partite_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_partite
+    ADD CONSTRAINT world_partite_pkey PRIMARY KEY (id);
+
+--
 -- Name: world_pres_defs world_pres_defs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6721,6 +6915,12 @@ CREATE INDEX world_h_b ON public.world_homes USING btree (building_id, status);
 --
 
 CREATE INDEX world_log_user ON public.world_log USING btree (user_id, seen);
+
+--
+-- Name: world_partite_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_partite_user ON public.world_partite USING btree (user_id, start_at DESC);
 
 --
 -- Name: world_presidi_holder; Type: INDEX; Schema: public; Owner: -
@@ -7211,6 +7411,13 @@ ALTER TABLE ONLY public.world_house_req
 
 ALTER TABLE ONLY public.world_log
     ADD CONSTRAINT world_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
+-- Name: world_partite world_partite_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_partite
+    ADD CONSTRAINT world_partite_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 --
 -- Name: world_pres_defs world_pres_defs_presidio_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -7830,6 +8037,12 @@ ALTER TABLE public.world_house_req ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.world_log ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_partite; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_partite ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: world_pres_defs; Type: ROW SECURITY; Schema: public; Owner: -
@@ -8582,6 +8795,13 @@ GRANT ALL ON FUNCTION public.world_assi(p_bid text, p_lat double precision, p_lo
 GRANT ALL ON FUNCTION public.world_block(p_user uuid, p_on boolean) TO authenticated;
 
 --
+-- Name: FUNCTION world_bottega_compra(p_item text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_bottega_compra(p_item text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_bottega_compra(p_item text) TO authenticated;
+
+--
 -- Name: FUNCTION world_buy(p_bid text, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
 --
 
@@ -8690,6 +8910,27 @@ GRANT ALL ON FUNCTION public.world_def_upgrade(p_bid text, p_kind text) TO authe
 
 REVOKE ALL ON FUNCTION public.world_difendi(p_bid text, p_lat double precision, p_lon double precision) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_difendi(p_bid text, p_lat double precision, p_lon double precision) TO authenticated;
+
+--
+-- Name: FUNCTION world_difesa_bomba(p_id bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_difesa_bomba(p_id bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_difesa_bomba(p_id bigint) TO authenticated;
+
+--
+-- Name: FUNCTION world_difesa_fine(p_id bigint, p_uccisi integer, p_resistita boolean); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_difesa_fine(p_id bigint, p_uccisi integer, p_resistita boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_difesa_fine(p_id bigint, p_uccisi integer, p_resistita boolean) TO authenticated;
+
+--
+-- Name: FUNCTION world_difesa_inizia(p_scudo boolean); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_difesa_inizia(p_scudo boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_difesa_inizia(p_scudo boolean) TO authenticated;
 
 --
 -- Name: FUNCTION world_dm_list(p_with uuid); Type: ACL; Schema: public; Owner: -
@@ -9122,6 +9363,13 @@ GRANT ALL ON FUNCTION public.world_sup_abilita(p_k text) TO authenticated;
 
 REVOKE ALL ON FUNCTION public.world_sup_equip(p_k text) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_sup_equip(p_k text) TO authenticated;
+
+--
+-- Name: FUNCTION world_sup_extra(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_sup_extra() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_sup_extra() TO authenticated;
 
 --
 -- Name: FUNCTION world_sup_info(); Type: ACL; Schema: public; Owner: -
