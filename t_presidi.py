@@ -27,6 +27,8 @@ async def main():
         await pg.click('#sheet.open [data-pgua]');await pg.wait_for_timeout(1000)
         if len(sys.argv)>1:await pg.screenshot(path=sys.argv[1]+'/pres_scheda.png')
         print('guardia:',await pg.evaluate("()=>(document.querySelector('#sheet.open .pres-orda')||{}).textContent"))
+        await pg.evaluate("()=>{window.confirm=()=>true;const d=document.querySelector('#sheet.open .presdet');if(d)d.open=true;document.querySelector('#sheet.open [data-pfort=mura]').click()}");await pg.wait_for_timeout(1500)
+        print('mura costruite:',await pg.evaluate("()=>[(window.__PRES.find(x=>x.id==='osm:n1')||{}).mura,/Mura · livello 1\\/3/.test((document.querySelector('#sheet.open .presdet')||{}).textContent||'')]"))
         await pg.evaluate("()=>{window.confirm=()=>true;document.querySelector('#sheet.open [data-plas]').click()}");await pg.wait_for_timeout(1000)
         print('lascia:',await pg.evaluate("()=>(document.querySelector('#sheet.open .pres-st')||{}).textContent"))
         # "Perché": riga dei presidi vicini quando il server la manda

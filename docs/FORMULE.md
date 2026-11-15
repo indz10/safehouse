@@ -62,7 +62,7 @@ SQL `w_custodita`, `world_presenza`, `w_azione`, `world_assalta`, `world_difendi
 ## Orda sui presidi (Fase 9b)
 SQL `w_pres_attack`, `w_pres_def`, `w_pres_tick` — app p69 (`presChance`).
 - Attacco: `50 + r`, con `r` da 0 a 49 (diverso per ogni orda e presidio).
-- Difesa: `55 + 12 × guardie` (massimo 5 guardie: chi lo tiene, alleati, coinquilini; valgono per una sola orda) + assi + difese − assalti (migrazione 014).
+- Difesa: `55 + 8 × mura + 12 × guardie` (massimo 5 guardie: chi lo tiene, alleati, coinquilini; valgono per una sola orda) + assi + difese − assalti (migrazione 014). **Fortificazioni fisse** (migrazione 017, `world_pres_defs`, `world_pres_fortifica`): 🧱 mura +8 per livello e 🗼 torretta −20% alla forza degli assalti dei rivali per livello (`w_fort('pres:…')` = 2 × torretta), livelli 0–3, costo 🧱 100 × livello; restano col presidio, −1 livello ciascuna quando cade.
 - Tiene se `difesa ≥ attacco`; altrimenti torna libero. % mostrata = `(difesa − 50 + 1) / 50`, tra 0 e 100.
 
 ## Punteggio Superstite (classifica)
