@@ -55,6 +55,7 @@ function gdItems(d){d=d||{};const I=[];const R=Object.assign({},RES.d||{},d.riso
   try{if(typeof supGdItems==='function')supGdItems(I);}catch(e){}
   try{if(typeof evtGdItems==='function')evtGdItems(I);}catch(e){}
   try{if(typeof difGdItems==='function')difGdItems(I);}catch(e){}
+  try{if(typeof reqGdItems==='function')reqGdItems(I);}catch(e){}
   return I.sort((a,b)=>b.p-a.p);}
 function gdHTML(){const I=gdItems(GD.d);
   return`<div class="gdtop">${typeof trrScorteHTML==='function'?trrScorteHTML().replace(/<button class="mwguida[^"]*"[\s\S]*?<\/button>/g,''):''}</div>

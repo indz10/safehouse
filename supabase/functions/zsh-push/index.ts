@@ -161,7 +161,7 @@ function feedMsg(f: any, who: string, id: string): { title: string; body: string
         salva: ["🚑 Un superstite ferito qui vicino", "Il primo che lo cura con 🥫 5 prende ⭐ 50 e 🧱 20"],
         nido: ["🧟 Nido di zombie nel quartiere!", "Abbattetelo insieme ai vicini: premi a tutti quelli che colpiscono"],
         sponsor: ["⭐ Un negozio sponsor è sotto assedio!", "Difendilo con i vicini: premi a tutti"] };
-      const m = T[k] || ["⚡ Evento qui vicino", "Tocca per partecipare col tuo superstite"];
+      const m = T[k] || ["🚨 Evento qui vicino", "Tocca per partecipare col tuo superstite"];
       return { title: m[0], body: m[1], url: `/?go=mappa&evt=${id || ""}` }; }
     case "evento_vinto": return { title: "💥 Abbattuto!", body: `${who} ha dato il colpo finale a «${f.info || "l’evento"}»: hai ricevuto la tua parte di premi`, url: "/?go=mappa" };
     case "sfida_vinta": return { title: "🏆 Sfida del quartiere", body: `Sei arrivato ${f.info}° nel tuo quartiere la settimana scorsa: premio in 🧱 Mattoni!`, url: "/?go=mappa&sfida=1" };

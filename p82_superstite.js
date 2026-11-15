@@ -3,21 +3,21 @@
    🎖️ IL SUPERSTITE CHE CRESCE (migrazione 020, richiesta di Alessandro 15/11)
    Oltre alle case cresce il giocatore, così conviene entrare spesso e si gioca quando si vuole:
    - 🎖️ Grado dall'esperienza ⭐ (ogni premio in Mattoni, spedizioni, serie, condivisione, amici invitati)
-   - 🧠 Abilità (1 punto per grado), ⚡ Energia (si ricarica da sola), 📅 Serie di 7 giorni
+   - 🧠 Abilità (1 punto per grado), 🔋 Energia (si ricarica da sola), 📅 Serie di 7 giorni
    - 🎒 Spedizioni nei posti veri vicino alle tue case (OpenStreetMap): supermercato → 🥫, ferramenta/parco → 🪵,
-     distributore → ⛽, farmacia → ⚡ e 🥫, altri posti → un po' di tutto. Tornano da sole (notifica).
+     distributore → ⛽, farmacia → 🔋 e 🥫, altri posti → un po' di tutto. Tornano da sole (notifica).
    - 🛠️ Equipaggiamento (zaino, torcia, arma, radio) costruito con 🪵 e 🧱.
    Tutto deciso dal server (world_sup_info, world_sped_parti, world_sped_raccogli, world_sup_abilita, world_sup_equip,
    world_sup_serie, world_sup_share); qui solo le schede. Formule in docs/FORMULE.md (w_sped_calc).
    Si apre da "🎖️" nella barra delle scorte del Mondo, dalla guida 🧭, dal menu ☰ e dalla notifica (?sup=1).
    ========================================================= */
 const SUP={d:null,t:0,tab:'io',P:null,Pk:'',f:'tutti',h:0,busy:false,mk:[],mkSig:'',mkMap:null};
-const SUP_AB=[['esploratore','🧭','Esploratore','+1 km di raggio e +10% di bottino nelle spedizioni'],['resistenza','💪','Resistenza','+1 ⚡ di energia massima e ricarica 10 minuti più veloce'],
+const SUP_AB=[['esploratore','🧭','Esploratore','+1 km di raggio e +10% di bottino nelle spedizioni'],['resistenza','💪','Resistenza','+1 🔋 di energia massima e ricarica 10 minuti più veloce'],
   ['combattente','🔪','Combattente','−4% di rischio di dover scappare dagli zombie'],['cercatore','🔍','Cercatore','+3% di trovare un tesoro (🧱) in spedizione'],['mercante','🤝','Mercante','+1 🧱 ogni 10 🧱 scambiati al Mercato']];
 const SUP_EQ=[['zaino','🎒','Zaino','porta 15 provviste in più (senza zaino: 25)'],['torcia','🔦','Torcia','di notte (dalle 20 alle 7) niente rischio in più, e +2% di tesoro'],
   ['arma','🪓','Arma','−5% di rischio in spedizione'],['radio','📻','Radio','una spedizione in più nello stesso momento']];
 const SUP_K={cibo:['🥫','Cibo','supermercati, alimentari, panifici, mercati'],legno:['🪵','Legno','ferramenta, fai da te, vivai, parchi'],carb:['⛽','Carburante','distributori'],
-  farmaco:['💊','Medicine','farmacie e ospedali: ⚡ +2 e un po’ di 🥫'],misto:['📦','Un po’ di tutto','scuole, municipio, poste, biblioteche'],sponsor:['⭐','Sponsor','attività sponsor: bottino più ricco di tutto e ⭐ +5']};
+  farmaco:['💊','Medicine','farmacie e ospedali: 🔋 +2 e un po’ di 🥫'],misto:['📦','Un po’ di tutto','scuole, municipio, poste, biblioteche'],sponsor:['⭐','Sponsor','attività sponsor: bottino più ricco di tutto e ⭐ +5']};
 /* il superstite sei tu: l'aspetto e il titolo cambiano con il grado */
 const SUP_RANK=[[1,'🧑','Recluta','appena arrivato nell’apocalisse'],[3,'🧑‍🔧','Raccoglitore','conosce i negozi della zona'],[5,'🧑‍🚒','Veterano','torna sempre a casa'],[10,'🥷','Ranger','si muove come un’ombra'],[15,'🦸','Leggenda','lo conoscono tutti in città']];
 function supRank(g){let r=SUP_RANK[0];SUP_RANK.forEach(x=>{if(g>=x[0])r=x;});return r;}
@@ -28,10 +28,10 @@ function supAdesso(){const d=SUP.d;if(!d)return null;const r=supReady();
   if(!d.serie_oggi)return{ic:'📅',t:'Ritira il premio di oggi della serie (cresce ogni giorno di fila)',b:'📅 Ritira il premio',go:'serie'};
   if(d.punti)return{ic:'🧠',t:`Hai ${d.punti===1?'un punto':d.punti+' punti'} da usare: scegli in cosa migliorare`,b:'🧠 Scegli l’abilità',go:'abil'};
   const via=supVia();if(via.length>=(d.max_sped||1))return{ic:'🎒',t:`È fuori in spedizione: torna fra ${supLeft(via[0].end_at)}. Intanto gioca col resto.`,b:'🎒 Guarda dov’è',go:'sped'};
-  if(d.energia>=1)return{ic:'⚡',t:`Hai ⚡ ${d.energia}: mandalo in un posto vero vicino a casa a prendere provviste`,b:'🎒 Scegli dove mandarlo',go:'sped'};
-  return{ic:'😴',t:`Si sta riposando: +⚡1 fra ${supLeft(Date.now()+d.prossima_s*1000)}`,b:'❓ Come si cresce',go:'come'};}
+  if(d.energia>=1)return{ic:'🔋',t:`Hai 🔋 ${d.energia}: mandalo in un posto vero vicino a casa a prendere provviste`,b:'🎒 Scegli dove mandarlo',go:'sped'};
+  return{ic:'😴',t:`Si sta riposando: +🔋1 fra ${supLeft(Date.now()+d.prossima_s*1000)}`,b:'❓ Come si cresce',go:'come'};}
 function supStato(){const d=SUP.d;if(!d)return{l:'Tu',c:''};const r=supReady();if(r)return{l:'✅ Tornato',c:'ok'};const v=supVia();if(v.length)return{l:'🎒 '+supLeft(v[0].end_at).replace(' min','′'),c:'via'};
-  if(!d.serie_oggi||d.punti)return{l:'❗ Novità',c:'ok'};return{l:'⚡ '+d.energia,c:''};}
+  if(!d.serie_oggi||d.punti)return{l:'❗ Novità',c:'ok'};return{l:'🔋 '+d.energia+' energia',c:''};}
 const supAb=(k)=>Math.min(5,Math.max(0,+((SUP.d&&SUP.d.abil||{})[k])||0));
 const supEq=(k)=>Math.min(3,Math.max(0,+((SUP.d&&SUP.d.equip||{})[k])||0));
 /* stessa formula del server (w_sped_calc): serve solo a mostrare durata, rischio e bottino prima di partire */
@@ -39,7 +39,7 @@ function supCalc(km){const ab=supAb,eq=supEq,notte=!!(SUP.d&&SUP.d.notte);
   return{min:Math.min(180,Math.round(10+14*km)),energia:Math.min(3,1+Math.floor(km/2.5)),
     rischio:Math.min(60,Math.max(3,Math.round(10+4*km-4*ab('combattente')-5*eq('arma')+(notte&&eq('torcia')===0?10:0)))),
     bottino:Math.min(25+15*eq('zaino'),Math.round((10+6*km)*(1+0.1*ab('esploratore')))),xp:10+Math.round(6*km),tesoro:5+3*ab('cercatore')+2*eq('torcia')};}
-function supLoot(kind,b){if(kind==='sponsor')return`🪵 ~${Math.floor(b*3/8)} 🥫 ~${Math.floor(b*3/8)} ⛽ ~${Math.floor(b/4)}`;return kind==='cibo'?`🥫 ~${b}`:kind==='legno'?`🪵 ~${b}`:kind==='carb'?`⛽ ~${Math.round(b*0.6)}`:kind==='farmaco'?`⚡ +2 · 🥫 ~${Math.floor(b/2)}`:`🪵 🥫 ⛽ ~${Math.floor(b/3)}`;}
+function supLoot(kind,b){if(kind==='sponsor')return`🪵 ~${Math.floor(b*3/8)} 🥫 ~${Math.floor(b*3/8)} ⛽ ~${Math.floor(b/4)}`;return kind==='cibo'?`🥫 ~${b}`:kind==='legno'?`🪵 ~${b}`:kind==='carb'?`⛽ ~${Math.round(b*0.6)}`:kind==='farmaco'?`🔋 +2 · 🥫 ~${Math.floor(b/2)}`:`🪵 🥫 ⛽ ~${Math.floor(b/3)}`;}
 const supReady=()=>((SUP.d&&SUP.d.spedizioni)||[]).filter(x=>x.stato==='via'&&new Date(x.end_at)<=Date.now()).length;
 const supVia=()=>((SUP.d&&SUP.d.spedizioni)||[]).filter(x=>x.stato==='via');
 async function supLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return SUP.d;if(!force&&SUP.d&&Date.now()-SUP.t<60000)return SUP.d;
@@ -47,7 +47,7 @@ async function supLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return SU
       if(data.inviti&&(data.inviti.nuovi||data.inviti.valutati))toast(`🎉 Amici entrati col tuo link: ⭐ +${50*data.inviti.nuovi+150*data.inviti.valutati}`);
       if(old&&data.grado>old.grado)setTimeout(()=>supSalito(data.grado),400);}}catch(e){}return SUP.d;}
 function supChip(){if(!S.user||!SUP.d)return'';const d=SUP.d,r=supReady();
-  return`<button class="mwguida mwsup" data-trsup aria-label="Il tuo superstite">🎖️ ${d.grado} · ⚡${d.energia}${r?` <b>🎒${r}</b>`:''}</button>`;}
+  return`<button class="mwguida mwsup" data-trsup aria-label="Il tuo superstite">🎖️ ${d.grado} · 🔋${d.energia}${r?` <b>🎒${r}</b>`:''}</button>`;}
 const supLeft=t=>{const s=Math.max(0,Math.round((new Date(t)-Date.now())/1000));return s>=3600?Math.floor(s/3600)+' h '+String(Math.floor(s%3600/60)).padStart(2,'0')+' min':s>=60?Math.ceil(s/60)+' min':s+' s';};
 /* ---------- la scheda ---------- */
 async function supSheet(tab){if(!S.user){toast('Accedi per far crescere il tuo superstite');try{loginSheet();}catch(e){}return;}
@@ -66,7 +66,7 @@ function supIoPaint(box){const d=SUP.d;const pc=d.xp_a>d.xp_da?Math.round((d.xp-
       <div class="vbar supxp"><span style="width:${Math.min(100,Math.max(3,pc))}%"></span></div><small>⭐ ${wNum(d.xp)} · al grado ${d.grado+1} mancano ⭐ ${wNum(Math.max(0,d.xp_a-d.xp))}${nx?` · al grado ${nx[0]} diventi ${nx[1]} ${nx[2]}`:''}</small></div></div>
     ${ad?`<div class="supnow"><span>${ad.ic}</span><div><small>ADESSO</small><b>${ad.t}</b></div><button class="btn" data-spnow="${ad.go}">${ad.b}</button></div>`:''}
     <p class="muted" style="font-size:12.5px;margin:0 0 8px">Questo sei tu. Più ti muovi nel mondo (spedizioni, orde, aiuti, ogni giorno), più cresci: sali di grado, vai più lontano e porti a casa più provviste.</p>
-    <div class="supen"><b>⚡ Energia ${d.energia}/${d.energia_max}</b><small>${d.energia>=d.energia_max?'Piena: usala per una spedizione, altrimenti si spreca la ricarica':`+1 fra ${supLeft(Date.now()+d.prossima_s*1000)} · una carica ogni ${d.ricarica_min} min`}</small>
+    <div class="supen"><b>🔋 Energia ${d.energia}/${d.energia_max}</b><small>È la forza del tuo superstite: ogni spedizione, caccia, evento o partita ne usa 1 (le spedizioni lontane 2–3).</small><small>${d.energia>=d.energia_max?'Piena: usala per una spedizione, altrimenti si spreca la ricarica':`+1 fra ${supLeft(Date.now()+d.prossima_s*1000)} · si ricarica da sola, 1 ogni ${Math.round(d.ricarica_min/60*10)/10} ore`}</small>
       <div class="supcar">${Array.from({length:Math.max(d.energia_max,d.energia)},(_,i)=>`<i class="${i<d.energia?'on':''}"></i>`).join('')}</div></div>
     <h4 class="hh">📅 Serie di giorni ${d.serie?`· ${d.serie} di fila`:''}</h4>
     <div class="supserie">${[1,2,3,4,5,6,7].map(i=>{const fatto=d.serie_oggi?i<=g:i<=(d.serie%7);return`<span class="${fatto?'ok':''} ${i===7?'big':''}"><b>${i}</b><small>${i===7?'🧱50':'🥫'+5*i}</small></span>`;}).join('')}</div>
@@ -76,13 +76,13 @@ function supIoPaint(box){const d=SUP.d;const pc=d.xp_a>d.xp_da?Math.round((d.xp-
     <p class="muted" style="font-size:12.5px;margin:0 0 6px">A ogni grado guadagni un punto: mettilo dove ti serve (massimo 5 per abilità).</p>
     ${SUP_AB.map(([k,ic,n,ds])=>{const a=supAb(k);return`<div class="supab"><span>${ic}</span><div><b>${n} <i class="supdots">${'●'.repeat(a)}${'○'.repeat(5-a)}</i></b><small>${ds}</small></div><button class="btn small" data-spab="${k}" ${!d.punti||a>=5?'disabled':''}>+1</button></div>`;}).join('')}
     <h4 class="hh">📣 Fatti conoscere</h4>
-    <p class="muted" style="font-size:12.5px;margin:0 0 6px">La prima condivisione del giorno: ⭐ +20 e ⚡ +1. Ogni amico che crea l’account col tuo link: ⭐ +50, ⚡ +2 e scorte; quando valuta la casa ⭐ +150 e 🧱 150.</p>
+    <p class="muted" style="font-size:12.5px;margin:0 0 6px">La prima condivisione del giorno: ⭐ +20 e 🔋 +1. Ogni amico che crea l’account col tuo link: ⭐ +50, 🔋 +2 e scorte; quando valuta la casa ⭐ +150 e 🧱 150.</p>
     <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" data-spshare>📣 Condividi sui social${d.share_oggi?'':' · ⭐ +20'}</button><button class="btn ghost small" data-spinv>📨 Invita un amico</button></div>`;
   supBindCommon(box);
   const nw=box.querySelector('[data-spnow]');if(nw)nw.onclick=()=>{const g=nw.dataset.spnow;if(g==='serie'){const b=box.querySelector('[data-spserie]');if(b)b.click();return;}
     if(g==='abil'){const a=box.querySelector('.supab');if(a)a.scrollIntoView({behavior:'smooth',block:'center'});return;}supSheet(g);};
   const se=box.querySelector('[data-spserie]');if(se)se.onclick=async()=>{se.disabled=true;try{const{data,error}=await SB.rpc('world_sup_serie');if(error)throw error;
-      if(data.ok){toast(`📅 Giorno ${data.giorno}: 🪵 +${data.legno} 🥫 +${data.cibo} ⛽ +${data.carb} ⭐ +${data.xp} ⚡ +${data.energia}${data.mattoni?' 🧱 +'+data.mattoni:''}`);RES.t=0;try{resLoad(true);}catch(e){}}else toast(data.msg);}catch(e){toast('Non riuscito');}supSheet('io');};
+      if(data.ok){toast(`📅 Giorno ${data.giorno}: 🪵 +${data.legno} 🥫 +${data.cibo} ⛽ +${data.carb} ⭐ +${data.xp} 🔋 +${data.energia}${data.mattoni?' 🧱 +'+data.mattoni:''}`);RES.t=0;try{resLoad(true);}catch(e){}}else toast(data.msg);}catch(e){toast('Non riuscito');}supSheet('io');};
   box.querySelectorAll('[data-spab]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const{data,error}=await SB.rpc('world_sup_abilita',{p_k:b.dataset.spab});if(error)throw error;toast(data.ok?'🧠 '+data.msg:data.msg);}catch(e){toast('Non riuscito');}supSheet('io');});}
 function supBindCommon(box){box.querySelectorAll('[data-spt2]').forEach(b=>b.onclick=()=>supSheet(b.dataset.spt2));
   const sh=box.querySelector('[data-spshare]');if(sh)sh.onclick=()=>{window.SHEET_BACK={t:'‹ Il tuo superstite',fn:()=>supSheet('io')};shareSheet();};
@@ -118,10 +118,10 @@ async function supSped(box){const d=SUP.d;const H=supPlaces();const via=supVia()
   const run=via.map(x=>{const k=SUP_K[x.kind]||SUP_K.misto;const ok=new Date(x.end_at)<=Date.now();const tot=Math.max(1,new Date(x.end_at)-new Date(x.start_at));const pc=Math.min(100,Math.max(2,(Date.now()-new Date(x.start_at))/tot*100));
     return`<div class="suprun ${ok?'ok':''}"><span>${k[0]}</span><div><b>${esc(x.nome||'Spedizione')}</b><small>${String(x.km).replace('.',',')} km · ${ok?'✅ È tornato!':'torna fra <span data-spleft="'+esc(x.end_at)+'">'+supLeft(x.end_at)+'</span>'} · rischio ${x.rischio}%</small>
       <div class="vbar"><span style="width:${pc}%"></span></div></div>${ok?`<button class="btn small" data-sprac="${x.id}">🎁 Raccogli</button>`:''}</div>`;}).join('');
-  const es=done.slice(0,3).map(x=>{const e=x.esito||{};const k=SUP_K[x.kind]||SUP_K.misto;const g=[e.legno?'🪵 +'+e.legno:'',e.cibo?'🥫 +'+e.cibo:'',e.carb?'⛽ +'+e.carb:'',e.energia?'⚡ +'+e.energia:'',e.mattoni?'💰 🧱 +'+e.mattoni:'',e.xp?'⭐ +'+e.xp:''].filter(Boolean).join(' ');
+  const es=done.slice(0,3).map(x=>{const e=x.esito||{};const k=SUP_K[x.kind]||SUP_K.misto;const g=[e.legno?'🪵 +'+e.legno:'',e.cibo?'🥫 +'+e.cibo:'',e.carb?'⛽ +'+e.carb:'',e.energia?'🔋 +'+e.energia:'',e.mattoni?'💰 🧱 +'+e.mattoni:'',e.xp?'⭐ +'+e.xp:''].filter(Boolean).join(' ');
     return`<div class="supes"><span>${k[0]}</span><small><b>${esc(x.nome||'')}</b> ${e.ko?'🧟 scappato, metà bottino: ':''}${g||'niente'}</small></div>`;}).join('');
   const maxs=d.max_sped||1;
-  box.innerHTML=`<div class="supsthead"><span>⚡ ${d.energia}/${d.energia_max}</span><span>📏 raggio ${String(d.raggio_km).replace('.',',')} km</span><span>👥 ${via.length}/${maxs} fuori</span>${d.notte?'<span>🌙 notte: +10% rischio'+(supEq('torcia')?' (🔦 no)':'')+'</span>':''}</div>
+  box.innerHTML=`<div class="supsthead"><span>🔋 ${d.energia}/${d.energia_max}</span><span>📏 raggio ${String(d.raggio_km).replace('.',',')} km</span><span>👥 ${via.length}/${maxs} fuori</span>${d.notte?'<span>🌙 notte: +10% rischio'+(supEq('torcia')?' (🔦 no)':'')+'</span>':''}</div>
     ${run?`<h4 class="hh">In viaggio</h4>${run}`:''}${es?`<h4 class="hh">Tornati oggi</h4>${es}`:''}
     ${!H.length?'<p class="notice">Ti serve una casa nel mondo: le spedizioni partono dalle tue case.</p>':`
     <h4 class="hh">Dove lo mandi?</h4>
@@ -143,7 +143,7 @@ async function supSped(box){const d=SUP.d;const H=supPlaces();const via=supVia()
         const pieno=via.length>=maxs;const poca=d.energia<c.energia;const k=SUP_K[p.k]||SUP_K.misto;
         return`<div class="supp ${fuori?'off':''} ${p.k==='sponsor'?'sp':''}"><span class="supi">${k[0]}</span><div><b>${esc(p.name)}</b><small>${esc(p.cat)} · ${kmTxt(p.km)} · ⏱ ${c.min} min · ⚠️ ${c.rischio}%</small>
           <small class="supg">${supLoot(p.k,b)} · ⭐ +${c.xp+(p.k==='sponsor'?5:0)}</small></div>
-          <button class="btn small" data-spgo="${i}" ${fuori||gia||pieno||poca?'disabled':''}>${fuori?'Troppo lontano':gia?'Già visitato':pieno?'Squadra fuori':poca?`Serve ⚡${c.energia}`:`Parti · ⚡${c.energia}`}</button></div>`;}).join('')
+          <button class="btn small" data-spgo="${i}" ${fuori||gia||pieno||poca?'disabled':''}>${fuori?'Troppo lontano':gia?'Già visitato':pieno?'Squadra fuori':poca?`Serve ${c.energia} energia`:`Parti (${c.energia} energia)`}</button></div>`;}).join('')
       :(stato?'':`<p class="muted">Nessun posto di questo tipo entro ${String(d.raggio_km).replace('.',',')} km. Prova un altro filtro o un’altra casa.</p>`));
     pb.querySelectorAll('[data-spgo]').forEach(b=>b.onclick=async()=>{const p=L[+b.dataset.spgo];b.disabled=true;
       try{const{data,error}=await SB.rpc('world_sped_parti',{p_kind:p.k,p_nome:p.name,p_lat:p.lat,p_lon:p.lon});if(error)throw error;toast(data.msg);if(data.ok&&p.k==='sponsor'&&p.sk){try{dbEvent(p.sk,'scheda');}catch(e){}}}catch(e){toast('Non riuscito: riprova');}
@@ -156,7 +156,7 @@ async function supSped(box){const d=SUP.d;const H=supPlaces();const via=supVia()
   catch(e){paint(loc,'OpenStreetMap è lento in questo momento: qui sopra i posti già noti. <button class="lnk" data-spretry>Riprova</button>');}}
 async function supRaccogli(id,b){if(b)b.disabled=true;let r=null;try{const{data,error}=await SB.rpc('world_sped_raccogli',{p_id:+id});if(error)throw error;r=data;}catch(e){toast('Non riuscito');}
   if(r&&!r.ok)toast(r.msg);
-  if(r&&r.ok){const g=[r.legno?'🪵 +'+r.legno:'',r.cibo?'🥫 +'+r.cibo:'',r.carb?'⛽ +'+r.carb:'',r.energia?'⚡ +'+r.energia:'',r.xp?'⭐ +'+r.xp:''].filter(Boolean).join(' ');
+  if(r&&r.ok){const g=[r.legno?'🪵 +'+r.legno:'',r.cibo?'🥫 +'+r.cibo:'',r.carb?'⛽ +'+r.carb:'',r.energia?'🔋 +'+r.energia:'',r.xp?'⭐ +'+r.xp:''].filter(Boolean).join(' ');
     toast(`${r.ko?'🧟 ':'🎒 '}${r.msg}: ${g}${r.mattoni?' · 💰 tesoro 🧱 +'+r.mattoni:''}`);RES.t=0;try{resLoad(true);}catch(e){}try{wMine(true);}catch(e){}
     if(r.salito){await supLoad(true);supSalito(r.grado);return;}}
   supSheet('sped');}
@@ -165,7 +165,7 @@ function supSalito(g){openSheet('🎖️ Sei salito di grado!',`<div class="supu
   c.querySelector('[data-spgo2]').onclick=()=>supSheet('io');c.querySelector('[data-spsh2]').onclick=()=>{window.SHEET_BACK={t:'‹ Il tuo superstite',fn:()=>supSheet('io')};shareSheet({grado:g});};});}
 /* ---------- la prima volta: chi è il superstite, in 3 passi ---------- */
 const SUP_INTRO=[['🧑','Questo sei tu','Nel mondo unico non ci sono solo le tue case: ci sei anche <b>tu</b>, un superstite. Lo vedi sulla mappa sopra casa tua e nel tondo in basso a sinistra.'],
-  ['🎒','Lo mandi a cercare provviste','Con l’<b>⚡ energia</b> lo mandi nei <b>posti veri</b> vicino a casa: al supermercato per il 🥫 cibo, in ferramenta o al parco per il 🪵 legno, al distributore per il ⛽ carburante. Dopo qualche minuto torna e ti avvisa.'],
+  ['🎒','Lo mandi a cercare provviste','Con l’<b>🔋 energia</b> lo mandi nei <b>posti veri</b> vicino a casa: al supermercato per il 🥫 cibo, in ferramenta o al parco per il 🪵 legno, al distributore per il ⛽ carburante. Dopo qualche minuto torna e ti avvisa.'],
   ['🎖️','Più giochi, più cresce','Ogni spedizione, orda, aiuto e ogni giorno di gioco gli danno <b>esperienza ⭐</b>: sale di grado (da Recluta a Leggenda), va più lontano, porta più provviste e impara abilità. L’energia si ricarica da sola: giochi quando vuoi.']];
 function supIntro(i){const x=SUP_INTRO[i];if(!x){try{localStorage.setItem('zsh_sup_intro','1');}catch(e){}return supSheet('sped');}
   openSheet('🎖️ Il tuo superstite',`<div class="supintro"><span>${x[0]}</span><small>${i+1} di ${SUP_INTRO.length}</small><b>${x[1]}</b><p>${x[2]}</p></div>
@@ -191,21 +191,21 @@ function supComeHTML(){return`<div class="supcome">
   <p><b>Il superstite sei tu</b>: lo vedi sulla mappa sopra casa tua e nel tondo in basso a sinistra. Il suo aspetto cambia col grado: ${SUP_RANK.map(r=>`${r[1]} ${r[2]} (${r[0]})`).join(', ')}.</p>
   <p><b>Il tuo superstite cresce con te.</b> Più giochi, più sale di grado, più provviste porta a casa, e puoi giocare quando vuoi, non solo per l’orda.</p>
   <h4 class="hh">🎖️ Grado ed esperienza ⭐</h4><p>Ogni premio in 🧱 Mattoni ti dà anche esperienza (⭐ 1 ogni 🧱 4): orde rette, affitti, rinforzi, presidi. In più: spedizioni, serie di giorni, condivisione e amici invitati. Grado 2 a ⭐ 50, grado 3 a ⭐ 200, grado 4 a ⭐ 450, grado 5 a ⭐ 800…</p>
-  <h4 class="hh">⚡ Energia</h4><p>Hai 10 cariche (di più con 💪 Resistenza). Ogni spedizione ne usa da 1 a 3 secondo la distanza. Si ricaricano da sole, una ogni 2 ore: chi entra più spesso le usa tutte e cresce di più.</p>
+  <h4 class="hh">🔋 Energia</h4><p>Hai 10 cariche (di più con 💪 Resistenza). Ogni spedizione ne usa da 1 a 3 secondo la distanza. Si ricaricano da sole, una ogni 2 ore: chi entra più spesso le usa tutte e cresce di più.</p>
   <h4 class="hh">🎒 Spedizioni nei posti veri</h4><p>Scegli un posto vero vicino a una tua casa: 🛒 supermercati e alimentari danno 🥫 cibo; 🔧 ferramenta, vivai e parchi 🪵 legno; ⛽ distributori carburante; 💊 farmacie energia; scuole, poste e municipio un po’ di tutto. Più è lontano, più dura, più rende e più è rischioso. Il raggio parte da 3 km e cresce di 1 km a ogni grado (fino a 30 km); parti dalla casa che scegli, anche se è lontana (per esempio in un’altra città o all’estero). Le ⭐ attività sponsor sono mete speciali: bottino più ricco di tutto e ⭐ +5. Se gli zombie lo inseguono torna con metà bottino. A volte trova un 💰 tesoro in Mattoni. Ogni posto si può rifare dopo 12 ore. Quando torna arriva la notifica.</p>
-  <h4 class="hh">🔫 Caccia nella Lente</h4><p>Apri 📷 Lente e tocca 🔫 Caccia (⚡ 1): arrivano 3–6 zombie da direzioni diverse, girati e toccali prima che ti raggiungano. Ognuno: ⭐ 5 e una scorta; presi tutti ⭐ 10 in più. Max 10 al giorno.</p>
+  <h4 class="hh">🔫 Caccia nella Lente</h4><p>Apri 📷 Lente e tocca 🔫 Caccia (🔋 1): arrivano 3–6 zombie da direzioni diverse, girati e toccali prima che ti raggiungano. Ognuno: ⭐ 5 e una scorta; presi tutti ⭐ 10 in più. Max 10 al giorno.</p>
   <h4 class="hh">🧠 Abilità</h4><p>Un punto a ogni grado: ${SUP_AB.map(a=>`${a[1]} <b>${a[2]}</b> ${a[3]}`).join('; ')}.</p>
   <h4 class="hh">🛠️ Attrezzi</h4><p>${SUP_EQ.map(a=>`${a[1]} <b>${a[2]}</b>: ${a[3]}`).join('; ')}. Livello n: 🪵 30×n e 🧱 50×n.</p>
-  <h4 class="hh">📅 Serie di giorni</h4><p>Entra e ritira il premio ogni giorno: cresce per 7 giorni (il 7° dà 🧱 50 e ⚡ +3), poi ricomincia. Se salti un giorno si riparte da 1.</p>
+  <h4 class="hh">📅 Serie di giorni</h4><p>Entra e ritira il premio ogni giorno: cresce per 7 giorni (il 7° dà 🧱 50 e 🔋 +3), poi ricomincia. Se salti un giorno si riparte da 1.</p>
   <h4 class="hh">Dove vanno le provviste?</h4><p>🥫 serve per gli assalti, 🪵 per le assi e gli attrezzi, ⛽ per viaggiare in moto o in auto verso alleati e rivali. Quelle in più si scambiano al 🔄 Mercato. Massimo 400 al giorno per risorsa.</p>
-  <h4 class="hh">📣 Amici e social</h4><p>Condividi il tuo grado e la tua casa: la prima condivisione del giorno dà ⭐ 20 e ⚡ 1. Ogni amico che entra col tuo link ti fa crescere (⭐ 50 + ⚡ 2 + scorte, e ⭐ 150 + 🧱 150 quando valuta la casa).</p>
+  <h4 class="hh">📣 Amici e social</h4><p>Condividi il tuo grado e la tua casa: la prima condivisione del giorno dà ⭐ 20 e 🔋 1. Ogni amico che entra col tuo link ti fa crescere (⭐ 50 + 🔋 2 + scorte, e ⭐ 150 + 🧱 150 quando valuta la casa).</p>
   <button class="btn wide" data-spt2="sped">🎒 Prova una spedizione</button></div>`;}
 /* ---------- 🧭 nella guida "Cosa fare" ---------- */
 function supGdItems(I){const d=SUP.d;if(!d)return;const r=supReady();
   if(r)I.push({p:70,ic:'🎒',t:`Il tuo superstite è tornato${r>1?` (${r} spedizioni)`:''}`,why:'Raccogli le provviste e l’esperienza.',acts:[{b:'🎁 Raccogli',run:async()=>{supSheet('sped');return{skip:1};}}]});
   if(!d.serie_oggi)I.push({p:55,ic:'📅',t:`Serie di giorni: ritira il premio${d.serie?` (giorno ${(d.serie%7)+1})`:''}`,why:'Cresce per 7 giorni di fila: il 7° dà 🧱 50.',acts:[{b:'📅 Ritira',run:async()=>{supSheet('io');return{skip:1};}}]});
   if(d.punti)I.push({p:52,ic:'🧠',t:`Hai ${d.punti} ${d.punti===1?'punto abilità':'punti abilità'} da usare`,why:'Più raggio, più energia, meno rischio, più tesori o più Mattoni al Mercato.',acts:[{b:'🧠 Scegli',run:async()=>{supSheet('io');return{skip:1};}}]});
-  if(d.energia>=Math.min(d.energia_max,3)&&supVia().length<(d.max_sped||1))I.push({p:d.energia>=d.energia_max?58:35,ic:'⚡',t:`Energia ${d.energia}/${d.energia_max}: manda una spedizione`,why:d.energia>=d.energia_max?'È piena: se non la usi, la ricarica si spreca.':'Provviste ed esperienza dai posti veri intorno alle tue case.',acts:[{b:'🎒 Scegli il posto',run:async()=>{supSheet('sped');return{skip:1};}}]});}
+  if(d.energia>=Math.min(d.energia_max,3)&&supVia().length<(d.max_sped||1))I.push({p:d.energia>=d.energia_max?58:35,ic:'🔋',t:`Energia ${d.energia}/${d.energia_max}: manda una spedizione`,why:d.energia>=d.energia_max?'È piena: se non la usi, la ricarica si spreca.':'Provviste ed esperienza dai posti veri intorno alle tue case.',acts:[{b:'🎒 Scegli il posto',run:async()=>{supSheet('sped');return{skip:1};}}]});}
 /* ---------- 🗺️ spedizioni in corso sulla mappa ---------- */
 /* tu sulla mappa: sopra casa tua, o in cammino verso la spedizione (linea tratteggiata) */
 function supMe(lm){try{const H=supPlaces();const home=H.find(h=>h.home)||H[0];if(!home)return;const d=SUP.d;const rk=supRank(d?d.grado:1);

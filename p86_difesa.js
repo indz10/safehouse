@@ -3,9 +3,9 @@
    🎮 DIFENDI LA CASA (migrazione 023, richiesta di Alessandro 15/11): il minigioco sempre disponibile
    Partita da 45 secondi: gli zombie arrivano da ogni lato verso la tua casa e tu li tocchi per fermarli.
    Vite = livello vero della casa + 2 (max 8; 🛡️ scudo +2). 💣 bomba = spazza via tutti gli zombie sullo schermo.
-   Costa ⚡ 1 (la prima del giorno è gratis); premi decisi dal server (world_difesa_inizia / _bomba / _fine):
+   Costa 🔋 1 (la prima del giorno è gratis); premi decisi dal server (world_difesa_inizia / _bomba / _fine):
    ⭐ 2 a zombie, una scorta ogni 2 zombie, se la casa resiste ⭐ 15 e 🧱 5.
-   🛒 In Bottega (gameShopFill, chiamato da shopSheet in p31): ⚡ +5, 💣 bomba, 🛡️ scudo, pagati in 🧱 Mattoni.
+   🛒 In Bottega (gameShopFill, chiamato da shopSheet in p31): 🔋 +5, 💣 bomba, 🛡️ scudo, pagati in 🧱 Mattoni.
    Si apre da "🎮 Gioca" sulla mappa, dalla carta ADESSO/guida, dal menu ☰ e dalla scheda del superstite.
    ========================================================= */
 const DIF={on:false,id:null,Z:[],raf:0,t0:0,dur:45,vite:3,vite0:3,uccisi:0,bombe:0,next:0,ex:null,exT:0,fine:false};
@@ -22,11 +22,11 @@ async function difOpen(){if(!S.user){toast('Accedi per giocare');try{loginSheet(
     <div class="difhero">🏠<span>🧟</span><span>🧟‍♀️</span><span>🧟‍♂️</span></div>
     <b class="disp">Difendi la casa</b>
     <p>Gli zombie arrivano da tutte le parti verso la tua casa: <b>toccali</b> prima che arrivino. Quelli grossi vogliono 2 colpi. Resisti <b>45 secondi</b>!</p>
-    <div class="difinfo"><span>❤️ ${Math.min(8,lv+2)} vite (casa livello ${lv})</span><span>⚡ ${x?x.energia:(d.energia??'?')}</span><span>💣 ${x?x.bombe:0}</span><span>🛡️ ${x?x.scudi:0}</span>${x&&x.record?`<span>🏆 record ${x.record}</span>`:''}</div>
+    <div class="difinfo"><span>❤️ ${Math.min(8,lv+2)} vite (casa livello ${lv})</span><span>🔋 ${x?x.energia:(d.energia??'?')}</span><span>💣 ${x?x.bombe:0}</span><span>🛡️ ${x?x.scudi:0}</span>${x&&x.record?`<span>🏆 record ${x.record}</span>`:''}</div>
     <p class="muted" style="font-size:12.5px">Premi: ⭐ 2 a zombie, una scorta ogni 2 zombie; se la casa resiste ⭐ 15 e 🧱 5. ${x?`Oggi ${x.partite}/15 partite.`:''}</p>
     ${x&&x.scudi?'<label class="difsc"><input type="checkbox" id="difScudo"> 🛡️ Usa uno scudo (+2 vite)</label>':''}
-    <button class="btn wide" data-difgo>▶️ Gioca ${gratis?'· gratis oggi':'· ⚡ 1'}</button>
-    <button class="btn wide ghost" data-difshop>🛒 Bottega: ⚡ energia, 💣 bombe, 🛡️ scudi</button></div>`;
+    <button class="btn wide" data-difgo>▶️ Gioca ${gratis?'· gratis oggi':'· 🔋 1'}</button>
+    <button class="btn wide ghost" data-difshop>🛒 Bottega: 🔋 energia, 💣 bombe, 🛡️ scudi</button></div>`;
   r.querySelector('[data-difx]').onclick=difClose;r.querySelector('[data-difshop]').onclick=()=>{difClose();shopSheet(0);};
   r.querySelector('[data-difgo]').onclick=e=>{e.target.disabled=true;difStart(!!(r.querySelector('#difScudo')||{}).checked);};}
 /* ---------- la partita ---------- */
@@ -71,7 +71,7 @@ async function difEnd(salva){if(DIF.fine)return;DIF.fine=true;cancelAnimationFra
 /* ---------- 🛒 Bottega ---------- */
 async function gameShopFill(c){const box=c.querySelector('.gamebox');if(!box)return;if(!S.user||typeof SB==='undefined'||!SB){box.remove();return;}
   const x=await difExtra(true);const mt=typeof trrMat==='function'?trrMat():0;
-  const IT=[['energia','⚡','Energia +5','per spedizioni, caccia ed eventi (2 al giorno)',60,x?`oggi ${x.energia_comprata}/2`:''],['bomba','💣','Bomba','spazza via tutti gli zombie in “Difendi la casa”',25,x?`ne hai ${x.bombe}/5`:''],['scudo','🛡️','Scudo','+2 vite in una partita di “Difendi la casa”',25,x?`ne hai ${x.scudi}/5`:'']];
+  const IT=[['energia','🔋','Energia +5','per spedizioni, caccia ed eventi (2 al giorno)',60,x?`oggi ${x.energia_comprata}/2`:''],['bomba','💣','Bomba','spazza via tutti gli zombie in “Difendi la casa”',25,x?`ne hai ${x.bombe}/5`:''],['scudo','🛡️','Scudo','+2 vite in una partita di “Difendi la casa”',25,x?`ne hai ${x.scudi}/5`:'']];
   box.innerHTML=`<h4 class="hh">🎮 Per giocare (con i 🧱 Mattoni)</h4><div class="mktgrid">${IT.map(([k,ic,n,ds,c,st])=>`<div class="mktr"><span class="mki">${ic}</span><div><b>${n}</b><small>${ds}${st?' · '+st:''}</small></div><button class="btn small" data-gsh="${k}" ${mt<c?'disabled':''}>🧱 ${c}</button></div>`).join('')}</div>`;
   box.querySelectorAll('[data-gsh]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const{data,error}=await SB.rpc('world_bottega_compra',{p_item:b.dataset.gsh});if(error)throw error;toast(data.msg);if(data.ok){try{await wMine(true);supLoad(true);}catch(e){}}}catch(e){toast('Non riuscito');}gameShopFill(c);});}
 /* ---------- nella guida (e quindi nella carta ADESSO quando non c'è niente di urgente) ---------- */

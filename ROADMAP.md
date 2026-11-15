@@ -156,4 +156,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 21 | fatta (#65) | #65 | superstite più chiaro: è il giocatore (tondo "Tu" sulla mappa, aspetto per grado Recluta → Leggenda, spiegazione in 3 passi, riquadro ADESSO, cammina sulla mappa verso la spedizione); condomini: casa non registrata → "Registra la mia casa" |
 | 22 | fatta (#66; migrazione 021) | #66 | 🔫 caccia agli zombie nella Lente; spedizioni con raggio da 3 km (+1 per grado, max 30) e ⭐ sponsor come mete, posti mostrati subito; condomini: edificio riconosciuto dal bordo, registrazione automatica, guida, scheda e notifica a chi non ha la casa nel mondo |
 | 23 | fatta (#67; migrazione 022) | #67 | 👉 una mossa alla volta (carta ADESSO), ⚡ eventi dal vivo, 🏆 sfida del quartiere, 🏢 scelta del condominio |
-| 24 | in revisione (migrazione 023) | — | 🎮 Difendi la casa: minigioco da 45 s sempre disponibile, premi in scorte ed esperienza; 🛒 Bottega con ⚡ energia, 💣 bombe, 🛡️ scudi |
+| 24 | fatta (#68; migrazione 023) | #68 | 🎮 Difendi la casa: minigioco da 45 s sempre disponibile, premi in scorte ed esperienza; 🛒 Bottega con ⚡ energia, 💣 bombe, 🛡️ scudi |
+| 25 | in revisione (nessun SQL) | — | 📬 Richieste in un posto solo (accetta/rifiuta alleanze, inviti, coinquilini); energia 🔋 spiegata, eventi 🚨 |
