@@ -59,6 +59,7 @@ function presSheet(id){const p=PRES.L.find(x=>x.id===id);if(!p)return;const k=PR
    <p style="font-weight:400;font-size:14px;margin:8px 0">Chi tiene un presidio dà <b>+3 di difesa a tutte le case entro 500 m</b> (<b>+5</b> se lo tiene da almeno 7 giorni), anche a quelle dei vicini (massimo +10 per casa), e a ogni orda retta riceve la sua risorsa: <b>40 + 4 per ogni orda di fila</b> (fino a 80). Si occupa se hai una casa entro 5 km, viaggiando col tuo mezzo (⛽). I rivali possono assaltarlo e conquistarlo.</p>
    ${p.stato!=='libero'?`<div class="pres-orda"><b>🧟 Prossima orda</b><span>Difesa <b>${p.difesa}</b> (55 + 12 per guardia · guardie ${g}/5) contro un attacco da 50 a 99</span>
      <span>Tiene nel <b>${ch}%</b> dei casi. Se cade torna libero.</span></div>`:''}
+   ${presDettagliHTML(p)}
    <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:10px">
     ${p.stato==='libero'?(S.user?`<button class="btn" data-pocc>🚩 Occupa il presidio</button>`:`<p class="notice" style="margin:0">Accedi per occupare i presidi.</p>`):''}
     ${tiene&&!p.io_guardia?`<button class="btn" data-pgua>🛡️ Fai la guardia (+12)</button>`:''}
@@ -112,4 +113,28 @@ async function presList5(lm,dopo){lm=lm||window.__mf;if(!dopo)openSheet('🚩 Pr
     ${L.length?L.map(p=>{const kk=PRES_K[p.kind]||['🚩','Presidio'];return`<button class="pres-row s-${p.stato}" data-pr="${esc(p.id)}"><span class="pi">${kk[0]}</span><span class="pt"><b>${esc(p.name)}</b><small>${presStato(p)} · ${dist(p.dist)}</small></span><span class="pc">${p.stato==='libero'?'Libero':presChance(p)+'%'}</span></button>`;}).join('')
      :`<p class="notice">${cerco?'Sto cercando i presidi qui intorno…':'Qui intorno non ho trovato presidi.'}</p>`}</div>`,
    card=>card.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{window.SHEET_BACK={t:'‹ Presidi',fn:()=>presList5(lm,1)};const p=PRES.L.find(x=>x.id===b.dataset.pr);if(p&&lm&&lm.map)try{lm.map.flyTo({center:[p.lon,p.lat],zoom:16});}catch(e){}presSheet(b.dataset.pr);}));}
+</script>
+<script>
+/* 📋 scheda del presidio: dettagli e come fortificarlo (richiesta di Alessandro 15/11) */
+const PRES_RIS={parco:['🪵','legno'],sport:['🪵','legno'],piazza:['🥫','cibo'],centro:['🥫','cibo'],chiesa:['🥫','cibo'],stazione:['⛽','carburante'],polizia:['⛽','carburante'],pompieri:['⛽','carburante']};
+function presDettagliHTML(p){const g=Math.min(5,p.guardie||0);const extra=(p.difesa||55)-55-12*g;const chOf=d=>presChance(Object.assign({},p,{difesa:d}));
+  const r=PRES_RIS[p.kind];const rec=p.record||0;const prossima=r?Math.min(80,40+4*(rec+1)):Math.min(60,30+2*(rec+1));
+  let H=[];try{H=myHouses().filter(h=>h.lat!=null);}catch(e){}const vicine=H.filter(h=>trM(h.lat,h.lon,p.lat,p.lon)<=500).length;
+  const gg=p.dal?Math.floor((Date.now()-new Date(p.dal).getTime())/864e5):null;
+  const riga=(ic,t,v,sm)=>`<div class="pdrow"><span>${ic}</span><div><b>${t}</b>${sm?`<small>${sm}</small>`:''}</div><i>${v}</i></div>`;
+  const tenuto=p.stato!=='libero';
+  return`<details class="presdet" ${tenuto?'open':''}><summary>📋 Dettagli e come fortificarlo</summary>
+   ${tenuto?`<h4 class="hh">🛡️ La sua difesa adesso: ${p.difesa} (${presChance(p)}%)</h4>
+   ${riga('🏛️','Base','55','ogni presidio parte da qui')}
+   ${riga('💂','Guardie',`+${12*g}`,`${g}/5 · +12 ciascuna: chi lo tiene e i suoi alleati, tocca “Fai la guardia” (gratis, vale per una sola orda)`)}
+   ${riga('🪵🛡️⚔️','Assi, difensori e assalti',`${extra>=0?'+':''}${extra}`,'assi 🪵 20 = +6 (max +18) · difensori alleati fino a +24 · assalti dei rivali fino a −40')}
+   <h4 class="hh">📈 Come salire</h4>
+   ${g<5?riga('💂','Un’altra guardia',`${chOf(p.difesa+12)}%`,`+12 · da ${presChance(p)}% a ${chOf(p.difesa+12)}%`):''}
+   ${riga('🪵','Inchioda le assi',`${chOf(p.difesa+6)}%`,'🪵 20 = +6 per la prossima orda (riquadro “Assalti e difese” qui sotto)')}
+   ${g<5?riga('📣','Chiama gli alleati',`fino a ${chOf(p.difesa+12*(5-g))}%`,`con tutte le ${5-g} guardie che mancano`):''}`:''}
+   <h4 class="hh">🎁 Cosa rende</h4>
+   ${riga(r?r[0]:'🧱','A ogni orda retta',r?`${r[0]} ${prossima}`:`🧱 ${prossima}`,r?`${r[1]}: 40 + 4 per ogni orda di fila (fino a 80)${rec?` · ora ${rec} di fila`:''}`:`Mattoni: 30 + 2 per ogni orda di fila (fino a 60)${rec?` · ora ${rec} di fila`:''}`)}
+   ${riga('🏠','Difesa alle case vicine',gg!=null&&gg>=7?'+5':'+3',`a tutte le case entro 500 m, anche dei vicini (max +10 per casa)${gg!=null&&gg<7?` · tra ${7-gg} ${7-gg===1?'giorno':'giorni'} diventa +5`:''}${H.length?` · tue case vicine: ${vicine}`:''}`)}
+   <h4 class="hh">⚠️ Attenzione</h4>
+   <p class="muted" style="font-size:12.5px;margin:0">Due orde al giorno (9:00 e 21:00) lo attaccano con forza da 50 a 99. Se cade torna libero, oppure passa al rivale che l’ha assaltato di più. Si tengono al massimo 3 presidi; si occupano fino a 5 km da una tua casa, viaggiando col tuo mezzo (⛽).</p></details>`;}
 </script>
