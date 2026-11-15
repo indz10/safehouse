@@ -20,6 +20,7 @@ async def main():
         await pg.evaluate("()=>{window.__PRES=[]}");await pg.click('.mwside [data-mws=pres]');await pg.wait_for_timeout(3500)
         print('elenco:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .pres-row b')].map(b=>b.textContent)"))
         await pg.evaluate("()=>document.querySelector('#sheet.open [data-pr=\"osm:n1\"]').click()");await pg.wait_for_timeout(600)
+        print('dettagli:',await pg.evaluate("()=>[!!document.querySelector('#sheet.open .presdet'),document.querySelectorAll('#sheet.open .presdet .pdrow').length>=2]"))
         print('scheda:',await pg.evaluate("()=>(document.querySelector('#sheet.open .pres-st')||{}).textContent"),'| indietro:',await pg.evaluate("()=>!!document.querySelector('#sheet.open .sheet-back, #sheet.open [data-sback]')"))
         await pg.click('#sheet.open [data-pocc]');await pg.wait_for_timeout(1000)
         print('occupa:',await pg.evaluate("()=>(document.querySelector('#toast, .toast')||{}).textContent"),'|',await pg.evaluate("()=>(document.querySelector('#sheet.open .pres-st')||{}).textContent"))
