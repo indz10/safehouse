@@ -156,6 +156,7 @@ function feedMsg(f: any, who: string, id: string): { title: string; body: string
     case "respinto": return { title: "🛡️ Assalto respinto", body: `${who} ha respinto il tuo assalto`, url: "/?go=mappa" };
     case "difesa": return { title: "🛡️ Un alleato ti difende", body: `${who} sta arrivando a difendere un tuo edificio`, url: "/?go=mappa" };
     case "assi": return { title: "🪵 Assi inchiodate", body: `${who} ha rinforzato una tua casa con le assi`, url: "/?go=mappa" };
+    case "sped_ok": return { title: "🎒 Il tuo superstite è tornato", body: `Dalla spedizione a «${f.info || "un posto vicino"}»: tocca per raccogliere provviste ed esperienza`, url: "/?go=mappa&sup=1" };
     case "ask_ally": return { title: "🆘 Un alleato chiede aiuto", body: `${who} chiede il tuo aiuto per la prossima orda`, url: so };
     case "shout": return { title: `📣 ${who}`, body: SHOUTS[+f.info] || "ti ha salutato", url: so };
     default: return { title: "🔔 ZombieSafeHouse", body: `${who} ti cerca`, url: so };
@@ -225,6 +226,8 @@ Deno.serve(async (req) => {
         for (const s of L) sent += await sendTo(s, { title: `🧟 L’orda delle ${hh}:00 sta attaccando!`, body: "Guarda l’assalto sulle tue case e riscatta i premi.", url: "/?assalto=last" });
       }
     }
+    // spedizioni tornate (migrazione 020): una novità "sped_ok" per ciascuna, poi la manda feedFor
+    try { await sb.rpc("w_sped_tick"); } catch { /* blocco SQL 020 non ancora eseguito */ }
     // novità personali: messaggi, alleanze, rinforzi, orde ricevute, regali, saluti, inviti (feedFor)
     sent += await feedFor(L);
     // messaggi della piazza (migrazione 007): al massimo un avviso ogni 30 minuti, con l'ultimo messaggio e quanti altri

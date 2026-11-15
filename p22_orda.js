@@ -80,6 +80,7 @@ function orWatch(){S.zv='mondo';go('mappa');let n=0;const t=setInterval(()=>{con
 const OT=[
  {tab:()=>{S.zv='mondo';go('mappa');},sel:'.lmap',t:'Questa è la <b>mappa vera</b>. La casetta rossa <b>TU</b> è casa tua: nessuno può comprarla, ed è <b>intoccabile</b> se ci apri l’app almeno una volta a settimana.'},
  {tab:null,sel:'.mwscorte',t:'In basso le tue <b>case</b> e le <b>scorte</b>: 🧱 Mattoni, 🪵 legno per le assi, 🥫 cibo per le squadre d’assalto, ⛽ carburante per viaggiare in moto e in auto.'},
+ {tab:null,sel:'.mwsup',t:'Questo è <b>il tuo superstite</b> 🎖️: cresce di grado con l’esperienza ⭐. Con l’energia ⚡ lo mandi in <b>spedizione</b> nei posti veri vicino a casa (supermercati, ferramenta, distributori) a prendere provviste, quando vuoi.'},
  {tab:null,sel:'.lmap',t:'Tocca una <b>casa qualsiasi</b>: se è libera la compri con i <b>🧱 Mattoni</b>. Se è di un rivale puoi <b>⚔️ assaltarla</b>: se all’orda cade, diventa tua. Le tue difendile con le assi e con gli alleati.'},
  {tab:null,sel:'.lm-orda',t:'Con <b>🧟 Orda</b> guardi l’ultimo assalto sulla mappa: 🛡️ case che hanno tenuto, 💥 case sfondate. Anche quelle degli altri.'},
  {tab:()=>go('orda'),sel:'.fronte',t:'Questo è il <b>fronte</b>: gli zombie che arrivano sulla tua zona, con le strade vere (in salita sono più lenti). Tocca uno zombie per vederlo.'},

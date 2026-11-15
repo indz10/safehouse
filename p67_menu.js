@@ -16,7 +16,7 @@ function zmItems(){const L=zmItemsBase();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
   if(g)g[1].splice(1,0,['📷','Lente: guarda con la fotocamera','lente']);})();
   /* Fase 15a: la Home si apre dal menu (la barra in basso non c'è più per chi gioca già) */
-  (()=>{const g=L[0];if(g)g[1].unshift(['🏠','Home','hpage'],['🌍','Mondo: mappa e orda','mondo'],['🧭','Cosa fare ora (guida)','guida'],['💬','Messaggi','msg'],['🛡️','Le mie alleanze','alz']);})();
+  (()=>{const g=L[0];if(g)g[1].unshift(['🏠','Home','hpage'],['🌍','Mondo: mappa e orda','mondo'],['🧭','Cosa fare ora (guida)','guida'],['🎖️','Il mio superstite','sup'],['💬','Messaggi','msg'],['🛡️','Le mie alleanze','alz'],['📣','Condividi sui social','share']);})();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
   if(g)g[1]=g[1].map(r=>r[2]==='g:difendi'?['⚔️','Gioca la notte','g:difendi']:r);})();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
@@ -34,7 +34,7 @@ function zmDoRun(k,b){
   if(k==='g:difendi'||k==='g:oggi'||k==='g:impero'){zmClose();go('orda');setTimeout(()=>{const t=k==='g:difendi'?app.querySelector('.odplay'):app.querySelector('.fronte');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},400);return;}
   if(k==='oggi'){zmClose();oggiSheet();return;}
   if(k==='lente'){zmClose();lenteOpen();return;}
-  if(k==='hpage'){zmClose();MW.userNav=1;go('home');return;}if(k==='mondo'){zmClose();S.zv='mondo';go('mappa');return;}if(k==='guida'){gdSheet();return;}if(k==='msg'){msgHub();return;}if(k==='alz'){alzMenu();return;}
+  if(k==='hpage'){zmClose();MW.userNav=1;go('home');return;}if(k==='mondo'){zmClose();S.zv='mondo';go('mappa');return;}if(k==='guida'){gdSheet();return;}if(k==='msg'){msgHub();return;}if(k==='alz'){alzMenu();return;}if(k==='sup'){supSheet('io');return;}if(k==='share'){shareSheet();return;}
   if(k==='inst'){zmClose();zInstallSheet();return;}
   if(k==='casa'){zmClose();go('casa');return;}if(k==='manual'){zmClose();openSheet('📚 Tutte le regole',rulesHTML());return;}if(k==='shop'){zmClose();shopSheet(0);return;}
   if(k==='home'&&b&&/Piano/.test(b.textContent)){zmClose();go('casa');return;}
@@ -66,5 +66,13 @@ function manualHTML(){let h=manualHTMLBase();
     <p>Le case in <b>zone care</b> rendono più affitto. I <b>🚩 presidi</b> si occupano fino a <b>5 km</b> da una tua casa e a ogni orda retta rendono <b>40 + 4 per orda di fila</b> della loro risorsa (fino a 80); tenuti da almeno 7 giorni danno +5 alle case vicine; si fortificano per sempre con 🧱 mura (+8 per livello) e 🗼 torretta (−20% agli assalti dei rivali per livello), e per la singola orda con le guardie (+12 ciascuna, tu e gli alleati, max 5), le assi (🪵 20 = +6) e i difensori alleati; e nella scheda del presidio “📋 Dettagli e come fortificarlo” mostra quanto sale la %. Nel condominio l’<b>🏅 amministratore</b> (chi versa di più nel mese) ha le difese comuni doppie e il 10% dei versamenti degli altri. Chi è appena arrivato ha <b>15 giorni di scudo</b>.</p>
     <p><b>🧭 Cosa fare</b> (in alto nel Mondo e nel menu ☰): l’elenco delle mosse migliori adesso, con costi e premi; basta toccare il pulsante.</p></div></details>`;
   try{const i=h.indexOf('🧟 L’orda del mondo (la cosa principale)');const j=i<0?-1:h.indexOf('</details>',i);if(j>0)h=h.slice(0,j+10)+TER+h.slice(j+10);else h=h.replace('<details class="man"',TER+'<details class="man"');}catch(e){}
+  /* migrazione 020: il superstite che cresce (subito dopo il territorio) */
+  const SUPC=`<details class="man"><summary>🎖️ Il tuo superstite: grado, energia e spedizioni</summary><div class="man-b">
+    <p>Oltre alle case cresce anche <b>il tuo superstite</b>. Ogni premio in 🧱 Mattoni dà anche <b>esperienza ⭐</b> (1 ogni 4 Mattoni), e così le spedizioni, la serie di giorni, le condivisioni e gli amici invitati. Con l’esperienza sali di <b>grado 🎖️</b>: 2 a ⭐ 50, 3 a ⭐ 200, 4 a ⭐ 450, 5 a ⭐ 800…</p>
+    <p><b>⚡ Energia</b>: 10 cariche, una in più ogni 2 ore. Le usi per le <b>🎒 spedizioni</b> nei posti veri vicino alle tue case: 🛒 supermercati e alimentari → 🥫 cibo; 🔧 ferramenta, vivai e parchi → 🪵 legno; ⛽ distributori → carburante; 💊 farmacie → ⚡ energia; scuole, poste e municipio → un po’ di tutto. Più il posto è lontano, più la spedizione dura, rende e rischia (se gli zombie lo inseguono torna con metà). Il raggio parte da 1,5 km e cresce con il grado. Ogni posto si rifà dopo 12 ore. A volte trova un 💰 tesoro.</p>
+    <p><b>🧠 Abilità</b> (un punto per grado, massimo 5): 🧭 Esploratore (raggio e bottino), 💪 Resistenza (energia), 🔪 Combattente (meno rischio), 🔍 Cercatore (tesori), 🤝 Mercante (più Mattoni al Mercato). <b>🛠️ Attrezzi</b> (3 livelli, 🪵 30 e 🧱 50 per livello): 🎒 zaino, 🔦 torcia, 🪓 arma, 📻 radio (più spedizioni insieme).</p>
+    <p><b>📅 Serie di giorni</b>: ritira il premio ogni giorno, cresce per 7 giorni (il 7° dà 🧱 50). <b>📣 Condividi</b> (menu ☰): un’immagine pronta con grado e casa e il tuo link per WhatsApp, Facebook, Instagram, TikTok, X e Telegram; la prima del giorno dà ⭐ 20 e ⚡ 1, ogni amico che entra ⭐ 50 e ⚡ 2, e quando valuta la casa ⭐ 150 e 🧱 150.</p>
+    <p>Si apre da <b>🎖️</b> in alto sulla mappa, dal menu ☰ e dalla guida 🧭.</p></div></details>`;
+  try{const i=h.indexOf('🏴 Territorio: assalti, conquiste e scorte');const j=i<0?-1:h.indexOf('</details>',i);if(j>0)h=h.slice(0,j+10)+SUPC+h.slice(j+10);else h=h.replace('<details class="man"',SUPC+'<details class="man"');}catch(e){}
   return h;}
 </script>

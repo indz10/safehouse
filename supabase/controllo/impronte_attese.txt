@@ -15,6 +15,7 @@ sponsor_pagato(uuid, text, text, numeric) 3cc3708899
 sponsor_request(jsonb) 5b2033e9ba
 sponsor_scadenze() 322b41919e
 sponsors_guard() fb6e27a43c
+w_ab(jsonb, text) 30f938aaf4
 w_alleanza_chiudi(bigint) 0ee9b2ae49
 w_alleanza_di(uuid) 0a0e12e264
 w_allies_of(uuid) a696d73f51
@@ -43,8 +44,14 @@ w_dist_alleanza(bigint, double precision, double precision) 556484658d
 w_dist_km(uuid, uuid) 981d88669d
 w_dist_pt(uuid, double precision, double precision) 2df92f513c
 w_dot(uuid) 2eda15dce6
+w_en_add(uuid, integer) bbbd4e4ff9
+w_en_max(jsonb) 8a3f3d1692
+w_en_ric(jsonb) 14229acc85
+w_eq(jsonb, text) de48d8f850
 w_feed_add(text, uuid, uuid, double precision, double precision, text) 1a92b9dc6f
 w_fort(text) bafcee35d6
+w_grado(integer) 54cc85f814
+w_grado_xp(integer) 760a3019c4
 w_home_held(uuid, text) 9c9e12578c
 w_home_known(uuid, uuid) 401b1ac373
 w_in_alleanza(uuid, bigint) 5c963dd3f1
@@ -66,7 +73,7 @@ w_mz_rank(text) 0c32d9db64
 w_mz_speed(text) 54122832f6
 w_next_slot(timestamp with time zone) e7098146fc
 w_nick(uuid) 0f0ebfc0c0
-w_pay(uuid, integer, text, text) 5bcdcb3669
+w_pay(uuid, integer, text, text) 1a72164541
 w_perche_no(uuid, bigint) 5335d9836d
 w_piazza_nuovi(uuid, timestamp with time zone, text) 11b8e1d2c2
 w_power3(integer, integer, boolean) 1514872532
@@ -92,6 +99,12 @@ w_shielded(uuid) 3d79156b4e
 w_slope(text) 0dcd67cdba
 w_slot_id(timestamp with time zone) 5fd33c951a
 w_slot_t(text) 3048adad4f
+w_sped_calc(numeric, jsonb, jsonb, boolean) 2ad80807a7
+w_sped_km(uuid, double precision, double precision) 10d4964e35
+w_sped_tick() 7608d6b7b3
+w_sup(uuid) 6e87cf96ab
+w_sup_inviti(uuid) 4b9cce9772
+w_sup_raggio(integer, jsonb) 40de5a1ee8
 w_target(text, double precision, double precision) d2b39d5099
 w_threats_of(uuid) c3f1ef3fd3
 w_tr_casa_pos() 3ece59115a
@@ -105,6 +118,7 @@ w_vicino_alleanza(uuid, bigint) 60958d56d7
 w_votanti(bigint) 049241a6d1
 w_wallet(uuid) 27de1a6e90
 w_wxev(text, text) 042a705ec9
+w_xp(uuid, integer) d133cceaa6
 w_zm(text, numeric, text, integer) 94a9eab19e
 w_zona_libera(uuid, double precision, double precision, bigint) f1ff4a04c7
 w_ztypes() 76112a7194
@@ -209,10 +223,17 @@ world_set_realshield(integer) 9aae268eb7
 world_shape_get(text, text) 9835883569
 world_shape_put(text, text, jsonb) c184167164
 world_shout(uuid, integer) ab6a2241e6
+world_sped_parti(text, text, double precision, double precision) 5986463d97
+world_sped_raccogli(bigint) f0bace7399
 world_status_extra() b12cc9499a
+world_sup_abilita(text) dd94b1074a
+world_sup_equip(text) d386c01004
+world_sup_info() c031b79efe
+world_sup_serie() a2c797e540
+world_sup_share(text) a63a45dd52
 world_team_bonus() 902e1c195a
 world_threats() e9837b68ee
-world_trade(text, integer) ca40e2af21
+world_trade(text, integer) ee230abc99
 world_upgrade(text) 56e37f8b3d
 world_view(double precision, double precision, double precision, double precision) 8d26637b91
 world_welcome() 91b230ff05
@@ -272,6 +293,8 @@ world_presidi_tenute 171e1299
 world_shapes 90c99d30
 world_shields 39ed43a6
 world_shouts 38a06241
+world_spedizioni b0030b49
+world_superstite f024ce2b
 world_terrain b6c5b216
 world_wallet 0fde9277
 world_wx 6b1c15c8

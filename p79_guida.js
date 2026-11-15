@@ -50,6 +50,7 @@ function gdItems(d){d=d||{};const I=[];const R=Object.assign({},RES.d||{},d.riso
     if(w&&w.h.bid)I.push({p:28,ic:'🪵',t:`Rinforza ${esc(w.h.home?'casa tua':w.h.label)} (${w.c}%)`,why:'È la tua casa più debole: le assi danno +6 per la prossima orda.',cost:'🪵 20',gain:'+6',acts:[{b:'🪵 Inchioda le assi',run:rpc('world_assi',{p_bid:w.h.bid,p_lat:w.h.lat,p_lon:w.h.lon})}]});}
   const tanti=[['legno','🪵'],['cibo','🥫'],['carb','⛽']].filter(([k])=>(R[k]||0)>=200);
   if(tanti.length)I.push({p:10,ic:'🔄',t:'Hai scorte in più: scambiale',why:`${tanti.map(x=>x[1]).join(' ')} oltre 200: al Mercato 20 = 🧱 10.`,acts:[{b:'🔄 Mercato',run:async()=>{shopSheet(0);return{skip:1};}}]});
+  try{if(typeof supGdItems==='function')supGdItems(I);}catch(e){}
   return I.sort((a,b)=>b.p-a.p);}
 function gdHTML(){const I=gdItems(GD.d);
   return`<div class="gdtop">${typeof trrScorteHTML==='function'?trrScorteHTML().replace(/<button class="mwguida[^"]*"[\s\S]*?<\/button>/g,''):''}</div>
