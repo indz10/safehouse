@@ -23,9 +23,17 @@ async function wEarn(r){try{const d=await wRpc('world_earn',{p_reason:r});if(d&&
 function wRefresh(){try{const p=app.querySelector('.wpan');if(p){const n=document.createElement('div');n.innerHTML=wPanelHTML();const np=n.firstElementChild;np.dataset.grp=p.dataset.grp||'q';p.replaceWith(np);wBind();}}catch(e){}
   const h=document.querySelector('#wHome');if(h)h.innerHTML=wHomeLine();}
 /* ---- la tua casa nel mondo: conferma in 2 giorni (contro i furbi) ---- */
-async function wClaim(force){const H0=S.zone&&S.zone.real&&S.zone.real.house;const H=(H0&&H0.bid)?H0:(window.__homeG?{bid:__homeG.bid,clat:__homeG.lat,clon:__homeG.lon}:null);if(!H||!H.bid||!S.user)return;
-  try{const r=await wRpc('world_claim_home',{p_bid:H.bid,p_lat:H.clat||S.zone.real.lat,p_lon:H.clon||S.zone.real.lon});W.claim=r;
-    if(r&&r.status==='home'&&W.m&&(!W.m.home||W.m.home.status!=='home'))toast('🏠 '+r.msg);else if(force&&r&&r.msg)toast('🏠 '+r.msg);wMine(true);}catch(e){}}
+/* force = l'ha chiesto il giocatore: se l'edificio non è in memoria lo cerco dalla posizione della valutazione
+   (o, se dice di essere a casa, dal GPS) e mostro sempre la risposta del server (prima gli errori sparivano: case mai registrate) */
+async function wClaim(force,gps){if(!S.user)return null;const R=S.zone&&S.zone.real;const H0=R&&R.house;
+  let H=(H0&&H0.bid)?H0:(window.__homeG?{bid:__homeG.bid,clat:__homeG.lat,clon:__homeG.lon}:null);
+  if((!H||!H.bid)&&force){const p=gps&&S.geo&&S.geo.lat!=null?S.geo:R&&R.lat!=null?R:null;
+    if(p){try{const b=await wIdentify(p.lat,p.lon);if(b&&b.bid)H={bid:b.bid,clat:b.lat,clon:b.lon};}catch(e){}}}
+  if(!H||!H.bid){if(force)toast('🏠 Non trovo l’edificio di casa tua: rifai la valutazione con l’indirizzo giusto, oppure tocca “Sono a casa adesso”');return null;}
+  const la=H.clat!=null?H.clat:R&&R.lat,lo=H.clon!=null?H.clon:R&&R.lon;
+  try{const r=await wRpc('world_claim_home',{p_bid:H.bid,p_lat:la,p_lon:lo});W.claim=r;
+    if(r&&r.status==='home'&&W.m&&(!W.m.home||W.m.home.status!=='home'))toast('🏠 '+r.msg);else if(force&&r&&r.msg)toast('🏠 '+r.msg);wMine(true);return r;}
+  catch(e){if(force)toast('🏠 Non riuscito: '+(e.message||'riprova'));return{ok:false,msg:e.message};}}
 function wHomeLine(){const h=W.m&&W.m.home;if(!S.user)return'Accedi per avere la tua casa nel mondo unico.';if(!h)return'Valuta la casa: diventa tua nel mondo unico.';
   return h.status==='home'?'❤️ <b>Casa tua nel mondo unico</b>: nessuno può comprarla.':'⏳ <b>Casa tua in conferma</b>: riapri l’app domani per confermarla (serve contro chi fa il furbo).';}
 /* ---- pannello nel gioco ---- */
