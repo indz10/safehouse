@@ -94,6 +94,18 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
     presidi:[{id:'osm:n7',name:'Parco Vero',kind:'parco',lat:45.33,lon:10.66,dist_km:0.6,carb:1}],
     bersagli:[{bid:'x5',lat:45.326,lon:10.66,level:1,nick:'mario',dist_km:0.8,fort:0,atk:{ok:true,pts:9,carb:2}}],
     risorse:{mattoni:1000,legno:(window.__mkRes||{}).legno||60,cibo:45,carb:25}},error:null};}
+  case'world_alleanza_info':{const A=window.__mkAlz||(window.__mkAlz={in:false});return{data:{ok:true,alleanza:A.in?{id:1,nome:'Lupi di Volta',emblema:'🐺',capo:'me',capo_nick:'ale',votanti:['me','u2'],ultimo_msg:1,membri:[{user_id:'me',nick:'ale',wlevel:3,attivita:12,me:true},{user_id:'u2',nick:'giangy',wlevel:2,attivita:9,me:false}]}:null,
+    da_votare:A.in?[{id:7,tipo:'richiesta',user_id:'u8',nick:'gina',wlevel:1,da:null,si:0,no:0,votanti:2,candidato_ok:true,dist_km:3.1}]:[],in_corso:[],inviti:A.in?[]:[{id:5,alleanza:'Cerchio di Ferro',emblema:'🔥',da:'mario',membri:4}],mie_richieste:[]},error:null};}
+  case'world_alleanze_vicine':return{data:[{id:2,nome:'Cerchio di Ferro',emblema:'🔥',capo:'mario',membri:4,dist_km:2.3,chiesto:false}],error:null};
+  case'world_alleanza_crea':{const A=window.__mkAlz||(window.__mkAlz={});A.in=true;return{data:{ok:true,id:1,msg:'🛡️ Alleanza fondata'},error:null};}
+  case'world_alleanza_chiedi':return{data:{ok:true,msg:'🗳️ Richiesta inviata'},error:null};
+  case'world_alleanza_invita':return{data:{ok:true,msg:'📨 Invito partito'},error:null};
+  case'world_alleanza_vota':{window.__mkAlzVoto=(window.__mkAlzVoto||0)+1;return{data:{ok:true,esito:'aperta',msg:'🗳️ Voto registrato'},error:null};}
+  case'world_alleanza_risposta':{const A=window.__mkAlz||(window.__mkAlz={});if(a.p_si)A.in=true;return{data:{ok:true,msg:a.p_si?'🛡️ Benvenuto':'Invito rifiutato'},error:null};}
+  case'world_alleanza_esci':{const A=window.__mkAlz||(window.__mkAlz={});A.in=false;return{data:{ok:true,msg:'Sei uscito'},error:null};}
+  case'world_alleanza_chat':return{data:(window.__mkAlzChat||[]).map((b,i)=>({id:i+1,user_id:'me',nick:'ale',body:b,created_at:new Date().toISOString(),mine:true})),error:null};
+  case'world_alleanza_scrivi':{(window.__mkAlzChat=window.__mkAlzChat||[]).push(a.p_body);return{data:{ok:true},error:null};}
+  case'world_rank_alleanze':return{data:[{pos:1,id:2,nome:'Cerchio di Ferro',emblema:'🔥',membri:4,punti:980,mia:false},{pos:2,id:1,nome:'Lupi di Volta',emblema:'🐺',membri:2,punti:610,mia:true}],error:null};
   case'world_saccheggia':return{data:{ok:true,msg:'⚔️ Squadra partita'},error:null};
   case'world_resources':{const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});return{data:{ok:true,mattoni:1000,legno:R.legno,cibo:R.cibo,carb:R.carb,mercato_left:R.left},error:null};}
   case'world_trade':{const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});if(R[a.p_kind]<20)return{data:{ok:false,msg:'Servono almeno 20 di quella risorsa'},error:null};R[a.p_kind]-=20;R.left-=10;return{data:{ok:true,dato:20,mattoni:10,mercato_left:R.left},error:null};}

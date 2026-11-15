@@ -15,13 +15,16 @@ sponsor_pagato(uuid, text, text, numeric) 3cc3708899
 sponsor_request(jsonb) 5b2033e9ba
 sponsor_scadenze() 322b41919e
 sponsors_guard() fb6e27a43c
-w_allies_of(uuid) f79fddd6ef
+w_alleanza_chiudi(bigint) 755afbdaca
+w_alleanza_di(uuid) 6ce99f3ac5
+w_allies_of(uuid) a696d73f51
 w_ally_state(uuid, uuid) cf9a34567a
-w_are_allies(uuid, uuid) 167bf22cdd
+w_are_allies(uuid, uuid) d3e2331ab7
 w_assalti_tick() dd5faea182
 w_atk_b(uuid, text, text) 8093f93f04
 w_atk_pts(uuid, uuid) 2031640ee7
 w_attack3(text, text, integer) 4deba51e53
+w_attivita(uuid) 23dc6eab3e
 w_azione(uuid, text, double precision, double precision, text) 91b6665588
 w_bad(text) 2115eb8cd1
 w_boost(uuid) 23b0f9792c
@@ -94,15 +97,27 @@ w_tr_feed_push() 17e63bafcd
 w_tr_invite_join() bee6d00589
 w_tr_pos_casa() 59d49e4362
 w_upower(uuid, text) 2974e0963a
+w_vicino_alleanza(uuid, bigint) 445b3fbb1f
+w_votanti(bigint) 049241a6d1
 w_wallet(uuid) 27de1a6e90
 w_wxev(text, text) 042a705ec9
 w_zm(text, numeric, text, integer) 94a9eab19e
 w_ztypes() 76112a7194
+world_alleanza_chat(bigint) c76202c3ff
+world_alleanza_chiedi(bigint) 730c9cfc30
+world_alleanza_crea(text, text) dadeff2583
+world_alleanza_esci() 6abb8884ac
+world_alleanza_info() 46a66d31e0
+world_alleanza_invita(uuid) 40d5f19388
+world_alleanza_risposta(bigint, boolean) 5c4668ac90
+world_alleanza_scrivi(text) 9ba372f002
+world_alleanza_vota(bigint, boolean) 0c924d0287
+world_alleanze_vicine() 27dd5c0d8e
 world_allies() 65fb8c2faf
 world_allies_status() 774a3128fd
 world_ally_answer(uuid, boolean) f0cb9fb4e9
 world_ally_pending() 2075b82e92
-world_ally_request(uuid) 4e3ca6d520
+world_ally_request(uuid) e5fd081ccb
 world_ally_shield(uuid) ebd03e1ab8
 world_ally_view(uuid) ef33f8ac73
 world_ask_help() eaa8fd1b52
@@ -165,6 +180,7 @@ world_raid_claim() 4764232a63
 world_raid_status() 6ee39c1edb
 world_raid_view(double precision, double precision, double precision, double precision) 4c0cb1eb28
 world_rank(text, text) 7ee3678f27
+world_rank_alleanze() 06d12a0c4e
 world_rank_lega(text) e575360a99
 world_resources() 52d06d9645
 world_reward(integer, text) cf34570f62
@@ -210,6 +226,10 @@ sponsor_stats_month c5ad4f54
 sponsor_users a74be6ef
 sponsors 23040d78
 subscriptions 43d90a91
+world_alleanze 0f0c4335
+world_alleanze_chat 2ac4025d
+world_alleanze_domande 2a86f6fb
+world_alleanze_membri e20a9ce7
 world_allies 9e7a3019
 world_assalti f9d9eb2f
 world_assalti_esiti 86609925
