@@ -53,12 +53,12 @@ const supLeft=t=>{const s=Math.max(0,Math.round((new Date(t)-Date.now())/1000));
 async function supSheet(tab){if(!S.user){toast('Accedi per far crescere il tuo superstite');try{loginSheet();}catch(e){}return;}
   let vis=null;try{vis=localStorage.getItem('zsh_sup_intro');}catch(e){vis='1';}if(!vis&&!tab)return supIntro(0);
   SUP.tab=tab||SUP.tab||'io';
-  const tabs=()=>`<div class="hkvb trtabs suptabs">${[['io','🎖️ Io'],['sped',`🎒 Spedizioni${supReady()?` (${supReady()})`:''}`],['eq','🛠️ Attrezzi'],['come','❓ Come si cresce']].map(([k,n])=>`<button data-spt="${k}" class="${SUP.tab===k?'on':''}">${n}</button>`).join('')}</div>`;
+  const tabs=()=>`<div class="hkvb trtabs suptabs">${[['io','🎖️ Io'],['sfida','🏆 Sfida'],['sped',`🎒 Spedizioni${supReady()?` (${supReady()})`:''}`],['eq','🛠️ Attrezzi'],['come','❓ Come si cresce']].map(([k,n])=>`<button data-spt="${k}" class="${SUP.tab===k?'on':''}">${n}</button>`).join('')}</div>`;
   openSheet('🎖️ Il tuo superstite',tabs()+'<div class="supbox"><p><span class="spin"></span></p></div>',c=>c.querySelectorAll('[data-spt]').forEach(b=>b.onclick=()=>supSheet(b.dataset.spt)));
   await supLoad(true);const box=document.querySelector('#sheet.open .supbox');if(!box)return;
   const tb=document.querySelector('#sheet.open .suptabs');if(tb){tb.outerHTML=tabs();document.querySelectorAll('#sheet.open [data-spt]').forEach(b=>b.onclick=()=>supSheet(b.dataset.spt));}
   if(!SUP.d){box.innerHTML='<p class="notice">Il superstite arriva dopo l’aggiornamento del server (blocco SQL 020), oppure la rete è lenta. Riprova fra poco.</p>';return;}
-  if(SUP.tab==='sped')return supSped(box);if(SUP.tab==='eq')return supEqPaint(box);if(SUP.tab==='come'){box.innerHTML=supComeHTML();supBindCommon(box);return;}
+  if(SUP.tab==='sfida'){box.innerHTML='<p><span class="spin"></span></p>';const sd=await sfidaLoad(true);if(box.isConnected)box.innerHTML=sfidaHTML(sd);return;}if(SUP.tab==='sped')return supSped(box);if(SUP.tab==='eq')return supEqPaint(box);if(SUP.tab==='come'){box.innerHTML=supComeHTML();supBindCommon(box);return;}
   supIoPaint(box);}
 function supIoPaint(box){const d=SUP.d;const pc=d.xp_a>d.xp_da?Math.round((d.xp-d.xp_da)/(d.xp_a-d.xp_da)*100):100;const g=((Math.max(1,d.serie)-1)%7)+1;
   const rk=supRank(d.grado),nx=supNextRank(d.grado),ad=supAdesso();const eq=SUP_EQ.filter(([k])=>supEq(k)).map(x=>x[1]).join('');

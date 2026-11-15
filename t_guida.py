@@ -15,8 +15,8 @@ async def main():
                           "S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');S.answers={...SAMPLE};S.result=computeScore(S.answers,S.zone);"
                           "__W.b.w9={owner:'me',lat:45.326,lon:10.659,level:2,paid:300};await wMine(true);closeSheet();await resLoad(true);await orLoad(true);await gdLoad(true);S.zv='mondo';go('mappa');}")
         await pg.wait_for_timeout(3500)
-        print('pulsante guida:',await pg.evaluate("()=>{const b=document.querySelector('.mwtop [data-trguida]');return b?b.textContent.trim():null}"))
-        await pg.evaluate("()=>document.querySelector('.mwtop [data-trguida]').click()");await pg.wait_for_timeout(2500)
+        print('carta ADESSO e altre cose:',await pg.evaluate("()=>{const b=document.querySelector('.mwdrawer .mwnow b'),a=document.querySelector('.mwdrawer [data-nowall]');return [b&&b.textContent,a&&a.textContent]}"))
+        await pg.evaluate("()=>document.querySelector('.mwdrawer [data-nowall]').click()");await pg.wait_for_timeout(2500)
         print('carte:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .gdcard .gdtx>b')].map(x=>x.textContent).slice(0,12)"))
         print('urgenti:',await pg.evaluate("()=>document.querySelectorAll('#sheet.open .gdcard.urg').length"))
         await pg.evaluate("()=>{const c=[...document.querySelectorAll('#sheet.open .gdcard')].find(x=>/Prepara/.test(x.textContent));c.querySelector('[data-gda]').click()}");await pg.wait_for_timeout(2500)

@@ -53,6 +53,7 @@ function gdItems(d){d=d||{};const I=[];const R=Object.assign({},RES.d||{},d.riso
   const tanti=[['legno','🪵'],['cibo','🥫'],['carb','⛽']].filter(([k])=>(R[k]||0)>=200);
   if(tanti.length)I.push({p:10,ic:'🔄',t:'Hai scorte in più: scambiale',why:`${tanti.map(x=>x[1]).join(' ')} oltre 200: al Mercato 20 = 🧱 10.`,acts:[{b:'🔄 Mercato',run:async()=>{shopSheet(0);return{skip:1};}}]});
   try{if(typeof supGdItems==='function')supGdItems(I);}catch(e){}
+  try{if(typeof evtGdItems==='function')evtGdItems(I);}catch(e){}
   return I.sort((a,b)=>b.p-a.p);}
 function gdHTML(){const I=gdItems(GD.d);
   return`<div class="gdtop">${typeof trrScorteHTML==='function'?trrScorteHTML().replace(/<button class="mwguida[^"]*"[\s\S]*?<\/button>/g,''):''}</div>

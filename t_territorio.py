@@ -19,6 +19,7 @@ async def main():
         await pg.wait_for_timeout(3500)
         print('mappa · scorte in alto:',await pg.evaluate("()=>{const s=document.querySelector('.mapfull .mwtop .mwscorte');return s?[s.querySelectorAll('.mwres span').length,!!s.querySelector('[data-trpres]')]:null}"))
         print('mappa · mie case segnate:',await pg.evaluate("()=>[...document.querySelectorAll('.lm-mine')].map(e=>e.textContent.replace(/\\s+/g,' ').trim())"))
+        await pg.evaluate("()=>{const g=document.querySelector('.mwdrawer [data-mwg]');if(g)g.click()}");await pg.wait_for_timeout(800)
         print('mappa · case nel cassetto:',await pg.evaluate("()=>document.querySelectorAll('.mwdrawer .mwchip[data-mwh]').length"))
         await pg.evaluate("()=>document.querySelector('[data-mwm=orda]').click()");await pg.wait_for_timeout(3000)
         print('orda · barra in basso:',await pg.evaluate("()=>{const d=document.getElementById('mwdock');return d?[!!d.querySelector('.mwscorte'),d.querySelectorAll('[data-trh]').length,getComputedStyle(d).position]:null}"))

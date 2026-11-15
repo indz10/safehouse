@@ -24,6 +24,12 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_caccia_inizia':{const U=window.__SUP;if(U&&U.energia<1)return{data:{ok:false,msg:'Serve ⚡ 1'},error:null};if(U)U.energia-=1;window.__CAC={t:Date.now()};
     return{data:{ok:true,id:7,n:3,rimaste:9,danno:1,zombie:[{k:'lento',hp:2,b:0,dt:0},{k:'corridore',hp:2,b:10,dt:0.5},{k:'bruto',hp:4,b:-90,dt:1}]},error:null};}
   case'world_caccia_fine':{window.__CACF=a;const u=Math.min(3,a.p_uccisi);return{data:{ok:true,uccisi:u,n:3,xp:5*u+(u===3?10:0),legno:3,cibo:3,carb:0,tutti:u===3,grado:3,salito:false},error:null};}
+  case'world_eventi_vicini':{if(!window.__EVT){const la=45.3262,lo=10.6592;window.__EVT=[{id:11,kind:'cassa',nome:'📦 Rifornimento caduto',lat:la,lon:lo,end_at:new Date(Date.now()+20*60e3).toISOString(),hp:0,hp_max:0,posti:3,km:0.12,raggio:5,gente:1,mio:null},
+      {id:12,kind:'nido',nome:'🧟 Nido di zombie',lat:la-0.003,lon:lo+0.002,end_at:new Date(Date.now()+50*60e3).toISOString(),hp:30,hp_max:30,posti:1,km:0.4,raggio:5,gente:0,mio:null}];}return{data:window.__EVT,error:null};}
+  case'world_evento_azione':{const e=(window.__EVT||[]).find(x=>x.id===a.p_id);if(!e)return{data:{ok:false,msg:'L’evento è finito'},error:null};
+    if(e.kind==='cassa'){e.mio={colpi:1,posto:1};e.gente++;return{data:{ok:true,kind:'cassa',posto:1,xp:30,legno:24,cibo:24,carb:24,msg:'📦 Sei arrivato 1°: hai preso la tua parte'},error:null};}
+    e.hp=Math.max(0,e.hp-6);e.mio={colpi:((e.mio&&e.mio.colpi)||0)+1,danno:((e.mio&&e.mio.danno)||0)+6};return{data:{ok:true,kind:e.kind,danno:6,hp:e.hp,hp_max:e.hp_max,finito:e.hp===0,msg:'💥 −6: ne restano '+e.hp},error:null};}
+  case'world_sfida_quartiere':return{data:{ok:true,fine:new Date(Date.now()+3*864e5).toISOString(),premi:[150,100,50],io:{punti:25,pos:2},tot:5,top:[{user_id:'u2',nick:'giangy',punti:40,pos:1,io:false},{user_id:'me',nick:'ale',punti:25,pos:2,io:true},{user_id:'u5',nick:'vicina',punti:10,pos:3,io:false}],ultimo:null},error:null};
   case'world_seen':return{data:null,error:null};
   case'sponsor_request':{window.__SPREQ=a.p;return{data:a.p&&a.p.name?{ok:true,id:'sp1',msg:'Richiesta inviata'}:{ok:false,msg:'Scrivi il nome'},error:null};}
   case'world_presidi_list':{const P=window.__PRES=window.__PRES||[];if(!P.length&&!window.__PRES_VUOTO){const la=(a.p_minlat+a.p_maxlat)/2,lo=(a.p_minlon+a.p_maxlon)/2;
