@@ -4,7 +4,8 @@
 --    li colpisci toccandoli prima che ti raggiungano. Il server decide quanti e quali zombie, controlla i tempi
 --    (niente uccisioni impossibili) e dà i premi: ⭐ 5 a zombie (+10% per punto di 🔪 Combattente), ⭐ 10 se li
 --    prendi tutti, e da ogni zombie una scorta (🪵/🥫/⛽ 3, il bruto 6). Massimo 10 cacce al giorno.
--- 2) 🏢 Case non registrate: a chi ha valutato la casa ma non ce l'ha nel mondo (capitava nei condomini)
+-- 2) 🎒 Spedizioni: raggio da 3 km (+1 km per grado e per 🧭 Esploratore, max 30) e ⭐ attività sponsor come mete.
+-- 3) 🏢 Case non registrate: a chi ha valutato la casa ma non ce l'ha nel mondo (capitava nei condomini)
 --    arriva una notifica "🏠 Registra la tua casa" (subito e poi al massimo ogni 3 giorni, dal giro di zsh-push).
 -- Richiede la migrazione 020. Si può eseguire più volte.
 -- =====================================================================
@@ -78,6 +79,101 @@ begin
   s := public.w_sup(me);
   return json_build_object('ok', true, 'uccisi', u, 'n', c.n, 'xp', xp, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int,
     'tutti', u = c.n, 'grado', public.w_grado(s.xp), 'salito', public.w_grado(s.xp) > g0);
+end $$;
+
+-- ---------- 🎒 spedizioni: raggio più ampio e attività ⭐ sponsor come mete (segnalazione di Alessandro, 15/11) ----------
+-- Raggio = min(30, 3 + 1 × (grado − 1) + 1 × Esploratore) km dalla tua casa più vicina (prima 1,5 + 0,5 per grado):
+-- chi ha case lontane (anche in Brasile) parte da quella che sceglie. Le attività sponsor sono mete speciali:
+-- bottino misto più ricco (🪵 e 🥫 metà, ⛽ un terzo) e ⭐ +5; ogni spedizione conta come visita per lo sponsor.
+create or replace function public.w_sup_raggio(p_xp int, p_abil jsonb) returns numeric language sql immutable as $$
+  select least(30, 3 + 1 * (public.w_grado(p_xp) - 1) + 1 * public.w_ab(p_abil, 'esploratore'))::numeric; $$;
+alter table public.world_spedizioni drop constraint if exists world_spedizioni_kind_check;
+alter table public.world_spedizioni add constraint world_spedizioni_kind_check check (kind in ('cibo','legno','carb','farmaco','misto','sponsor'));
+alter table public.sponsor_events drop constraint if exists sponsor_events_kind_check;
+alter table public.sponsor_events add constraint sponsor_events_kind_check check (kind in ('vista_mappa','vista_verdetto','vista_gioco','scheda','chiama','whatsapp','indicazioni','sito','codice_creato','codice_usato','preventivo','spedizione'));
+
+create or replace function public.world_sped_parti(p_kind text, p_nome text, p_lat double precision, p_lon double precision) returns json
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); s public.world_superstite; spid uuid; km numeric; c json; en int; mins int; h int; nid bigint; notte boolean;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if p_kind not in ('cibo','legno','carb','farmaco','misto','sponsor') then return json_build_object('ok', false, 'msg', 'Posto sconosciuto'); end if;
+  -- ⭐ sponsor: solo un'attività sponsor attiva vera a meno di 60 m dal punto
+  if p_kind = 'sponsor' then
+    select sp.id into spid from public.sponsors sp where sp.active and sp.lat is not null
+      and public.w_km(p_lat, p_lon, sp.lat, sp.lon) < 0.06 order by public.w_km(p_lat, p_lon, sp.lat, sp.lon) limit 1;
+    if spid is null then return json_build_object('ok', false, 'msg', 'Questa attività non è più sponsor: scegli un altro posto'); end if;
+  end if;
+  if p_lat is null or p_lon is null then return json_build_object('ok', false, 'msg', 'Posto senza posizione'); end if;
+  s := public.w_sup(me);
+  km := public.w_sped_km(me, p_lat, p_lon);
+  if km is null then return json_build_object('ok', false, 'msg', 'Ti serve una casa nel mondo: le spedizioni partono da lì'); end if;
+  km := greatest(0.2, km);
+  if km > public.w_sup_raggio(s.xp, s.abil) then
+    return json_build_object('ok', false, 'msg', format('È a %s km: il tuo raggio è %s km (sali di grado o usa 🧭 Esploratore)', km, public.w_sup_raggio(s.xp, s.abil)));
+  end if;
+  if (select count(*) from public.world_spedizioni where user_id = me and stato = 'via') >= 1 + public.w_eq(s.equip, 'radio') then
+    return json_build_object('ok', false, 'msg', 'La squadra è già fuori: raccogli prima chi è tornato (📻 la Radio ne fa partire di più)');
+  end if;
+  if exists (select 1 from public.world_spedizioni where user_id = me and abs(lat - p_lat) < 0.0003 and abs(lon - p_lon) < 0.0004 and start_at > now() - interval '12 hours') then
+    return json_build_object('ok', false, 'msg', 'Ci sei già stato: il posto si riempie di nuovo fra 12 ore');
+  end if;
+  h := extract(hour from now() at time zone 'Europe/Rome'); notte := h >= 20 or h < 7;
+  c := public.w_sped_calc(km, s.abil, s.equip, notte);
+  en := (c->>'energia')::int; mins := (c->>'min')::int;
+  if s.energia < en then
+    return json_build_object('ok', false, 'msg', format('Serve ⚡ %s: ne hai %s (una carica ogni %s min)', en, s.energia, public.w_en_ric(s.abil)));
+  end if;
+  update public.world_superstite set energia = energia - en,
+    energia_at = case when energia >= public.w_en_max(abil) then now() else energia_at end where user_id = me;
+  insert into public.world_spedizioni(user_id, kind, nome, lat, lon, km, end_at, rischio, energia, calc)
+    values (me, p_kind, left(coalesce(nullif(trim(p_nome), ''), 'Posto senza nome'), 60), p_lat, p_lon, km, now() + make_interval(mins => mins), (c->>'rischio')::int, en, c::jsonb)
+    returning world_spedizioni.id into nid;
+  if spid is not null then
+    update public.world_spedizioni set calc = calc || jsonb_build_object('sponsor', spid) where id = nid;
+    insert into public.sponsor_events(sponsor_id, kind) values (spid, 'spedizione');
+  end if;
+  return json_build_object('ok', true, 'id', nid, 'min', mins, 'energia', en, 'end_at', now() + make_interval(mins => mins),
+    'msg', format('🎒 Partito! Torna fra %s min', mins));
+end $$;
+
+create or replace function public.world_sped_raccogli(p_id bigint) returns json
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); x public.world_spedizioni; s public.world_superstite; w public.world_wallet; c jsonb; b int; ko boolean;
+  l int := 0; f int := 0; k int := 0; e int := 0; xp int; mt int := 0; got json; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD'); g0 int; tes int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  select * into x from public.world_spedizioni where id = p_id and user_id = me for update;
+  if x.id is null or x.stato <> 'via' then return json_build_object('ok', false, 'msg', 'Spedizione già raccolta'); end if;
+  if x.end_at > now() then return json_build_object('ok', false, 'msg', 'Non è ancora tornato'); end if;
+  s := public.w_sup(me); g0 := public.w_grado(s.xp); c := x.calc;
+  ko := random() * 100 < x.rischio;
+  b := (c->>'bottino')::int; if ko then b := b / 2; end if;
+  case x.kind
+    when 'cibo' then f := b;
+    when 'legno' then l := b;
+    when 'carb' then k := round(b * 0.6);
+    when 'farmaco' then f := b / 2; e := case when ko then 1 else 2 end;
+    when 'sponsor' then l := b / 2; f := b / 2; k := b / 3;
+    else l := b / 3; f := b / 3; k := b / 3;
+  end case;
+  got := public.w_res(me, l, f, k);
+  if e > 0 then perform public.w_en_add(me, e); end if;
+  xp := (c->>'xp')::int + case when x.kind = 'sponsor' then 5 else 0 end; if ko then xp := xp / 2; end if;
+  perform public.w_xp(me, xp);
+  w := public.w_wallet(me); tes := coalesce((w.caps->>('tesori:' || day))::int, 0);
+  if random() * 100 < (c->>'tesoro')::int and tes < 5 then
+    mt := least(60, 15 + 5 * g0);
+    update public.world_wallet set caps = jsonb_set(caps, array['tesori:' || day], to_jsonb(tes + 1)) where user_id = me;
+    perform public.w_pay(me, mt, 'Spedizione: tesoro trovato');
+  end if;
+  update public.world_spedizioni set stato = 'raccolta', avvisato = true,
+    esito = jsonb_build_object('ko', ko, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int, 'energia', e, 'xp', xp, 'mattoni', mt)
+    where id = p_id;
+  s := public.w_sup(me);
+  return json_build_object('ok', true, 'ko', ko, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int,
+    'energia', e, 'xp', xp, 'mattoni', mt, 'grado', public.w_grado(s.xp), 'salito', public.w_grado(s.xp) > g0,
+    'msg', case when ko then 'Gli zombie l’hanno inseguito: ha portato a casa metà' else 'Spedizione riuscita' end);
 end $$;
 
 -- ---------- 🏠 avviso a chi ha valutato la casa ma non ce l'ha nel mondo ----------

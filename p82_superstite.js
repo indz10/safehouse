@@ -12,12 +12,12 @@
    Si apre da "🎖️" nella barra delle scorte del Mondo, dalla guida 🧭, dal menu ☰ e dalla notifica (?sup=1).
    ========================================================= */
 const SUP={d:null,t:0,tab:'io',P:null,Pk:'',f:'tutti',h:0,busy:false,mk:[],mkSig:'',mkMap:null};
-const SUP_AB=[['esploratore','🧭','Esploratore','+0,5 km di raggio e +10% di bottino nelle spedizioni'],['resistenza','💪','Resistenza','+1 ⚡ di energia massima e ricarica 10 minuti più veloce'],
+const SUP_AB=[['esploratore','🧭','Esploratore','+1 km di raggio e +10% di bottino nelle spedizioni'],['resistenza','💪','Resistenza','+1 ⚡ di energia massima e ricarica 10 minuti più veloce'],
   ['combattente','🔪','Combattente','−4% di rischio di dover scappare dagli zombie'],['cercatore','🔍','Cercatore','+3% di trovare un tesoro (🧱) in spedizione'],['mercante','🤝','Mercante','+1 🧱 ogni 10 🧱 scambiati al Mercato']];
 const SUP_EQ=[['zaino','🎒','Zaino','porta 15 provviste in più (senza zaino: 25)'],['torcia','🔦','Torcia','di notte (dalle 20 alle 7) niente rischio in più, e +2% di tesoro'],
   ['arma','🪓','Arma','−5% di rischio in spedizione'],['radio','📻','Radio','una spedizione in più nello stesso momento']];
 const SUP_K={cibo:['🥫','Cibo','supermercati, alimentari, panifici, mercati'],legno:['🪵','Legno','ferramenta, fai da te, vivai, parchi'],carb:['⛽','Carburante','distributori'],
-  farmaco:['💊','Medicine','farmacie e ospedali: ⚡ +2 e un po’ di 🥫'],misto:['📦','Un po’ di tutto','scuole, municipio, poste, biblioteche']};
+  farmaco:['💊','Medicine','farmacie e ospedali: ⚡ +2 e un po’ di 🥫'],misto:['📦','Un po’ di tutto','scuole, municipio, poste, biblioteche'],sponsor:['⭐','Sponsor','attività sponsor: bottino più ricco di tutto e ⭐ +5']};
 /* il superstite sei tu: l'aspetto e il titolo cambiano con il grado */
 const SUP_RANK=[[1,'🧑','Recluta','appena arrivato nell’apocalisse'],[3,'🧑‍🔧','Raccoglitore','conosce i negozi della zona'],[5,'🧑‍🚒','Veterano','torna sempre a casa'],[10,'🥷','Ranger','si muove come un’ombra'],[15,'🦸','Leggenda','lo conoscono tutti in città']];
 function supRank(g){let r=SUP_RANK[0];SUP_RANK.forEach(x=>{if(g>=x[0])r=x;});return r;}
@@ -39,7 +39,7 @@ function supCalc(km){const ab=supAb,eq=supEq,notte=!!(SUP.d&&SUP.d.notte);
   return{min:Math.min(180,Math.round(10+14*km)),energia:Math.min(3,1+Math.floor(km/2.5)),
     rischio:Math.min(60,Math.max(3,Math.round(10+4*km-4*ab('combattente')-5*eq('arma')+(notte&&eq('torcia')===0?10:0)))),
     bottino:Math.min(25+15*eq('zaino'),Math.round((10+6*km)*(1+0.1*ab('esploratore')))),xp:10+Math.round(6*km),tesoro:5+3*ab('cercatore')+2*eq('torcia')};}
-function supLoot(kind,b){return kind==='cibo'?`🥫 ~${b}`:kind==='legno'?`🪵 ~${b}`:kind==='carb'?`⛽ ~${Math.round(b*0.6)}`:kind==='farmaco'?`⚡ +2 · 🥫 ~${Math.floor(b/2)}`:`🪵 🥫 ⛽ ~${Math.floor(b/3)}`;}
+function supLoot(kind,b){if(kind==='sponsor')return`🪵 ~${Math.floor(b*3/8)} 🥫 ~${Math.floor(b*3/8)} ⛽ ~${Math.floor(b/4)}`;return kind==='cibo'?`🥫 ~${b}`:kind==='legno'?`🪵 ~${b}`:kind==='carb'?`⛽ ~${Math.round(b*0.6)}`:kind==='farmaco'?`⚡ +2 · 🥫 ~${Math.floor(b/2)}`:`🪵 🥫 ⛽ ~${Math.floor(b/3)}`;}
 const supReady=()=>((SUP.d&&SUP.d.spedizioni)||[]).filter(x=>x.stato==='via'&&new Date(x.end_at)<=Date.now()).length;
 const supVia=()=>((SUP.d&&SUP.d.spedizioni)||[]).filter(x=>x.stato==='via');
 async function supLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return SUP.d;if(!force&&SUP.d&&Date.now()-SUP.t<60000)return SUP.d;
@@ -95,15 +95,22 @@ function supKind(t){const s=t.shop||'',a=t.amenity||'';
 const SUP_CAT={supermarket:'Supermercato',convenience:'Alimentari',bakery:'Panificio',butcher:'Macelleria',greengrocer:'Frutta e verdura',deli:'Gastronomia',pastry:'Pasticceria',frozen_food:'Surgelati',
   hardware:'Ferramenta',doityourself:'Fai da te',garden_centre:'Vivaio',trade:'Materiali edili',chemist:'Drogheria',marketplace:'Mercato',fuel:'Distributore',pharmacy:'Farmacia',hospital:'Ospedale',clinic:'Clinica',
   school:'Scuola',townhall:'Municipio',post_office:'Ufficio postale',library:'Biblioteca',park:'Parco'};
-async function supPoi(lat,lon,rkm){const R=Math.round(Math.min(4,Math.max(1,rkm))*1000);const key='zsh_sp_'+lat.toFixed(3)+'_'+lon.toFixed(3)+'_'+R;
+async function supPoi(lat,lon,rkm){const R=Math.round(Math.min(3,Math.max(1,rkm))*1000);const key='zsh_sp_'+lat.toFixed(3)+'_'+lon.toFixed(3)+'_'+R;
   try{const c=JSON.parse(localStorage.getItem(key)||'null');if(c&&Date.now()-c.t<3*864e5)return c.P;}catch(e){}
   const A=`(around:${R},${lat.toFixed(5)},${lon.toFixed(5)})`;
-  const q=`[out:json][timeout:25];(nwr["shop"~"^(supermarket|convenience|bakery|butcher|greengrocer|deli|pastry|frozen_food|hardware|doityourself|garden_centre|trade|chemist)$"]${A};nwr["amenity"~"^(marketplace|fuel|pharmacy|hospital|clinic|school|townhall|post_office|library)$"]${A};nwr["leisure"="park"]["name"]${A};);out center tags 250;`;
-  const els=await trOverpass(q,22000,4);const P=[],seen=new Set();
+  const q=`[out:json][timeout:25];(nwr["shop"~"^(supermarket|convenience|bakery|butcher|greengrocer|deli|pastry|frozen_food|hardware|doityourself|garden_centre|trade|chemist)$"]${A};nwr["amenity"~"^(marketplace|fuel|pharmacy|hospital|clinic|school|townhall|post_office|library)$"]${A};nwr["leisure"="park"]["name"]${A};);out center tags 200;`;
+  const els=await trOverpass(q,14000,3);const P=[],seen=new Set();
   (els||[]).forEach(e=>{const t=e.tags||{};const la=e.lat!=null?e.lat:e.center&&e.center.lat,lo=e.lon!=null?e.lon:e.center&&e.center.lon;if(la==null||lo==null)return;
     const k=supKind(t);const cat=SUP_CAT[t.shop]||SUP_CAT[t.amenity]||SUP_CAT[t.leisure]||SUP_K[k][1];const name=String(t.name||cat).slice(0,40);
     const id=Math.round(la*3000)+':'+Math.round(lo*2500);if(seen.has(id))return;seen.add(id);P.push({k,cat,name,lat:+la.toFixed(6),lon:+lo.toFixed(6)});});
   try{localStorage.setItem(key,JSON.stringify({t:Date.now(),P}));}catch(e){}return P;}
+/* posti già noti senza chiedere a OpenStreetMap: ⭐ attività sponsor, posti visti con la Lente */
+function supCatKind(c){c=String(c||'');return/Supermercato|Alimentari|Panificio|Macelleria|Frutta|Gastronomia|Pasticceria|Mercato|Bar|Pizzeria|Ristorante/.test(c)?'cibo':/Ferramenta|Fai da te|Vivaio|Materiali|Parco|Falegnam/.test(c)?'legno':/Distributore|Officina/.test(c)?'carb':/Farmacia|Ospedale|Clinica/.test(c)?'farmaco':'misto';}
+function supLocal(h,rkm){const L=[];const G=window.SP_GEO||{};
+  try{Object.keys(G).forEach(k=>{const g=G[k],sp=(typeof SPONSORS!=='undefined'&&SPONSORS[k])||null;if(!g||g.lat==null||!sp)return;if(trM(h.lat,h.lon,g.lat,g.lon)/1000>rkm+3)return;
+    L.push({k:'sponsor',sk:k,cat:'⭐ Sponsor'+(sp.cat||sp.category?' · '+(sp.cat||sp.category):''),name:String(sp.name||'Attività sponsor').slice(0,40),lat:+g.lat,lon:+g.lon});});}catch(e){}
+  try{Object.keys(localStorage).filter(k=>k.startsWith('zsh_ln_')).forEach(k=>{try{const c=JSON.parse(localStorage.getItem(k));(c.P||[]).forEach(p=>{if(trM(h.lat,h.lon,p.lat,p.lon)/1000<=rkm)L.push({k:supCatKind(p.cat),cat:p.cat,name:p.name,lat:p.lat,lon:p.lon});});}catch(e){}});}catch(e){}
+  return L;}
 function supPlaces(){let H=[];try{H=myHouses().filter(h=>h.lat!=null&&h.lon!=null);}catch(e){}return H;}
 /* distanza dal più vicino dei tuoi posti (come fa il server) */
 function supKm(p){const H=supPlaces();let m=null;H.forEach(h=>{const k=trM(h.lat,h.lon,p.lat,p.lon)/1000;if(m==null||k<m)m=k;});return m==null?null:Math.max(0.2,Math.round(m*100)/100);}
@@ -127,20 +134,26 @@ async function supSped(box){const d=SUP.d;const H=supPlaces();const via=supVia()
   box.querySelectorAll('[data-spfrom]').forEach(b=>b.onclick=()=>{SUP.h=+b.dataset.spfrom;SUP.P=null;supSped(box);});
   box.querySelectorAll('[data-spf]').forEach(b=>b.onclick=()=>{SUP.f=b.dataset.spf;supSped(box);});
   if(!H.length)return;const h=H[Math.min(SUP.h,H.length-1)];const pk=h.lat.toFixed(4)+','+h.lon.toFixed(4)+','+d.raggio_km;
-  if(SUP.Pk!==pk||!SUP.P){try{SUP.P=await supPoi(h.lat,h.lon,d.raggio_km);SUP.Pk=pk;}catch(e){SUP.P=null;}}
-  const pb=box.querySelector('.suppoi');if(!pb||!pb.isConnected)return;
-  if(!SUP.P){pb.innerHTML='<p class="muted">OpenStreetMap non risponde: riprova fra un minuto.</p><button class="btn small" data-spretry>Riprova</button>';pb.querySelector('[data-spretry]').onclick=()=>supSped(box);return;}
-  const L=SUP.P.map(p=>({...p,km:supKm(p)})).filter(p=>p.km!=null&&(SUP.f==='tutti'||p.k===SUP.f)).sort((a,b)=>a.km-b.km).slice(0,40);
-  const recenti=(d.spedizioni||[]).filter(x=>Date.now()-new Date(x.start_at)<12*3600e3);
-  pb.innerHTML=L.length?L.map((p,i)=>{const c=supCalc(p.km);const fuori=p.km>d.raggio_km;const gia=recenti.some(x=>Math.abs(x.lat-p.lat)<0.0003&&Math.abs(x.lon-p.lon)<0.0004);
-      const pieno=via.length>=maxs;const poca=d.energia<c.energia;const k=SUP_K[p.k];
-      return`<div class="supp ${fuori?'off':''}"><span class="supi">${k[0]}</span><div><b>${esc(p.name)}</b><small>${esc(p.cat)} · ${kmTxt(p.km)} · ⏱ ${c.min} min · ⚠️ ${c.rischio}%</small>
-        <small class="supg">${supLoot(p.k,c.bottino)} · ⭐ +${c.xp}</small></div>
-        <button class="btn small" data-spgo="${i}" ${fuori||gia||pieno||poca?'disabled':''}>${fuori?'Troppo lontano':gia?'Già visitato':pieno?'Squadra fuori':poca?`Serve ⚡${c.energia}`:`Parti · ⚡${c.energia}`}</button></div>`;}).join('')
-    :`<p class="muted">Nessun posto di questo tipo entro ${String(d.raggio_km).replace('.',',')} km. Prova un altro filtro o sali di grado per allargare il raggio.</p>`;
-  pb.querySelectorAll('[data-spgo]').forEach(b=>b.onclick=async()=>{const p=L[+b.dataset.spgo];b.disabled=true;
-    try{const{data,error}=await SB.rpc('world_sped_parti',{p_kind:p.k,p_nome:p.name,p_lat:p.lat,p_lon:p.lon});if(error)throw error;toast(data.ok?data.msg:data.msg);}catch(e){toast('Non riuscito: riprova');}
-    supSheet('sped');});}
+  /* subito i posti già noti (⭐ sponsor, posti visti con la Lente, ricerche di prima), poi OpenStreetMap in sottofondo */
+  const paint=(L0,stato)=>{const pb=box.querySelector('.suppoi');if(!pb||!pb.isConnected)return;
+    const seen=new Set();const L=L0.map(p=>({...p,km:supKm(p)})).filter(p=>{const id=Math.round(p.lat*3000)+':'+Math.round(p.lon*2500);if(seen.has(id))return false;seen.add(id);return p.km!=null&&(SUP.f==='tutti'||p.k===SUP.f);})
+      .sort((a,b)=>(b.k==='sponsor'&&b.km<=d.raggio_km)-(a.k==='sponsor'&&a.km<=d.raggio_km)||a.km-b.km).slice(0,50);
+    const recenti=(d.spedizioni||[]).filter(x=>Date.now()-new Date(x.start_at)<12*3600e3);
+    pb.innerHTML=(stato?`<p class="muted supst">${stato}</p>`:'')+(L.length?L.map((p,i)=>{const c=supCalc(p.km);const b=p.k==='sponsor'?Math.round(c.bottino*4/3):c.bottino;const fuori=p.km>d.raggio_km;const gia=recenti.some(x=>Math.abs(x.lat-p.lat)<0.0003&&Math.abs(x.lon-p.lon)<0.0004);
+        const pieno=via.length>=maxs;const poca=d.energia<c.energia;const k=SUP_K[p.k]||SUP_K.misto;
+        return`<div class="supp ${fuori?'off':''} ${p.k==='sponsor'?'sp':''}"><span class="supi">${k[0]}</span><div><b>${esc(p.name)}</b><small>${esc(p.cat)} · ${kmTxt(p.km)} · ⏱ ${c.min} min · ⚠️ ${c.rischio}%</small>
+          <small class="supg">${supLoot(p.k,b)} · ⭐ +${c.xp+(p.k==='sponsor'?5:0)}</small></div>
+          <button class="btn small" data-spgo="${i}" ${fuori||gia||pieno||poca?'disabled':''}>${fuori?'Troppo lontano':gia?'Già visitato':pieno?'Squadra fuori':poca?`Serve ⚡${c.energia}`:`Parti · ⚡${c.energia}`}</button></div>`;}).join('')
+      :(stato?'':`<p class="muted">Nessun posto di questo tipo entro ${String(d.raggio_km).replace('.',',')} km. Prova un altro filtro o un’altra casa.</p>`));
+    pb.querySelectorAll('[data-spgo]').forEach(b=>b.onclick=async()=>{const p=L[+b.dataset.spgo];b.disabled=true;
+      try{const{data,error}=await SB.rpc('world_sped_parti',{p_kind:p.k,p_nome:p.name,p_lat:p.lat,p_lon:p.lon});if(error)throw error;toast(data.msg);if(data.ok&&p.k==='sponsor'&&p.sk){try{dbEvent(p.sk,'scheda');}catch(e){}}}catch(e){toast('Non riuscito: riprova');}
+      supSheet('sped');});
+    const r=pb.querySelector('[data-spretry]');if(r)r.onclick=()=>{SUP.P=null;SUP.Pk='';supSped(box);};};
+  const loc=supLocal(h,d.raggio_km);
+  if(SUP.Pk===pk&&SUP.P){paint(loc.concat(SUP.P));return;}
+  paint(loc,'<span class="spin"></span> Cerco altri posti veri intorno (OpenStreetMap)…');
+  try{SUP.P=await supPoi(h.lat,h.lon,d.raggio_km);SUP.Pk=pk;paint(loc.concat(SUP.P));}
+  catch(e){paint(loc,'OpenStreetMap è lento in questo momento: qui sopra i posti già noti. <button class="lnk" data-spretry>Riprova</button>');}}
 async function supRaccogli(id,b){if(b)b.disabled=true;let r=null;try{const{data,error}=await SB.rpc('world_sped_raccogli',{p_id:+id});if(error)throw error;r=data;}catch(e){toast('Non riuscito');}
   if(r&&!r.ok)toast(r.msg);
   if(r&&r.ok){const g=[r.legno?'🪵 +'+r.legno:'',r.cibo?'🥫 +'+r.cibo:'',r.carb?'⛽ +'+r.carb:'',r.energia?'⚡ +'+r.energia:'',r.xp?'⭐ +'+r.xp:''].filter(Boolean).join(' ');
@@ -179,7 +192,7 @@ function supComeHTML(){return`<div class="supcome">
   <p><b>Il tuo superstite cresce con te.</b> Più giochi, più sale di grado, più provviste porta a casa, e puoi giocare quando vuoi, non solo per l’orda.</p>
   <h4 class="hh">🎖️ Grado ed esperienza ⭐</h4><p>Ogni premio in 🧱 Mattoni ti dà anche esperienza (⭐ 1 ogni 🧱 4): orde rette, affitti, rinforzi, presidi. In più: spedizioni, serie di giorni, condivisione e amici invitati. Grado 2 a ⭐ 50, grado 3 a ⭐ 200, grado 4 a ⭐ 450, grado 5 a ⭐ 800…</p>
   <h4 class="hh">⚡ Energia</h4><p>Hai 10 cariche (di più con 💪 Resistenza). Ogni spedizione ne usa da 1 a 3 secondo la distanza. Si ricaricano da sole, una ogni 2 ore: chi entra più spesso le usa tutte e cresce di più.</p>
-  <h4 class="hh">🎒 Spedizioni nei posti veri</h4><p>Scegli un posto vero vicino a una tua casa: 🛒 supermercati e alimentari danno 🥫 cibo; 🔧 ferramenta, vivai e parchi 🪵 legno; ⛽ distributori carburante; 💊 farmacie energia; scuole, poste e municipio un po’ di tutto. Più è lontano, più dura, più rende e più è rischioso. Il raggio parte da 1,5 km e cresce di 0,5 km a ogni grado. Se gli zombie lo inseguono torna con metà bottino. A volte trova un 💰 tesoro in Mattoni. Ogni posto si può rifare dopo 12 ore. Quando torna arriva la notifica.</p>
+  <h4 class="hh">🎒 Spedizioni nei posti veri</h4><p>Scegli un posto vero vicino a una tua casa: 🛒 supermercati e alimentari danno 🥫 cibo; 🔧 ferramenta, vivai e parchi 🪵 legno; ⛽ distributori carburante; 💊 farmacie energia; scuole, poste e municipio un po’ di tutto. Più è lontano, più dura, più rende e più è rischioso. Il raggio parte da 3 km e cresce di 1 km a ogni grado (fino a 30 km); parti dalla casa che scegli, anche se è lontana (per esempio in un’altra città o all’estero). Le ⭐ attività sponsor sono mete speciali: bottino più ricco di tutto e ⭐ +5. Se gli zombie lo inseguono torna con metà bottino. A volte trova un 💰 tesoro in Mattoni. Ogni posto si può rifare dopo 12 ore. Quando torna arriva la notifica.</p>
   <h4 class="hh">🔫 Caccia nella Lente</h4><p>Apri 📷 Lente e tocca 🔫 Caccia (⚡ 1): arrivano 3–6 zombie da direzioni diverse, girati e toccali prima che ti raggiungano. Ognuno: ⭐ 5 e una scorta; presi tutti ⭐ 10 in più. Max 10 al giorno.</p>
   <h4 class="hh">🧠 Abilità</h4><p>Un punto a ogni grado: ${SUP_AB.map(a=>`${a[1]} <b>${a[2]}</b> ${a[3]}`).join('; ')}.</p>
   <h4 class="hh">🛠️ Attrezzi</h4><p>${SUP_EQ.map(a=>`${a[1]} <b>${a[2]}</b>: ${a[3]}`).join('; ')}. Livello n: 🪵 30×n e 🧱 50×n.</p>

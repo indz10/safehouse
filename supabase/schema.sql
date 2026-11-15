@@ -1663,7 +1663,7 @@ end $$;
 CREATE FUNCTION public.w_sup_raggio(p_xp integer, p_abil jsonb) RETURNS numeric
     LANGUAGE sql IMMUTABLE
     AS $$
-  select least(12, 1.5 + 0.5 * (public.w_grado(p_xp) - 1) + 0.5 * public.w_ab(p_abil, 'esploratore'))::numeric; $$;
+  select least(30, 3 + 1 * (public.w_grado(p_xp) - 1) + 1 * public.w_ab(p_abil, 'esploratore'))::numeric; $$;
 
 --
 -- Name: w_target(text, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
@@ -4318,10 +4318,16 @@ CREATE FUNCTION public.world_sped_parti(p_kind text, p_nome text, p_lat double p
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-declare me uuid := auth.uid(); s public.world_superstite; km numeric; c json; en int; mins int; h int; nid bigint; notte boolean;
+declare me uuid := auth.uid(); s public.world_superstite; spid uuid; km numeric; c json; en int; mins int; h int; nid bigint; notte boolean;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
-  if p_kind not in ('cibo','legno','carb','farmaco','misto') then return json_build_object('ok', false, 'msg', 'Posto sconosciuto'); end if;
+  if p_kind not in ('cibo','legno','carb','farmaco','misto','sponsor') then return json_build_object('ok', false, 'msg', 'Posto sconosciuto'); end if;
+  -- ⭐ sponsor: solo un'attività sponsor attiva vera a meno di 60 m dal punto
+  if p_kind = 'sponsor' then
+    select sp.id into spid from public.sponsors sp where sp.active and sp.lat is not null
+      and public.w_km(p_lat, p_lon, sp.lat, sp.lon) < 0.06 order by public.w_km(p_lat, p_lon, sp.lat, sp.lon) limit 1;
+    if spid is null then return json_build_object('ok', false, 'msg', 'Questa attività non è più sponsor: scegli un altro posto'); end if;
+  end if;
   if p_lat is null or p_lon is null then return json_build_object('ok', false, 'msg', 'Posto senza posizione'); end if;
   s := public.w_sup(me);
   km := public.w_sped_km(me, p_lat, p_lon);
@@ -4347,6 +4353,10 @@ begin
   insert into public.world_spedizioni(user_id, kind, nome, lat, lon, km, end_at, rischio, energia, calc)
     values (me, p_kind, left(coalesce(nullif(trim(p_nome), ''), 'Posto senza nome'), 60), p_lat, p_lon, km, now() + make_interval(mins => mins), (c->>'rischio')::int, en, c::jsonb)
     returning world_spedizioni.id into nid;
+  if spid is not null then
+    update public.world_spedizioni set calc = calc || jsonb_build_object('sponsor', spid) where id = nid;
+    insert into public.sponsor_events(sponsor_id, kind) values (spid, 'spedizione');
+  end if;
   return json_build_object('ok', true, 'id', nid, 'min', mins, 'energia', en, 'end_at', now() + make_interval(mins => mins),
     'msg', format('🎒 Partito! Torna fra %s min', mins));
 end $$;
@@ -4374,11 +4384,12 @@ begin
     when 'legno' then l := b;
     when 'carb' then k := round(b * 0.6);
     when 'farmaco' then f := b / 2; e := case when ko then 1 else 2 end;
+    when 'sponsor' then l := b / 2; f := b / 2; k := b / 3;
     else l := b / 3; f := b / 3; k := b / 3;
   end case;
   got := public.w_res(me, l, f, k);
   if e > 0 then perform public.w_en_add(me, e); end if;
-  xp := (c->>'xp')::int; if ko then xp := xp / 2; end if;
+  xp := (c->>'xp')::int + case when x.kind = 'sponsor' then 5 else 0 end; if ko then xp := xp / 2; end if;
   perform public.w_xp(me, xp);
   w := public.w_wallet(me); tes := coalesce((w.caps->>('tesori:' || day))::int, 0);
   if random() * 100 < (c->>'tesoro')::int and tes < 5 then
@@ -4875,7 +4886,7 @@ CREATE TABLE public.sponsor_events (
     sponsor_id uuid NOT NULL,
     kind text NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
-    CONSTRAINT sponsor_events_kind_check CHECK ((kind = ANY (ARRAY['vista_mappa'::text, 'vista_verdetto'::text, 'vista_gioco'::text, 'scheda'::text, 'chiama'::text, 'whatsapp'::text, 'indicazioni'::text, 'sito'::text, 'codice_creato'::text, 'codice_usato'::text, 'preventivo'::text])))
+    CONSTRAINT sponsor_events_kind_check CHECK ((kind = ANY (ARRAY['vista_mappa'::text, 'vista_verdetto'::text, 'vista_gioco'::text, 'scheda'::text, 'chiama'::text, 'whatsapp'::text, 'indicazioni'::text, 'sito'::text, 'codice_creato'::text, 'codice_usato'::text, 'preventivo'::text, 'spedizione'::text])))
 );
 
 --
@@ -5703,7 +5714,7 @@ CREATE TABLE public.world_spedizioni (
     stato text DEFAULT 'via'::text NOT NULL,
     esito jsonb,
     avvisato boolean DEFAULT false NOT NULL,
-    CONSTRAINT world_spedizioni_kind_check CHECK ((kind = ANY (ARRAY['cibo'::text, 'legno'::text, 'carb'::text, 'farmaco'::text, 'misto'::text]))),
+    CONSTRAINT world_spedizioni_kind_check CHECK ((kind = ANY (ARRAY['cibo'::text, 'legno'::text, 'carb'::text, 'farmaco'::text, 'misto'::text, 'sponsor'::text]))),
     CONSTRAINT world_spedizioni_stato_check CHECK ((stato = ANY (ARRAY['via'::text, 'raccolta'::text])))
 );
 

@@ -126,7 +126,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_sped_tick` |  | ✓ |  |  | 1: migr. 020_superstite |
 | `w_sup` |  |  |  | w_en_add, w_sup_inviti, world_sup_info, world_sup_abilita, world_sup_equip, world_sped_parti … | 1: migr. 020_superstite |
 | `w_sup_inviti` |  |  |  | world_sup_info | 1: migr. 020_superstite |
-| `w_sup_raggio` |  |  |  | world_sup_info, world_sped_parti | 1: migr. 020_superstite |
+| `w_sup_raggio` |  |  |  | world_sup_info, world_sped_parti | 2: migr. 020_superstite → migr. 021_caccia_condomini |
 | `w_target` |  |  |  | w_azione, world_edificio_info | 1: migr. 014_territorio |
 | `w_threats_of` |  |  |  | world_threats, world_ally_view, world_allies_status | 7: alleati_sim → zombie_alleati → fortezze → abitazione → migr. 002_formule_uguali → migr. 006_presidi → migr. 014_territorio |
 | `w_tr_casa_pos` |  |  | trigger |  | 1: migr. 015_posizione_casa |
@@ -247,8 +247,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_shape_get` | ✓ |  |  |  | 1: migr. 003_forme_edifici |
 | `world_shape_put` | ✓ |  |  |  | 1: migr. 003_forme_edifici |
 | `world_shout` | ✓ |  |  |  | 1: social |
-| `world_sped_parti` | ✓ |  |  |  | 1: migr. 020_superstite |
-| `world_sped_raccogli` | ✓ |  |  |  | 1: migr. 020_superstite |
+| `world_sped_parti` | ✓ |  |  |  | 2: migr. 020_superstite → migr. 021_caccia_condomini |
+| `world_sped_raccogli` | ✓ |  |  |  | 2: migr. 020_superstite → migr. 021_caccia_condomini |
 | `world_status_extra` | ✓ |  |  |  | 1: equita |
 | `world_sup_abilita` | ✓ |  |  |  | 1: migr. 020_superstite |
 | `world_sup_equip` | ✓ |  |  |  | 1: migr. 020_superstite |
@@ -279,7 +279,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `push_subs` | push | 2 | ✓ |
 | `reviews` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `salvataggi` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
-| `sponsor_events` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
+| `sponsor_events` | ZombieSafeHouse_backend_sponsor | 2 | ✓ |
 | `sponsor_prezzi` | supabase/migrazioni/005_sponsor_pagamenti | 0 | ✓ |
 | `sponsor_users` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `sponsors` | ZombieSafeHouse_backend_sponsor | 8 | ✓ |
@@ -320,7 +320,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_shapes` | supabase/migrazioni/003_forme_edifici | 0 | ✓ |
 | `world_shields` | alleanze2 | 0 | ✓ |
 | `world_shouts` | social | 0 | ✓ |
-| `world_spedizioni` | supabase/migrazioni/020_superstite | 0 | ✓ |
+| `world_spedizioni` | supabase/migrazioni/020_superstite | 2 | ✓ |
 | `world_superstite` | supabase/migrazioni/020_superstite | 0 | ✓ |
 | `world_terrain` | zombie | 0 | ✓ |
 | `world_wallet` | mondo_unico | 3 | ✓ |

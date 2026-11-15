@@ -12,6 +12,7 @@ POI={'elements':[{'type':'node','id':1,'lat':45.3275,'lon':10.6582,'tags':{'shop
   {'type':'way','id':5,'center':{'lat':45.5,'lon':10.6582},'tags':{'leisure':'park','name':'Parco Lontano'}}]}
 async def route(r):
     if 'interpreter' in r.request.url and 'supermarket' in (r.request.post_data or ''):
+        await asyncio.sleep(4)
         return await r.fulfill(status=200,content_type='application/json',body=json.dumps(POI))
     return await t_terr.route(r)
 async def main():
@@ -42,8 +43,11 @@ async def main():
         print('punti liberi:',await pg.evaluate("()=>SUP.d.punti"))
         await pg.evaluate("()=>document.querySelector('#sheet.open [data-spab=resistenza]').click()");await pg.wait_for_timeout(1500)
         print('abilità resistenza:',await pg.evaluate("()=>[__SUP.abil.resistenza,SUP.d.energia_max]"))
-        # spedizioni
-        await pg.evaluate("()=>document.querySelector('#sheet.open [data-spt=sped]').click()");await pg.wait_for_timeout(2500)
+        # spedizioni: subito gli sponsor e i posti già noti, anche con OpenStreetMap lento
+        await pg.evaluate("()=>{SP_GEO.zz={lat:45.3262,lon:10.6590,id:'s1'};SPONSORS.zz=SPONSORS.zz||{name:'Ferramenta Sponsor',cat:'Ferramenta'};window.__OVP_LENTO=1}")
+        await pg.evaluate("()=>document.querySelector('#sheet.open [data-spt=sped]').click()");await pg.wait_for_timeout(1200)
+        print('subito (OSM lento):',await pg.evaluate("()=>[[...document.querySelectorAll('#sheet.open .supp b')].map(x=>x.textContent),!!document.querySelector('#sheet.open .supst')]"))
+        await pg.evaluate("()=>{window.__OVP_LENTO=0}");await pg.wait_for_timeout(6000)
         L=await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .supp')].map(x=>[x.querySelector('b').textContent,x.querySelector('button').textContent.trim(),x.classList.contains('off')])")
         print('posti veri:',L)
         await pg.evaluate("()=>{const b=[...document.querySelectorAll('#sheet.open .supp')].find(x=>/Coop/.test(x.textContent)).querySelector('[data-spgo]');b.click()}");await pg.wait_for_timeout(1800)
