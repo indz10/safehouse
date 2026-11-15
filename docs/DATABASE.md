@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **64** · viste: **1** · indici: **26** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
-- Funzioni: **255** (255 nomi); usate (direttamente o tramite altre funzioni): **247**; **non usate: 8**
+- Tabelle: **66** · viste: **1** · indici: **27** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
+- Funzioni: **263** (263 nomi); usate (direttamente o tramite altre funzioni): **255**; **non usate: 8**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -43,6 +43,9 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_ally_state` |  |  |  | world_favs_list, world_near_survivors | 1: migr. 010_trova_preferiti |
 | `w_ancora` |  |  |  | w_vicino_alleanza, w_alleanza_chiudi | 1: migr. 019_alleanze_multiple |
 | `w_are_allies` |  |  |  | world_quote, world_send_help, world_send_attack, world_give, world_feed_list, world_player … | 5: mondo_v4 → social → alleanze2 → migr. 013_condominio → migr. 018_alleanze_gruppi |
+| `w_ass` |  |  |  | world_assedio_info, world_assedio_inizia, world_assedio_fine, world_assedio_potenzia | 1: migr. 024_assedio |
+| `w_ass_piano` |  |  |  | world_assedio_inizia | 1: migr. 024_assedio |
+| `w_ass_up` |  |  |  | world_assedio_inizia, world_assedio_potenzia | 1: migr. 024_assedio |
 | `w_assalti_tick` |  |  |  | world_raid_status, world_edificio_info, world_consigli | 1: migr. 014_territorio |
 | `w_atk_b` |  |  |  | w_azione | 1: migr. 014_territorio |
 | `w_atk_pts` |  |  |  |  | 1: migr. 009_mezzi_assalti |
@@ -69,7 +72,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_dot` |  |  |  | world_send_help, world_player, world_mezzo, w_azione, world_consigli | 1: migr. 009_mezzi_assalti |
 | `w_en_add` |  |  |  | w_sup_inviti, world_sped_raccogli, world_sup_serie, world_sup_share | 1: migr. 020_superstite |
 | `w_en_max` |  |  |  | w_sup, w_en_add, world_sup_info, world_sped_parti, world_caccia_inizia, world_evento_azione … | 1: migr. 020_superstite |
-| `w_en_ric` |  |  |  | w_sup, world_sup_info, world_sped_parti, world_caccia_inizia, world_evento_azione, world_difesa_inizia | 1: migr. 020_superstite |
+| `w_en_ric` |  |  |  | w_sup, world_sup_info, world_sped_parti, world_caccia_inizia, world_evento_azione, world_difesa_inizia … | 1: migr. 020_superstite |
 | `w_eq` |  |  |  | w_sped_calc, world_sup_info, world_sup_equip, world_sped_parti, world_caccia_inizia, world_evento_azione | 1: migr. 020_superstite |
 | `w_eventi_tick` |  | ✓ |  |  | 1: migr. 022_eventi_sfide |
 | `w_feed_add` |  |  |  | w_tr_feed, w_tr_dm, world_house_invite, world_house_answer, w_pres_tick, w_assalti_tick … | 1: social |
@@ -174,6 +177,11 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_ally_view` | ✓ |  |  |  | 2: alleati_sim → zombie_alleati |
 | `world_ask_help` | ✓ |  |  |  | 1: mondo_v3 |
 | `world_assalta` | ✓ |  |  | world_saccheggia | 1: migr. 014_territorio |
+| `world_assedio_bomba` | ✓ |  |  |  | 1: migr. 024_assedio |
+| `world_assedio_fine` | ✓ |  |  |  | 1: migr. 024_assedio |
+| `world_assedio_info` | ✓ |  |  |  | 1: migr. 024_assedio |
+| `world_assedio_inizia` | ✓ |  |  |  | 1: migr. 024_assedio |
+| `world_assedio_potenzia` | ✓ |  |  |  | 1: migr. 024_assedio |
 | `world_assi` | ✓ |  |  |  | 1: migr. 014_territorio |
 | `world_block` | ✓ |  |  |  | 1: chat |
 | `world_bottega_compra` | ✓ |  |  |  | 1: migr. 023_difendi_casa |
@@ -304,6 +312,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_allies` | social | 0 | ✓ |
 | `world_assalti` | supabase/migrazioni/014_territorio | 0 | ✓ |
 | `world_assalti_esiti` | supabase/migrazioni/014_territorio | 0 | ✓ |
+| `world_assedio` | supabase/migrazioni/024_assedio | 0 | ✓ |
+| `world_assedio_partite` | supabase/migrazioni/024_assedio | 0 | ✓ |
 | `world_attack_given` | mondo_v3 | 1 | ✓ |
 | `world_blocks` | chat | 0 | ✓ |
 | `world_bonus` | mondo_unico | 0 | ✓ |

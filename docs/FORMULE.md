@@ -102,5 +102,12 @@ Solo nel server (`w_sped_calc` e dintorni); l'app (`supCalc` in p82) copia la fo
 - Fine: abbattuti = min(dichiarati, ⌊secondi × 4⌋ + 12 × bombe usate, 260), zero oltre 5 minuti; casa salva solo se dichiarata e partita ≥ 40 s. ⭐ = 2 × abbattuti + 15 se salva; ⌊abbattuti / 2⌋ scorte da 2 (🥫 40% / 🪵 35% / ⛽ 25%); casa salva 🧱 5 (max 50 al giorno).
 - Bottega (Mattoni): ⚡ +5 = 🧱 60 (2 al giorno, fino a energia massima + 5), 💣 = 🧱 25, 🛡️ = 🧱 25 (max 5 ciascuno).
 
+## Assedio a livelli (migrazione 024)
+- Livello L: zombie = min(60, 6 + 2L); corridori (1 colpo, veloci) dal 3°: min(35%, 10% + 2%·L); bruti (6 colpi) dal 5°: min(25%, 5% + 1,5%·L); colpi in più ⌊L/6⌋; provviste per le difese 60 + 5L; un nuovo zombie ogni max(0,6, 2,2 − 0,06L) s circa.
+- Difese: barricata 20 (resistenza 6 + 3 × potenziamento), torretta 35 (danno 1 + potenziamento, ogni 0,9 s, raggio 2,6 caselle), mina 15 (danno 4 + 2 × potenziamento a chi è entro 1 casella). Casa: vita 10 + 2 × potenziamento (+3 con 🛡️ scudo); zombie che arriva −2 (bruto −3). +3 provviste a zombie abbattuto.
+- Stelle: 3 casa intatta, 2 almeno metà vita, 1 vinta. Il server accetta la vittoria solo dopo almeno 8 + L secondi e con tutti gli zombie abbattuti (max 3 al secondo + 20 a bomba).
+- Premi: per ogni stella nuova ⭐ 10 + 2L e 🪵 🥫 ⛽ 4 + L ciascuna; prima vittoria del livello 🧱 min(30, 5 + L); livello già fatto vinto di nuovo ⭐ 5 e 2 di ogni scorta; ⭐ 1 per zombie. Prima partita del giorno gratis, poi 1 energia; max 20 al giorno.
+- Potenziamenti (1–3): 🪵 20 × n + 🧱 30 × n.
+
 ## Mattoni
 Accrediti solo dal server (`w_pay`): premi del giorno con limiti (`world_earn`), premi vari max 300 al giorno (`world_reward`), spinta di recupero +50% sotto il livello medio della zona (`w_boost`), padrino +10% a chi ti ha invitato per 14 giorni.
