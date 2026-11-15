@@ -292,6 +292,15 @@ begin
 end $$;
 
 --
+-- Name: w_ab(jsonb, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_ab(p_abil jsonb, p_k text) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select least(5, greatest(0, coalesce((p_abil->>p_k)::int, 0))); $$;
+
+--
 -- Name: w_alleanza_chiudi(bigint); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -767,6 +776,48 @@ CREATE FUNCTION public.w_dot(p_user uuid) RETURNS integer
 $$;
 
 --
+-- Name: w_en_add(uuid, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_en_add(p_user uuid, p_n integer) RETURNS void
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare s public.world_superstite;
+begin
+  if coalesce(p_n,0) <= 0 then return; end if;
+  s := public.w_sup(p_user);
+  update public.world_superstite set energia = least(public.w_en_max(s.abil) + 5, energia + p_n) where user_id = p_user;
+end $$;
+
+--
+-- Name: w_en_max(jsonb); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_en_max(p_abil jsonb) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select 10 + public.w_ab(p_abil, 'resistenza'); $$;
+
+--
+-- Name: w_en_ric(jsonb); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_en_ric(p_abil jsonb) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select 120 - 10 * public.w_ab(p_abil, 'resistenza'); $$;
+
+--
+-- Name: w_eq(jsonb, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_eq(p_equip jsonb, p_k text) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select least(3, greatest(0, coalesce((p_equip->>p_k)::int, 0))); $$;
+
+--
 -- Name: w_feed_add(text, uuid, uuid, double precision, double precision, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -791,6 +842,24 @@ CREATE FUNCTION public.w_fort(p_bid text) RETURNS integer
     AS $$
   select case when p_bid like 'pres:%' then 2 * public.w_pres_liv(substr(p_bid, 6), 'torretta')
     else public.w_def(p_bid,'barricate') + public.w_def(p_bid,'recinto') + public.w_def(p_bid,'fossato') end; $$;
+
+--
+-- Name: w_grado(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_grado(p_xp integer) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select least(50, 1 + floor(sqrt(greatest(coalesce(p_xp,0),0) / 50.0))::int); $$;
+
+--
+-- Name: w_grado_xp(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_grado_xp(p_g integer) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select 50 * (greatest(p_g,1) - 1) * (greatest(p_g,1) - 1); $$;
 
 --
 -- Name: w_home_held(uuid, text); Type: FUNCTION; Schema: public; Owner: -
@@ -1027,6 +1096,7 @@ begin
   perform public.w_wallet(p_user);
   update public.world_wallet set mattoni = mattoni + p_delta, lifetime = lifetime + greatest(p_delta, 0) where user_id = p_user;
   insert into public.world_log(user_id, delta, reason, ref) values (p_user, p_delta, p_reason, p_ref);
+  if p_delta > 0 then perform public.w_xp(p_user, greatest(1, p_delta / 4)); end if;
   if p_delta > 0 and p_reason in ('Notte vinta','Missione del giorno','Accesso del giorno','Orda del mondo: premi','Affitti delle tue case','Rinforzi mandati a un alleato') then
     -- 3) spinta di recupero: chi è sotto il livello medio della zona guadagna il 50% in più
     if public.w_boost(p_user) then
@@ -1450,6 +1520,132 @@ CREATE FUNCTION public.w_slot_t(p_slot text) RETURNS timestamp with time zone
 $$;
 
 --
+-- Name: w_sped_calc(numeric, jsonb, jsonb, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_sped_calc(p_km numeric, p_abil jsonb, p_equip jsonb, p_notte boolean) RETURNS json
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select json_build_object(
+    'min', least(180, round(10 + 14 * p_km))::int,
+    'energia', least(3, 1 + floor(p_km / 2.5))::int,
+    'rischio', least(60, greatest(3, round(10 + 4 * p_km - 4 * public.w_ab(p_abil,'combattente') - 5 * public.w_eq(p_equip,'arma')
+                 + case when p_notte and public.w_eq(p_equip,'torcia') = 0 then 10 else 0 end)))::int,
+    'bottino', least(25 + 15 * public.w_eq(p_equip,'zaino'), round((10 + 6 * p_km) * (1 + 0.1 * public.w_ab(p_abil,'esploratore'))))::int,
+    'xp', (10 + round(6 * p_km))::int,
+    'tesoro', (5 + 3 * public.w_ab(p_abil,'cercatore') + 2 * public.w_eq(p_equip,'torcia'))::int); $$;
+
+--
+-- Name: w_sped_km(uuid, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_sped_km(p_user uuid, p_lat double precision, p_lon double precision) RETURNS numeric
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select round(min(public.w_km(p_lat, p_lon, x.lat, x.lon))::numeric, 2) from (
+    select lat, lon from public.world_homes where user_id = p_user
+    union all select lat, lon from public.world_buildings where owner = p_user) x; $$;
+
+--
+-- Name: w_sped_tick(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_sped_tick() RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare n int;
+begin
+  with t as (update public.world_spedizioni set avvisato = true where stato = 'via' and not avvisato and end_at <= now() returning user_id, nome)
+  insert into public.world_feed(kind, actor, target, info) select 'sped_ok', null, user_id, nome from t;
+  get diagnostics n = row_count;
+  return n;
+end $$;
+
+--
+-- Name: world_superstite; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_superstite (
+    user_id uuid NOT NULL,
+    xp integer DEFAULT 0 NOT NULL,
+    abil jsonb DEFAULT '{}'::jsonb NOT NULL,
+    equip jsonb DEFAULT '{}'::jsonb NOT NULL,
+    energia integer DEFAULT 10 NOT NULL,
+    energia_at timestamp with time zone DEFAULT now() NOT NULL,
+    serie integer DEFAULT 0 NOT NULL,
+    serie_day date,
+    share_day date,
+    inviti_reg integer,
+    inviti_val integer,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
+-- Name: w_sup(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_sup(p_user uuid) RETURNS public.world_superstite
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare s public.world_superstite; mx int; ric int; n int;
+begin
+  insert into public.world_superstite(user_id) values (p_user) on conflict (user_id) do nothing;
+  select * into s from public.world_superstite where user_id = p_user for update;
+  mx := public.w_en_max(s.abil); ric := public.w_en_ric(s.abil);
+  if s.energia >= mx then
+    if s.energia_at < now() - interval '1 minute' then
+      s.energia_at := now(); update public.world_superstite set energia_at = s.energia_at where user_id = p_user;
+    end if;
+  else
+    n := floor(extract(epoch from (now() - s.energia_at)) / 60.0 / ric)::int;
+    if n > 0 then
+      if s.energia + n >= mx then s.energia := mx; s.energia_at := now();
+      else s.energia := s.energia + n; s.energia_at := s.energia_at + make_interval(mins => n * ric); end if;
+      update public.world_superstite set energia = s.energia, energia_at = s.energia_at where user_id = p_user;
+    end if;
+  end if;
+  return s;
+end $$;
+
+--
+-- Name: w_sup_inviti(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_sup_inviti(p_user uuid) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare s public.world_superstite; reg int; val int; dr int; dv int;
+begin
+  s := public.w_sup(p_user);
+  select count(*), count(*) filter (where indice is not null) into reg, val
+    from public.profili_pubblici where invitato_da = left(p_user::text, 8) and user_id <> p_user;
+  if s.inviti_reg is null then
+    -- prima volta: gli amici di prima della 020 contano già (i loro 🧱 150 erano già stati dati), premio ridotto una volta sola
+    update public.world_superstite set inviti_reg = reg, inviti_val = val, xp = xp + 50 * least(reg, 10) where user_id = p_user;
+    return json_build_object('nuovi', 0, 'valutati', 0);
+  end if;
+  dr := least(10, greatest(0, reg - s.inviti_reg)); dv := least(10, greatest(0, val - coalesce(s.inviti_val, 0)));
+  if dr + dv = 0 then return json_build_object('nuovi', 0, 'valutati', 0); end if;
+  update public.world_superstite set inviti_reg = reg, inviti_val = val, xp = xp + 50 * dr + 150 * dv where user_id = p_user;
+  if dr > 0 then perform public.w_en_add(p_user, 2 * dr); end if;
+  perform public.w_res(p_user, 10 * dr + 20 * dv, 10 * dr + 20 * dv, 5 * dr + 10 * dv);
+  return json_build_object('nuovi', dr, 'valutati', dv);
+end $$;
+
+--
+-- Name: w_sup_raggio(integer, jsonb); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_sup_raggio(p_xp integer, p_abil jsonb) RETURNS numeric
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select least(12, 1.5 + 0.5 * (public.w_grado(p_xp) - 1) + 0.5 * public.w_ab(p_abil, 'esploratore'))::numeric; $$;
+
+--
 -- Name: w_target(text, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1707,6 +1903,22 @@ CREATE FUNCTION public.w_wxev(p_bid text, p_slot text) RETURNS text
     AS $$
   select coalesce((select ev from public.world_wx where building_id = p_bid and slot_id = p_slot), 'calma');
 $$;
+
+--
+-- Name: w_xp(uuid, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_xp(p_user uuid, p_n integer) RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare x int;
+begin
+  if p_user is null or coalesce(p_n,0) <= 0 then return 0; end if;
+  insert into public.world_superstite(user_id, xp) values (p_user, p_n)
+    on conflict (user_id) do update set xp = public.world_superstite.xp + excluded.xp returning xp into x;
+  return x;
+end $$;
 
 --
 -- Name: w_zm(text, numeric, text, integer); Type: FUNCTION; Schema: public; Owner: -
@@ -4009,6 +4221,91 @@ begin
 end $$;
 
 --
+-- Name: world_sped_parti(text, text, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_sped_parti(p_kind text, p_nome text, p_lat double precision, p_lon double precision) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); s public.world_superstite; km numeric; c json; en int; mins int; h int; nid bigint; notte boolean;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if p_kind not in ('cibo','legno','carb','farmaco','misto') then return json_build_object('ok', false, 'msg', 'Posto sconosciuto'); end if;
+  if p_lat is null or p_lon is null then return json_build_object('ok', false, 'msg', 'Posto senza posizione'); end if;
+  s := public.w_sup(me);
+  km := public.w_sped_km(me, p_lat, p_lon);
+  if km is null then return json_build_object('ok', false, 'msg', 'Ti serve una casa nel mondo: le spedizioni partono da lì'); end if;
+  km := greatest(0.2, km);
+  if km > public.w_sup_raggio(s.xp, s.abil) then
+    return json_build_object('ok', false, 'msg', format('È a %s km: il tuo raggio è %s km (sali di grado o usa 🧭 Esploratore)', km, public.w_sup_raggio(s.xp, s.abil)));
+  end if;
+  if (select count(*) from public.world_spedizioni where user_id = me and stato = 'via') >= 1 + public.w_eq(s.equip, 'radio') then
+    return json_build_object('ok', false, 'msg', 'La squadra è già fuori: raccogli prima chi è tornato (📻 la Radio ne fa partire di più)');
+  end if;
+  if exists (select 1 from public.world_spedizioni where user_id = me and abs(lat - p_lat) < 0.0003 and abs(lon - p_lon) < 0.0004 and start_at > now() - interval '12 hours') then
+    return json_build_object('ok', false, 'msg', 'Ci sei già stato: il posto si riempie di nuovo fra 12 ore');
+  end if;
+  h := extract(hour from now() at time zone 'Europe/Rome'); notte := h >= 20 or h < 7;
+  c := public.w_sped_calc(km, s.abil, s.equip, notte);
+  en := (c->>'energia')::int; mins := (c->>'min')::int;
+  if s.energia < en then
+    return json_build_object('ok', false, 'msg', format('Serve ⚡ %s: ne hai %s (una carica ogni %s min)', en, s.energia, public.w_en_ric(s.abil)));
+  end if;
+  update public.world_superstite set energia = energia - en,
+    energia_at = case when energia >= public.w_en_max(abil) then now() else energia_at end where user_id = me;
+  insert into public.world_spedizioni(user_id, kind, nome, lat, lon, km, end_at, rischio, energia, calc)
+    values (me, p_kind, left(coalesce(nullif(trim(p_nome), ''), 'Posto senza nome'), 60), p_lat, p_lon, km, now() + make_interval(mins => mins), (c->>'rischio')::int, en, c::jsonb)
+    returning world_spedizioni.id into nid;
+  return json_build_object('ok', true, 'id', nid, 'min', mins, 'energia', en, 'end_at', now() + make_interval(mins => mins),
+    'msg', format('🎒 Partito! Torna fra %s min', mins));
+end $$;
+
+--
+-- Name: world_sped_raccogli(bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_sped_raccogli(p_id bigint) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); x public.world_spedizioni; s public.world_superstite; w public.world_wallet; c jsonb; b int; ko boolean;
+  l int := 0; f int := 0; k int := 0; e int := 0; xp int; mt int := 0; got json; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD'); g0 int; tes int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  select * into x from public.world_spedizioni where id = p_id and user_id = me for update;
+  if x.id is null or x.stato <> 'via' then return json_build_object('ok', false, 'msg', 'Spedizione già raccolta'); end if;
+  if x.end_at > now() then return json_build_object('ok', false, 'msg', 'Non è ancora tornato'); end if;
+  s := public.w_sup(me); g0 := public.w_grado(s.xp); c := x.calc;
+  ko := random() * 100 < x.rischio;
+  b := (c->>'bottino')::int; if ko then b := b / 2; end if;
+  case x.kind
+    when 'cibo' then f := b;
+    when 'legno' then l := b;
+    when 'carb' then k := round(b * 0.6);
+    when 'farmaco' then f := b / 2; e := case when ko then 1 else 2 end;
+    else l := b / 3; f := b / 3; k := b / 3;
+  end case;
+  got := public.w_res(me, l, f, k);
+  if e > 0 then perform public.w_en_add(me, e); end if;
+  xp := (c->>'xp')::int; if ko then xp := xp / 2; end if;
+  perform public.w_xp(me, xp);
+  w := public.w_wallet(me); tes := coalesce((w.caps->>('tesori:' || day))::int, 0);
+  if random() * 100 < (c->>'tesoro')::int and tes < 5 then
+    mt := least(60, 15 + 5 * g0);
+    update public.world_wallet set caps = jsonb_set(caps, array['tesori:' || day], to_jsonb(tes + 1)) where user_id = me;
+    perform public.w_pay(me, mt, 'Spedizione: tesoro trovato');
+  end if;
+  update public.world_spedizioni set stato = 'raccolta', avvisato = true,
+    esito = jsonb_build_object('ko', ko, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int, 'energia', e, 'xp', xp, 'mattoni', mt)
+    where id = p_id;
+  s := public.w_sup(me);
+  return json_build_object('ok', true, 'ko', ko, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int,
+    'energia', e, 'xp', xp, 'mattoni', mt, 'grado', public.w_grado(s.xp), 'salito', public.w_grado(s.xp) > g0,
+    'msg', case when ko then 'Gli zombie l’hanno inseguito: ha portato a casa metà' else 'Spedizione riuscita' end);
+end $$;
+
+--
 -- Name: world_status_extra(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4025,6 +4322,129 @@ CREATE FUNCTION public.world_status_extra() RETURNS json
     'league', public.w_league(public.w_lvl_of(auth.uid())),
     'houses', (select count(*) from public.world_buildings where owner = auth.uid()));
 $$;
+
+--
+-- Name: world_sup_abilita(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_sup_abilita(p_k text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); s public.world_superstite; liberi int; a int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if p_k not in ('esploratore','resistenza','combattente','cercatore','mercante') then return json_build_object('ok', false, 'msg', 'Abilità sconosciuta'); end if;
+  s := public.w_sup(me);
+  liberi := (public.w_grado(s.xp) - 1) - (select coalesce(sum(public.w_ab(s.abil, k)), 0) from unnest(array['esploratore','resistenza','combattente','cercatore','mercante']) k);
+  a := public.w_ab(s.abil, p_k);
+  if liberi <= 0 then return json_build_object('ok', false, 'msg', 'Nessun punto libero: sali di grado con l’esperienza'); end if;
+  if a >= 5 then return json_build_object('ok', false, 'msg', 'Questa abilità è già al massimo (5)'); end if;
+  update public.world_superstite set abil = jsonb_set(abil, array[p_k], to_jsonb(a + 1)) where user_id = me;
+  return json_build_object('ok', true, 'livello', a + 1, 'msg', 'Abilità migliorata');
+end $$;
+
+--
+-- Name: world_sup_equip(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_sup_equip(p_k text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); s public.world_superstite; w public.world_wallet; lv int; cl int; cm int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if p_k not in ('zaino','torcia','arma','radio') then return json_build_object('ok', false, 'msg', 'Oggetto sconosciuto'); end if;
+  s := public.w_sup(me); w := public.w_wallet(me);
+  lv := public.w_eq(s.equip, p_k) + 1;
+  if lv > 3 then return json_build_object('ok', false, 'msg', 'È già al livello massimo (3)'); end if;
+  cl := 30 * lv; cm := 50 * lv;
+  if w.legno < cl or w.mattoni < cm then return json_build_object('ok', false, 'msg', format('Servono 🪵 %s e 🧱 %s', cl, cm)); end if;
+  update public.world_wallet set legno = legno - cl where user_id = me;
+  perform public.w_pay(me, -cm, 'Equipaggiamento: ' || p_k || ' livello ' || lv);
+  update public.world_superstite set equip = jsonb_set(equip, array[p_k], to_jsonb(lv)) where user_id = me;
+  return json_build_object('ok', true, 'livello', lv, 'msg', 'Costruito!');
+end $$;
+
+--
+-- Name: world_sup_info(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_sup_info() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); s public.world_superstite; inv json; g int; today date := (now() at time zone 'Europe/Rome')::date;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  perform public.w_wallet(me);
+  inv := public.w_sup_inviti(me);
+  s := public.w_sup(me);
+  g := public.w_grado(s.xp);
+  return json_build_object('ok', true,
+    'xp', s.xp, 'grado', g, 'xp_da', public.w_grado_xp(g), 'xp_a', public.w_grado_xp(g + 1),
+    'punti', greatest(0, (g - 1) - (select coalesce(sum(public.w_ab(s.abil, k)), 0) from unnest(array['esploratore','resistenza','combattente','cercatore','mercante']) k)),
+    'abil', s.abil, 'equip', s.equip,
+    'energia', s.energia, 'energia_max', public.w_en_max(s.abil), 'ricarica_min', public.w_en_ric(s.abil),
+    'prossima_s', case when s.energia >= public.w_en_max(s.abil) then 0
+                       else greatest(0, round(extract(epoch from (s.energia_at + make_interval(mins => public.w_en_ric(s.abil)) - now()))))::int end,
+    'raggio_km', public.w_sup_raggio(s.xp, s.abil),
+    'max_sped', 1 + public.w_eq(s.equip, 'radio'),
+    'serie', case when s.serie_day >= today - 1 then s.serie else 0 end,
+    'serie_oggi', coalesce(s.serie_day = today, false),
+    'share_oggi', coalesce(s.share_day = today, false),
+    'inviti', inv,
+    'notte', extract(hour from now() at time zone 'Europe/Rome') >= 20 or extract(hour from now() at time zone 'Europe/Rome') < 7,
+    'spedizioni', (select coalesce(json_agg(json_build_object('id', x.id, 'kind', x.kind, 'nome', x.nome, 'lat', x.lat, 'lon', x.lon, 'km', x.km,
+                     'start_at', x.start_at, 'end_at', x.end_at, 'rischio', x.rischio, 'stato', x.stato, 'esito', x.esito) order by x.stato, x.end_at desc), '[]'::json)
+                   from (select * from public.world_spedizioni where user_id = me and (stato = 'via' or end_at > now() - interval '24 hours')
+                         order by stato, end_at desc limit 8) x));
+end $$;
+
+--
+-- Name: world_sup_serie(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_sup_serie() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); s public.world_superstite; today date := (now() at time zone 'Europe/Rome')::date; n int; g int; mt int := 0;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  perform public.w_wallet(me);
+  s := public.w_sup(me);
+  if s.serie_day = today then return json_build_object('ok', false, 'msg', 'Premio della serie già preso oggi: torna domani'); end if;
+  n := case when s.serie_day = today - 1 then s.serie + 1 else 1 end;
+  g := ((n - 1) % 7) + 1;
+  update public.world_superstite set serie = n, serie_day = today where user_id = me;
+  perform public.w_res(me, 5 * g, 5 * g, 3 * g);
+  perform public.w_xp(me, 10 * g);
+  perform public.w_en_add(me, case when g = 7 then 3 else 1 end);
+  if g = 7 then mt := 50; perform public.w_pay(me, 50, 'Serie di 7 giorni'); end if;
+  return json_build_object('ok', true, 'serie', n, 'giorno', g, 'legno', 5 * g, 'cibo', 5 * g, 'carb', 3 * g, 'xp', 10 * g,
+    'energia', case when g = 7 then 3 else 1 end, 'mattoni', mt);
+end $$;
+
+--
+-- Name: world_sup_share(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_sup_share(p_dove text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); s public.world_superstite; today date := (now() at time zone 'Europe/Rome')::date;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  s := public.w_sup(me);
+  if s.share_day = today then return json_build_object('ok', false, 'msg', 'Grazie! Il premio della condivisione è uno al giorno'); end if;
+  update public.world_superstite set share_day = today where user_id = me;
+  perform public.w_xp(me, 20);
+  perform public.w_en_add(me, 1);
+  return json_build_object('ok', true, 'xp', 20, 'energia', 1, 'msg', 'Grazie per la condivisione: ⭐ +20 e ⚡ +1');
+end $$;
 
 --
 -- Name: world_team_bonus(); Type: FUNCTION; Schema: public; Owner: -
@@ -4066,7 +4486,7 @@ CREATE FUNCTION public.world_trade(p_kind text, p_n integer) RETURNS json
     SET search_path TO 'public'
     AS $$
 declare me uuid := auth.uid(); w public.world_wallet; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD');
-  have int; done int; m int; n int;
+  have int; done int; m int; n int; bon int;
 begin
   if me is null then return json_build_object('ok',false,'msg','Accedi'); end if;
   if p_kind not in ('legno','cibo','carb') then return json_build_object('ok',false,'msg','Risorsa sconosciuta'); end if;
@@ -4083,7 +4503,9 @@ begin
     caps = jsonb_set(caps, array['mercato:'||day], to_jsonb(done + m))
     where user_id = me;
   perform public.w_pay(me, m, 'Mercato: risorse scambiate');
-  return json_build_object('ok',true,'dato',n,'mattoni',m,'mercato_left',100 - done - m);
+  bon := (m / 10) * public.w_ab(coalesce((select abil from public.world_superstite where user_id = me), '{}'::jsonb), 'mercante');
+  if bon > 0 then perform public.w_pay(me, bon, 'Mercante: bonus dello scambio'); end if;
+  return json_build_object('ok',true,'dato',n,'mattoni',m + bon,'bonus',bon,'mercato_left',100 - done - m);
 end $$;
 
 --
@@ -5140,6 +5562,47 @@ CREATE SEQUENCE public.world_shouts_id_seq
 ALTER SEQUENCE public.world_shouts_id_seq OWNED BY public.world_shouts.id;
 
 --
+-- Name: world_spedizioni; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_spedizioni (
+    id bigint NOT NULL,
+    user_id uuid NOT NULL,
+    kind text NOT NULL,
+    nome text,
+    lat double precision NOT NULL,
+    lon double precision NOT NULL,
+    km numeric NOT NULL,
+    start_at timestamp with time zone DEFAULT now() NOT NULL,
+    end_at timestamp with time zone NOT NULL,
+    rischio integer NOT NULL,
+    energia integer NOT NULL,
+    calc jsonb DEFAULT '{}'::jsonb NOT NULL,
+    stato text DEFAULT 'via'::text NOT NULL,
+    esito jsonb,
+    avvisato boolean DEFAULT false NOT NULL,
+    CONSTRAINT world_spedizioni_kind_check CHECK ((kind = ANY (ARRAY['cibo'::text, 'legno'::text, 'carb'::text, 'farmaco'::text, 'misto'::text]))),
+    CONSTRAINT world_spedizioni_stato_check CHECK ((stato = ANY (ARRAY['via'::text, 'raccolta'::text])))
+);
+
+--
+-- Name: world_spedizioni_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_spedizioni_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_spedizioni_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_spedizioni_id_seq OWNED BY public.world_spedizioni.id;
+
+--
 -- Name: world_terrain; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -5234,6 +5697,12 @@ ALTER TABLE ONLY public.world_presidi_tenute ALTER COLUMN id SET DEFAULT nextval
 --
 
 ALTER TABLE ONLY public.world_shouts ALTER COLUMN id SET DEFAULT nextval('public.world_shouts_id_seq'::regclass);
+
+--
+-- Name: world_spedizioni id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_spedizioni ALTER COLUMN id SET DEFAULT nextval('public.world_spedizioni_id_seq'::regclass);
 
 --
 -- Name: admins admins_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -5621,6 +6090,20 @@ ALTER TABLE ONLY public.world_shouts
     ADD CONSTRAINT world_shouts_pkey PRIMARY KEY (id);
 
 --
+-- Name: world_spedizioni world_spedizioni_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_spedizioni
+    ADD CONSTRAINT world_spedizioni_pkey PRIMARY KEY (id);
+
+--
+-- Name: world_superstite world_superstite_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_superstite
+    ADD CONSTRAINT world_superstite_pkey PRIMARY KEY (user_id);
+
+--
 -- Name: world_terrain world_terrain_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5760,6 +6243,18 @@ CREATE INDEX world_presidi_lat ON public.world_presidi USING btree (lat, lon);
 --
 
 CREATE INDEX world_presidi_tenute_p ON public.world_presidi_tenute USING btree (presidio_id, dal);
+
+--
+-- Name: world_spedizioni_tick; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_spedizioni_tick ON public.world_spedizioni USING btree (end_at) WHERE ((stato = 'via'::text) AND (NOT avvisato));
+
+--
+-- Name: world_spedizioni_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_spedizioni_user ON public.world_spedizioni USING btree (user_id, stato);
 
 --
 -- Name: profili_pubblici profili_invite_join; Type: TRIGGER; Schema: public; Owner: -
@@ -6248,6 +6743,20 @@ ALTER TABLE ONLY public.world_shouts
 
 ALTER TABLE ONLY public.world_shouts
     ADD CONSTRAINT world_shouts_to_u_fkey FOREIGN KEY (to_u) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
+-- Name: world_spedizioni world_spedizioni_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_spedizioni
+    ADD CONSTRAINT world_spedizioni_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
+-- Name: world_superstite world_superstite_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_superstite
+    ADD CONSTRAINT world_superstite_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 --
 -- Name: world_wallet world_wallet_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -6823,6 +7332,18 @@ ALTER TABLE public.world_shields ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.world_shouts ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: world_spedizioni; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_spedizioni ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_superstite; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_superstite ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: world_terrain; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -7070,6 +7591,12 @@ REVOKE ALL ON FUNCTION public.w_dist_alleanza(p_aid bigint, p_lat double precisi
 REVOKE ALL ON FUNCTION public.w_dist_pt(p_user uuid, p_lat double precision, p_lon double precision) FROM PUBLIC;
 
 --
+-- Name: FUNCTION w_en_add(p_user uuid, p_n integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_en_add(p_user uuid, p_n integer) FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_feed_add(p_kind text, p_actor uuid, p_target uuid, p_lat double precision, p_lon double precision, p_info text); Type: ACL; Schema: public; Owner: -
 --
 
@@ -7191,6 +7718,31 @@ REVOKE ALL ON FUNCTION public.w_shielded(p_user uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.w_slope(p_bid text) FROM PUBLIC;
 
 --
+-- Name: FUNCTION w_sped_km(p_user uuid, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_sped_km(p_user uuid, p_lat double precision, p_lon double precision) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_sped_tick(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_sped_tick() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.w_sped_tick() TO service_role;
+
+--
+-- Name: FUNCTION w_sup(p_user uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_sup(p_user uuid) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_sup_inviti(p_user uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_sup_inviti(p_user uuid) FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_target(p_bid text, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
 --
 
@@ -7255,6 +7807,12 @@ REVOKE ALL ON FUNCTION public.w_wallet(p_user uuid) FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_wxev(p_bid text, p_slot text) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_xp(p_user uuid, p_n integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_xp(p_user uuid, p_n integer) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_zona_libera(p_user uuid, p_lat double precision, p_lon double precision, p_aid bigint); Type: ACL; Schema: public; Owner: -
@@ -7916,10 +8474,59 @@ GRANT ALL ON FUNCTION public.world_shape_put(p_k text, p_kind text, p_val jsonb)
 GRANT ALL ON FUNCTION public.world_shout(p_to uuid, p_code integer) TO authenticated;
 
 --
+-- Name: FUNCTION world_sped_parti(p_kind text, p_nome text, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_sped_parti(p_kind text, p_nome text, p_lat double precision, p_lon double precision) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_sped_parti(p_kind text, p_nome text, p_lat double precision, p_lon double precision) TO authenticated;
+
+--
+-- Name: FUNCTION world_sped_raccogli(p_id bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_sped_raccogli(p_id bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_sped_raccogli(p_id bigint) TO authenticated;
+
+--
 -- Name: FUNCTION world_status_extra(); Type: ACL; Schema: public; Owner: -
 --
 
 GRANT ALL ON FUNCTION public.world_status_extra() TO authenticated;
+
+--
+-- Name: FUNCTION world_sup_abilita(p_k text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_sup_abilita(p_k text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_sup_abilita(p_k text) TO authenticated;
+
+--
+-- Name: FUNCTION world_sup_equip(p_k text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_sup_equip(p_k text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_sup_equip(p_k text) TO authenticated;
+
+--
+-- Name: FUNCTION world_sup_info(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_sup_info() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_sup_info() TO authenticated;
+
+--
+-- Name: FUNCTION world_sup_serie(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_sup_serie() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_sup_serie() TO authenticated;
+
+--
+-- Name: FUNCTION world_sup_share(p_dove text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_sup_share(p_dove text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_sup_share(p_dove text) TO authenticated;
 
 --
 -- Name: FUNCTION world_team_bonus(); Type: ACL; Schema: public; Owner: -
