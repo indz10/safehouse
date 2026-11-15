@@ -54,18 +54,20 @@ function sfidaHTML(d){if(!d)return'<p class="notice">La sfida arriva dopo l’ag
 async function sfidaSheet(){openSheet('🏆 Sfida del quartiere','<div class="sfbox"><p><span class="spin"></span></p></div>',()=>{});const d=await sfidaLoad(true);const b=document.querySelector('#sheet.open .sfbox');if(b)b.innerHTML=sfidaHTML(d);}
 /* ---------- 🏢 condominio ---------- */
 async function evtHiLoad(force){if(!S.user||typeof hiLoad!=='function')return EVT.HI;if(!force&&Date.now()-EVT.hiT<300000)return EVT.HI;EVT.hiT=Date.now();try{const I=await hiLoad();if(I&&!I.err)EVT.HI=I;}catch(e){}return EVT.HI;}
-function condoServe(){const I=EVT.HI;if(!I||!I.building_id||I.kind_set)return false;const H=S.zone&&S.zone.real&&S.zone.real.house;return(I.members||[]).length>0||(I.neighbors||[]).length>0||!!(H&&(H.kind==='apt'||H.bt==='apartments'));}
+/* tutti quelli che non hanno ancora detto che tipo di casa è (condominio, stessa famiglia, casa singola) */
+function condoServe(){const I=EVT.HI;return!!(I&&I.building_id&&!I.kind_set);}
+function condoProb(){const I=EVT.HI||{};const H=S.zone&&S.zone.real&&S.zone.real.house;return(I.members||[]).length>0||(I.neighbors||[]).length>0||!!(H&&(H.kind==='apt'||H.bt==='apartments'));}
 function condoSheet(){const I=EVT.HI||{};const M=I.members||[];
-  openSheet('🏢 Abiti in un condominio?',`<p style="font-weight:400;font-size:14px">${M.length?`Nel tuo stesso edificio c’è anche ${M.map(m=>'<b>@'+esc(m.nick)+'</b>').join(', ')}. `:''}Dillo al gioco: così ogni famiglia ha il suo appartamento, le finestre accese nel palazzo e le difese comuni sul tetto (portone, cancello, telecamere) che valgono per tutti.</p>
+  openSheet('🏠 Che tipo di casa è la tua?',`<p style="font-weight:400;font-size:14px">${M.length?`Nel tuo stesso edificio c’è anche ${M.map(m=>'<b>@'+esc(m.nick)+'</b>').join(', ')}. `:''}Dillo al gioco una volta sola: <b>stessa famiglia</b> = una casa con fortificazioni in comune; <b>condominio</b> = ogni famiglia ha il suo appartamento, una finestra nel palazzo e le difese comuni sul tetto (portone, cancello, telecamere) che valgono per tutti.</p>
     <div class="cdq"><b>🏢 Ho il mio appartamento</b><input class="field" id="cdUnit" placeholder="Scala e interno, per esempio A 5 o 3B" autocomplete="off"><button class="btn wide" data-cdq="condominio">🏢 Salva il mio appartamento</button></div>
     ${M.length?`<button class="btn wide alt" data-cdq="famiglia">👨‍👩‍👧 Vivo con ${M.map(m=>'@'+esc(m.nick)).join(', ')}: stessa famiglia</button>`:''}
-    <button class="btn wide ghost" data-cdq="casa">🏠 No, è una casa singola</button>`,c=>{
+    <button class="btn wide ghost" data-cdq="casa">🏠 È una casa singola (villetta)${M.length?' dove viviamo insieme':''}</button>`,c=>{
     c.querySelectorAll('[data-cdq]').forEach(b=>b.onclick=async()=>{const k=b.dataset.cdq;const u=(c.querySelector('#cdUnit').value||'').trim();if(k==='condominio'&&!u){toast('Scrivi scala e interno');return;}
       b.disabled=true;try{const{data,error}=await SB.rpc('world_set_home',{p_kind:k==='condominio'?'condominio':'casa',p_unit:k==='condominio'?u:''});if(error)throw error;toast(data.ok?'🏢 '+data.msg:data.msg);
         if(data.ok){EVT.HI=null;EVT.hiT=0;await evtHiLoad(true);try{await wMine(true);}catch(e){}closeSheet();const h=myHouses().find(x=>x.home);if(h)setTimeout(()=>houseSheet(h),400);}else b.disabled=false;}catch(e){toast('Non riuscito');b.disabled=false;}});});}
 /* ---------- carte per la guida (e quindi per ADESSO) ---------- */
 function evtGdItems(I){
-  if(condoServe())I.push({p:104,ic:'🏢',t:'Abiti in un condominio? Scegli il tuo appartamento',why:'Così il palazzo ha una finestra per famiglia e le difese comuni valgono per tutti.',acts:[{b:'🏢 Scegli',run:async()=>{condoSheet();return{skip:1};}}]});
+  if(condoServe()){const M=(EVT.HI.members||[]);I.push({p:condoProb()?104:66,ic:'🏠',t:M.length?`Vivi con @${esc(M[0].nick)} o è un condominio?`:'Che tipo di casa è la tua?',why:'Casa singola, stessa famiglia o il tuo appartamento in un condominio: si dice una volta sola e il gioco sistema coinquilini, vicini e difese comuni.',acts:[{b:'🏠 Scegli',run:async()=>{condoSheet();return{skip:1};}}]});}
   evtAperti().forEach(e=>{if(evtFatto(e)||e.km==null||e.km>e.raggio)return;const K=EVT_K[e.kind]||EVT_K.cassa;
     I.push({p:e.kind==='cassa'?93:e.kind==='salva'?91:86,ic:K[0],t:`${K[1]} a ${kmTxt(+e.km)} · finisce fra ${evtLeft(e.end_at)}`,why:K[2],cost:e.kind==='salva'?'🥫 5 · ⚡ 1':'⚡ 1',
       acts:[{b:e.kind==='cassa'?'🎒 Corri':e.kind==='salva'?'🚑 Curalo':'💥 Colpisci',run:async()=>{const{data,error}=await SB.rpc('world_evento_azione',{p_id:e.id});if(error)throw error;EVT.t=0;evtLoad(true);return data;}},{b:'Dettagli',run:async()=>{evtSheet(e.id);return{skip:1};}}]});});

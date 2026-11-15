@@ -31,7 +31,7 @@ async def main():
         print('sfida:',await pg.evaluate("()=>[(document.querySelector('#sheet.open .sfme b')||{}).textContent,document.querySelectorAll('#sheet.open .sfrow').length]"))
         # condominio: altri nello stesso edificio, tipo non scelto
         await pg.evaluate("async()=>{closeSheet();__W.hk={kind:'casa',unit:null,kind_set:false};const I=await hiLoad();I.members=[{user_id:'u5',nick:'Anna88',prep:false}];EVT.HI=I;EVT.hiT=Date.now();await gdLoad(true);trrRepaint(true);mwRefresh()}");await pg.wait_for_timeout(1500)
-        print('ADESSO condominio:',await pg.evaluate("()=>(document.querySelector('.mwdrawer .mwnow b')||{}).textContent"))
+        print('ADESSO tipo di casa:',await pg.evaluate("()=>(document.querySelector('.mwdrawer .mwnow b')||{}).textContent"))
         await pg.evaluate("()=>document.querySelector('.mwdrawer [data-nowgo]').click()");await pg.wait_for_timeout(1200)
         await pg.evaluate("()=>{document.querySelector('#cdUnit').value='B 7';document.querySelector('#sheet.open [data-cdq=condominio]').click()}");await pg.wait_for_timeout(2500)
         print('condominio salvato:',await pg.evaluate("()=>[__W.hk.kind,__W.hk.unit]"))
