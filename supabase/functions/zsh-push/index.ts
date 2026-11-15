@@ -156,6 +156,15 @@ function feedMsg(f: any, who: string, id: string): { title: string; body: string
     case "respinto": return { title: "🛡️ Assalto respinto", body: `${who} ha respinto il tuo assalto`, url: "/?go=mappa" };
     case "difesa": return { title: "🛡️ Un alleato ti difende", body: `${who} sta arrivando a difendere un tuo edificio`, url: "/?go=mappa" };
     case "assi": return { title: "🪵 Assi inchiodate", body: `${who} ha rinforzato una tua casa con le assi`, url: "/?go=mappa" };
+    case "evento": { const [k, id] = String(f.info || "").split("|"); const T: Record<string, [string, string]> = {
+        cassa: ["📦 Rifornimento caduto vicino a te!", "I primi 3 superstiti che arrivano si prendono le scorte: corri!"],
+        salva: ["🚑 Un superstite ferito qui vicino", "Il primo che lo cura con 🥫 5 prende ⭐ 50 e 🧱 20"],
+        nido: ["🧟 Nido di zombie nel quartiere!", "Abbattetelo insieme ai vicini: premi a tutti quelli che colpiscono"],
+        sponsor: ["⭐ Un negozio sponsor è sotto assedio!", "Difendilo con i vicini: premi a tutti"] };
+      const m = T[k] || ["⚡ Evento qui vicino", "Tocca per partecipare col tuo superstite"];
+      return { title: m[0], body: m[1], url: `/?go=mappa&evt=${id || ""}` }; }
+    case "evento_vinto": return { title: "💥 Abbattuto!", body: `${who} ha dato il colpo finale a «${f.info || "l’evento"}»: hai ricevuto la tua parte di premi`, url: "/?go=mappa" };
+    case "sfida_vinta": return { title: "🏆 Sfida del quartiere", body: `Sei arrivato ${f.info}° nel tuo quartiere la settimana scorsa: premio in 🧱 Mattoni!`, url: "/?go=mappa&sfida=1" };
     case "casa_manca": return { title: "🏠 Registra la tua casa nel mondo", body: "Abiti in un condominio? La tua casa non risulta ancora nel mondo: tocca qui e premi “Registra la mia casa” (o “Sono a casa adesso”). Senza, le orde non la contano e i vicini non ti vedono.", url: "/?go=mappa&reg=1" };
     case "sped_ok": return { title: "🎒 Il tuo superstite è tornato", body: `Dalla spedizione a «${f.info || "un posto vicino"}»: tocca per raccogliere provviste ed esperienza`, url: "/?go=mappa&sup=1" };
     case "ask_ally": return { title: "🆘 Un alleato chiede aiuto", body: `${who} chiede il tuo aiuto per la prossima orda`, url: so };
@@ -229,6 +238,9 @@ Deno.serve(async (req) => {
     }
     // spedizioni tornate (migrazione 020): una novità "sped_ok" per ciascuna, poi la manda feedFor
     try { await sb.rpc("w_sped_tick"); } catch { /* blocco SQL 020 non ancora eseguito */ }
+    // eventi dal vivo e premi della sfida del quartiere (migrazione 022)
+    try { await sb.rpc("w_eventi_tick"); } catch { /* blocco SQL 022 non ancora eseguito */ }
+    try { await sb.rpc("w_sfida_premi"); } catch { /* blocco SQL 022 non ancora eseguito */ }
     // chi ha valutato la casa ma non ce l'ha nel mondo (condomini): promemoria al massimo ogni 3 giorni (migrazione 021)
     if (t.m < 10) { try { await sb.rpc("w_casa_manca_tick"); } catch { /* blocco SQL 021 non ancora eseguito */ } }
     // novità personali: messaggi, alleanze, rinforzi, orde ricevute, regali, saluti, inviti (feedFor)

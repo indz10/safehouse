@@ -92,5 +92,10 @@ Solo nel server (`w_sped_calc` e dintorni); l'app (`supCalc` in p82) copia la fo
 - Costo ⚡ 1, max 10 al giorno. Zombie: n = min(6, 3 + ⌊grado / 5⌋); ognuno bruto con probabilità min(0,4, 0,1 + 0,02 × grado) (4 colpi), altrimenti corridore 35% (2 colpi, 8 s per arrivare) o lento (2 colpi, 14 s); bruto 19 s. Danno a tocco 1 (2 con Arma ≥ 2).
 - Fine (`world_caccia_fine`): abbattuti = min(dichiarati, n, ⌊(secondi − 3) / 1,2⌋), zero oltre 10 minuti. ⭐ = round(5 × abbattuti × (1 + 0,1 × Combattente)) + 10 se tutti. Scorta per zombie abbattuto: 3 (bruto 6) di 🥫 40% / 🪵 35% / ⛽ 25% (passa da `w_res`).
 
+## Eventi dal vivo e sfida del quartiere (migrazione 022)
+- Celle di 0,05° × 0,07° (~5 km) con giocatori visti negli ultimi 3 giorni: al massimo un evento attivo e uno nuovo ogni 40 min, a 0,3–1,5 km da una casa (⭐ sponsor: sul negozio, 15% se c'è uno sponsor entro 3 km); cassa 30%, salva 25%, nido 30%.
+- Cassa (30 min): primi 3 → 24 / 14 / 8 di 🪵 🥫 ⛽, ⭐ 30 / 20 / 10. Salva (30 min): 🥫 5 → ⭐ 50, 🧱 20, ⛽ 10. Nido (60 min) e sponsor (45 min): vita = min(80, 20 + 10 × giocatori della cella); colpo = 5 + ⌊grado / 2⌋ + 2 × Combattente + 2 × Arma, ⭐ 5 a colpo, max 3 colpi a testa; quando cade a ognuno 10 + round(40 × danno suo / danno totale) di 🪵 e 🥫 (metà ⛽), ⭐ 20 + danno; 🧱 15 al colpo finale. Ogni mossa ⚡ 1, solo entro il raggio del superstite.
+- Sfida: punti = zombie abbattuti × 2 + spedizioni raccolte × 5 + mosse negli eventi × 10, settimana da lunedì (ora di Roma); quartiere = case entro 10 km; premi il lunedì ai primi 3 del proprio quartiere: 🧱 150 / 100 / 50.
+
 ## Mattoni
 Accrediti solo dal server (`w_pay`): premi del giorno con limiti (`world_earn`), premi vari max 300 al giorno (`world_reward`), spinta di recupero +50% sotto il livello medio della zona (`w_boost`), padrino +10% a chi ti ha invitato per 14 giorni.

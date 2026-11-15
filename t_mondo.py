@@ -17,7 +17,7 @@ async def main():
         print('barra:',await pg.evaluate("()=>[...document.querySelectorAll('#nav button')].map(b=>b.textContent)"))
         await pg.evaluate("()=>document.querySelector('#nav [data-tab=mappa]').click()");await pg.wait_for_timeout(3500)
         print('mondo:',await pg.evaluate("()=>[S.tab,!!document.querySelector('.mapfull .mwtop .mwbar'),[...document.querySelectorAll('.mwmodes button')].map(b=>b.textContent.trim()+(b.classList.contains('on')?'*':'')),document.querySelectorAll('.mwside button').length,(document.querySelector('.mwbar .mwpc')||{}).textContent]"))
-        print('cassetto chiuso:',await pg.evaluate("()=>[...document.querySelectorAll('.mwdrawer .mwchip')].map(c=>c.textContent.trim())"))
+        print('cassetto chiuso (una mossa):',await pg.evaluate("()=>(document.querySelector('.mwdrawer .mwnow b')||{}).textContent"))
         await pg.evaluate("()=>document.querySelector('.mwdrawer [data-mwg]').click()");await pg.wait_for_timeout(1200)
         print('cassetto aperto:',await pg.evaluate("()=>{const d=document.querySelector('.mwdrawer');return [d.classList.contains('open'),!!d.querySelector('.opan'),!!d.querySelector('.alsorda'),!!d.querySelector('.lpan')]}"))
         await pg.evaluate("()=>document.querySelector('[data-mwprep]').click()");await pg.wait_for_timeout(1500)

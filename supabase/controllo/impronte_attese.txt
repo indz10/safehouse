@@ -33,6 +33,7 @@ w_boost(uuid) 23b0f9792c
 w_canon(text, double precision, double precision) a8cd798858
 w_casa_extra(text, text) d8d69de76d
 w_casa_manca_tick() 395b46963e
+w_cella(double precision, double precision) 0c5f11f705
 w_cleanup() ce8e6152f0
 w_coinq(uuid, uuid) 76c0c56af5
 w_condo_admin(text) af12b59522
@@ -49,6 +50,7 @@ w_en_add(uuid, integer) bbbd4e4ff9
 w_en_max(jsonb) 8a3f3d1692
 w_en_ric(jsonb) 14229acc85
 w_eq(jsonb, text) de48d8f850
+w_eventi_tick() 17689ab1a4
 w_feed_add(text, uuid, uuid, double precision, double precision, text) 1a92b9dc6f
 w_fort(text) bafcee35d6
 w_grado(integer) 54cc85f814
@@ -94,8 +96,11 @@ w_res(uuid, integer, integer, integer) 6de01c39a5
 w_rift(uuid, uuid) 79ca44e7de
 w_room(text) ab86838fbb
 w_score(uuid, boolean) 836191a166
+w_settimana(timestamp with time zone) 18e024a71d
 w_settle(uuid) 59bad382a9
 w_settle_loans(uuid) 6cc226f820
+w_sfida_premi() a31c2a5209
+w_sfida_punti(uuid, timestamp with time zone, timestamp with time zone) 61dff0842e
 w_shielded(uuid) 3d79156b4e
 w_slope(text) 0dcd67cdba
 w_slot_id(timestamp with time zone) 5fd33c951a
@@ -172,6 +177,8 @@ world_dm_send(uuid, text) 8750519757
 world_dm_threads() 3560c66838
 world_earn(text) bf52ce0a77
 world_edificio_info(text, double precision, double precision) 4f6d4fba96
+world_eventi_vicini() 0682fa4579
+world_evento_azione(bigint) 051e176032
 world_fav_set(uuid, boolean) acc675b82b
 world_favs_list() 0a73e68a58
 world_feed_list(text) 8c091dbd22
@@ -223,6 +230,7 @@ world_send_help(uuid) aa1c73cbbe
 world_set_home(text, text) f3eb706e13
 world_set_mezzo_vero(text, integer) a344e73057
 world_set_realshield(integer) 9aae268eb7
+world_sfida_quartiere() 4d02fd8635
 world_shape_get(text, text) 9835883569
 world_shape_put(text, text, jsonb) c184167164
 world_shout(uuid, integer) ab6a2241e6
@@ -281,6 +289,8 @@ world_condo_rifts 16de30cd
 world_curses 203cd63e
 world_defs 9c26ecac
 world_dm 42f21988
+world_eventi ca175234
+world_eventi_azioni c757a3af
 world_excluded 67a6a429
 world_favs 8f232d3a
 world_feed a78458ad
@@ -294,6 +304,8 @@ world_pres_defs 8a272827
 world_presidi f2b03cfd
 world_presidi_guardie 7b35dd10
 world_presidi_tenute 171e1299
+world_sfide_fatte a47a40ce
+world_sfide_premi c2ace6eb
 world_shapes 90c99d30
 world_shields 39ed43a6
 world_shouts 38a06241

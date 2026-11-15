@@ -24,9 +24,10 @@ function mwRefresh(){const t=app.querySelector('.mwtop');if(!t)return;const mode
 function mwMappa(){const w=app.querySelector('.mapfull');if(!w||w.querySelector('.mwtop'))return;w.classList.add('mw');
   w.insertAdjacentHTML('afterbegin',mwTopHTML('mappa'));mwTopBind(w);
   const sp=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null).length;
-  w.insertAdjacentHTML('beforeend',`<div class="mwside"><button data-mws="cerca">🔎<small>Cerca</small></button><button data-mws="pres">🚩<small>Presidi</small></button>${S.user?'<button data-mws="ally">🤝<small>Alleati</small></button>':''}<button data-mws="spons">⭐<small>${sp||''} Sponsor</small></button><button data-mws="more">⋯<small>Altro</small></button></div>
+  w.insertAdjacentHTML('beforeend',`<div class="mwside"><button data-mws="pres">🚩<small>Presidi</small></button>${S.user?'<button data-mws="ally">🤝<small>Alleati</small></button>':''}<button data-mws="more">⋯<small>Altro</small></button></div>
     <div class="mwdrawer"></div>`);
-  w.querySelectorAll('[data-mws]').forEach(b=>b.onclick=()=>{const k=b.dataset.mws;if(k==='cerca')cercaLuogo();else if(k==='pres')presList5(window.__mf);else if(k==='ally')alPick();else if(k==='spons')spList(window.__mf);else mfMore();});
+  w.querySelectorAll('[data-mws]').forEach(b=>b.onclick=()=>{const k=b.dataset.mws;if(k==='cerca')cercaLuogo();else if(k==='pres')presList5(window.__mf);else if(k==='ally')alPick();else if(k==='spons')spList(window.__mf);else{mfMore();/* Fase 23: gli sponsor stanno qui dentro (e come mete delle spedizioni e degli eventi) */
+    setTimeout(()=>{const m=document.querySelector('#sheet.open .mfmenu');if(m&&!m.querySelector('[data-mmsp]')){m.insertAdjacentHTML('afterbegin',`<button data-mmsp>⭐ ${sp||''} Sponsor qui intorno</button>`);m.querySelector('[data-mmsp]').onclick=()=>{closeSheet();spList(window.__mf);};}},60);}});
   MW.open=false;mwDrawerPaint(w.querySelector('.mwdrawer'));
   if(S.user&&!OR.s)try{orLoad().then(mwRefresh);}catch(e){}
   try{trrFit();}catch(e){}}
@@ -35,16 +36,21 @@ function mwDrawerPaint(d){const H=(()=>{try{return myHouses();}catch(e){return[]
   const chips=H.map((h,i)=>{let c=null;try{c=frChanceOf(h);}catch(e){}return`<button class="mwchip" data-mwh="${i}">${h.home?'❤️':'🔑'} ${esc(h.home?'Casa tua':h.label)}${c!=null?` <b class="${chCls(c)}">${c}%</b>`:''}</button>`;}).join('')
     +(claim?`<button class="mwchip hot" data-mwc>🎁 Riscatta</button>`:'')+(S.user?`<button class="mwchip" data-mwa>🤝 ${nal!=null?nal+' ':''}alleati</button>`:'');
   d.classList.toggle('open',MW.open);
+  /* Fase 23 — una mossa alla volta: chiuso mostra solo la carta ADESSO; aperto le case, l'orda e il resto */
+  const now=!MW.open&&S.user&&typeof nowHTML==='function'?nowHTML():'';
   d.innerHTML=`<button class="mwgrip" data-mwg aria-label="${MW.open?'Chiudi':'Apri'} il cassetto"><span></span></button>
-    <div class="mwdh" data-mwg><b>${MW.open?'🧟 La tua orda':'🧟 Orda · 🏠 Le tue case'}</b><i>${MW.open?'▼':'▲'}</i></div>
-    <div class="mwchips">${chips||'<small class="muted">Valuta la casa per entrare nel mondo</small>'}</div>
+    ${now?`<div class="mwnowbox">${now}</div><div class="mwdh sm" data-mwg><b>🏠 Le tue case e l’orda</b><i>▲</i></div>`:`<div class="mwdh" data-mwg><b>${MW.open?'🧟 La tua orda':'🧟 Orda · 🏠 Le tue case'}</b><i>${MW.open?'▼':'▲'}</i></div>
+    <div class="mwchips">${chips||'<small class="muted">Valuta la casa per entrare nel mondo</small>'}</div>`}
     ${MW.open?'<div class="mwbody"></div>':''}`;
+  if(now)try{nowBind(d);}catch(e){}
+  /* il tondo "Tu" e la Lente stanno sopra il cassetto, qualunque sia la sua altezza */
+  requestAnimationFrame(()=>{try{document.body.style.setProperty('--mwdh',Math.max(100,d.offsetHeight||0)+'px');}catch(e){}});
   document.body.classList.toggle('mwopen',MW.open);
   d.querySelectorAll('[data-mwg]').forEach(x=>x.onclick=()=>{MW.open=!MW.open;mwDrawerPaint(d);});
   d.querySelectorAll('[data-mwh]').forEach(x=>x.onclick=()=>{const h=myHouses()[+x.dataset.mwh];if(h){window.SHEET_BACK=null;houseSheet(h);}});
   const c=d.querySelector('[data-mwc]');if(c)c.onclick=()=>{MW.open=true;mwDrawerPaint(d);setTimeout(()=>{const x=d.querySelector('[data-ocl]');if(x)x.scrollIntoView({behavior:'smooth',block:'center'});},200);};
   const a=d.querySelector('[data-mwa]');if(a)a.onclick=()=>alPick();
-  if(MW.open){const b=d.querySelector('.mwbody');
+  if(MW.open){const b=d.querySelector('.mwbody');b.insertAdjacentHTML('beforeend',`<div class="mwchips">${chips}</div>`);b.querySelectorAll('[data-mwh]').forEach(x=>x.onclick=()=>{const h=myHouses()[+x.dataset.mwh];if(h){window.SHEET_BACK=null;houseSheet(h);}});const a2=b.querySelector('[data-mwa]');if(a2)a2.onclick=()=>alPick();const c2=b.querySelector('[data-mwc]');if(c2)c2.onclick=()=>{const x=b.querySelector('[data-ocl]');if(x)x.scrollIntoView({behavior:'smooth',block:'center'});};
     try{b.insertAdjacentHTML('beforeend',orPanelHTML());orBind(b);}catch(e){}
     try{if(S.user){b.insertAdjacentHTML('beforeend','<div class="panel alsorda"><b class="disp" style="font-size:20px">🤝 I tuoi alleati</b><div class="alsbox cmp"></div></div>');const ab=b.querySelector('.alsbox');ab.innerHTML=alsHTML(ALS.L,true);alsBind(ab);if(!ALS.L)alsLoad().then(alsRefresh);}}catch(e){}
     try{b.insertAdjacentHTML('beforeend',luckTopHTML());luckTopBind();}catch(e){}
