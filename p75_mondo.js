@@ -24,9 +24,9 @@ function mwRefresh(){const t=app.querySelector('.mwtop');if(!t)return;const mode
 function mwMappa(){const w=app.querySelector('.mapfull');if(!w||w.querySelector('.mwtop'))return;w.classList.add('mw');
   w.insertAdjacentHTML('afterbegin',mwTopHTML('mappa'));mwTopBind(w);
   const sp=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null).length;
-  w.insertAdjacentHTML('beforeend',`<div class="mwside"><button data-mws="pres">🚩<small>Presidi</small></button>${S.user?'<button data-mws="ally">🤝<small>Alleati</small></button>':''}<button data-mws="more">⋯<small>Altro</small></button></div>
+  w.insertAdjacentHTML('beforeend',`<div class="mwside">${S.user?'<button data-mws="gioca" class="mwgioca">🎮<small>Gioca</small></button>':''}<button data-mws="pres">🚩<small>Presidi</small></button>${S.user?'<button data-mws="ally">🤝<small>Alleati</small></button>':''}<button data-mws="more">⋯<small>Altro</small></button></div>
     <div class="mwdrawer"></div>`);
-  w.querySelectorAll('[data-mws]').forEach(b=>b.onclick=()=>{const k=b.dataset.mws;if(k==='cerca')cercaLuogo();else if(k==='pres')presList5(window.__mf);else if(k==='ally')alPick();else if(k==='spons')spList(window.__mf);else{mfMore();/* Fase 23: gli sponsor stanno qui dentro (e come mete delle spedizioni e degli eventi) */
+  w.querySelectorAll('[data-mws]').forEach(b=>b.onclick=()=>{const k=b.dataset.mws;if(k==='gioca'){difOpen();return;}if(k==='cerca')cercaLuogo();else if(k==='pres')presList5(window.__mf);else if(k==='ally')alPick();else if(k==='spons')spList(window.__mf);else{mfMore();/* Fase 23: gli sponsor stanno qui dentro (e come mete delle spedizioni e degli eventi) */
     setTimeout(()=>{const m=document.querySelector('#sheet.open .mfmenu');if(m&&!m.querySelector('[data-mmsp]')){m.insertAdjacentHTML('afterbegin',`<button data-mmsp>⭐ ${sp||''} Sponsor qui intorno</button>`);m.querySelector('[data-mmsp]').onclick=()=>{closeSheet();spList(window.__mf);};}},60);}});
   MW.open=false;mwDrawerPaint(w.querySelector('.mwdrawer'));
   if(S.user&&!OR.s)try{orLoad().then(mwRefresh);}catch(e){}

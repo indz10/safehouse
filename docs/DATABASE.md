@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **63** · viste: **1** · indici: **25** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
-- Funzioni: **250** (250 nomi); usate (direttamente o tramite altre funzioni): **242**; **non usate: 8**
+- Tabelle: **64** · viste: **1** · indici: **26** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
+- Funzioni: **255** (255 nomi); usate (direttamente o tramite altre funzioni): **247**; **non usate: 8**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -68,8 +68,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_dist_pt` |  |  |  | world_presidio_occupa, w_azione, world_consigli | 1: migr. 014_territorio |
 | `w_dot` |  |  |  | world_send_help, world_player, world_mezzo, w_azione, world_consigli | 1: migr. 009_mezzi_assalti |
 | `w_en_add` |  |  |  | w_sup_inviti, world_sped_raccogli, world_sup_serie, world_sup_share | 1: migr. 020_superstite |
-| `w_en_max` |  |  |  | w_sup, w_en_add, world_sup_info, world_sped_parti, world_caccia_inizia, world_evento_azione | 1: migr. 020_superstite |
-| `w_en_ric` |  |  |  | w_sup, world_sup_info, world_sped_parti, world_caccia_inizia, world_evento_azione | 1: migr. 020_superstite |
+| `w_en_max` |  |  |  | w_sup, w_en_add, world_sup_info, world_sped_parti, world_caccia_inizia, world_evento_azione … | 1: migr. 020_superstite |
+| `w_en_ric` |  |  |  | w_sup, world_sup_info, world_sped_parti, world_caccia_inizia, world_evento_azione, world_difesa_inizia | 1: migr. 020_superstite |
 | `w_eq` |  |  |  | w_sped_calc, world_sup_info, world_sup_equip, world_sped_parti, world_caccia_inizia, world_evento_azione | 1: migr. 020_superstite |
 | `w_eventi_tick` |  | ✓ |  |  | 1: migr. 022_eventi_sfide |
 | `w_feed_add` |  |  |  | w_tr_feed, w_tr_dm, world_house_invite, world_house_answer, w_pres_tick, w_assalti_tick … | 1: social |
@@ -145,7 +145,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_votanti` |  |  |  | w_alleanza_chiudi, world_alleanza_chiedi, world_alleanza_info, world_alleanza_invita2, world_alleanze_mie | 1: migr. 018_alleanze_gruppi |
 | `w_wallet` |  |  |  | w_pay, world_earn, world_claim_home, world_collect, world_mine, world_raid_status … | 1: mondo_unico |
 | `w_wxev` |  |  |  | w_attack3, w_threats_of | 2: zombie → zombie_alleati |
-| `w_xp` |  |  |  | w_pay, world_sped_raccogli, world_sup_serie, world_sup_share, world_caccia_fine, world_evento_azione | 1: migr. 020_superstite |
+| `w_xp` |  |  |  | w_pay, world_sped_raccogli, world_sup_serie, world_sup_share, world_caccia_fine, world_evento_azione … | 1: migr. 020_superstite |
 | `w_zm` |  |  |  | w_attack3, w_threats_of | 2: zombie → zombie_alleati |
 | `w_zona_libera` |  |  |  | w_ancora, world_alleanza_fonda | 1: migr. 019_alleanze_multiple |
 | `w_ztypes` |  |  |  | w_attack3, w_threats_of | 3: zombie → zombie_alleati → fortezze |
@@ -176,6 +176,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_assalta` | ✓ |  |  | world_saccheggia | 1: migr. 014_territorio |
 | `world_assi` | ✓ |  |  |  | 1: migr. 014_territorio |
 | `world_block` | ✓ |  |  |  | 1: chat |
+| `world_bottega_compra` | ✓ |  |  |  | 1: migr. 023_difendi_casa |
 | `world_buy` | ✓ |  |  |  | 4: mondo_unico → mondo_unico_agg1 → casa_abitata → nome_casa |
 | `world_buy_mezzo` | ✓ |  |  |  | 1: migr. 009_mezzi_assalti |
 | `world_caccia_fine` | ✓ |  |  |  | 1: migr. 021_caccia_condomini |
@@ -193,6 +194,9 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_coresidents` | ✓ |  |  |  | 1: residenti |
 | `world_def_upgrade` | ✓ |  |  |  | 4: zombie → zombie_alleati → assedio → fortezze |
 | `world_difendi` | ✓ |  |  |  | 1: migr. 014_territorio |
+| `world_difesa_bomba` | ✓ |  |  |  | 1: migr. 023_difendi_casa |
+| `world_difesa_fine` | ✓ |  |  |  | 1: migr. 023_difendi_casa |
+| `world_difesa_inizia` | ✓ |  |  |  | 1: migr. 023_difendi_casa |
 | `world_dm_list` | ✓ |  |  |  | 1: assedio |
 | `world_dm_send` | ✓ |  |  |  | 1: assedio |
 | `world_dm_threads` | ✓ |  |  |  | 1: assedio |
@@ -260,6 +264,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_status_extra` | ✓ |  |  |  | 1: equita |
 | `world_sup_abilita` | ✓ |  |  |  | 1: migr. 020_superstite |
 | `world_sup_equip` | ✓ |  |  |  | 1: migr. 020_superstite |
+| `world_sup_extra` | ✓ |  |  |  | 1: migr. 023_difendi_casa |
 | `world_sup_info` | ✓ |  |  |  | 1: migr. 020_superstite |
 | `world_sup_serie` | ✓ |  |  |  | 1: migr. 020_superstite |
 | `world_sup_share` | ✓ |  |  |  | 1: migr. 020_superstite |
@@ -323,6 +328,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_homes` | mondo_unico | 10 | ✓ |
 | `world_house_req` | abitazione | 0 | ✓ |
 | `world_log` | mondo_unico | 0 | ✓ |
+| `world_partite` | supabase/migrazioni/023_difendi_casa | 0 | ✓ |
 | `world_pres_defs` | supabase/migrazioni/017_presidi_fortificazioni | 0 | ✓ |
 | `world_presidi` | supabase/migrazioni/006_presidi | 0 | ✓ |
 | `world_presidi_guardie` | supabase/migrazioni/006_presidi | 0 | ✓ |
@@ -333,7 +339,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_shields` | alleanze2 | 0 | ✓ |
 | `world_shouts` | social | 0 | ✓ |
 | `world_spedizioni` | supabase/migrazioni/020_superstite | 2 | ✓ |
-| `world_superstite` | supabase/migrazioni/020_superstite | 0 | ✓ |
+| `world_superstite` | supabase/migrazioni/020_superstite | 2 | ✓ |
 | `world_terrain` | zombie | 0 | ✓ |
 | `world_wallet` | mondo_unico | 3 | ✓ |
 | `world_wx` | zombie | 0 | ✓ |

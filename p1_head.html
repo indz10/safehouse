@@ -1625,6 +1625,25 @@ body.mwopen .supme,body.inbattle .supme{display:none!important}
 .sfpt{display:flex;gap:6px;flex-wrap:wrap}.sfpt span{border:2px solid var(--ink);border-radius:9px;background:#fff;padding:3px 8px;font-size:12.5px;font-weight:700}
 .sfrow{display:flex;gap:10px;align-items:center;border-bottom:2px dashed #ccc;padding:6px 2px}.sfrow span{width:34px;font-size:20px;text-align:center}.sfrow b{flex:1}.sfrow i{font-style:normal;font-weight:900}.sfrow.io{background:#fff3b0}
 .cdq{border:3px solid var(--ink);border-radius:12px;background:#fff;padding:9px 11px;margin:0 0 10px;display:flex;flex-direction:column;gap:8px}
+/* 🎮 Difendi la casa (p86) */
+#difesa{position:fixed;inset:0;z-index:300;background:radial-gradient(circle at 50% 50%,#3a2f5a,#140f1f 75%);color:#fff;display:flex;flex-direction:column;touch-action:none;user-select:none;-webkit-user-select:none}
+.difstart{margin:auto;width:min(420px,92%);text-align:center;display:flex;flex-direction:column;gap:10px;padding:16px;position:relative}
+.difstart .disp{font-size:34px;color:#ffd23f;text-shadow:3px 3px 0 #000}.difstart p{font-weight:400;font-size:15px;margin:0}.difstart .muted{color:#cfd3dc}
+.difx{position:absolute;top:calc(env(safe-area-inset-top) + 4px);right:0;width:44px;height:44px;border:3px solid #fff;border-radius:50%;background:var(--blood);color:#fff;font-size:20px;font-weight:900}
+.difhero{font-size:80px;line-height:1;position:relative;height:110px}.difhero span{position:absolute;font-size:34px}.difhero span:nth-child(1){left:12%;top:10px}.difhero span:nth-child(2){right:12%;top:30px}.difhero span:nth-child(3){left:25%;bottom:0}
+.difinfo{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.difinfo span{border:2px solid #fff;border-radius:9px;padding:2px 8px;font-weight:800;font-size:13px}
+.difsc{font-weight:800;font-size:14px}
+.difbar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top) + 8px) 12px 8px;font-weight:900;font-size:16px;background:#140f1fcc}
+.difbar .dift{color:#ffd23f;font-size:20px}.difv{font-size:15px;letter-spacing:1px}
+.difarena{position:relative;flex:1;overflow:hidden}
+.difcasa{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:84px;filter:drop-shadow(0 0 18px #ffd23f88)}
+.difz{position:absolute;left:0;top:0;width:60px;height:60px;border:0;background:none;padding:0;touch-action:none}.difz span{font-size:46px;line-height:1;filter:drop-shadow(2px 2px 0 #000)}
+.difz.big span{font-size:60px}.difz.hit span{animation:lnchit .18s}.difz.morto{pointer-events:none}
+#difesa.colpo{animation:lncgr .35s}#difesa.boom{animation:difboom .5s}@keyframes difboom{0%,100%{background-color:transparent}30%{background-color:#ffd23f88}}
+.difbomb{position:absolute;right:14px;bottom:calc(env(safe-area-inset-bottom) + 16px);width:74px;height:74px;border-radius:50%;border:4px solid #fff;background:var(--blood);color:#fff;font-size:20px;font-weight:900;box-shadow:4px 4px 0 #000}.difbomb:disabled{opacity:.4}
+.difres{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);width:min(330px,88%);background:var(--paper);color:var(--ink);border:4px solid var(--ink);border-radius:14px;box-shadow:5px 5px 0 #000;padding:14px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.difres b{font-size:22px}.difres span{font-weight:700}.difres div{display:flex;gap:8px;justify-content:center;margin-top:4px}
+.mwside .mwgioca{background:#ffd23f}
 </style>
 </head>
 <body>

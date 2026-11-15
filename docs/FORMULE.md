@@ -97,5 +97,10 @@ Solo nel server (`w_sped_calc` e dintorni); l'app (`supCalc` in p82) copia la fo
 - Cassa (30 min): primi 3 → 24 / 14 / 8 di 🪵 🥫 ⛽, ⭐ 30 / 20 / 10. Salva (30 min): 🥫 5 → ⭐ 50, 🧱 20, ⛽ 10. Nido (60 min) e sponsor (45 min): vita = min(80, 20 + 10 × giocatori della cella); colpo = 5 + ⌊grado / 2⌋ + 2 × Combattente + 2 × Arma, ⭐ 5 a colpo, max 3 colpi a testa; quando cade a ognuno 10 + round(40 × danno suo / danno totale) di 🪵 e 🥫 (metà ⛽), ⭐ 20 + danno; 🧱 15 al colpo finale. Ogni mossa ⚡ 1, solo entro il raggio del superstite.
 - Sfida: punti = zombie abbattuti × 2 + spedizioni raccolte × 5 + mosse negli eventi × 10, settimana da lunedì (ora di Roma); quartiere = case entro 10 km; premi il lunedì ai primi 3 del proprio quartiere: 🧱 150 / 100 / 50.
 
+## Difendi la casa (migrazione 023)
+- Vite = min(8, livello della casa vera + 2) + 2 con 🛡️ scudo. Costo ⚡ 1 (prima partita del giorno gratis), max 15 al giorno. Velocità degli zombie × (1 + 0,04 × min(grado, 20)).
+- Fine: abbattuti = min(dichiarati, ⌊secondi × 4⌋ + 12 × bombe usate, 260), zero oltre 5 minuti; casa salva solo se dichiarata e partita ≥ 40 s. ⭐ = 2 × abbattuti + 15 se salva; ⌊abbattuti / 2⌋ scorte da 2 (🥫 40% / 🪵 35% / ⛽ 25%); casa salva 🧱 5 (max 50 al giorno).
+- Bottega (Mattoni): ⚡ +5 = 🧱 60 (2 al giorno, fino a energia massima + 5), 💣 = 🧱 25, 🛡️ = 🧱 25 (max 5 ciascuno).
+
 ## Mattoni
 Accrediti solo dal server (`w_pay`): premi del giorno con limiti (`world_earn`), premi vari max 300 al giorno (`world_reward`), spinta di recupero +50% sotto il livello medio della zona (`w_boost`), padrino +10% a chi ti ha invitato per 14 giorni.
