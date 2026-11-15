@@ -23,6 +23,17 @@ async def main():
                           "S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');S.answers={...SAMPLE};S.result=computeScore(S.answers,S.zone);"
                           "await wMine(true);closeSheet();await resLoad(true);await orLoad(true);await supLoad(true);S.zv='mondo';go('mappa');}")
         await pg.wait_for_timeout(3500)
+        # la prima volta: il tondo "Tu" in basso a sinistra apre la spiegazione in 3 passi
+        print('tondo Tu:',await pg.evaluate("()=>{const b=document.querySelector('.supme');return b?[b.textContent.trim(),getComputedStyle(b).display]:null}"))
+        await pg.evaluate("()=>document.querySelector('.supme').click()");await pg.wait_for_timeout(1200)
+        print('intro:',await pg.evaluate("()=>document.querySelector('#sheet.open .supintro b').textContent"))
+        for i in range(3):
+            await pg.evaluate("()=>document.querySelector('#sheet.open [data-spin]').click()");await pg.wait_for_timeout(1500)
+        print('dopo intro:',await pg.evaluate("()=>[localStorage.getItem('zsh_sup_intro'),SUP.tab]"))
+        await pg.evaluate("()=>{closeSheet();supSheet('io')}");await pg.wait_for_timeout(1500)
+        print('adesso:',await pg.evaluate("()=>[document.querySelector('#sheet.open .supinfo b').textContent,(document.querySelector('#sheet.open .supnow b')||{}).textContent]"))
+        print('tu sulla mappa:',await pg.evaluate("()=>!!document.querySelector('.lm-me')"))
+        await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(500)
         print('pulsante superstite:',await pg.evaluate("()=>{const b=document.querySelector('.mwtop [data-trsup]');return b?b.textContent.trim():null}"))
         await pg.evaluate("()=>document.querySelector('.mwtop [data-trsup]').click()");await pg.wait_for_timeout(1500)
         print('scheda:',await pg.evaluate("()=>[document.querySelector('#sheet.open .supinfo b').textContent,document.querySelector('#sheet.open .supen b').textContent,document.querySelectorAll('#sheet.open .supab').length,document.querySelectorAll('#sheet.open .supserie span.ok').length]"))
@@ -60,5 +71,10 @@ async def main():
         # notifica ?sup=1
         await pg.evaluate("()=>{closeSheet();zGoUrl('/?go=mappa&sup=1')}");await pg.wait_for_timeout(2500)
         print('dalla notifica:',await pg.evaluate("()=>[S.tab,SUP.tab,!!document.querySelector('#sheet.open .supbox')]"))
+        # casa non registrata nel mondo (condomini): pulsante per registrarla
+        await pg.evaluate("()=>{closeSheet();window.__NOHOME=true;const h=myHouses().find(x=>x.home);houseSheet(h)}");await pg.wait_for_timeout(9000)
+        print('casa non registrata:',await pg.evaluate("()=>!!document.querySelector('#sheet.open [data-abclaim]')"))
+        await pg.evaluate("()=>document.querySelector('#sheet.open [data-abclaim]').click()");await pg.wait_for_timeout(2500)
+        print('registrata:',await pg.evaluate("()=>[!!window.__CLAIM,!document.querySelector('#sheet.open [data-abclaim]')]"))
         print('ERR',E);await b.close()
 asyncio.run(main())

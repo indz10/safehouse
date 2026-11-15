@@ -39,7 +39,7 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_set_mezzo_vero':{window.__MZV=[a.p_mezzo,a.p_dot];return{data:{ok:true,mezzo:a.p_mezzo},error:null};}
   case'world_shape_get':{const S=window.__SHP=window.__SHP||{};const v=S[a.p_kind+'|'+a.p_k];return{data:v===undefined?null:{found:v!==null,val:v},error:null};}
   case'world_shape_put':{const S=window.__SHP=window.__SHP||{};const key=a.p_kind+'|'+a.p_k;if(!(S[key]&&a.p_val==null))S[key]=a.p_val;return{data:{ok:true},error:null};}
-  case'world_claim_home':return{data:{ok:true,status:'pending',msg:'Casa registrata: domani riapri l’app per confermarla'},error:null};
+  case'world_claim_home':window.__CLAIM=a;window.__NOHOME=false;return{data:{ok:true,status:'pending',msg:'Casa registrata: domani riapri l’app per confermarla'},error:null};
   case'world_view':return{data:Object.entries(M.b).map(([k,b])=>({building_id:k,lat:b.lat,lon:b.lon,status:st(k),nick:b.owner&&b.owner!=='me'?b.owner:null,level:b.level})),error:null};
   case'world_quote':{const s=st(a.p_bid);return{data:{status:s,price,can:s==='free'&&M.wallet.mattoni>=price,why:'',owner_nick:M.b[a.p_bid]&&M.b[a.p_bid].owner,level:(M.b[a.p_bid]||{}).level||1,value:(M.b[a.p_bid]||{}).paid||0,mattoni:M.wallet.mattoni,wlevel:lvl,owned:1,max:3,radius_km:3,dist_km:0.2,up_cost:150},error:null};}
   case'world_buy':{if(st(a.p_bid)!=='free')return{data:{ok:false,msg:'occupata'},error:null};M.b[a.p_bid]={owner:'me',lat:a.p_lat,lon:a.p_lon,level:1,paid:price};M.wallet.mattoni-=price;return{data:{ok:true,msg:'Casa comprata',price},error:null};}
@@ -147,7 +147,7 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_house_log':return{data:[{reason:'Difesa: fari livello 2',delta:-160,created_at:new Date(Date.now()-86400e3).toISOString()},{reason:'Difesa: fari livello 1',delta:-80,created_at:new Date(Date.now()-2*86400e3).toISOString()}],error:null};
   case'world_reward':{M.rew=(M.rew||0);const g=Math.min(a.p_amount,60,300-M.rew);if(g<=0)return{data:{ok:false,got:0,msg:'max'},error:null};M.rew+=g;M.wallet.mattoni+=g;return{data:{ok:true,got:g},error:null};}
   case'world_coresidents':return{data:[{user_id:'u5',nick:'vicina',status:'home',seen_at:new Date().toISOString(),ally:false},{user_id:'u9',nick:'arf18',status:'pending',seen_at:new Date(Date.now()-3600e3).toISOString(),ally:true}],error:null};
-  case'world_house_info':{M.hk=M.hk||{kind:'casa',unit:null,kind_set:false};M.cd=M.cd||{portone:{level:0,pot:0},cancello:{level:1,pot:30},telecamere:{level:0,pot:0}};
+  case'world_house_info':if(window.__NOHOME)return{data:null,error:null};{M.hk=M.hk||{kind:'casa',unit:null,kind_set:false};M.cd=M.cd||{portone:{level:0,pot:0},cancello:{level:1,pot:30},telecamere:{level:0,pot:0}};
       return{data:{kind:M.hk.kind,unit:M.hk.unit,kind_set:M.hk.kind_set,building_id:'home',status:'home',me_prep:!!M.prep,members:(M.hk.mem||[]).map(m=>({...m,prep:m.prep!==undefined?m.prep:false})),requests:M.hk.req===false?[]:[{user_id:'u7',nick:'mamma'}],
         neighbors:[{user_id:'u5',nick:'vicina',status:'home',kind:'condominio',unit:'B 3',prep:true,seen_at:new Date().toISOString(),ally:false,asked:!!M.hk.asked}],
         condo:M.hk.kind==='condominio'?{bonus:3*Object.values(M.cd).reduce((a,d)=>a+d.level,0),defs:Object.entries(M.cd).map(([k,d])=>({kind:k,level:d.level,pot:d.pot,next:d.level>=3?null:240*(d.level+1),top:d.pot?[{nick:'ale',tot:d.pot}]:[]}))}:null},error:null};}

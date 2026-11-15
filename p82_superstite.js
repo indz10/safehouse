@@ -18,6 +18,20 @@ const SUP_EQ=[['zaino','🎒','Zaino','porta 15 provviste in più (senza zaino: 
   ['arma','🪓','Arma','−5% di rischio in spedizione'],['radio','📻','Radio','una spedizione in più nello stesso momento']];
 const SUP_K={cibo:['🥫','Cibo','supermercati, alimentari, panifici, mercati'],legno:['🪵','Legno','ferramenta, fai da te, vivai, parchi'],carb:['⛽','Carburante','distributori'],
   farmaco:['💊','Medicine','farmacie e ospedali: ⚡ +2 e un po’ di 🥫'],misto:['📦','Un po’ di tutto','scuole, municipio, poste, biblioteche']};
+/* il superstite sei tu: l'aspetto e il titolo cambiano con il grado */
+const SUP_RANK=[[1,'🧑','Recluta','appena arrivato nell’apocalisse'],[3,'🧑‍🔧','Raccoglitore','conosce i negozi della zona'],[5,'🧑‍🚒','Veterano','torna sempre a casa'],[10,'🥷','Ranger','si muove come un’ombra'],[15,'🦸','Leggenda','lo conoscono tutti in città']];
+function supRank(g){let r=SUP_RANK[0];SUP_RANK.forEach(x=>{if(g>=x[0])r=x;});return r;}
+function supNextRank(g){return SUP_RANK.find(x=>x[0]>g)||null;}
+/* la cosa da fare adesso, una sola */
+function supAdesso(){const d=SUP.d;if(!d)return null;const r=supReady();
+  if(r)return{ic:'🎁',t:`È tornato dalla spedizione: raccogli quello che ha trovato`,b:'🎁 Raccogli',go:'sped'};
+  if(!d.serie_oggi)return{ic:'📅',t:'Ritira il premio di oggi della serie (cresce ogni giorno di fila)',b:'📅 Ritira il premio',go:'serie'};
+  if(d.punti)return{ic:'🧠',t:`Hai ${d.punti===1?'un punto':d.punti+' punti'} da usare: scegli in cosa migliorare`,b:'🧠 Scegli l’abilità',go:'abil'};
+  const via=supVia();if(via.length>=(d.max_sped||1))return{ic:'🎒',t:`È fuori in spedizione: torna fra ${supLeft(via[0].end_at)}. Intanto gioca col resto.`,b:'🎒 Guarda dov’è',go:'sped'};
+  if(d.energia>=1)return{ic:'⚡',t:`Hai ⚡ ${d.energia}: mandalo in un posto vero vicino a casa a prendere provviste`,b:'🎒 Scegli dove mandarlo',go:'sped'};
+  return{ic:'😴',t:`Si sta riposando: +⚡1 fra ${supLeft(Date.now()+d.prossima_s*1000)}`,b:'❓ Come si cresce',go:'come'};}
+function supStato(){const d=SUP.d;if(!d)return{l:'Tu',c:''};const r=supReady();if(r)return{l:'✅ Tornato',c:'ok'};const v=supVia();if(v.length)return{l:'🎒 '+supLeft(v[0].end_at).replace(' min','′'),c:'via'};
+  if(!d.serie_oggi||d.punti)return{l:'❗ Novità',c:'ok'};return{l:'⚡ '+d.energia,c:''};}
 const supAb=(k)=>Math.min(5,Math.max(0,+((SUP.d&&SUP.d.abil||{})[k])||0));
 const supEq=(k)=>Math.min(3,Math.max(0,+((SUP.d&&SUP.d.equip||{})[k])||0));
 /* stessa formula del server (w_sped_calc): serve solo a mostrare durata, rischio e bottino prima di partire */
@@ -37,6 +51,7 @@ function supChip(){if(!S.user||!SUP.d)return'';const d=SUP.d,r=supReady();
 const supLeft=t=>{const s=Math.max(0,Math.round((new Date(t)-Date.now())/1000));return s>=3600?Math.floor(s/3600)+' h '+String(Math.floor(s%3600/60)).padStart(2,'0')+' min':s>=60?Math.ceil(s/60)+' min':s+' s';};
 /* ---------- la scheda ---------- */
 async function supSheet(tab){if(!S.user){toast('Accedi per far crescere il tuo superstite');try{loginSheet();}catch(e){}return;}
+  let vis=null;try{vis=localStorage.getItem('zsh_sup_intro');}catch(e){vis='1';}if(!vis&&!tab)return supIntro(0);
   SUP.tab=tab||SUP.tab||'io';
   const tabs=()=>`<div class="hkvb trtabs suptabs">${[['io','🎖️ Io'],['sped',`🎒 Spedizioni${supReady()?` (${supReady()})`:''}`],['eq','🛠️ Attrezzi'],['come','❓ Come si cresce']].map(([k,n])=>`<button data-spt="${k}" class="${SUP.tab===k?'on':''}">${n}</button>`).join('')}</div>`;
   openSheet('🎖️ Il tuo superstite',tabs()+'<div class="supbox"><p><span class="spin"></span></p></div>',c=>c.querySelectorAll('[data-spt]').forEach(b=>b.onclick=()=>supSheet(b.dataset.spt)));
@@ -46,8 +61,11 @@ async function supSheet(tab){if(!S.user){toast('Accedi per far crescere il tuo s
   if(SUP.tab==='sped')return supSped(box);if(SUP.tab==='eq')return supEqPaint(box);if(SUP.tab==='come'){box.innerHTML=supComeHTML();supBindCommon(box);return;}
   supIoPaint(box);}
 function supIoPaint(box){const d=SUP.d;const pc=d.xp_a>d.xp_da?Math.round((d.xp-d.xp_da)/(d.xp_a-d.xp_da)*100):100;const g=((Math.max(1,d.serie)-1)%7)+1;
-  box.innerHTML=`<div class="supcard"><div class="supav">🧑‍🚒</div><div class="supinfo"><b>🎖️ Grado ${d.grado}</b><small>⭐ ${wNum(d.xp)} di esperienza · al grado ${d.grado+1} mancano ⭐ ${wNum(Math.max(0,d.xp_a-d.xp))}</small>
-      <div class="vbar supxp"><span style="width:${Math.min(100,Math.max(3,pc))}%"></span></div></div></div>
+  const rk=supRank(d.grado),nx=supNextRank(d.grado),ad=supAdesso();const eq=SUP_EQ.filter(([k])=>supEq(k)).map(x=>x[1]).join('');
+  box.innerHTML=`<div class="supcard"><div class="supav">${rk[1]}${eq?`<i>${eq}</i>`:''}</div><div class="supinfo"><b>@${esc((S.user&&S.user.nick)||'tu')} · ${rk[2]}</b><small>🎖️ Grado ${d.grado} · ${rk[3]}</small>
+      <div class="vbar supxp"><span style="width:${Math.min(100,Math.max(3,pc))}%"></span></div><small>⭐ ${wNum(d.xp)} · al grado ${d.grado+1} mancano ⭐ ${wNum(Math.max(0,d.xp_a-d.xp))}${nx?` · al grado ${nx[0]} diventi ${nx[1]} ${nx[2]}`:''}</small></div></div>
+    ${ad?`<div class="supnow"><span>${ad.ic}</span><div><small>ADESSO</small><b>${ad.t}</b></div><button class="btn" data-spnow="${ad.go}">${ad.b}</button></div>`:''}
+    <p class="muted" style="font-size:12.5px;margin:0 0 8px">Questo sei tu. Più ti muovi nel mondo (spedizioni, orde, aiuti, ogni giorno), più cresci: sali di grado, vai più lontano e porti a casa più provviste.</p>
     <div class="supen"><b>⚡ Energia ${d.energia}/${d.energia_max}</b><small>${d.energia>=d.energia_max?'Piena: usala per una spedizione, altrimenti si spreca la ricarica':`+1 fra ${supLeft(Date.now()+d.prossima_s*1000)} · una carica ogni ${d.ricarica_min} min`}</small>
       <div class="supcar">${Array.from({length:Math.max(d.energia_max,d.energia)},(_,i)=>`<i class="${i<d.energia?'on':''}"></i>`).join('')}</div></div>
     <h4 class="hh">📅 Serie di giorni ${d.serie?`· ${d.serie} di fila`:''}</h4>
@@ -61,6 +79,8 @@ function supIoPaint(box){const d=SUP.d;const pc=d.xp_a>d.xp_da?Math.round((d.xp-
     <p class="muted" style="font-size:12.5px;margin:0 0 6px">La prima condivisione del giorno: ⭐ +20 e ⚡ +1. Ogni amico che crea l’account col tuo link: ⭐ +50, ⚡ +2 e scorte; quando valuta la casa ⭐ +150 e 🧱 150.</p>
     <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" data-spshare>📣 Condividi sui social${d.share_oggi?'':' · ⭐ +20'}</button><button class="btn ghost small" data-spinv>📨 Invita un amico</button></div>`;
   supBindCommon(box);
+  const nw=box.querySelector('[data-spnow]');if(nw)nw.onclick=()=>{const g=nw.dataset.spnow;if(g==='serie'){const b=box.querySelector('[data-spserie]');if(b)b.click();return;}
+    if(g==='abil'){const a=box.querySelector('.supab');if(a)a.scrollIntoView({behavior:'smooth',block:'center'});return;}supSheet(g);};
   const se=box.querySelector('[data-spserie]');if(se)se.onclick=async()=>{se.disabled=true;try{const{data,error}=await SB.rpc('world_sup_serie');if(error)throw error;
       if(data.ok){toast(`📅 Giorno ${data.giorno}: 🪵 +${data.legno} 🥫 +${data.cibo} ⛽ +${data.carb} ⭐ +${data.xp} ⚡ +${data.energia}${data.mattoni?' 🧱 +'+data.mattoni:''}`);RES.t=0;try{resLoad(true);}catch(e){}}else toast(data.msg);}catch(e){toast('Non riuscito');}supSheet('io');};
   box.querySelectorAll('[data-spab]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const{data,error}=await SB.rpc('world_sup_abilita',{p_k:b.dataset.spab});if(error)throw error;toast(data.ok?'🧠 '+data.msg:data.msg);}catch(e){toast('Non riuscito');}supSheet('io');});}
@@ -130,6 +150,21 @@ async function supRaccogli(id,b){if(b)b.disabled=true;let r=null;try{const{data,
 function supSalito(g){openSheet('🎖️ Sei salito di grado!',`<div class="supup"><b>🎖️ ${g}</b><p>Il tuo superstite è più esperto: hai <b>un punto abilità</b> da usare e il raggio delle spedizioni è più ampio.</p></div>
   <button class="btn wide" data-spgo2>🧠 Usa il punto</button><button class="btn wide alt" data-spsh2>📣 Fallo sapere agli amici</button>`,c=>{
   c.querySelector('[data-spgo2]').onclick=()=>supSheet('io');c.querySelector('[data-spsh2]').onclick=()=>{window.SHEET_BACK={t:'‹ Il tuo superstite',fn:()=>supSheet('io')};shareSheet({grado:g});};});}
+/* ---------- la prima volta: chi è il superstite, in 3 passi ---------- */
+const SUP_INTRO=[['🧑','Questo sei tu','Nel mondo unico non ci sono solo le tue case: ci sei anche <b>tu</b>, un superstite. Lo vedi sulla mappa sopra casa tua e nel tondo in basso a sinistra.'],
+  ['🎒','Lo mandi a cercare provviste','Con l’<b>⚡ energia</b> lo mandi nei <b>posti veri</b> vicino a casa: al supermercato per il 🥫 cibo, in ferramenta o al parco per il 🪵 legno, al distributore per il ⛽ carburante. Dopo qualche minuto torna e ti avvisa.'],
+  ['🎖️','Più giochi, più cresce','Ogni spedizione, orda, aiuto e ogni giorno di gioco gli danno <b>esperienza ⭐</b>: sale di grado (da Recluta a Leggenda), va più lontano, porta più provviste e impara abilità. L’energia si ricarica da sola: giochi quando vuoi.']];
+function supIntro(i){const x=SUP_INTRO[i];if(!x){try{localStorage.setItem('zsh_sup_intro','1');}catch(e){}return supSheet('sped');}
+  openSheet('🎖️ Il tuo superstite',`<div class="supintro"><span>${x[0]}</span><small>${i+1} di ${SUP_INTRO.length}</small><b>${x[1]}</b><p>${x[2]}</p></div>
+    <div class="supdots2">${SUP_INTRO.map((_,j)=>`<i class="${j===i?'on':''}"></i>`).join('')}</div>
+    <button class="btn wide" data-spin>${i<SUP_INTRO.length-1?'Avanti ›':'🎒 Mandalo in spedizione'}</button><button class="btn wide ghost" data-spsk>Salta</button>`,c=>{
+    c.querySelector('[data-spin]').onclick=()=>supIntro(i+1);c.querySelector('[data-spsk]').onclick=()=>{try{localStorage.setItem('zsh_sup_intro','1');}catch(e){}supSheet('io');};});}
+/* ---------- il tondo "Tu" in basso a sinistra (Mappa) ---------- */
+function supMeBtn(){try{const on=S.user&&S.tab==='mappa'&&document.body.classList.contains('nonav')&&!document.getElementById('lente');let b=document.querySelector('.supme');
+  if(!on){if(b)b.remove();return;}const d=SUP.d;const rk=supRank(d?d.grado:1);const st=supStato();
+  const html=`<span class="supme-av">${rk[1]}</span>${d?`<em>${d.grado}</em>`:''}<b class="${st.c}">${st.l}</b>`;
+  if(!b){document.body.insertAdjacentHTML('beforeend',`<button class="supme" aria-label="Il tuo superstite">${html}</button>`);b=document.querySelector('.supme');b.onclick=()=>{window.SHEET_BACK=null;supSheet(supReady()?'sped':undefined);};}
+  else if(b.dataset.h!==html){b.innerHTML=html;}b.dataset.h=html;b.classList.toggle('pulse',st.c==='ok');}catch(e){}}
 /* ---------- 🛠️ attrezzi ---------- */
 function supEqPaint(box){const legno=(RES.d&&RES.d.legno)||0,mat=typeof trrMat==='function'?trrMat():0;
   box.innerHTML=`<p class="muted" style="font-size:13px;margin:0 0 8px">Gli attrezzi si costruiscono con il 🪵 legno (dalle spedizioni in ferramenta e nei parchi) e i 🧱 mattoni. Ogni attrezzo ha 3 livelli. Ora hai 🪵 ${wNum(legno)} e 🧱 ${wNum(mat)}.</p>
@@ -140,6 +175,7 @@ function supEqPaint(box){const legno=(RES.d&&RES.d.legno)||0,mat=typeof trrMat==
       if(data.ok){RES.t=0;try{await resLoad(true);}catch(e){}try{await wMine(true);}catch(e){}}}catch(e){toast('Non riuscito');}supSheet('eq');});}
 /* ---------- ❓ come si cresce ---------- */
 function supComeHTML(){return`<div class="supcome">
+  <p><b>Il superstite sei tu</b>: lo vedi sulla mappa sopra casa tua e nel tondo in basso a sinistra. Il suo aspetto cambia col grado: ${SUP_RANK.map(r=>`${r[1]} ${r[2]} (${r[0]})`).join(', ')}.</p>
   <p><b>Il tuo superstite cresce con te.</b> Più giochi, più sale di grado, più provviste porta a casa, e puoi giocare quando vuoi, non solo per l’orda.</p>
   <h4 class="hh">🎖️ Grado ed esperienza ⭐</h4><p>Ogni premio in 🧱 Mattoni ti dà anche esperienza (⭐ 1 ogni 🧱 4): orde rette, affitti, rinforzi, presidi. In più: spedizioni, serie di giorni, condivisione e amici invitati. Grado 2 a ⭐ 50, grado 3 a ⭐ 200, grado 4 a ⭐ 450, grado 5 a ⭐ 800…</p>
   <h4 class="hh">⚡ Energia</h4><p>Hai 10 cariche (di più con 💪 Resistenza). Ogni spedizione ne usa da 1 a 3 secondo la distanza. Si ricaricano da sole, una ogni 2 ore: chi entra più spesso le usa tutte e cresce di più.</p>
@@ -157,7 +193,19 @@ function supGdItems(I){const d=SUP.d;if(!d)return;const r=supReady();
   if(d.punti)I.push({p:52,ic:'🧠',t:`Hai ${d.punti} ${d.punti===1?'punto abilità':'punti abilità'} da usare`,why:'Più raggio, più energia, meno rischio, più tesori o più Mattoni al Mercato.',acts:[{b:'🧠 Scegli',run:async()=>{supSheet('io');return{skip:1};}}]});
   if(d.energia>=Math.min(d.energia_max,3)&&supVia().length<(d.max_sped||1))I.push({p:d.energia>=d.energia_max?58:35,ic:'⚡',t:`Energia ${d.energia}/${d.energia_max}: manda una spedizione`,why:d.energia>=d.energia_max?'È piena: se non la usi, la ricarica si spreca.':'Provviste ed esperienza dai posti veri intorno alle tue case.',acts:[{b:'🎒 Scegli il posto',run:async()=>{supSheet('sped');return{skip:1};}}]});}
 /* ---------- 🗺️ spedizioni in corso sulla mappa ---------- */
-function supMarks(){try{if(S.tab!=='mappa'||!S.user||typeof maplibregl==='undefined')return;const lm=window.__mf;if(!lm||!lm.map||!document.body.contains(lm.map.getContainer()))return;
+/* tu sulla mappa: sopra casa tua, o in cammino verso la spedizione (linea tratteggiata) */
+function supMe(lm){try{const H=supPlaces();const home=H.find(h=>h.home)||H[0];if(!home)return;const d=SUP.d;const rk=supRank(d?d.grado:1);
+  const v=supVia()[0];let la=home.lat,lo=home.lon,f=0;if(v){const t0=new Date(v.start_at),t1=new Date(v.end_at);const tot=Math.max(1,t1-t0),el=Date.now()-t0;
+    /* andata nella prima metà, ritorno nella seconda */f=Math.min(1,Math.max(0,el/tot));const k=f<.5?f*2:2-f*2;
+    const o=H.reduce((a,h)=>!a||trM(h.lat,h.lon,v.lat,v.lon)<trM(a.lat,a.lon,v.lat,v.lon)?h:a,null)||home;la=o.lat+(v.lat-o.lat)*k;lo=o.lon+(v.lon-o.lon)*k;
+    const gj={type:'Feature',geometry:{type:'LineString',coordinates:[[o.lon,o.lat],[v.lon,v.lat]]}};
+    if(!lm.map.getSource('supl')){lm.map.addSource('supl',{type:'geojson',data:gj});lm.map.addLayer({id:'supl',type:'line',source:'supl',paint:{'line-color':'#ffd23f','line-width':4,'line-dasharray':[1.5,1.5]}});}else lm.map.getSource('supl').setData(gj);}
+  else if(lm.map.getSource('supl'))lm.map.getSource('supl').setData({type:'FeatureCollection',features:[]});
+  const html=`<b>${rk[1]}</b><span>Tu${d?' · '+d.grado:''}</span>`;
+  if(!SUP.me||SUP.meMap!==lm.map){try{SUP.me&&SUP.me.remove();}catch(e){}const el=elDiv('lm-ally lm-me',html);el.style.zIndex='7';el.onclick=e=>{e.stopPropagation();window.SHEET_BACK=null;supSheet();};
+    SUP.me=new maplibregl.Marker({element:el,anchor:'bottom',offset:[0,-34]}).setLngLat([lo,la]).addTo(lm.map);SUP.meMap=lm.map;}
+  else{SUP.me.setLngLat([lo,la]);const el=SUP.me.getElement();if(el.dataset.h!==html){el.innerHTML=html;el.dataset.h=html;}SUP.me.setOffset(v?[0,0]:[0,-34]);}}catch(e){}}
+function supMarks(){try{if(S.tab!=='mappa'||!S.user||typeof maplibregl==='undefined')return;const lm=window.__mf;if(!lm||!lm.map||!document.body.contains(lm.map.getContainer()))return;supMe(lm);
   const V=supVia();const sig=V.map(x=>x.id+(new Date(x.end_at)<=Date.now()?'ok':'')).join('|');if(SUP.mkSig===sig&&SUP.mkMap===lm.map){SUP.mk.forEach(m=>{const s=m.getElement().querySelector('[data-spl]');if(s)s.textContent=supLeft(s.dataset.spl);});return;}
   SUP.mk.forEach(m=>{try{m.remove();}catch(e){}});SUP.mk=[];SUP.mkSig=sig;SUP.mkMap=lm.map;
   V.forEach(x=>{const ok=new Date(x.end_at)<=Date.now();const k=SUP_K[x.kind]||SUP_K.misto;const el=elDiv('lm-ally lm-sped'+(ok?' ok':''),`<b>🎒${k[0]}</b><span>${esc(x.nome||'')}</span><i ${ok?'':`data-spl="${esc(x.end_at)}"`}>${ok?'tornato!':supLeft(x.end_at)}</i>`);
@@ -165,5 +213,6 @@ function supMarks(){try{if(S.tab!=='mappa'||!S.user||typeof maplibregl==='undefi
 /* ---------- avvio, giro e notifica ---------- */
 const _zGoSup=zGoUrl;zGoUrl=function(u){_zGoSup(u);try{if(new URL(u,location.href).searchParams.get('sup'))setTimeout(()=>supSheet('sped'),900);}catch(e){}};
 zEvery(()=>{try{if(document.hidden||!S.user)return;if(Date.now()-SUP.t>(['mappa','orda','social'].includes(S.tab)?90000:300000))supLoad().then(()=>{try{trrRepaint();}catch(e){}});supMarks();}catch(e){}},3000,'superstite');
+zEvery(()=>{if(!document.hidden)supMeBtn();},1000,'superstite-tu');
 setTimeout(()=>{try{supLoad(true);}catch(e){}},3000);
 </script>
