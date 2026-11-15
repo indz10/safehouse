@@ -98,7 +98,7 @@ function mhBar(){mhBarBase();
   (()=>{try{const L=myHouses();document.querySelectorAll('.mhouses .mhc[data-mh]').forEach(b=>{const h=L[+b.dataset.mh];if(!h||b.querySelector('.mhart[data-vera]'))return;
   const old=b.querySelector('.mhart')||b.querySelector('svg,span');const d=document.createElement('div');d.className='mhart';d.dataset.vera='1';if(old)old.replaceWith(d);else b.prepend(d);drawHouse(d,h,{noLegend:true}).then(g=>{if(!g&&!d.innerHTML)d.innerHTML=`<span style="font-size:28px">${h.ic}</span>`;});});}catch(e){}})();}
 /* case del mondo sulla mappa (p21) + case dei superstiti simulati (p23) */
-async function wDrawMap(lm,force){await wDrawMapBase(lm,force);setTimeout(()=>wDrawNpc(lm),250);}
+async function wDrawMap(lm,force){await wDrawMapBase(lm,force);setTimeout(()=>wDrawNpc(lm),250);try{if(window.ZUSERS)zDrawUsers(lm);}catch(e){}}
 /* scheda di un edificio del mondo:
    1) le MIE case e le case abitate (p58): pagina della casa o "Casa abitata"
    2) un'altra mia casa riconosciuta per posizione (p31): pagina della casa

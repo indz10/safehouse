@@ -86,6 +86,13 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
     if(fn==='world_difendi'){e.aiuto=8;R.carb-=3;return{data:{ok:true,msg:'🛡️ In viaggio in auto'},error:null};}
     e.assi+=6;R.legno-=20;return{data:{ok:true,msg:'🪵 Assi inchiodate: +6'},error:null};}
   case'world_presenza':{const T=window.__mkTrr||(window.__mkTrr={});T.custodita=true;T.presente_at=new Date().toISOString();return{data:{ok:true,carb:10,msg:'📍 Sei a casa: rifugio intoccabile per 7 giorni'},error:null};}
+  case'world_consigli':{const G=window.__mkGd||{};return{data:{ok:true,slot:'2026-11-14-21',asked:false,affitti:G.affitti!=null?G.affitti:24,miei_presidi:0,
+    minacce:G.minacce||[{bid:'w9',tipo:'owned',nome:'',lat:45.326,lon:10.659,atk:9,n:1,aiuti:0,assi:0}],
+    richieste:[{user_id:'u2',nick:'giangy',dist_km:1.2,mezzo:'auto',carb:2,arrivo:true,pts:8}],
+    alleati:[{bid:'al1',owner:'u2',nick:'giangy',tipo:'owned',lat:45.327,lon:10.661,atk:7,aiuto:{ok:true,pts:8,carb:2}}],
+    presidi:[{id:'osm:n7',name:'Parco Vero',kind:'parco',lat:45.33,lon:10.66,dist_km:0.6,carb:1}],
+    bersagli:[{bid:'x5',lat:45.326,lon:10.66,level:1,nick:'mario',dist_km:0.8,fort:0,atk:{ok:true,pts:9,carb:2}}],
+    risorse:{mattoni:1000,legno:(window.__mkRes||{}).legno||60,cibo:45,carb:25}},error:null};}
   case'world_saccheggia':return{data:{ok:true,msg:'⚔️ Squadra partita'},error:null};
   case'world_resources':{const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});return{data:{ok:true,mattoni:1000,legno:R.legno,cibo:R.cibo,carb:R.carb,mercato_left:R.left},error:null};}
   case'world_trade':{const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});if(R[a.p_kind]<20)return{data:{ok:false,msg:'Servono almeno 20 di quella risorsa'},error:null};R[a.p_kind]-=20;R.left-=10;return{data:{ok:true,dato:20,mattoni:10,mercato_left:R.left},error:null};}

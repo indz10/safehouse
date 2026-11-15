@@ -19,10 +19,10 @@ function trrGg(){const t=OR.s&&OR.s.presente_at;return t?Math.floor((Date.now()-
 function trrPresChip(){const s=OR.s||{};let H=[];try{H=myHouses();}catch(e){}if(!H.some(h=>h.home)||s.custodita==null)return'';const gg=trrGg();
   if(s.custodita===false)return'<button class="mwpres ko" data-trpres>⚠️ Saccheggiabile · 📍 Sono a casa</button>';
   if(gg!=null&&gg>=4)return`<button class="mwpres mid" data-trpres>📍 Passa da casa: ${Math.max(0,7-gg)} gg</button>`;
-  return'<button class="mwpres" data-trpres>❤️ Intoccabile</button>';}
+  return'';}
 function trrScorteHTML(){if(!S.user||!RES.d)return'';const d=RES.d;
-  return`<div class="mwscorte"><button class="mwres" data-trres aria-label="Le tue scorte"><span>🧱 ${wNum(trrMat())}</span><span>🪵 ${wNum(d.legno||0)}</span><span>🥫 ${wNum(d.cibo||0)}</span><span>⛽ ${wNum(d.carb||0)}</span></button>${trrPresChip()}</div>`;}
-function trrScorteBind(root){if(!root)return;const r=root.querySelector('[data-trres]');if(r)r.onclick=trrScorteSheet;const p=root.querySelector('[data-trpres]');if(p)p.onclick=()=>trrPresSheet();}
+  return`<div class="mwscorte"><button class="mwres" data-trres aria-label="Le tue scorte"><span>🧱 ${wNum(trrMat())}</span><span>🪵 ${wNum(d.legno||0)}</span><span>🥫 ${wNum(d.cibo||0)}</span><span>⛽ ${wNum(d.carb||0)}</span></button><button class="mwguida" data-trguida>🧭 Cosa fare${typeof GD!=='undefined'&&GD.n?` <b>${GD.n}</b>`:''}</button>${trrPresChip()}</div>`;}
+function trrScorteBind(root){if(!root)return;const r=root.querySelector('[data-trres]');if(r)r.onclick=trrScorteSheet;const gd=root.querySelector('[data-trguida]');if(gd)gd.onclick=()=>{window.SHEET_BACK=null;gdSheet();};const p=root.querySelector('[data-trpres]');if(p)p.onclick=()=>trrPresSheet();}
 function trrScorteSheet(){const d=RES.d||{};openSheet('🎒 Le tue scorte',`<p class="muted" style="font-size:13px;margin:0 0 8px">Ogni risorsa serve a qualcosa. Le dà solo il server, al massimo 400 al giorno ciascuna.</p>
   ${TRR_USO.map(([k,ic,n,uso,da])=>`<div class="trruso"><span>${ic}</span><div><b>${n}: ${wNum(k==='mattoni'?trrMat():(d[k]||0))}</b><small><b>Serve per</b> ${uso}</small><small><b>Si prende da</b> ${da}</small></div></div>`).join('')}
   <button class="btn wide alt" data-trshop>🔄 Mercato in Bottega</button>`,c=>{c.querySelector('[data-trshop]').onclick=()=>{window.SHEET_BACK=null;shopSheet(0);};});}
@@ -56,7 +56,7 @@ function trrDockPaint(){let d=document.getElementById('mwdock');const on=mwOk()&
   const a=d.querySelector('[data-tra]');if(a)a.onclick=()=>alPick();}
 /* ridisegna barra e cassetto quando cambiano scorte, % o presenza */
 function trrRepaint(force){try{let pc='';try{pc=myHouses().map(h=>frChanceOf(h)).join(',');}catch(e){}
-  const sig=[S.tab,JSON.stringify(RES.d||{}),trrMat(),OR.s&&OR.s.custodita,OR.s&&OR.s.presente_at,OR.s&&OR.s.claimed,pc].join('|');
+  const sig=[S.tab,typeof GD!=='undefined'?GD.n:0,JSON.stringify(RES.d||{}),trrMat(),OR.s&&OR.s.custodita,OR.s&&OR.s.presente_at,OR.s&&OR.s.claimed,pc].join('|');
   if(!force&&sig===TRR.sig&&(S.tab!=='orda'||document.getElementById('mwdock')))return;TRR.sig=sig;
   if(S.tab==='orda')trrDockPaint();else{const d=document.getElementById('mwdock');if(d)d.remove();document.body.classList.remove('hasdock');}
   if(S.tab==='mappa'&&typeof mwRefresh==='function')mwRefresh();}catch(e){}}

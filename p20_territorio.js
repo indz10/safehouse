@@ -497,7 +497,9 @@ function zAskPublic(){if(document.querySelector('#sheet.open'))return setTimeout
 /* l'impostazione si salva con i progressi */
 /* segnaposto degli utenti sulla mappa vera */
 function zDrawUsers(lm){if(!lm||!lm.map)return;(lm._usr||[]).forEach(x=>x.remove());lm._usr=[];const me=S.user&&S.user.id;const now=Date.now();
-  window.ZUSERS.forEach(u=>{if(u.user_id===me)return;const on=u.seen_at&&now-new Date(u.seen_at).getTime()<6*60*1000;
+  /* chi ha già il nome sopra la sua casa vera (alleati, coinquilini, chi si mostra a tutti) non compare due volte */
+  const onHouse=new Set();(lm._wrows||[]).forEach(r=>{[r.nick,...String(r.residents||'').split(',')].forEach(n=>{n=String(n||'').trim().replace(/^@/,'');if(n)onHouse.add(n.toLowerCase());});});
+  (window.ZUSERS||[]).forEach(u=>{if(u.user_id===me||onHouse.has(String(u.nick||'').toLowerCase()))return;const on=u.seen_at&&now-new Date(u.seen_at).getTime()<6*60*1000;
     const col=u.indice==null?'#9aa4b0':u.indice<=4?'#3f9b5f':u.indice<=6?'#f7d64a':'#d7263d';
     const el=elDiv('lm-usr',`<b style="background:${col}">${esc((u.nick||'?')[0].toUpperCase())}</b>${on?'<i></i>':''}<em>@${esc(u.nick)}</em>`);el.dataset.uid=u.user_id;
     el.addEventListener('click',e=>{e.stopPropagation();openSheet('👤 @'+esc(u.nick),`<div class="bzc"><div class="bzc-hero" style="--c:#e2d6f5"><span class="bzc-ic" style="background:${col}">${esc((u.nick||'?')[0].toUpperCase())}</span><div class="bzc-t"><span class="bzc-cat">Superstite${on?' · online ora':''}</span><h4>@${esc(u.nick)}</h4><small>${u.comune?esc(u.comune)+' · ':''}zona indicativa (circa 200 m)</small></div></div>

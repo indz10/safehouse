@@ -26,7 +26,7 @@ function mwMappa(){const w=app.querySelector('.mapfull');if(!w||w.querySelector(
   const sp=Object.values(window.SP_GEO||{}).filter(g=>g&&g.lat!=null).length;
   w.insertAdjacentHTML('beforeend',`<div class="mwside"><button data-mws="cerca">🔎<small>Cerca</small></button><button data-mws="pres">🚩<small>Presidi</small></button>${S.user?'<button data-mws="ally">🤝<small>Alleati</small></button>':''}<button data-mws="spons">⭐<small>${sp||''} Sponsor</small></button><button data-mws="more">⋯<small>Altro</small></button></div>
     <div class="mwdrawer"></div>`);
-  w.querySelectorAll('[data-mws]').forEach(b=>b.onclick=()=>{const k=b.dataset.mws;if(k==='cerca')cercaLuogo();else if(k==='pres')presList(window.__mf);else if(k==='ally')alPick();else if(k==='spons')spList(window.__mf);else mfMore();});
+  w.querySelectorAll('[data-mws]').forEach(b=>b.onclick=()=>{const k=b.dataset.mws;if(k==='cerca')cercaLuogo();else if(k==='pres')presList5(window.__mf);else if(k==='ally')alPick();else if(k==='spons')spList(window.__mf);else mfMore();});
   MW.open=false;mwDrawerPaint(w.querySelector('.mwdrawer'));
   if(S.user&&!OR.s)try{orLoad().then(mwRefresh);}catch(e){}
   try{trrFit();}catch(e){}}
