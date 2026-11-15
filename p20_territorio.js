@@ -13,7 +13,8 @@
 function trHouse(els,lat,lon){if(!els||!els.length)return null;const k=Math.cos(lat*Math.PI/180);const XY=p=>[(p.lon-lon)*111320*k,(p.lat-lat)*110540];
   const W=els.filter(e=>e.type==='way'&&e.geometry&&e.geometry.length>3);const inR=(r,x,y)=>{let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const[xi,yi]=r[i],[xj,yj]=r[j];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;};
   let me=W.find(e=>inR(e.geometry.map(XY),0,0));
-  if(!me){let bd=25;W.forEach(e=>{const P=e.geometry.map(XY);const c=P.reduce((a,p)=>[a[0]+p[0]/P.length,a[1]+p[1]/P.length],[0,0]);const d=Math.hypot(...c);if(d<bd){bd=d;me=e;}});}
+  /* fuori da ogni edificio (l'indirizzo cade spesso sulla strada): il più vicino misurando dal bordo, non dal centro: nei condomini grandi il centro è lontano */
+  if(!me){let bd=30;W.forEach(e=>{const P=e.geometry.map(XY);let d=1e9;for(let i=0;i<P.length;i++){const[ax,ay]=P[i],[bx,by]=P[(i+1)%P.length];const dx=bx-ax,dy=by-ay;const t=Math.max(0,Math.min(1,-(ax*dx+ay*dy)/((dx*dx+dy*dy)||1)));d=Math.min(d,Math.hypot(ax+t*dx,ay+t*dy));}if(d<bd){bd=d;me=e;}});}
   if(!me)return null;const t=me.tags||{};const P=me.geometry.map(XY);
   let area=0;for(let i=0,j=P.length-1;i<P.length;j=i++)area+=(P[j][0]+P[i][0])*(P[j][1]-P[i][1]);area=Math.abs(area/2);
   let len=0,ang=0;for(let i=1;i<P.length;i++){const L=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);if(L>len){len=L;ang=Math.atan2(P[i][1]-P[i-1][1],P[i][0]-P[i-1][0]);}}

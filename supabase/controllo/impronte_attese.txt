@@ -32,6 +32,7 @@ w_bad(text) 2115eb8cd1
 w_boost(uuid) 23b0f9792c
 w_canon(text, double precision, double precision) a8cd798858
 w_casa_extra(text, text) d8d69de76d
+w_casa_manca_tick() 395b46963e
 w_cleanup() ce8e6152f0
 w_coinq(uuid, uuid) 76c0c56af5
 w_condo_admin(text) af12b59522
@@ -104,7 +105,7 @@ w_sped_km(uuid, double precision, double precision) 10d4964e35
 w_sped_tick() 7608d6b7b3
 w_sup(uuid) 6e87cf96ab
 w_sup_inviti(uuid) 4b9cce9772
-w_sup_raggio(integer, jsonb) 40de5a1ee8
+w_sup_raggio(integer, jsonb) 462872077a
 w_target(text, double precision, double precision) d2b39d5099
 w_threats_of(uuid) c3f1ef3fd3
 w_tr_casa_pos() 3ece59115a
@@ -151,6 +152,8 @@ world_assi(text, double precision, double precision) 3f866c9d5a
 world_block(uuid, boolean) d5c18b09f9
 world_buy(text, double precision, double precision) c1440ed06d
 world_buy_mezzo(text) 18d40e73af
+world_caccia_fine(bigint, integer) 578ccf45de
+world_caccia_inizia() 2f03ec55ac
 world_chat_list(text, bigint) ffb3c046c7
 world_chat_report(bigint) 89cee22a5d
 world_chat_send(text, text) 8c7ba570ba
@@ -223,8 +226,8 @@ world_set_realshield(integer) 9aae268eb7
 world_shape_get(text, text) 9835883569
 world_shape_put(text, text, jsonb) c184167164
 world_shout(uuid, integer) ab6a2241e6
-world_sped_parti(text, text, double precision, double precision) 5986463d97
-world_sped_raccogli(bigint) f0bace7399
+world_sped_parti(text, text, double precision, double precision) 782017806c
+world_sped_raccogli(bigint) d1d4a6be0c
 world_status_extra() b12cc9499a
 world_sup_abilita(text) dd94b1074a
 world_sup_equip(text) d386c01004
@@ -269,6 +272,7 @@ world_attack_given cb6a22cb
 world_blocks c89fb2f6
 world_bonus fa82d7ad
 world_buildings 2b1feaf6
+world_cacce 713a63d8
 world_chat 36d8e2a6
 world_chat_reports bb8b38ef
 world_condo 7c5e55f9

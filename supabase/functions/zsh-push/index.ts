@@ -156,6 +156,7 @@ function feedMsg(f: any, who: string, id: string): { title: string; body: string
     case "respinto": return { title: "🛡️ Assalto respinto", body: `${who} ha respinto il tuo assalto`, url: "/?go=mappa" };
     case "difesa": return { title: "🛡️ Un alleato ti difende", body: `${who} sta arrivando a difendere un tuo edificio`, url: "/?go=mappa" };
     case "assi": return { title: "🪵 Assi inchiodate", body: `${who} ha rinforzato una tua casa con le assi`, url: "/?go=mappa" };
+    case "casa_manca": return { title: "🏠 Registra la tua casa nel mondo", body: "Abiti in un condominio? La tua casa non risulta ancora nel mondo: tocca qui e premi “Registra la mia casa” (o “Sono a casa adesso”). Senza, le orde non la contano e i vicini non ti vedono.", url: "/?go=mappa&reg=1" };
     case "sped_ok": return { title: "🎒 Il tuo superstite è tornato", body: `Dalla spedizione a «${f.info || "un posto vicino"}»: tocca per raccogliere provviste ed esperienza`, url: "/?go=mappa&sup=1" };
     case "ask_ally": return { title: "🆘 Un alleato chiede aiuto", body: `${who} chiede il tuo aiuto per la prossima orda`, url: so };
     case "shout": return { title: `📣 ${who}`, body: SHOUTS[+f.info] || "ti ha salutato", url: so };
@@ -228,6 +229,8 @@ Deno.serve(async (req) => {
     }
     // spedizioni tornate (migrazione 020): una novità "sped_ok" per ciascuna, poi la manda feedFor
     try { await sb.rpc("w_sped_tick"); } catch { /* blocco SQL 020 non ancora eseguito */ }
+    // chi ha valutato la casa ma non ce l'ha nel mondo (condomini): promemoria al massimo ogni 3 giorni (migrazione 021)
+    if (t.m < 10) { try { await sb.rpc("w_casa_manca_tick"); } catch { /* blocco SQL 021 non ancora eseguito */ } }
     // novità personali: messaggi, alleanze, rinforzi, orde ricevute, regali, saluti, inviti (feedFor)
     sent += await feedFor(L);
     // messaggi della piazza (migrazione 007): al massimo un avviso ogni 30 minuti, con l'ultimo messaggio e quanti altri

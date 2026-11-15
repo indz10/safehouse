@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **58** · viste: **1** · indici: **22** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
-- Funzioni: **239** (239 nomi); usate (direttamente o tramite altre funzioni): **231**; **non usate: 8**
+- Tabelle: **59** · viste: **1** · indici: **23** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
+- Funzioni: **242** (242 nomi); usate (direttamente o tramite altre funzioni): **234**; **non usate: 8**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -53,6 +53,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_boost` |  |  |  | w_pay, world_status_extra | 1: equita |
 | `w_canon` |  |  |  | world_claim_home, world_quote, world_buy, w_target | 3: mondo_unico → mondo_unico_agg1 → abitazione |
 | `w_casa_extra` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of, w_pres_def … | 1: migr. 014_territorio |
+| `w_casa_manca_tick` |  | ✓ |  |  | 1: migr. 021_caccia_condomini |
 | `w_cleanup` |  |  |  | world_buy | 1: mondo_unico |
 | `w_coinq` |  |  |  | w_upower, w_are_allies, w_allies_of, world_allies, world_team_bonus, world_my_defense … | 2: alleanze2 → migr. 013_condominio |
 | `w_condo_admin` |  |  |  | w_condo_bonus, world_condo_give, world_condo_info | 1: migr. 016_presidi_guida |
@@ -66,12 +67,12 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_dist_pt` |  |  |  | world_presidio_occupa, w_azione, world_consigli | 1: migr. 014_territorio |
 | `w_dot` |  |  |  | world_send_help, world_player, world_mezzo, w_azione, world_consigli | 1: migr. 009_mezzi_assalti |
 | `w_en_add` |  |  |  | w_sup_inviti, world_sped_raccogli, world_sup_serie, world_sup_share | 1: migr. 020_superstite |
-| `w_en_max` |  |  |  | w_sup, w_en_add, world_sup_info, world_sped_parti | 1: migr. 020_superstite |
-| `w_en_ric` |  |  |  | w_sup, world_sup_info, world_sped_parti | 1: migr. 020_superstite |
-| `w_eq` |  |  |  | w_sped_calc, world_sup_info, world_sup_equip, world_sped_parti | 1: migr. 020_superstite |
+| `w_en_max` |  |  |  | w_sup, w_en_add, world_sup_info, world_sped_parti, world_caccia_inizia | 1: migr. 020_superstite |
+| `w_en_ric` |  |  |  | w_sup, world_sup_info, world_sped_parti, world_caccia_inizia | 1: migr. 020_superstite |
+| `w_eq` |  |  |  | w_sped_calc, world_sup_info, world_sup_equip, world_sped_parti, world_caccia_inizia | 1: migr. 020_superstite |
 | `w_feed_add` |  |  |  | w_tr_feed, w_tr_dm, world_house_invite, world_house_answer, w_pres_tick, w_assalti_tick … | 1: social |
 | `w_fort` |  |  |  | world_send_attack, world_player, w_atk_b, world_edificio_info, world_consigli | 2: migr. 014_territorio → migr. 017_presidi_fortificazioni |
-| `w_grado` |  |  |  | w_sup_raggio, world_sup_info, world_sup_abilita, world_sped_raccogli | 1: migr. 020_superstite |
+| `w_grado` |  |  |  | w_sup_raggio, world_sup_info, world_sup_abilita, world_sped_raccogli, world_caccia_inizia, world_caccia_fine | 1: migr. 020_superstite |
 | `w_grado_xp` |  |  |  | world_sup_info | 1: migr. 020_superstite |
 | `w_home_held` |  |  |  | world_raid_status, w_score, w_assalti_tick | 4: mondo_v3 → abitazione → migr. 006_presidi → migr. 014_territorio |
 | `w_home_known` |  |  |  | world_view, world_quote, world_my_effects, world_presidi_list, world_edificio_info | 1: nome_casa |
@@ -125,7 +126,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_sped_tick` |  | ✓ |  |  | 1: migr. 020_superstite |
 | `w_sup` |  |  |  | w_en_add, w_sup_inviti, world_sup_info, world_sup_abilita, world_sup_equip, world_sped_parti … | 1: migr. 020_superstite |
 | `w_sup_inviti` |  |  |  | world_sup_info | 1: migr. 020_superstite |
-| `w_sup_raggio` |  |  |  | world_sup_info, world_sped_parti | 1: migr. 020_superstite |
+| `w_sup_raggio` |  |  |  | world_sup_info, world_sped_parti | 2: migr. 020_superstite → migr. 021_caccia_condomini |
 | `w_target` |  |  |  | w_azione, world_edificio_info | 1: migr. 014_territorio |
 | `w_threats_of` |  |  |  | world_threats, world_ally_view, world_allies_status | 7: alleati_sim → zombie_alleati → fortezze → abitazione → migr. 002_formule_uguali → migr. 006_presidi → migr. 014_territorio |
 | `w_tr_casa_pos` |  |  | trigger |  | 1: migr. 015_posizione_casa |
@@ -139,7 +140,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_votanti` |  |  |  | w_alleanza_chiudi, world_alleanza_chiedi, world_alleanza_info, world_alleanza_invita2, world_alleanze_mie | 1: migr. 018_alleanze_gruppi |
 | `w_wallet` |  |  |  | w_pay, world_earn, world_claim_home, world_collect, world_mine, world_raid_status … | 1: mondo_unico |
 | `w_wxev` |  |  |  | w_attack3, w_threats_of | 2: zombie → zombie_alleati |
-| `w_xp` |  |  |  | w_pay, world_sped_raccogli, world_sup_serie, world_sup_share | 1: migr. 020_superstite |
+| `w_xp` |  |  |  | w_pay, world_sped_raccogli, world_sup_serie, world_sup_share, world_caccia_fine | 1: migr. 020_superstite |
 | `w_zm` |  |  |  | w_attack3, w_threats_of | 2: zombie → zombie_alleati |
 | `w_zona_libera` |  |  |  | w_ancora, world_alleanza_fonda | 1: migr. 019_alleanze_multiple |
 | `w_ztypes` |  |  |  | w_attack3, w_threats_of | 3: zombie → zombie_alleati → fortezze |
@@ -172,6 +173,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_block` | ✓ |  |  |  | 1: chat |
 | `world_buy` | ✓ |  |  |  | 4: mondo_unico → mondo_unico_agg1 → casa_abitata → nome_casa |
 | `world_buy_mezzo` | ✓ |  |  |  | 1: migr. 009_mezzi_assalti |
+| `world_caccia_fine` | ✓ |  |  |  | 1: migr. 021_caccia_condomini |
+| `world_caccia_inizia` | ✓ |  |  |  | 1: migr. 021_caccia_condomini |
 | `world_chat_list` | ✓ |  |  |  | 1: chat |
 | `world_chat_report` | ✓ |  |  |  | 1: chat |
 | `world_chat_send` | ✓ |  |  |  | 1: chat |
@@ -244,8 +247,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_shape_get` | ✓ |  |  |  | 1: migr. 003_forme_edifici |
 | `world_shape_put` | ✓ |  |  |  | 1: migr. 003_forme_edifici |
 | `world_shout` | ✓ |  |  |  | 1: social |
-| `world_sped_parti` | ✓ |  |  |  | 1: migr. 020_superstite |
-| `world_sped_raccogli` | ✓ |  |  |  | 1: migr. 020_superstite |
+| `world_sped_parti` | ✓ |  |  |  | 2: migr. 020_superstite → migr. 021_caccia_condomini |
+| `world_sped_raccogli` | ✓ |  |  |  | 2: migr. 020_superstite → migr. 021_caccia_condomini |
 | `world_status_extra` | ✓ |  |  |  | 1: equita |
 | `world_sup_abilita` | ✓ |  |  |  | 1: migr. 020_superstite |
 | `world_sup_equip` | ✓ |  |  |  | 1: migr. 020_superstite |
@@ -276,7 +279,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `push_subs` | push | 2 | ✓ |
 | `reviews` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `salvataggi` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
-| `sponsor_events` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
+| `sponsor_events` | ZombieSafeHouse_backend_sponsor | 2 | ✓ |
 | `sponsor_prezzi` | supabase/migrazioni/005_sponsor_pagamenti | 0 | ✓ |
 | `sponsor_users` | ZombieSafeHouse_backend_sponsor | 0 | ✓ |
 | `sponsors` | ZombieSafeHouse_backend_sponsor | 8 | ✓ |
@@ -292,6 +295,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_blocks` | chat | 0 | ✓ |
 | `world_bonus` | mondo_unico | 0 | ✓ |
 | `world_buildings` | mondo_unico | 0 | ✓ |
+| `world_cacce` | supabase/migrazioni/021_caccia_condomini | 0 | ✓ |
 | `world_chat` | chat | 0 | ✓ |
 | `world_chat_reports` | chat | 0 | ✓ |
 | `world_condo` | abitazione | 0 | ✓ |
@@ -316,7 +320,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_shapes` | supabase/migrazioni/003_forme_edifici | 0 | ✓ |
 | `world_shields` | alleanze2 | 0 | ✓ |
 | `world_shouts` | social | 0 | ✓ |
-| `world_spedizioni` | supabase/migrazioni/020_superstite | 0 | ✓ |
+| `world_spedizioni` | supabase/migrazioni/020_superstite | 2 | ✓ |
 | `world_superstite` | supabase/migrazioni/020_superstite | 0 | ✓ |
 | `world_terrain` | zombie | 0 | ✓ |
 | `world_wallet` | mondo_unico | 3 | ✓ |
