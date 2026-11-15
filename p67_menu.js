@@ -16,7 +16,7 @@ function zmItems(){const L=zmItemsBase();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
   if(g)g[1].splice(1,0,['📷','Lente: guarda con la fotocamera','lente']);})();
   /* Fase 15a: la Home si apre dal menu (la barra in basso non c'è più per chi gioca già) */
-  (()=>{const g=L[0];if(g)g[1].unshift(['🏠','Home','hpage'],['🌍','Mondo: mappa e orda','mondo'],['🧭','Cosa fare ora (guida)','guida'],['💬','Messaggi','msg'],['🛡️','La mia alleanza','alz']);})();
+  (()=>{const g=L[0];if(g)g[1].unshift(['🏠','Home','hpage'],['🌍','Mondo: mappa e orda','mondo'],['🧭','Cosa fare ora (guida)','guida'],['💬','Messaggi','msg'],['🛡️','Le mie alleanze','alz']);})();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
   if(g)g[1]=g[1].map(r=>r[2]==='g:difendi'?['⚔️','Gioca la notte','g:difendi']:r);})();
   (()=>{const g=L.find(x=>x[0]==='Gioco');
@@ -34,7 +34,7 @@ function zmDoRun(k,b){
   if(k==='g:difendi'||k==='g:oggi'||k==='g:impero'){zmClose();go('orda');setTimeout(()=>{const t=k==='g:difendi'?app.querySelector('.odplay'):app.querySelector('.fronte');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},400);return;}
   if(k==='oggi'){zmClose();oggiSheet();return;}
   if(k==='lente'){zmClose();lenteOpen();return;}
-  if(k==='hpage'){zmClose();MW.userNav=1;go('home');return;}if(k==='mondo'){zmClose();S.zv='mondo';go('mappa');return;}if(k==='guida'){gdSheet();return;}if(k==='msg'){msgHub();return;}if(k==='alz'){alzSheet();return;}
+  if(k==='hpage'){zmClose();MW.userNav=1;go('home');return;}if(k==='mondo'){zmClose();S.zv='mondo';go('mappa');return;}if(k==='guida'){gdSheet();return;}if(k==='msg'){msgHub();return;}if(k==='alz'){alzMenu();return;}
   if(k==='inst'){zmClose();zInstallSheet();return;}
   if(k==='casa'){zmClose();go('casa');return;}if(k==='manual'){zmClose();openSheet('📚 Tutte le regole',rulesHTML());return;}if(k==='shop'){zmClose();shopSheet(0);return;}
   if(k==='home'&&b&&/Piano/.test(b.textContent)){zmClose();go('casa');return;}
