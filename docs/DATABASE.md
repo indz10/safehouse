@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **51** · viste: **1** · indici: **15** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
-- Funzioni: **189** (189 nomi); usate (direttamente o tramite altre funzioni): **188**; **non usate: 1**
+- Tabelle: **52** · viste: **1** · indici: **15** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
+- Funzioni: **191** (191 nomi); usate (direttamente o tramite altre funzioni): **190**; **non usate: 1**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -36,7 +36,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_atk_b` |  |  |  | w_azione | 1: migr. 014_territorio |
 | `w_atk_pts` |  |  |  |  | 1: migr. 009_mezzi_assalti |
 | `w_attack3` |  |  |  | world_raid_status, world_raid_view, w_home_held, w_assalti_tick | 4: mondo_v3 → zombie → zombie_alleati → fortezze |
-| `w_azione` |  |  |  | world_edificio_info, world_assalta, world_difendi, world_assi, world_consigli | 1: migr. 014_territorio |
+| `w_azione` |  |  |  | world_edificio_info, world_assalta, world_difendi, world_assi, world_consigli | 2: migr. 014_territorio → migr. 017_presidi_fortificazioni |
 | `w_bad` |  |  |  | world_chat_send, world_dm_send | 1: chat |
 | `w_boost` |  |  |  | w_pay, world_status_extra | 1: equita |
 | `w_canon` |  |  |  | world_claim_home, world_quote, world_buy, w_target | 3: mondo_unico → mondo_unico_agg1 → abitazione |
@@ -53,7 +53,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_dist_pt` |  |  |  | world_presidio_occupa, w_azione, world_consigli | 1: migr. 014_territorio |
 | `w_dot` |  |  |  | world_send_help, world_player, world_mezzo, w_azione, world_consigli | 1: migr. 009_mezzi_assalti |
 | `w_feed_add` |  |  |  | w_tr_feed, w_tr_dm, world_house_invite, world_house_answer, w_pres_tick, w_assalti_tick … | 1: social |
-| `w_fort` |  |  |  | world_send_attack, world_player, w_atk_b, world_edificio_info, world_consigli | 1: migr. 014_territorio |
+| `w_fort` |  |  |  | world_send_attack, world_player, w_atk_b, world_edificio_info, world_consigli | 2: migr. 014_territorio → migr. 017_presidi_fortificazioni |
 | `w_home_held` |  |  |  | world_raid_status, w_score, w_assalti_tick | 4: mondo_v3 → abitazione → migr. 006_presidi → migr. 014_territorio |
 | `w_home_known` |  |  |  | world_view, world_quote, world_my_effects, world_presidi_list, world_edificio_info | 1: nome_casa |
 | `w_is_npc` |  |  |  | world_quote, w_tr_feed | 1: mondo_v3 |
@@ -79,10 +79,11 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_power3` |  |  |  | world_raid_status, world_raid_view, w_home_held, w_assalti_tick | 1: mondo_v3 |
 | `w_pres_attack` |  |  |  | w_pres_tick | 1: migr. 006_presidi |
 | `w_pres_bonus` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of, w_assalti_tick | 2: migr. 006_presidi → migr. 014_territorio |
-| `w_pres_def` |  |  |  | w_pres_tick, world_presidi_list, world_presidio_guardia | 2: migr. 006_presidi → migr. 014_territorio |
+| `w_pres_def` |  |  |  | w_pres_tick, world_presidi_list, world_presidio_guardia | 3: migr. 006_presidi → migr. 014_territorio → migr. 017_presidi_fortificazioni |
+| `w_pres_liv` |  |  |  | w_pres_def, world_presidi_list, w_fort, world_pres_fortifica | 1: migr. 017_presidi_fortificazioni |
 | `w_pres_near` |  |  |  | world_presidi_seed, world_presidi_list, world_consigli | 1: migr. 006_presidi |
 | `w_pres_rendita` |  |  |  | w_pres_tick | 2: migr. 012_risorse_ricompense → migr. 016_presidi_guida |
-| `w_pres_tick` |  |  | cron | world_presidi_list, world_presidio_occupa, world_presidio_guardia, world_edificio_info, world_consigli | 3: migr. 006_presidi → migr. 012_risorse_ricompense → migr. 014_territorio |
+| `w_pres_tick` |  |  | cron | world_presidi_list, world_presidio_occupa, world_presidio_guardia, world_edificio_info, world_consigli | 4: migr. 006_presidi → migr. 012_risorse_ricompense → migr. 014_territorio → migr. 017_presidi_fortificazioni |
 | `w_prev_slot` |  |  |  | world_raid_status, world_raid_view, w_pres_tick, world_presidio_occupa, w_assalti_tick, world_edificio_info | 1: orda_mondo |
 | `w_price` |  |  |  | world_collect, w_price2, world_edificio_info, world_consigli | 1: mondo_unico |
 | `w_price2` |  |  |  | world_quote | 2: mondo_v3 → equita |
@@ -141,7 +142,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_dm_send` | ✓ |  |  |  | 1: assedio |
 | `world_dm_threads` | ✓ |  |  |  | 1: assedio |
 | `world_earn` | ✓ |  |  |  | 2: mondo_unico → migr. 012_risorse_ricompense |
-| `world_edificio_info` | ✓ |  |  |  | 1: migr. 014_territorio |
+| `world_edificio_info` | ✓ |  |  |  | 2: migr. 014_territorio → migr. 017_presidi_fortificazioni |
 | `world_fav_set` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
 | `world_favs_list` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
 | `world_feed_list` | ✓ |  |  |  | 1: social |
@@ -166,8 +167,9 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_near_survivors` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
 | `world_player` | ✓ |  |  |  | 3: social → migr. 009_mezzi_assalti → migr. 014_territorio |
 | `world_prepare` | ✓ |  |  |  | 1: orda_mondo |
+| `world_pres_fortifica` | ✓ |  |  |  | 1: migr. 017_presidi_fortificazioni |
 | `world_presenza` | ✓ |  |  |  | 1: migr. 014_territorio |
-| `world_presidi_list` | ✓ |  |  |  | 1: migr. 006_presidi |
+| `world_presidi_list` | ✓ |  |  |  | 2: migr. 006_presidi → migr. 017_presidi_fortificazioni |
 | `world_presidi_seed` | ✓ |  |  |  | 2: migr. 006_presidi → migr. 016_presidi_guida |
 | `world_presidio_guardia` | ✓ |  |  |  | 1: migr. 006_presidi |
 | `world_presidio_lascia` | ✓ |  |  |  | 1: migr. 006_presidi |
@@ -248,6 +250,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_homes` | mondo_unico | 10 | ✓ |
 | `world_house_req` | abitazione | 0 | ✓ |
 | `world_log` | mondo_unico | 0 | ✓ |
+| `world_pres_defs` | supabase/migrazioni/017_presidi_fortificazioni | 0 | ✓ |
 | `world_presidi` | supabase/migrazioni/006_presidi | 0 | ✓ |
 | `world_presidi_guardie` | supabase/migrazioni/006_presidi | 0 | ✓ |
 | `world_presidi_tenute` | supabase/migrazioni/006_presidi | 0 | ✓ |

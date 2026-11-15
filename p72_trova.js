@@ -21,7 +21,7 @@ async function trFavSet(uid,on){try{const r=await socRpc('world_fav_set',{p_user
 const trAlly=a=>a==='ok'?'🤝 alleato':a==='out'?'⏳ proposta inviata':a==='in'?'📩 ti ha proposto l’alleanza':'';
 function trRow(x){const fav=TR.favs&&TR.favs.has(x.user_id);const bits=[`livello ${x.wlevel||1}`];if(x.km!=null)bits.push('a '+kmTxt(+x.km));if(x.comune)bits.push(esc(x.comune));const al=trAlly(x.ally);if(al)bits.push(al);
   return`<div class="trrow"><button class="strow" data-trp="${esc(x.user_id)}"><span class="splogo">${esc((x.nick||'?').slice(0,1).toUpperCase())}</span><div><b>@${esc(x.nick||'superstite')}</b><small>${bits.join(' · ')}</small></div><i>›</i></button>
-    <button class="trmap" data-trm="${esc(x.user_id)}" aria-label="Sulla mappa">🗺️</button><button class="trstar ${fav?'on':''}" data-trs="${esc(x.user_id)}" aria-label="${fav?'Togli dai preferiti':'Salva tra i preferiti'}">${fav?'⭐':'☆'}</button></div>`;}
+    <button class="trmap" data-dmr="${esc(x.user_id)}" data-n="${esc(x.nick||'')}" aria-label="Scrivi">💬</button><button class="trmap" data-trm="${esc(x.user_id)}" aria-label="Sulla mappa">🗺️</button><button class="trstar ${fav?'on':''}" data-trs="${esc(x.user_id)}" aria-label="${fav?'Togli dai preferiti':'Salva tra i preferiti'}">${fav?'⭐':'☆'}</button></div>`;}
 function trBody(){const H=myHouses();const tabs=`<div class="hkvb trtabs"><button data-trt="casa" class="${TR.tab==='casa'?'on':''}">🏠 Vicino</button><button data-trt="nome" class="${TR.tab==='nome'?'on':''}">🔤 Per nome</button><button data-trt="fav" class="${TR.tab==='fav'?'on':''}">⭐ Preferiti${TR.favs&&TR.favs.size?' ('+TR.favs.size+')':''}</button></div>`;
   let top='',list='';
   if(TR.tab==='casa'){

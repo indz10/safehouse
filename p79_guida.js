@@ -52,7 +52,7 @@ function gdItems(d){d=d||{};const I=[];const R=Object.assign({},RES.d||{},d.riso
   if(tanti.length)I.push({p:10,ic:'🔄',t:'Hai scorte in più: scambiale',why:`${tanti.map(x=>x[1]).join(' ')} oltre 200: al Mercato 20 = 🧱 10.`,acts:[{b:'🔄 Mercato',run:async()=>{shopSheet(0);return{skip:1};}}]});
   return I.sort((a,b)=>b.p-a.p);}
 function gdHTML(){const I=gdItems(GD.d);
-  return`<div class="gdtop">${typeof trrScorteHTML==='function'?trrScorteHTML().replace(/<button class="mwguida"[\s\S]*?<\/button>/,''):''}</div>
+  return`<div class="gdtop">${typeof trrScorteHTML==='function'?trrScorteHTML().replace(/<button class="mwguida[^"]*"[\s\S]*?<\/button>/g,''):''}</div>
     <p class="muted" style="font-size:13px;margin:6px 0 10px">In cima le cose più importanti adesso. Tocca il pulsante: al resto pensa il gioco.</p>
     ${!GD.d?'<p class="notice">Non riesco a leggere le minacce e le richieste: serve il blocco SQL 016, oppure la rete è lenta.</p>':''}
     ${I.length?I.map((x,i)=>`<div class="gdcard ${x.p>=80?'urg':x.p>=60?'imp':''}"><span class="gdic">${x.ic}</span><div class="gdtx"><b>${x.t}</b><small>${x.why||''}</small>
