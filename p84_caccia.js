@@ -1,7 +1,7 @@
 <script>
 /* =========================================================
    🔫 CACCIA AGLI ZOMBIE NELLA LENTE (migrazione 021, richiesta di Alessandro 15/11)
-   Nella Lente il pulsante "🔫 Caccia · ⚡1" fa partire un'ondata di 3–6 zombie (di più salendo di grado) che arrivano
+   Nella Lente il pulsante "🔫 Caccia (1 energia)" fa partire un'ondata di 3–6 zombie (di più salendo di grado) che arrivano
    da direzioni diverse intorno a te: girati col telefono (o trascina il dito) e toccali prima che ti raggiungano.
    🧟 lento (2 colpi), 🏃 corridore (2 colpi, veloce), 💪 bruto (4 colpi, lento). Un'🪓 arma di livello 2+ colpisce doppio.
    Il server decide gli zombie (world_caccia_inizia) e i premi (world_caccia_fine: ⭐ 5 a zombie, ⭐ 10 se li prendi
@@ -13,7 +13,7 @@ const cacHead=()=>{const L=LENTE;return((L.h==null?0:L.h)+L.man+360)%360;};
 /* il pulsante nella Lente */
 const _lenteOpenCac=lenteOpen;lenteOpen=async function(){const r=_lenteOpenCac.apply(this,arguments);try{cacBtn();}catch(e){}return r;};
 function cacBtn(){const L=LENTE;if(!L.root||L.root.querySelector('[data-cacgo]'))return;const bot=L.root.querySelector('.lnbot');if(!bot)return;
-  bot.insertAdjacentHTML('beforeend','<button class="lncac" data-cacgo type="button">🔫 Caccia · ⚡1</button>');
+  bot.insertAdjacentHTML('beforeend','<button class="lncac" data-cacgo type="button">🔫 Caccia (1 energia)</button>');
   bot.querySelector('[data-cacgo]').onclick=e=>{e.stopPropagation();cacStart();};}
 async function cacStart(){const L=LENTE;if(CAC.on||!L.root)return;if(!S.user){toast('Accedi per cacciare gli zombie');return;}
   const b=L.root.querySelector('[data-cacgo]');if(b)b.disabled=true;let d=null;
@@ -45,7 +45,7 @@ async function cacEnd(){if(CAC.fine)return;CAC.fine=true;const L=LENTE;let r=nul
   if(!L.root){if(r&&r.ok)toast(`🔫 Caccia: ${r.uccisi}/${r.n} · ⭐ +${r.xp}`);return;}L.root.classList.remove('caccia');const box=L.root.querySelector('.lncz');if(!box)return;
   const g=r&&r.ok?[r.legno?'🪵 +'+r.legno:'',r.cibo?'🥫 +'+r.cibo:'',r.carb?'⛽ +'+r.carb:''].filter(Boolean).join(' '):'';
   box.innerHTML=`<div class="lncres"><b>${r&&r.ok?(r.tutti?'🏆 Presi tutti!':`💥 ${r.uccisi} su ${r.n}`):'Caccia finita'}</b>${r&&r.ok?`<span>⭐ +${r.xp}${g?' · '+g:''}</span>`:'<span>Non riesco a parlare col server: riprova</span>'}
-    ${r&&r.salito?`<span>🎖️ Sei salito al grado ${r.grado}!</span>`:''}<div><button class="btn small" data-cacagain>🔫 Ancora · ⚡1</button><button class="btn small ghost" data-cacok>Fatto</button></div></div>`;
+    ${r&&r.salito?`<span>🎖️ Sei salito al grado ${r.grado}!</span>`:''}<div><button class="btn small" data-cacagain>🔫 Ancora (1 energia)</button><button class="btn small ghost" data-cacok>Fatto</button></div></div>`;
   box.querySelector('[data-cacagain]').onclick=e=>{e.stopPropagation();box.remove();cacStart();};box.querySelector('[data-cacok]').onclick=e=>{e.stopPropagation();box.remove();};}
 const _lenteCloseCac=lenteClose;lenteClose=function(){if(CAC.on){CAC.on=false;cancelAnimationFrame(CAC.raf);cacEnd();}return _lenteCloseCac.apply(this,arguments);};
 </script>

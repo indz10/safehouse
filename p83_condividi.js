@@ -4,8 +4,8 @@
    shareSheet(o): un'immagine pronta (grado, % della casa, comune: MAI l'indirizzo) + il tuo link d'invito,
    con i pulsanti per WhatsApp, Facebook, X, Telegram, Instagram/TikTok (immagine da mettere nella storia),
    📤 Condividi del telefono (immagine + link insieme, dove si può) e 📋 Copia link.
-   Premi: la prima condivisione del giorno ⭐ 20 e ⚡ 1 (world_sup_share); il premio vero arriva quando un amico
-   entra dal link (⭐ 50 + ⚡ 2 + scorte, e quando valuta la casa ⭐ 150 + 🧱 150): non si può barare.
+   Premi: la prima condivisione del giorno ⭐ 20 e 🔋 1 (world_sup_share); il premio vero arriva quando un amico
+   entra dal link (⭐ 50 + 🔋 2 + scorte, e quando valuta la casa ⭐ 150 + 🧱 150): non si può barare.
    Si apre dal menu ☰ (📣 Condividi), dalla scheda del superstite, quando si sale di grado e da Invita amici.
    ========================================================= */
 const SHR={blob:null,url:''};
@@ -35,7 +35,7 @@ async function shrPremio(dove){if(!S.user||typeof SB==='undefined'||!SB)return;t
 async function shareSheet(o){o=o||{};const L=shrLink();const T=shrTxt(o);const e=encodeURIComponent;
   const soc=[['shr-wa','🟢','WhatsApp',`https://wa.me/?text=${e(T)}`],['shr-fb','🔵','Facebook',`https://www.facebook.com/sharer/sharer.php?u=${e(L)}&quote=${e(T)}`],
     ['shr-x','⚫','X (Twitter)',`https://twitter.com/intent/tweet?text=${e(T.replace(L,'').trim())}&url=${e(L)}`],['shr-tg','✈️','Telegram',`https://t.me/share/url?url=${e(L)}&text=${e(T.replace(L,'').trim())}`]];
-  openSheet('📣 Condividi e fatti conoscere',`<p class="muted" style="font-size:13px;margin:0 0 8px">Mostra a tutti come resisti all’orda. Ogni amico che entra col <b>tuo link</b> ti fa crescere: ⭐ +50, ⚡ +2 e scorte; quando valuta la casa ⭐ +150 e 🧱 150. La prima condivisione del giorno: ⭐ +20 e ⚡ +1.</p>
+  openSheet('📣 Condividi e fatti conoscere',`<p class="muted" style="font-size:13px;margin:0 0 8px">Mostra a tutti come resisti all’orda. Ogni amico che entra col <b>tuo link</b> ti fa crescere: ⭐ +50, 🔋 +2 e scorte; quando valuta la casa ⭐ +150 e 🧱 150. La prima condivisione del giorno: ⭐ +20 e 🔋 +1.</p>
     <div class="shrimg"><p class="muted"><span class="spin"></span> Preparo l’immagine…</p></div>
     <button class="btn wide" data-shrnat>📤 Condividi immagine e link</button>
     <div class="shrgrid">${soc.map(s=>`<a class="shrb ${s[0]}" href="${s[3]}" target="_blank" rel="noopener" data-shr="${s[0].slice(4)}"><span>${s[1]}</span>${s[2]}</a>`).join('')}
