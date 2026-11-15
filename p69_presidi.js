@@ -92,18 +92,24 @@ async function presList(lm){lm=lm||window.__mf;openSheet('🚩 Presidi','<p><spa
 <script>
 /* 🚩 Presidi entro 5 km dalle tue case (migrazione 016): l'elenco cerca intorno alla casa (o al centro della mappa), li scopre su OpenStreetMap
    nel raggio di 5 km e li mette in ordine di distanza; si occupano col proprio mezzo (⛽) e a ogni orda retta rendono il doppio */
-async function presList5(lm){lm=lm||window.__mf;openSheet('🚩 Presidi entro 5 km','<p><span class="spin"></span> Cerco i presidi entro 5 km…</p>',()=>{});
+async function presList5(lm,dopo){lm=lm||window.__mf;if(!dopo)openSheet('🚩 Presidi entro 5 km','<p><span class="spin"></span> Cerco i presidi entro 5 km…</p>',()=>{});
   let H=[];try{H=myHouses().filter(h=>h.lat!=null);}catch(e){}const c0=lm&&lm.map?lm.map.getCenter():null;const o=H.find(h=>h.home)||H[0]||(c0?{lat:c0.lat,lon:c0.lng}:null);
   if(!o||typeof SB==='undefined'||!SB){return presList(lm);}
-  const k=Math.round(o.lat*50)+'|'+Math.round(o.lon*50)+'|5';let M={};try{M=JSON.parse(localStorage.getItem('zsh_pres_seed')||'{}');}catch(e){}
-  if(!M[k]||Date.now()-M[k]>7*864e5){presSeed.r=5000;try{await presSeed(o.lat,o.lon);}catch(e){}presSeed.r=0;try{M=JSON.parse(localStorage.getItem('zsh_pres_seed')||'{}');M[k]=Date.now();localStorage.setItem('zsh_pres_seed',JSON.stringify(M));}catch(e){}}
+  /* l'elenco compare SUBITO con i presidi che il server conosce già; la scoperta su OpenStreetMap (5 km, può essere lenta) va in sottofondo */
   let d=null;try{const{data,error}=await SB.rpc('world_presidi_list',{p_minlat:o.lat-0.046,p_minlon:o.lon-0.065,p_maxlat:o.lat+0.046,p_maxlon:o.lon+0.065});if(!error)d=data;}catch(e){}
-  if(!d){return presList(lm);}PRES.d=d;PRES.L=d.presidi||[];
+  if(!d){if(!dopo)openSheet('🚩 Presidi entro 5 km','<p class="notice">Non riesco a caricare i presidi ora: controlla la rete e riprova.</p>');return;}
+  PRES.d=d;PRES.L=d.presidi||[];
+  const k=Math.round(o.lat*50)+'|'+Math.round(o.lon*50)+'|5';let M={};try{M=JSON.parse(localStorage.getItem('zsh_pres_seed')||'{}');}catch(e){}
+  const cerco=!dopo&&(!M[k]||Date.now()-M[k]>7*864e5);
+  if(cerco){M[k]=Date.now();try{localStorage.setItem('zsh_pres_seed',JSON.stringify(M));}catch(e){}
+    (async()=>{let n=0;presSeed.r=5000;try{n=await presSeed(o.lat,o.lon);}catch(e){}presSeed.r=0;
+      const sh=document.querySelector('#sheet.open .pres5');if(sh&&n>0)presList5(lm,1);else if(sh){const w=sh.querySelector('.pres5w');if(w)w.remove();}})();}
   const near=p=>Math.min(...(H.length?H:[o]).map(h=>trM(h.lat,h.lon,p.lat,p.lon)));
   const L=PRES.L.map(p=>({...p,dist:near(p)})).filter(p=>p.dist<=5000).sort((a,b)=>(a.stato==='mio'?-1:0)-(b.stato==='mio'?-1:0)||a.dist-b.dist).slice(0,40);
   const dist=m=>m<1000?Math.round(m/10)*10+' m':(m/1000).toFixed(1).replace('.',',')+' km';
-  openSheet('🚩 Presidi entro 5 km',`<p style="font-weight:400;margin:0 0 8px">Luoghi pubblici veri entro <b>5 km</b> dalle tue case. Chi li tiene dà <b>+3 di difesa</b> alle case entro 500 m e a ogni orda retta riceve la sua risorsa: <b>🪵/🥫/⛽ 40 + 4 per orda di fila</b> (fino a 80), 🧱 30+ per municipio, scuole, biblioteche e ospedali. Si occupano viaggiando col tuo mezzo (⛽).${S.user?` Ne tieni <b>${d.miei}/${d.max}</b>.`:''}</p>
+  openSheet('🚩 Presidi entro 5 km',`<div class="pres5"><p style="font-weight:400;margin:0 0 8px">Luoghi pubblici veri entro <b>5 km</b> dalle tue case. Chi li tiene dà <b>+3 di difesa</b> alle case entro 500 m e a ogni orda retta riceve la sua risorsa: <b>🪵/🥫/⛽ 40 + 4 per orda di fila</b> (fino a 80), 🧱 30+ per municipio, scuole, biblioteche e ospedali. Si occupano viaggiando col tuo mezzo (⛽).${S.user?` Ne tieni <b>${d.miei}/${d.max}</b>.`:''}</p>
+    ${cerco?'<p class="muted pres5w" style="font-size:12.5px"><span class="spin"></span> Cerco altri presidi su OpenStreetMap: l’elenco si aggiorna da solo.</p>':''}
     ${L.length?L.map(p=>{const kk=PRES_K[p.kind]||['🚩','Presidio'];return`<button class="pres-row s-${p.stato}" data-pr="${esc(p.id)}"><span class="pi">${kk[0]}</span><span class="pt"><b>${esc(p.name)}</b><small>${presStato(p)} · ${dist(p.dist)}</small></span><span class="pc">${p.stato==='libero'?'Libero':presChance(p)+'%'}</span></button>`;}).join('')
-     :'<p class="notice">Qui intorno non ho trovato presidi: riprova tra poco (la ricerca su OpenStreetMap a volte è lenta).</p>'}`,
-   card=>card.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{window.SHEET_BACK={t:'‹ Presidi',fn:()=>presList5(lm)};const p=PRES.L.find(x=>x.id===b.dataset.pr);if(p&&lm&&lm.map)try{lm.map.flyTo({center:[p.lon,p.lat],zoom:16});}catch(e){}presSheet(b.dataset.pr);}));}
+     :`<p class="notice">${cerco?'Sto cercando i presidi qui intorno…':'Qui intorno non ho trovato presidi.'}</p>`}</div>`,
+   card=>card.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{window.SHEET_BACK={t:'‹ Presidi',fn:()=>presList5(lm,1)};const p=PRES.L.find(x=>x.id===b.dataset.pr);if(p&&lm&&lm.map)try{lm.map.flyTo({center:[p.lon,p.lat],zoom:16});}catch(e){}presSheet(b.dataset.pr);}));}
 </script>

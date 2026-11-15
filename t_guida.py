@@ -28,8 +28,8 @@ async def main():
         print('voce nel menu:',await pg.evaluate("()=>[...document.querySelectorAll('#zmenu .zmrow')].some(r=>/Cosa fare ora/.test(r.textContent))"))
         await pg.evaluate("()=>{try{zmClose()}catch(e){}}")
         # presidi entro 5 km
-        await pg.evaluate("async()=>{closeSheet();window.__PRES=[];await presList5(window.__mf)}");await pg.wait_for_timeout(2500)
-        print('presidi entro 5 km:',await pg.evaluate("()=>[(document.querySelector('#sheet.open .sheet-h, #sheet.open h3')||{}).textContent,document.querySelectorAll('#sheet.open .pres-row').length]"))
+        await pg.evaluate("()=>{closeSheet();window.__PRES=[];localStorage.removeItem('zsh_pres_seed');window.trOverpass=()=>new Promise(r=>setTimeout(()=>r([]),20000));presList5(window.__mf)}");await pg.wait_for_timeout(1500)
+        print('presidi entro 5 km (subito, anche con OpenStreetMap lento):',await pg.evaluate("()=>[(document.querySelector('#sheet.open .sheet-h, #sheet.open h3')||{}).textContent,document.querySelectorAll('#sheet.open .pres-row').length]"))
         # superstite doppio
         n=await pg.evaluate("()=>{closeSheet();const lm=window.__mf;lm._wrows=[{nick:'Anna88',residents:null}];window.ZUSERS=[{user_id:'u5',nick:'Anna88',lat_r:45.326,lon_r:10.659},{user_id:'u6',nick:'Bob',lat_r:45.327,lon_r:10.66}];zDrawUsers(lm);return [...document.querySelectorAll('.lm-usr em')].map(e=>e.textContent)}")
         print('superstiti approssimati (senza chi ha il nome sulla casa):',n)
