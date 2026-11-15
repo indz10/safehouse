@@ -1789,7 +1789,7 @@ begin
   v := public.w_votanti(p_aid);
   insert into public.world_alleanze_domande(alleanza_id, user_id, tipo, votanti) values (p_aid, me, 'richiesta', v) returning id into did;
   foreach x in array v loop perform public.w_feed_add('all_voto', me, x, null, null, 'richiesta'); end loop;
-  return json_build_object('ok',true,'id',did,'msg','🗳️ Richiesta inviata: la votano i ' || cardinality(v) || ' membri più attivi');
+  return json_build_object('ok',true,'id',did,'msg','🗳️ Richiesta inviata: ' || case when cardinality(v) = 1 then 'la vota il capo' else 'la votano i ' || cardinality(v) || ' membri più attivi' end);
 end $$;
 
 --
@@ -2037,7 +2037,7 @@ CREATE FUNCTION public.world_alleanze_vicine() RETURNS json
     select a.id, a.nome, a.emblema, public.w_nick(a.capo) as capo, (select count(*) from public.world_alleanze_membri z where z.alleanza_id = a.id) as membri,
       round((select min(public.w_dist_alleanza(a.id, c.lat, c.lon)) from (select h.lat, h.lon from public.world_homes h where h.user_id = auth.uid() union all select b.lat, b.lon from public.world_buildings b where b.owner = auth.uid()) c)::numeric, 1) as dist_km,
       exists (select 1 from public.world_alleanze_domande q where q.alleanza_id = a.id and q.user_id = auth.uid() and q.stato = 'aperta') as chiesto,
-      public.w_perche_no(auth.uid(), a.id) as perche_no
+      replace(replace(public.w_perche_no(auth.uid(), a.id), 'Ha già', 'Hai già'), 'sua alleanza', 'tua alleanza') as perche_no
     from public.world_alleanze a
     where auth.uid() is not null and not public.w_in_alleanza(auth.uid(), a.id)
       and exists (select 1 from (select h.lat, h.lon from public.world_homes h where h.user_id = auth.uid() union all select b.lat, b.lon from public.world_buildings b where b.owner = auth.uid()) c

@@ -110,7 +110,7 @@ w_zona_libera(uuid, double precision, double precision, bigint) f1ff4a04c7
 w_ztypes() 76112a7194
 world_alleanza_chat(bigint) 6b3a056d2f
 world_alleanza_chat2(bigint, bigint) 29cbbb58ae
-world_alleanza_chiedi(bigint) 668e9d5f28
+world_alleanza_chiedi(bigint) 240c57e1f3
 world_alleanza_crea(text, text) 7c87911fb7
 world_alleanza_esci() d69be3d392
 world_alleanza_esci2(bigint) fcd8dcad96
@@ -123,7 +123,7 @@ world_alleanza_scrivi(text) 57df8c74be
 world_alleanza_scrivi2(bigint, text) a0d0318938
 world_alleanza_vota(bigint, boolean) 0c924d0287
 world_alleanze_mie() 2c48f85647
-world_alleanze_vicine() 5955893d9e
+world_alleanze_vicine() 69a4e5799d
 world_allies() 65fb8c2faf
 world_allies_status() 774a3128fd
 world_ally_answer(uuid, boolean) f0cb9fb4e9
