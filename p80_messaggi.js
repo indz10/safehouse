@@ -15,8 +15,8 @@ async function msgCount(){if(!S.user||typeof SB==='undefined'||!SB)return 0;try{
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-dmr]');if(!b)return;e.stopPropagation();e.preventDefault();
   if(!S.user){toast('Accedi per scrivere');return;}window.SHEET_BACK=b.closest('.msgbox')?{t:'‹ Messaggi',fn:()=>msgHub(MSG.tab)}:null;dmSheet(b.dataset.dmr,b.dataset.n);},true);
 const msgRow=(uid,nick,sub,un)=>`<button class="dmt ${un?'un':''}" data-dmr="${esc(uid)}" data-n="${esc(nick||'')}"><span class="sav">${esc((nick||'?')[0].toUpperCase())}</span><div><b>@${esc(nick||'superstite')}${un?` · ${un} nuovi`:''}</b><small>${sub||''}</small></div><i>💬</i></button>`;
-async function msgHub(tab){if(!S.user){toast('Accedi per i messaggi');try{loginSheet();}catch(e){}return;}MSG.tab=tab||MSG.tab||'conv';
-  const tabs=`<div class="hkvb trtabs"><button data-mst="conv" class="${MSG.tab==='conv'?'on':''}">📬 Conversazioni${MSG.n?` (${MSG.n})`:''}</button><button data-mst="al" class="${MSG.tab==='al'?'on':''}">🤝 Alleati</button><button data-mst="cerca" class="${MSG.tab==='cerca'?'on':''}">🔤 Cerca</button></div>`;
+async function msgHub(tab){if(!S.user){toast('Accedi per i messaggi');try{loginSheet();}catch(e){}return;}if(tab==='alz'){window.SHEET_BACK={t:'‹ Messaggi',fn:()=>msgHub('conv')};return alzChat();}MSG.tab=tab||MSG.tab||'conv';if(MSG.tab==='alz')MSG.tab='conv';
+  const tabs=`<div class="hkvb trtabs"><button data-mst="conv" class="${MSG.tab==='conv'?'on':''}">📬 Conversazioni${MSG.n?` (${MSG.n})`:''}</button><button data-mst="alz" class="${MSG.tab==='alz'?'on':''}">🛡️ Alleanza</button><button data-mst="al" class="${MSG.tab==='al'?'on':''}">🤝 Alleati</button><button data-mst="cerca" class="${MSG.tab==='cerca'?'on':''}">🔤 Cerca</button></div>`;
   openSheet('💬 Messaggi',tabs+'<div class="msgbox"><p><span class="spin"></span></p></div>',c=>c.querySelectorAll('[data-mst]').forEach(b=>b.onclick=()=>msgHub(b.dataset.mst)));
   const box=document.querySelector('#sheet.open .msgbox');if(!box)return;let h='';
   if(MSG.tab==='conv'){await msgCount();const L=MSG.L||[];

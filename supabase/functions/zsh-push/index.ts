@@ -144,6 +144,12 @@ function feedMsg(f: any, who: string, id: string): { title: string; body: string
     case "curse": return { title: "😈 Dispetto!", body: `${who} ti ha fatto un dispetto: chiedi aiuto agli alleati`, url: "/?go=orda" };
     case "shield": return { title: "🛡️ Scudo ricevuto", body: `${who} ti ha dato uno scudo: +5 alla prossima orda`, url: "/?go=orda" };
     case "gift": return { title: "🎁 Regalo", body: `${who} ti ha ${f.info === "prestito" ? "prestato dei Mattoni" : "fatto un regalo"}`, url: so };
+    case "all_voto": return { title: "🗳️ Vota chi entra nell’alleanza", body: `${who} ${f.info === "invito" ? "ha invitato un superstite" : "chiede di entrare"}: tocca per votare`, url: "/?go=social" };
+    case "all_invito": return { title: "📨 Invito in un’alleanza", body: `${who} ti invita nell’alleanza «${f.info || ""}»`, url: "/?go=social" };
+    case "all_entrato": return { title: "🛡️ Nuovo membro", body: `${who} è entrato nell’alleanza «${f.info || ""}»`, url: "/?go=social" };
+    case "all_si": return { title: "🛡️ Sei dentro!", body: `Benvenuto nell’alleanza «${f.info || ""}»`, url: "/?go=social" };
+    case "all_no": return { title: "❌ Domanda respinta", body: `La domanda per l’alleanza «${f.info || ""}» non è passata`, url: "/?go=social" };
+    case "all_msg": return { title: "💬 Chat dell’alleanza", body: `${who}: «${f.info || ""}»`, url: "/?go=social" };
     case "assalto": return { title: "⚔️ Ti stanno assaltando!", body: `${who} ha mandato una squadra contro ${f.info === "pres" ? "il tuo presidio" : f.info === "home" ? "la tua casa (incustodita)" : "una tua casa"}: inchioda le assi e chiama gli alleati`, url: "/?go=mappa" };
     case "conquista": return { title: "🏴 Hai perso un edificio", body: `${who} ha conquistato ${String(f.info || "").startsWith("presidio") ? "il tuo presidio" : "una tua casa: ti torna metà della spesa"}`, url: "/?go=mappa" };
     case "saccheggio": return { title: "💰 Saccheggio!", body: `${who} ha saccheggiato le tue scorte. Passa da casa almeno una volta a settimana per renderla intoccabile`, url: "/?go=mappa" };

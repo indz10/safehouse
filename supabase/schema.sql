@@ -292,6 +292,46 @@ begin
 end $$;
 
 --
+-- Name: w_alleanza_chiudi(bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_alleanza_chiudi(p_id bigint) RETURNS text
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare d public.world_alleanze_domande; serve uuid[]; m uuid; an record; why text;
+begin
+  select * into d from public.world_alleanze_domande where id = p_id for update;
+  if d.id is null or d.stato <> 'aperta' then return coalesce(d.stato, 'nessuna'); end if;
+  if d.created_at < now() - interval '7 days' then update public.world_alleanze_domande set stato = 'scaduta' where id = p_id; return 'scaduta'; end if;
+  if cardinality(d.no) > 0 then update public.world_alleanze_domande set stato = 'rifiutata' where id = p_id;
+    perform public.w_feed_add('all_no', d.no[1], d.user_id, null, null, (select nome from public.world_alleanze where id = d.alleanza_id)); return 'rifiutata'; end if;
+  select coalesce(array_agg(v), '{}') into serve from unnest(d.votanti) v where public.w_in_alleanza(v, d.alleanza_id);
+  if cardinality(serve) = 0 then serve := public.w_votanti(d.alleanza_id); update public.world_alleanze_domande set votanti = serve where id = p_id; end if;
+  if not d.candidato_ok or exists (select 1 from unnest(serve) v where not (v = any(d.si))) then return 'aperta'; end if;
+  why := public.w_perche_no(d.user_id, d.alleanza_id);
+  if why is not null then update public.world_alleanze_domande set stato = 'rifiutata' where id = p_id; return 'rifiutata'; end if;
+  if (select count(*) from public.world_alleanze_membri where alleanza_id = d.alleanza_id) >= 20 then update public.world_alleanze_domande set stato = 'rifiutata' where id = p_id; return 'piena'; end if;
+  select * into an from public.w_ancora(d.user_id, d.alleanza_id);
+  insert into public.world_alleanze_membri(user_id, alleanza_id, lat, lon) values (d.user_id, d.alleanza_id, an.lat, an.lon) on conflict do nothing;
+  update public.world_alleanze_domande set stato = 'accettata' where id = p_id;
+  for m in select user_id from public.world_alleanze_membri where alleanza_id = d.alleanza_id and user_id <> d.user_id loop
+    perform public.w_feed_add('all_entrato', d.user_id, m, null, null, (select nome from public.world_alleanze where id = d.alleanza_id)); end loop;
+  perform public.w_feed_add('all_si', coalesce(d.da, serve[1]), d.user_id, null, null, (select nome from public.world_alleanze where id = d.alleanza_id));
+  return 'accettata';
+end $$;
+
+--
+-- Name: w_alleanza_di(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_alleanza_di(p_user uuid) RETURNS bigint
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select alleanza_id from public.world_alleanze_membri where user_id = p_user order by dal limit 1; $$;
+
+--
 -- Name: w_allies_of(uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -301,13 +341,14 @@ CREATE FUNCTION public.w_allies_of(p_user uuid) RETURNS SETOF uuid
     AS $$
   select distinct t.u from (
     select case when x.requester = p_user then x.target else x.requester end as u from public.world_allies x where x.status = 'ok' and (x.requester = p_user or x.target = p_user)
+    union select mb.user_id from public.world_alleanze_membri ma join public.world_alleanze_membri mb on mb.alleanza_id = ma.alleanza_id where ma.user_id = p_user
     union select g.target from public.world_help_given g where g.helper = p_user and g.created_at > now() - interval '30 days'
     union select g.helper from public.world_help_given g where g.target = p_user and g.created_at > now() - interval '30 days'
     union select p.user_id from public.profili_pubblici p where p.invitato_da = left(p_user::text,8)
     union select q.user_id from public.profili_pubblici p, public.profili_pubblici q where p.user_id = p_user and p.invitato_da is not null and left(q.user_id::text,8) = p.invitato_da
     union select h.user_id from public.world_homes h, public.world_homes me where me.user_id = p_user and h.user_id <> p_user
       and h.lat between me.lat - 0.0005 and me.lat + 0.0005 and h.lon between me.lon - 0.0007 and me.lon + 0.0007 and public.w_coinq(p_user, h.user_id)) t
-  where t.u is not null and t.u <> p_user;
+  where t.u is not null and t.u <> p_user and not public.w_rift(p_user, t.u);
 $$;
 
 --
@@ -324,6 +365,18 @@ CREATE FUNCTION public.w_ally_state(a uuid, b uuid) RETURNS text
     else 'none' end; $$;
 
 --
+-- Name: w_ancora(uuid, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_ancora(p_user uuid, p_aid bigint) RETURNS TABLE(lat double precision, lon double precision)
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select c.lat, c.lon from (select h.lat, h.lon from public.world_homes h where h.user_id = p_user union all select b.lat, b.lon from public.world_buildings b where b.owner = p_user) c
+  where coalesce(public.w_dist_alleanza(p_aid, c.lat, c.lon), 999) <= 50 and public.w_zona_libera(p_user, c.lat, c.lon, p_aid)
+  order by public.w_dist_alleanza(p_aid, c.lat, c.lon) limit 1; $$;
+
+--
 -- Name: w_are_allies(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -333,6 +386,7 @@ CREATE FUNCTION public.w_are_allies(a uuid, b uuid) RETURNS boolean
     AS $$
   select a <> b and not public.w_rift(a, b) and (
     exists (select 1 from public.world_allies x where x.status = 'ok' and ((x.requester = a and x.target = b) or (x.requester = b and x.target = a)))
+    or exists (select 1 from public.world_alleanze_membri ma join public.world_alleanze_membri mb on mb.alleanza_id = ma.alleanza_id where ma.user_id = a and mb.user_id = b)
     or exists (select 1 from public.world_help_given g where ((g.helper = a and g.target = b) or (g.helper = b and g.target = a)) and g.created_at > now() - interval '30 days')
     or exists (select 1 from public.profili_pubblici p where p.user_id = b and p.invitato_da = left(a::text,8))
     or exists (select 1 from public.profili_pubblici p where p.user_id = a and p.invitato_da = left(b::text,8))
@@ -447,6 +501,17 @@ CREATE FUNCTION public.w_attack3(p_slot text, p_bid text, p_lvl integer) RETURNS
                       from public.w_ztypes() t where v.wl >= t.minl), 0))::int
   from v;
 $$;
+
+--
+-- Name: w_attivita(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_attivita(p_user uuid) RETURNS integer
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select count(distinct (l.created_at at time zone 'Europe/Rome')::date)::int from public.world_log l
+  where l.user_id = p_user and l.created_at > now() - interval '30 days'; $$;
 
 --
 -- Name: w_azione(uuid, text, double precision, double precision, text); Type: FUNCTION; Schema: public; Owner: -
@@ -657,6 +722,16 @@ CREATE FUNCTION public.w_def(p_bid text, p_kind text) RETURNS integer
 $$;
 
 --
+-- Name: w_dist_alleanza(bigint, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_dist_alleanza(p_aid bigint, p_lat double precision, p_lon double precision) RETURNS double precision
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select min(public.w_km(m.lat, m.lon, p_lat, p_lon)) from public.world_alleanze_membri m where m.alleanza_id = p_aid and m.lat is not null; $$;
+
+--
 -- Name: w_dist_km(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -741,6 +816,16 @@ CREATE FUNCTION public.w_home_known(p_me uuid, p_u uuid) RETURNS boolean
   select p_u = p_me or public.w_are_allies(p_me, p_u) or public.w_coinq(p_me, p_u)
       or coalesce((select vis = 'tutti' from public.world_homes where user_id = p_u), false);
 $$;
+
+--
+-- Name: w_in_alleanza(uuid, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_in_alleanza(p_user uuid, p_aid bigint) RETURNS boolean
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select exists (select 1 from public.world_alleanze_membri where user_id = p_user and alleanza_id = p_aid); $$;
 
 --
 -- Name: w_is_npc(text); Type: FUNCTION; Schema: public; Owner: -
@@ -963,6 +1048,22 @@ begin
     end if;
   end if;
 end $$;
+
+--
+-- Name: w_perche_no(uuid, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_perche_no(p_user uuid, p_aid bigint) RETURNS text
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select case
+    when public.w_in_alleanza(p_user, p_aid) then 'È già in questa alleanza'
+    when (select count(*) from public.world_alleanze_membri where user_id = p_user) >= 3 then 'Ha già 3 alleanze (il massimo)'
+    when not exists (select 1 from (select h.lat, h.lon from public.world_homes h where h.user_id = p_user union all select b.lat, b.lon from public.world_buildings b where b.owner = p_user) c
+                     where coalesce(public.w_dist_alleanza(p_aid, c.lat, c.lon), 999) <= 50) then 'Serve una casa entro 50 km dalla casa di un membro'
+    when not public.w_vicino_alleanza(p_user, p_aid) then 'In quella zona c''è già un''altra sua alleanza: le alleanze devono stare a più di 50 km l''una dall''altra'
+    end; $$;
 
 --
 -- Name: w_piazza_nuovi(uuid, timestamp with time zone, text); Type: FUNCTION; Schema: public; Owner: -
@@ -1545,6 +1646,28 @@ CREATE FUNCTION public.w_upower(p_user uuid, p_slot text) RETURNS integer
 $$;
 
 --
+-- Name: w_vicino_alleanza(uuid, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_vicino_alleanza(p_user uuid, p_aid bigint) RETURNS boolean
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select exists (select 1 from public.w_ancora(p_user, p_aid)); $$;
+
+--
+-- Name: w_votanti(bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_votanti(p_aid bigint) RETURNS uuid[]
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select coalesce(array_agg(u order by att desc, dal), '{}') from (
+    select m.user_id as u, public.w_attivita(m.user_id) as att, m.dal from public.world_alleanze_membri m
+    where m.alleanza_id = p_aid order by att desc, m.dal limit 3) x; $$;
+
+--
 -- Name: world_wallet; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1604,6 +1727,17 @@ CREATE FUNCTION public.w_zm(k text, s numeric, ev text, hh integer) RETURNS nume
 $$;
 
 --
+-- Name: w_zona_libera(uuid, double precision, double precision, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_zona_libera(p_user uuid, p_lat double precision, p_lon double precision, p_aid bigint) RETURNS boolean
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select not exists (select 1 from public.world_alleanze_membri mine where mine.user_id = p_user and mine.alleanza_id is distinct from p_aid
+                     and coalesce(public.w_dist_alleanza(mine.alleanza_id, p_lat, p_lon), 999) <= 50); $$;
+
+--
 -- Name: w_ztypes(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1613,6 +1747,302 @@ CREATE FUNCTION public.w_ztypes() RETURNS TABLE(k text, minl integer, base numer
   values ('runner',2,4.0,'fossato','trappole'),('casco',3,4.0,'barricate','grate'),('strillone',3,3.0,'sirena','cani'),
          ('scavatore',4,5.0,'fondamenta','pompa'),('brute',5,6.0,'barricate','recinto'),('ombra',6,5.0,'fari','cani'),('boss',8,9.0,'barricate','recinto');
 $$;
+
+--
+-- Name: world_alleanza_chat(bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_chat(p_after bigint) RETURNS json
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$ select public.world_alleanza_chat2(public.w_alleanza_di(auth.uid()), p_after); $$;
+
+--
+-- Name: world_alleanza_chat2(bigint, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_chat2(p_aid bigint, p_after bigint) RETURNS json
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select coalesce(json_agg(x order by x.id), '[]'::json) from (
+    select c.id, c.user_id, public.w_nick(c.user_id) as nick, c.body, c.created_at, c.user_id = auth.uid() as mine
+    from public.world_alleanze_chat c where c.alleanza_id = p_aid and public.w_in_alleanza(auth.uid(), p_aid) and c.id > coalesce(p_after, 0)
+    order by c.id desc limit 80) x; $$;
+
+--
+-- Name: world_alleanza_chiedi(bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_chiedi(p_aid bigint) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); v uuid[]; did bigint; x uuid; why text;
+begin
+  if me is null then return json_build_object('ok',false,'msg','Accedi'); end if;
+  if not exists (select 1 from public.world_alleanze where id = p_aid) then return json_build_object('ok',false,'msg','Alleanza non trovata'); end if;
+  why := replace(replace(public.w_perche_no(me, p_aid), 'Ha già', 'Hai già'), 'sua alleanza', 'tua alleanza');
+  if why is not null then return json_build_object('ok',false,'msg',why); end if;
+  if exists (select 1 from public.world_alleanze_domande where alleanza_id = p_aid and user_id = me and stato = 'aperta') then return json_build_object('ok',false,'msg','Hai già chiesto di entrare: aspetta il voto'); end if;
+  if (select count(*) from public.world_alleanze_membri where alleanza_id = p_aid) >= 20 then return json_build_object('ok',false,'msg','L''alleanza è piena (20)'); end if;
+  v := public.w_votanti(p_aid);
+  insert into public.world_alleanze_domande(alleanza_id, user_id, tipo, votanti) values (p_aid, me, 'richiesta', v) returning id into did;
+  foreach x in array v loop perform public.w_feed_add('all_voto', me, x, null, null, 'richiesta'); end loop;
+  return json_build_object('ok',true,'id',did,'msg','🗳️ Richiesta inviata: ' || case when cardinality(v) = 1 then 'la vota il capo' else 'la votano i ' || cardinality(v) || ' membri più attivi' end);
+end $$;
+
+--
+-- Name: world_alleanza_crea(text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_crea(p_nome text, p_emblema text) RETURNS json
+    LANGUAGE sql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$ select public.world_alleanza_fonda(p_nome, p_emblema, null, null); $$;
+
+--
+-- Name: world_alleanza_esci(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_esci() RETURNS json
+    LANGUAGE sql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$ select public.world_alleanza_esci2(public.w_alleanza_di(auth.uid())); $$;
+
+--
+-- Name: world_alleanza_esci2(bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_esci2(p_aid bigint) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); nuovo uuid;
+begin
+  if p_aid is null or not public.w_in_alleanza(me, p_aid) then return json_build_object('ok',false,'msg','Non sei in questa alleanza'); end if;
+  delete from public.world_alleanze_membri where user_id = me and alleanza_id = p_aid;
+  if not exists (select 1 from public.world_alleanze_membri where alleanza_id = p_aid) then delete from public.world_alleanze where id = p_aid;
+    return json_build_object('ok',true,'msg','Sei uscito: l''alleanza, rimasta vuota, è sciolta'); end if;
+  if (select capo from public.world_alleanze where id = p_aid) = me then
+    select m.user_id into nuovo from public.world_alleanze_membri m where m.alleanza_id = p_aid order by public.w_attivita(m.user_id) desc, m.dal limit 1;
+    update public.world_alleanze set capo = nuovo where id = p_aid; end if;
+  return json_build_object('ok',true,'msg','Sei uscito dall''alleanza');
+end $$;
+
+--
+-- Name: world_alleanza_fonda(text, text, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_fonda(p_nome text, p_emblema text, p_lat double precision, p_lon double precision) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); n text := btrim(coalesce(p_nome,'')); e text := left(btrim(coalesce(p_emblema,'')), 4); aid bigint; c record;
+begin
+  if me is null then return json_build_object('ok',false,'msg','Accedi'); end if;
+  if (select count(*) from public.world_alleanze_membri where user_id = me) >= 3 then return json_build_object('ok',false,'msg','Sei già in 3 alleanze (il massimo)'); end if;
+  select x.lat, x.lon into c from (select h.lat, h.lon from public.world_homes h where h.user_id = me union all select b.lat, b.lon from public.world_buildings b where b.owner = me) x
+    order by public.w_km(x.lat, x.lon, coalesce(p_lat, x.lat), coalesce(p_lon, x.lon)) limit 1;
+  if c.lat is null then return json_build_object('ok',false,'msg','Prima registra la tua casa'); end if;
+  if p_lat is not null and public.w_km(c.lat, c.lon, p_lat, p_lon) > 0.1 then return json_build_object('ok',false,'msg','Scegli una delle tue case'); end if;
+  if not public.w_zona_libera(me, c.lat, c.lon, null) then return json_build_object('ok',false,'msg','Qui intorno (50 km) sei già in un''altra alleanza: scegli una casa in un''altra zona'); end if;
+  if char_length(n) < 3 or char_length(n) > 30 then return json_build_object('ok',false,'msg','Il nome deve avere da 3 a 30 caratteri'); end if;
+  if public.w_bad(n) then return json_build_object('ok',false,'msg','Nome non permesso'); end if;
+  if exists (select 1 from public.world_alleanze where lower(nome) = lower(n)) then return json_build_object('ok',false,'msg','Esiste già un''alleanza con questo nome'); end if;
+  insert into public.world_alleanze(nome, emblema, capo) values (n, coalesce(nullif(e,''),'🛡️'), me) returning id into aid;
+  insert into public.world_alleanze_membri(user_id, alleanza_id, lat, lon) values (me, aid, c.lat, c.lon);
+  return json_build_object('ok',true,'id',aid,'msg','🛡️ Alleanza «' || n || '» fondata: ora invita i superstiti entro 50 km');
+end $$;
+
+--
+-- Name: world_alleanza_info(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_info() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); aid bigint := public.w_alleanza_di(auth.uid()); a public.world_alleanze; d record;
+begin
+  if me is null then return json_build_object('ok',false); end if;
+  for d in select id from public.world_alleanze_domande where stato = 'aperta' and created_at < now() - interval '7 days' loop perform public.w_alleanza_chiudi(d.id); end loop;
+  select * into a from public.world_alleanze where id = aid;
+  return json_build_object('ok', true,
+    'alleanza', case when aid is null then null else json_build_object('id', a.id, 'nome', a.nome, 'emblema', a.emblema, 'capo', a.capo, 'capo_nick', public.w_nick(a.capo),
+      'votanti', public.w_votanti(aid), 'ultimo_msg', (select max(id) from public.world_alleanze_chat where alleanza_id = aid),
+      'membri', (select coalesce(json_agg(json_build_object('user_id', m.user_id, 'nick', public.w_nick(m.user_id), 'wlevel', public.w_lvl_of(m.user_id),
+          'attivita', public.w_attivita(m.user_id), 'seen_at', (select seen_at from public.profili_pubblici where user_id = m.user_id), 'me', m.user_id = me)
+          order by public.w_attivita(m.user_id) desc, m.dal), '[]'::json) from public.world_alleanze_membri m where m.alleanza_id = aid)) end,
+    'da_votare', (select coalesce(json_agg(json_build_object('id', q.id, 'tipo', q.tipo, 'user_id', q.user_id, 'nick', public.w_nick(q.user_id), 'wlevel', public.w_lvl_of(q.user_id),
+          'da', public.w_nick(q.da), 'si', cardinality(q.si), 'no', cardinality(q.no), 'votanti', cardinality(q.votanti), 'candidato_ok', q.candidato_ok,
+          'dist_km', round(public.w_dist_km(me, q.user_id)::numeric, 1)) order by q.created_at), '[]'::json)
+        from public.world_alleanze_domande q where q.stato = 'aperta' and q.alleanza_id = aid and me = any(q.votanti) and not (me = any(q.si)) and not (me = any(q.no))),
+    'in_corso', (select coalesce(json_agg(json_build_object('id', q.id, 'tipo', q.tipo, 'nick', public.w_nick(q.user_id), 'si', cardinality(q.si), 'votanti', cardinality(q.votanti), 'candidato_ok', q.candidato_ok)), '[]'::json)
+        from public.world_alleanze_domande q where q.stato = 'aperta' and q.alleanza_id = aid),
+    'inviti', (select coalesce(json_agg(json_build_object('id', q.id, 'alleanza', w.nome, 'emblema', w.emblema, 'da', public.w_nick(q.da),
+          'membri', (select count(*) from public.world_alleanze_membri x where x.alleanza_id = q.alleanza_id))), '[]'::json)
+        from public.world_alleanze_domande q join public.world_alleanze w on w.id = q.alleanza_id where q.stato = 'aperta' and q.user_id = me and q.tipo = 'invito' and not q.candidato_ok),
+    'mie_richieste', (select coalesce(json_agg(json_build_object('id', q.id, 'alleanza', w.nome, 'emblema', w.emblema, 'si', cardinality(q.si), 'votanti', cardinality(q.votanti))), '[]'::json)
+        from public.world_alleanze_domande q join public.world_alleanze w on w.id = q.alleanza_id where q.stato = 'aperta' and q.user_id = me and q.candidato_ok));
+end $$;
+
+--
+-- Name: world_alleanza_invita(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_invita(p_user uuid) RETURNS json
+    LANGUAGE sql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select public.world_alleanza_invita2(p_user, (select m.alleanza_id from public.world_alleanze_membri m where m.user_id = auth.uid()
+    order by (select min(public.w_dist_km(p_user, x.user_id)) from public.world_alleanze_membri x where x.alleanza_id = m.alleanza_id) nulls last limit 1)); $$;
+
+--
+-- Name: world_alleanza_invita2(uuid, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_invita2(p_user uuid, p_aid bigint) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); v uuid[]; did bigint; x uuid; why text;
+begin
+  if me is null then return json_build_object('ok',false,'msg','Accedi'); end if;
+  if p_aid is null or not public.w_in_alleanza(me, p_aid) then return json_build_object('ok',false,'msg','Prima crea un''alleanza o entra in una'); end if;
+  if p_user is null or p_user = me then return json_build_object('ok',false,'msg','Non valido'); end if;
+  why := public.w_perche_no(p_user, p_aid);
+  if why is not null then return json_build_object('ok',false,'msg',why); end if;
+  if exists (select 1 from public.world_alleanze_domande where alleanza_id = p_aid and user_id = p_user and stato = 'aperta') then return json_build_object('ok',false,'msg','C''è già una votazione aperta per lui'); end if;
+  v := public.w_votanti(p_aid);
+  insert into public.world_alleanze_domande(alleanza_id, user_id, tipo, da, votanti, si, candidato_ok)
+    values (p_aid, p_user, 'invito', me, v, case when me = any(v) then array[me] else '{}' end, false) returning id into did;
+  perform public.w_feed_add('all_invito', me, p_user, null, null, (select nome from public.world_alleanze where id = p_aid));
+  foreach x in array v loop if x <> me then perform public.w_feed_add('all_voto', me, x, null, null, 'invito'); end if; end loop;
+  return json_build_object('ok',true,'id',did,'msg','📨 Invito partito: deve accettarlo lui e votarlo ' || case when cardinality(v) = 1 then 'tu' else 'i ' || cardinality(v) || ' membri più attivi' end);
+end $$;
+
+--
+-- Name: world_alleanza_risposta(bigint, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_risposta(p_id bigint, p_si boolean) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); d public.world_alleanze_domande; r text; why text;
+begin
+  select * into d from public.world_alleanze_domande where id = p_id for update;
+  if d.id is null or d.stato <> 'aperta' or d.user_id <> me or d.tipo <> 'invito' then return json_build_object('ok',false,'msg','Invito non valido'); end if;
+  if not p_si then update public.world_alleanze_domande set stato = 'rifiutata' where id = p_id; return json_build_object('ok',true,'msg','Invito rifiutato'); end if;
+  why := public.w_perche_no(me, d.alleanza_id);
+  if why is not null then return json_build_object('ok',false,'msg',replace(replace(why, 'Ha già', 'Hai già'), 'sua alleanza', 'tua alleanza')); end if;
+  update public.world_alleanze_domande set candidato_ok = true where id = p_id;
+  r := public.w_alleanza_chiudi(p_id);
+  return json_build_object('ok',true,'esito',r,'msg', case r when 'accettata' then '🛡️ Benvenuto nell''alleanza!' else '👍 Hai accettato: manca il voto dei membri più attivi' end);
+end $$;
+
+--
+-- Name: world_alleanza_scrivi(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_scrivi(p_body text) RETURNS json
+    LANGUAGE sql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$ select public.world_alleanza_scrivi2(public.w_alleanza_di(auth.uid()), p_body); $$;
+
+--
+-- Name: world_alleanza_scrivi2(bigint, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_scrivi2(p_aid bigint, p_body text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); b text := btrim(coalesce(p_body,'')); m uuid; nm text;
+begin
+  if p_aid is null or not public.w_in_alleanza(me, p_aid) then return json_build_object('ok',false,'msg','Non sei in questa alleanza'); end if;
+  if char_length(b) < 1 or char_length(b) > 500 then return json_build_object('ok',false,'msg','Da 1 a 500 caratteri'); end if;
+  if public.w_bad(b) then return json_build_object('ok',false,'msg','Non inviato: niente bestemmie, insulti pesanti o minacce.'); end if;
+  if exists (select 1 from public.world_alleanze_chat where user_id = me and created_at > now() - interval '2 seconds') then return json_build_object('ok',false,'msg','Piano: un messaggio ogni 2 secondi'); end if;
+  insert into public.world_alleanze_chat(alleanza_id, user_id, body) values (p_aid, me, b);
+  select nome into nm from public.world_alleanze where id = p_aid;
+  for m in select user_id from public.world_alleanze_membri where alleanza_id = p_aid and user_id <> me loop
+    if not exists (select 1 from public.world_feed f where f.target = m and f.kind = 'all_msg' and f.created_at > now() - interval '30 minutes') then
+      perform public.w_feed_add('all_msg', me, m, null, null, left(nm || ': ' || b, 60)); end if;
+  end loop;
+  return json_build_object('ok',true);
+end $$;
+
+--
+-- Name: world_alleanza_vota(bigint, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanza_vota(p_id bigint, p_si boolean) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); d public.world_alleanze_domande; r text;
+begin
+  select * into d from public.world_alleanze_domande where id = p_id for update;
+  if d.id is null or d.stato <> 'aperta' then return json_build_object('ok',false,'msg','Votazione chiusa'); end if;
+  if not (me = any(d.votanti)) then return json_build_object('ok',false,'msg','Votano solo i 3 membri più attivi'); end if;
+  if me = any(d.si) or me = any(d.no) then return json_build_object('ok',false,'msg','Hai già votato'); end if;
+  if p_si then update public.world_alleanze_domande set si = si || me where id = p_id; else update public.world_alleanze_domande set no = no || me where id = p_id; end if;
+  r := public.w_alleanza_chiudi(p_id);
+  return json_build_object('ok',true,'esito',r,'msg', case r when 'accettata' then '✅ Accettato: ora è nell''alleanza' when 'rifiutata' then '❌ Domanda respinta' when 'piena' then 'L''alleanza è piena' else '🗳️ Voto registrato: aspettiamo gli altri' end);
+end $$;
+
+--
+-- Name: world_alleanze_mie(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanze_mie() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); d record;
+begin
+  if me is null then return json_build_object('ok',false); end if;
+  for d in select id from public.world_alleanze_domande where stato = 'aperta' and created_at < now() - interval '7 days' loop perform public.w_alleanza_chiudi(d.id); end loop;
+  return json_build_object('ok', true, 'max', 3,
+    'alleanze', (select coalesce(json_agg(json_build_object('id', a.id, 'nome', a.nome, 'emblema', a.emblema, 'capo', a.capo, 'capo_nick', public.w_nick(a.capo),
+        'votanti', public.w_votanti(a.id), 'casa', json_build_object('lat', mm.lat, 'lon', mm.lon),
+        'membri', (select coalesce(json_agg(json_build_object('user_id', m.user_id, 'nick', public.w_nick(m.user_id), 'wlevel', public.w_lvl_of(m.user_id),
+            'attivita', public.w_attivita(m.user_id), 'me', m.user_id = me) order by public.w_attivita(m.user_id) desc, m.dal), '[]'::json)
+            from public.world_alleanze_membri m where m.alleanza_id = a.id),
+        'da_votare', (select coalesce(json_agg(json_build_object('id', q.id, 'tipo', q.tipo, 'user_id', q.user_id, 'nick', public.w_nick(q.user_id), 'wlevel', public.w_lvl_of(q.user_id),
+            'da', public.w_nick(q.da), 'si', cardinality(q.si), 'no', cardinality(q.no), 'votanti', cardinality(q.votanti), 'candidato_ok', q.candidato_ok,
+            'dist_km', round(public.w_dist_km(me, q.user_id)::numeric, 1)) order by q.created_at), '[]'::json)
+            from public.world_alleanze_domande q where q.stato = 'aperta' and q.alleanza_id = a.id and me = any(q.votanti) and not (me = any(q.si)) and not (me = any(q.no))),
+        'in_corso', (select coalesce(json_agg(json_build_object('id', q.id, 'tipo', q.tipo, 'nick', public.w_nick(q.user_id), 'si', cardinality(q.si), 'votanti', cardinality(q.votanti), 'candidato_ok', q.candidato_ok)), '[]'::json)
+            from public.world_alleanze_domande q where q.stato = 'aperta' and q.alleanza_id = a.id)) order by mm.dal), '[]'::json)
+      from public.world_alleanze_membri mm join public.world_alleanze a on a.id = mm.alleanza_id where mm.user_id = me),
+    'inviti', (select coalesce(json_agg(json_build_object('id', q.id, 'alleanza', w.nome, 'emblema', w.emblema, 'da', public.w_nick(q.da),
+          'membri', (select count(*) from public.world_alleanze_membri x where x.alleanza_id = q.alleanza_id), 'perche_no', public.w_perche_no(me, q.alleanza_id))), '[]'::json)
+        from public.world_alleanze_domande q join public.world_alleanze w on w.id = q.alleanza_id where q.stato = 'aperta' and q.user_id = me and q.tipo = 'invito' and not q.candidato_ok),
+    'mie_richieste', (select coalesce(json_agg(json_build_object('id', q.id, 'alleanza', w.nome, 'emblema', w.emblema, 'si', cardinality(q.si), 'votanti', cardinality(q.votanti))), '[]'::json)
+        from public.world_alleanze_domande q join public.world_alleanze w on w.id = q.alleanza_id where q.stato = 'aperta' and q.user_id = me and q.candidato_ok));
+end $$;
+
+--
+-- Name: world_alleanze_vicine(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_alleanze_vicine() RETURNS json
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select coalesce(json_agg(x order by x.dist_km), '[]'::json) from (
+    select a.id, a.nome, a.emblema, public.w_nick(a.capo) as capo, (select count(*) from public.world_alleanze_membri z where z.alleanza_id = a.id) as membri,
+      round((select min(public.w_dist_alleanza(a.id, c.lat, c.lon)) from (select h.lat, h.lon from public.world_homes h where h.user_id = auth.uid() union all select b.lat, b.lon from public.world_buildings b where b.owner = auth.uid()) c)::numeric, 1) as dist_km,
+      exists (select 1 from public.world_alleanze_domande q where q.alleanza_id = a.id and q.user_id = auth.uid() and q.stato = 'aperta') as chiesto,
+      replace(replace(public.w_perche_no(auth.uid(), a.id), 'Ha già', 'Hai già'), 'sua alleanza', 'tua alleanza') as perche_no
+    from public.world_alleanze a
+    where auth.uid() is not null and not public.w_in_alleanza(auth.uid(), a.id)
+      and exists (select 1 from (select h.lat, h.lon from public.world_homes h where h.user_id = auth.uid() union all select b.lat, b.lon from public.world_buildings b where b.owner = auth.uid()) c
+                  where coalesce(public.w_dist_alleanza(a.id, c.lat, c.lon), 999) <= 50)
+    limit 30) x; $$;
 
 --
 -- Name: world_allies(); Type: FUNCTION; Schema: public; Owner: -
@@ -1687,17 +2117,21 @@ CREATE FUNCTION public.world_ally_request(p_target uuid) RETURNS json
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-declare me uuid := auth.uid();
+declare me uuid := auth.uid(); aid bigint;
 begin
   if me is null or p_target is null or p_target = me then return json_build_object('ok',false,'msg','Non valido'); end if;
-  if exists (select 1 from public.world_allies where status = 'ok' and ((requester = me and target = p_target) or (requester = p_target and target = me))) then return json_build_object('ok',false,'msg','Siete già alleati'); end if;
-  if exists (select 1 from public.world_allies where requester = p_target and target = me) then
+  if exists (select 1 from public.world_allies where requester = p_target and target = me and status = 'pending') then
     update public.world_allies set status = 'ok' where requester = p_target and target = me;
-    return json_build_object('ok',true,'msg','Alleanza fatta!');
-  end if;
-  if (select count(*) from public.world_allies where requester = me and created_at > now() - interval '1 day') >= 20 then return json_build_object('ok',false,'msg','Oggi hai già proposto 20 alleanze'); end if;
-  insert into public.world_allies(requester, target) values (me, p_target) on conflict do nothing;
-  return json_build_object('ok',true,'msg','Proposta di alleanza inviata');
+    return json_build_object('ok',true,'msg','Alleanza fatta!'); end if;
+  if exists (select 1 from public.world_alleanze_membri a join public.world_alleanze_membri b on b.alleanza_id = a.alleanza_id where a.user_id = me and b.user_id = p_target) then
+    return json_build_object('ok',false,'msg','Siete già nella stessa alleanza'); end if;
+  select m.alleanza_id into aid from public.world_alleanze_membri m where m.user_id = me and public.w_perche_no(p_target, m.alleanza_id) is null limit 1;
+  if aid is not null then return public.world_alleanza_invita2(p_target, aid); end if;
+  select m.alleanza_id into aid from public.world_alleanze_membri m where m.user_id = p_target and public.w_perche_no(me, m.alleanza_id) is null limit 1;
+  if aid is not null then return public.world_alleanza_chiedi(aid); end if;
+  if not exists (select 1 from public.world_alleanze_membri where user_id = me) then
+    return json_build_object('ok',false,'msg','Le alleanze ora sono gruppi: fonda la tua (Superstiti → 🛡️ Alleanza) e poi invitalo'); end if;
+  return json_build_object('ok',false,'msg','Non potete stare nella stessa alleanza: siete già in alleanze diverse nella stessa zona, o troppo lontani');
 end $$;
 
 --
@@ -3200,6 +3634,21 @@ CREATE FUNCTION public.world_rank(p_scope text, p_period text) RETURNS TABLE(pos
 $$;
 
 --
+-- Name: world_rank_alleanze(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_rank_alleanze() RETURNS json
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  with p as (select m.alleanza_id, sum((public.w_score(m.user_id, true)->>'tot')::int) as punti, count(*) as membri
+             from public.world_alleanze_membri m group by m.alleanza_id),
+  r as (select row_number() over (order by p.punti desc, p.alleanza_id) as pos, p.* from p)
+  select coalesce(json_agg(json_build_object('pos', r.pos, 'id', a.id, 'nome', a.nome, 'emblema', a.emblema, 'membri', r.membri, 'punti', r.punti,
+      'mia', public.w_in_alleanza(auth.uid(), a.id)) order by r.pos), '[]'::json)
+  from r join public.world_alleanze a on a.id = r.alleanza_id where r.pos <= 30 or public.w_in_alleanza(auth.uid(), a.id); $$;
+
+--
 -- Name: world_rank_lega(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4030,6 +4479,113 @@ CREATE TABLE public.subscriptions (
 );
 
 --
+-- Name: world_alleanze; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_alleanze (
+    id bigint NOT NULL,
+    nome text NOT NULL,
+    emblema text DEFAULT '🛡️'::text NOT NULL,
+    capo uuid,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
+-- Name: world_alleanze_chat; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_alleanze_chat (
+    id bigint NOT NULL,
+    alleanza_id bigint NOT NULL,
+    user_id uuid NOT NULL,
+    body text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
+-- Name: world_alleanze_chat_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_alleanze_chat_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_alleanze_chat_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_alleanze_chat_id_seq OWNED BY public.world_alleanze_chat.id;
+
+--
+-- Name: world_alleanze_domande; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_alleanze_domande (
+    id bigint NOT NULL,
+    alleanza_id bigint NOT NULL,
+    user_id uuid NOT NULL,
+    tipo text NOT NULL,
+    da uuid,
+    votanti uuid[] DEFAULT '{}'::uuid[] NOT NULL,
+    si uuid[] DEFAULT '{}'::uuid[] NOT NULL,
+    no uuid[] DEFAULT '{}'::uuid[] NOT NULL,
+    candidato_ok boolean DEFAULT true NOT NULL,
+    stato text DEFAULT 'aperta'::text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT world_alleanze_domande_stato_check CHECK ((stato = ANY (ARRAY['aperta'::text, 'accettata'::text, 'rifiutata'::text, 'scaduta'::text]))),
+    CONSTRAINT world_alleanze_domande_tipo_check CHECK ((tipo = ANY (ARRAY['richiesta'::text, 'invito'::text])))
+);
+
+--
+-- Name: world_alleanze_domande_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_alleanze_domande_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_alleanze_domande_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_alleanze_domande_id_seq OWNED BY public.world_alleanze_domande.id;
+
+--
+-- Name: world_alleanze_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_alleanze_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_alleanze_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_alleanze_id_seq OWNED BY public.world_alleanze.id;
+
+--
+-- Name: world_alleanze_membri; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_alleanze_membri (
+    user_id uuid NOT NULL,
+    alleanza_id bigint NOT NULL,
+    dal timestamp with time zone DEFAULT now() NOT NULL,
+    lat double precision,
+    lon double precision
+);
+
+--
 -- Name: world_allies; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -4608,6 +5164,24 @@ CREATE TABLE public.world_wx (
 );
 
 --
+-- Name: world_alleanze id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_alleanze ALTER COLUMN id SET DEFAULT nextval('public.world_alleanze_id_seq'::regclass);
+
+--
+-- Name: world_alleanze_chat id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_alleanze_chat ALTER COLUMN id SET DEFAULT nextval('public.world_alleanze_chat_id_seq'::regclass);
+
+--
+-- Name: world_alleanze_domande id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_alleanze_domande ALTER COLUMN id SET DEFAULT nextval('public.world_alleanze_domande_id_seq'::regclass);
+
+--
 -- Name: world_bonus id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -4800,6 +5374,34 @@ ALTER TABLE ONLY public.sponsors
 
 ALTER TABLE ONLY public.subscriptions
     ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
+
+--
+-- Name: world_alleanze_chat world_alleanze_chat_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_alleanze_chat
+    ADD CONSTRAINT world_alleanze_chat_pkey PRIMARY KEY (id);
+
+--
+-- Name: world_alleanze_domande world_alleanze_domande_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_alleanze_domande
+    ADD CONSTRAINT world_alleanze_domande_pkey PRIMARY KEY (id);
+
+--
+-- Name: world_alleanze_membri world_alleanze_membri_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_alleanze_membri
+    ADD CONSTRAINT world_alleanze_membri_pkey PRIMARY KEY (user_id, alleanza_id);
+
+--
+-- Name: world_alleanze world_alleanze_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_alleanze
+    ADD CONSTRAINT world_alleanze_pkey PRIMARY KEY (id);
 
 --
 -- Name: world_allies world_allies_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -5038,6 +5640,36 @@ ALTER TABLE ONLY public.world_wallet
 
 ALTER TABLE ONLY public.world_wx
     ADD CONSTRAINT world_wx_pkey PRIMARY KEY (building_id, slot_id);
+
+--
+-- Name: world_alleanze_chat_a; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_alleanze_chat_a ON public.world_alleanze_chat USING btree (alleanza_id, id);
+
+--
+-- Name: world_alleanze_domande_a; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_alleanze_domande_a ON public.world_alleanze_domande USING btree (alleanza_id, stato);
+
+--
+-- Name: world_alleanze_membri_a; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_alleanze_membri_a ON public.world_alleanze_membri USING btree (alleanza_id);
+
+--
+-- Name: world_alleanze_membri_u; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_alleanze_membri_u ON public.world_alleanze_membri USING btree (user_id);
+
+--
+-- Name: world_alleanze_nome; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX world_alleanze_nome ON public.world_alleanze USING btree (lower(nome));
 
 --
 -- Name: world_assalti_slot; Type: INDEX; Schema: public; Owner: -
@@ -5350,6 +5982,27 @@ ALTER TABLE ONLY public.sponsor_users
 
 ALTER TABLE ONLY public.subscriptions
     ADD CONSTRAINT subscriptions_sponsor_id_fkey FOREIGN KEY (sponsor_id) REFERENCES public.sponsors(id) ON DELETE CASCADE;
+
+--
+-- Name: world_alleanze_chat world_alleanze_chat_alleanza_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_alleanze_chat
+    ADD CONSTRAINT world_alleanze_chat_alleanza_id_fkey FOREIGN KEY (alleanza_id) REFERENCES public.world_alleanze(id) ON DELETE CASCADE;
+
+--
+-- Name: world_alleanze_domande world_alleanze_domande_alleanza_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_alleanze_domande
+    ADD CONSTRAINT world_alleanze_domande_alleanza_id_fkey FOREIGN KEY (alleanza_id) REFERENCES public.world_alleanze(id) ON DELETE CASCADE;
+
+--
+-- Name: world_alleanze_membri world_alleanze_membri_alleanza_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_alleanze_membri
+    ADD CONSTRAINT world_alleanze_membri_alleanza_id_fkey FOREIGN KEY (alleanza_id) REFERENCES public.world_alleanze(id) ON DELETE CASCADE;
 
 --
 -- Name: world_allies world_allies_requester_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -5960,6 +6613,30 @@ CREATE POLICY wh_sel ON public.world_homes FOR SELECT USING ((user_id = auth.uid
 CREATE POLICY wl_sel ON public.world_log FOR SELECT USING ((user_id = auth.uid()));
 
 --
+-- Name: world_alleanze; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_alleanze ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_alleanze_chat; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_alleanze_chat ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_alleanze_domande; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_alleanze_domande ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_alleanze_membri; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_alleanze_membri ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: world_allies; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -6254,6 +6931,18 @@ GRANT ALL ON FUNCTION public.sponsor_request(p jsonb) TO authenticated;
 REVOKE ALL ON FUNCTION public.sponsor_scadenze() FROM PUBLIC;
 
 --
+-- Name: FUNCTION w_alleanza_chiudi(p_id bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_alleanza_chiudi(p_id bigint) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_alleanza_di(p_user uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_alleanza_di(p_user uuid) FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_allies_of(p_user uuid); Type: ACL; Schema: public; Owner: -
 --
 
@@ -6264,6 +6953,12 @@ REVOKE ALL ON FUNCTION public.w_allies_of(p_user uuid) FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_ally_state(a uuid, b uuid) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_ancora(p_user uuid, p_aid bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_ancora(p_user uuid, p_aid bigint) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_are_allies(a uuid, b uuid); Type: ACL; Schema: public; Owner: -
@@ -6282,6 +6977,12 @@ REVOKE ALL ON FUNCTION public.w_assalti_tick() FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_atk_b(p_user uuid, p_mz text, p_bid text) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_attivita(p_user uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_attivita(p_user uuid) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_azione(me uuid, p_bid text, p_lat double precision, p_lon double precision, p_kind text); Type: ACL; Schema: public; Owner: -
@@ -6357,6 +7058,12 @@ REVOKE ALL ON FUNCTION public.w_custodita(p_user uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.w_def(p_bid text, p_kind text) FROM PUBLIC;
 
 --
+-- Name: FUNCTION w_dist_alleanza(p_aid bigint, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_dist_alleanza(p_aid bigint, p_lat double precision, p_lon double precision) FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_dist_pt(p_user uuid, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
 --
 
@@ -6379,6 +7086,12 @@ REVOKE ALL ON FUNCTION public.w_home_held(p_user uuid, p_slot text) FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_home_known(p_me uuid, p_u uuid) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_in_alleanza(p_user uuid, p_aid bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_in_alleanza(p_user uuid, p_aid bigint) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_is_npc(p_bid text); Type: ACL; Schema: public; Owner: -
@@ -6404,6 +7117,12 @@ REVOKE ALL ON FUNCTION public.w_mz_eff(p_user uuid, p_km double precision) FROM 
 --
 
 REVOKE ALL ON FUNCTION public.w_pay(p_user uuid, p_delta integer, p_reason text, p_ref text) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_perche_no(p_user uuid, p_aid bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_perche_no(p_user uuid, p_aid bigint) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_piazza_nuovi(p_user uuid, p_since timestamp with time zone, p_mode text); Type: ACL; Schema: public; Owner: -
@@ -6514,6 +7233,18 @@ REVOKE ALL ON FUNCTION public.w_tr_pos_casa() FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.w_upower(p_user uuid, p_slot text) FROM PUBLIC;
 
 --
+-- Name: FUNCTION w_vicino_alleanza(p_user uuid, p_aid bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_vicino_alleanza(p_user uuid, p_aid bigint) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_votanti(p_aid bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_votanti(p_aid bigint) FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_wallet(p_user uuid); Type: ACL; Schema: public; Owner: -
 --
 
@@ -6524,6 +7255,124 @@ REVOKE ALL ON FUNCTION public.w_wallet(p_user uuid) FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_wxev(p_bid text, p_slot text) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_zona_libera(p_user uuid, p_lat double precision, p_lon double precision, p_aid bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_zona_libera(p_user uuid, p_lat double precision, p_lon double precision, p_aid bigint) FROM PUBLIC;
+
+--
+-- Name: FUNCTION world_alleanza_chat(p_after bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_chat(p_after bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_chat(p_after bigint) TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_chat2(p_aid bigint, p_after bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_chat2(p_aid bigint, p_after bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_chat2(p_aid bigint, p_after bigint) TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_chiedi(p_aid bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_chiedi(p_aid bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_chiedi(p_aid bigint) TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_crea(p_nome text, p_emblema text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_crea(p_nome text, p_emblema text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_crea(p_nome text, p_emblema text) TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_esci(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_esci() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_esci() TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_esci2(p_aid bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_esci2(p_aid bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_esci2(p_aid bigint) TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_fonda(p_nome text, p_emblema text, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_fonda(p_nome text, p_emblema text, p_lat double precision, p_lon double precision) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_fonda(p_nome text, p_emblema text, p_lat double precision, p_lon double precision) TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_info(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_info() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_info() TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_invita(p_user uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_invita(p_user uuid) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_invita(p_user uuid) TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_invita2(p_user uuid, p_aid bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_invita2(p_user uuid, p_aid bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_invita2(p_user uuid, p_aid bigint) TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_risposta(p_id bigint, p_si boolean); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_risposta(p_id bigint, p_si boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_risposta(p_id bigint, p_si boolean) TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_scrivi(p_body text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_scrivi(p_body text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_scrivi(p_body text) TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_scrivi2(p_aid bigint, p_body text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_scrivi2(p_aid bigint, p_body text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_scrivi2(p_aid bigint, p_body text) TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanza_vota(p_id bigint, p_si boolean); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanza_vota(p_id bigint, p_si boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanza_vota(p_id bigint, p_si boolean) TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanze_mie(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanze_mie() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanze_mie() TO authenticated;
+
+--
+-- Name: FUNCTION world_alleanze_vicine(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_alleanze_vicine() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_alleanze_vicine() TO authenticated;
 
 --
 -- Name: FUNCTION world_allies(); Type: ACL; Schema: public; Owner: -
@@ -6951,6 +7800,13 @@ GRANT ALL ON FUNCTION public.world_raid_view(p_minlat double precision, p_minlon
 --
 
 GRANT ALL ON FUNCTION public.world_rank(p_scope text, p_period text) TO authenticated;
+
+--
+-- Name: FUNCTION world_rank_alleanze(); Type: ACL; Schema: public; Owner: -
+--
+
+GRANT ALL ON FUNCTION public.world_rank_alleanze() TO authenticated;
+GRANT ALL ON FUNCTION public.world_rank_alleanze() TO anon;
 
 --
 -- Name: FUNCTION world_rank_lega(p_period text); Type: ACL; Schema: public; Owner: -
