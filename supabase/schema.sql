@@ -650,6 +650,87 @@ CREATE FUNCTION public.w_boost(p_user uuid) RETURNS boolean
 $$;
 
 --
+-- Name: w_boss_cella(double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_boss_cella(p_lat double precision, p_lon double precision) RETURNS text
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select floor(p_lat / 0.25)::int || ':' || floor(p_lon / 0.35)::int; $$;
+
+--
+-- Name: world_boss; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_boss (
+    id bigint NOT NULL,
+    cella text NOT NULL,
+    settimana text NOT NULL,
+    tipo text NOT NULL,
+    nome text NOT NULL,
+    ic text NOT NULL,
+    hp0 integer NOT NULL,
+    hp integer NOT NULL,
+    end_at timestamp with time zone NOT NULL,
+    caduto_at timestamp with time zone
+);
+
+--
+-- Name: w_boss_di(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_boss_di(p_user uuid) RETURNS public.world_boss
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare h public.world_homes; c text; sett text := public.w_boss_settimana(); b public.world_boss; n int; t record; fine timestamptz;
+begin
+  select * into h from public.world_homes where user_id = p_user;
+  if h.user_id is null then return null; end if;
+  c := public.w_boss_cella(h.lat, h.lon);
+  select * into b from public.world_boss where cella = c and settimana = sett;
+  if b.id is not null then return b; end if;
+  select count(*) into n from public.world_homes x where public.w_boss_cella(x.lat, x.lon) = c;
+  select * into t from public.w_boss_tipi() x order by md5(c || sett || x.k) limit 1;
+  fine := ((date_trunc('week', now() at time zone 'Europe/Rome') + interval '7 days') at time zone 'Europe/Rome');
+  insert into public.world_boss(cella, settimana, tipo, nome, ic, hp0, hp, end_at)
+    values (c, sett, t.k, t.nome, t.ic, least(4000, 300 + 150 * n), least(4000, 300 + 150 * n), fine)
+    on conflict (cella, settimana) do nothing;
+  select * into b from public.world_boss where cella = c and settimana = sett;
+  return b;
+end $$;
+
+--
+-- Name: w_boss_molt(uuid, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_boss_molt(p_user uuid, p_boss bigint) RETURNS numeric
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select least(2, 1 + 0.25 * count(distinct c.user_id)) from public.world_boss_colpi c
+  where c.boss_id = p_boss and c.danno > 0 and c.user_id <> p_user and c.user_id in (select public.w_allies_of(p_user))
+    and (c.start_at at time zone 'Europe/Rome')::date = (now() at time zone 'Europe/Rome')::date; $$;
+
+--
+-- Name: w_boss_settimana(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_boss_settimana() RETURNS text
+    LANGUAGE sql STABLE
+    AS $$
+  select to_char(now() at time zone 'Europe/Rome', 'IYYY-IW'); $$;
+
+--
+-- Name: w_boss_tipi(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_boss_tipi() RETURNS TABLE(k text, nome text, ic text)
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  values ('gigante','Il Gigante di fango','👹'),('abominio','L’Abominio','🐙'),('colosso','Il Colosso','🦍'),('conte','Il Conte dei morti','🧛'),('regina','La Regina dell’orda','👸'); $$;
+
+--
 -- Name: w_canon(text, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2829,6 +2910,100 @@ begin
 end $$;
 
 --
+-- Name: world_boss_fine(bigint, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_boss_fine(p_id bigint, p_colpi integer) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); c public.world_boss_colpi; b public.world_boss; el numeric; k int; dn int; s public.world_superstite;
+  caduto boolean := false; u record; pos int := 0; got json;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  select * into c from public.world_boss_colpi where id = p_id and user_id = me for update;
+  if c.id is null or c.fine_at is not null then return json_build_object('ok', false, 'msg', 'Attacco già chiuso'); end if;
+  select * into b from public.world_boss where id = c.boss_id for update;
+  el := extract(epoch from (now() - c.start_at));
+  k := case when el > 120 then 0 else greatest(0, least(coalesce(p_colpi, 0), 45, floor(el / 0.45)::int)) end;
+  s := public.w_sup(me);
+  dn := case when k = 0 then 0 else round(k * c.base * c.molt)::int + public.w_grado(s.xp) end;
+  if b.caduto_at is not null then dn := 0; end if;
+  dn := least(dn, b.hp);
+  update public.world_boss_colpi set fine_at = now(), colpi = k, danno = dn where id = p_id;
+  update public.world_boss set hp = hp - dn where id = b.id returning * into b;
+  if dn > 0 then perform public.w_xp(me, 5 + k / 3); end if;
+  if b.hp <= 0 and b.caduto_at is null then
+    update public.world_boss set caduto_at = now() where id = b.id;
+    caduto := true;
+    for u in select user_id, sum(danno)::int d from public.world_boss_colpi where boss_id = b.id and danno > 0 group by user_id order by 2 desc loop
+      pos := pos + 1;
+      perform public.w_res(u.user_id, 25 + least(75, u.d / 8), 25 + least(75, u.d / 8), 10 + least(40, u.d / 16));
+      perform public.w_xp(u.user_id, 40 + least(80, u.d / 5));
+      if pos <= 3 then perform public.w_pay(u.user_id, case pos when 1 then 40 when 2 then 25 else 15 end, 'Boss della settimana: ' || b.nome, 'boss:' || b.id); end if;
+      insert into public.world_feed(kind, actor, target, info) values ('boss_caduto', me, u.user_id, b.nome);
+    end loop;
+  end if;
+  s := public.w_sup(me);
+  return json_build_object('ok', true, 'colpi', k, 'danno', dn, 'hp', greatest(0, b.hp), 'hp0', b.hp0, 'caduto', caduto, 'grado', public.w_grado(s.xp));
+end $$;
+
+--
+-- Name: world_boss_info(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_boss_info() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); b public.world_boss; oggi int; mio int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  b := public.w_boss_di(me);
+  if b.id is null then return json_build_object('ok', false, 'msg', 'Prima registra la tua casa nel mondo'); end if;
+  select count(*) into oggi from public.world_boss_colpi c where c.boss_id = b.id and c.user_id = me
+    and (c.start_at at time zone 'Europe/Rome')::date = (now() at time zone 'Europe/Rome')::date;
+  select coalesce(sum(danno), 0) into mio from public.world_boss_colpi where boss_id = b.id and user_id = me;
+  return json_build_object('ok', true, 'id', b.id, 'nome', b.nome, 'ic', b.ic, 'tipo', b.tipo, 'hp', b.hp, 'hp0', b.hp0, 'end_at', b.end_at,
+    'caduto', b.caduto_at is not null, 'oggi', oggi, 'max', 3, 'mio', mio, 'molt', public.w_boss_molt(me, b.id),
+    'top', coalesce((select json_agg(json_build_object('nick', public.w_nick(x.user_id), 'danno', x.d, 'io', x.user_id = me,
+                       'alleato', x.user_id in (select public.w_allies_of(me))) order by x.d desc)
+             from (select user_id, sum(danno)::int d from public.world_boss_colpi where boss_id = b.id and danno > 0 group by user_id order by 2 desc limit 10) x), '[]'::json),
+    'alleati_oggi', coalesce((select json_agg(distinct public.w_nick(c.user_id)) from public.world_boss_colpi c
+             where c.boss_id = b.id and c.danno > 0 and c.user_id <> me and c.user_id in (select public.w_allies_of(me))
+               and (c.start_at at time zone 'Europe/Rome')::date = (now() at time zone 'Europe/Rome')::date), '[]'::json),
+    'giocatori', (select count(distinct user_id) from public.world_boss_colpi where boss_id = b.id and danno > 0));
+end $$;
+
+--
+-- Name: world_boss_inizia(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_boss_inizia() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); b public.world_boss; s public.world_superstite; oggi int; nid bigint; base int; m numeric;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  b := public.w_boss_di(me);
+  if b.id is null then return json_build_object('ok', false, 'msg', 'Prima registra la tua casa nel mondo'); end if;
+  if b.caduto_at is not null then return json_build_object('ok', false, 'msg', 'Il boss è già caduto: il prossimo arriva lunedì'); end if;
+  select count(*) into oggi from public.world_boss_colpi c where c.boss_id = b.id and c.user_id = me
+    and (c.start_at at time zone 'Europe/Rome')::date = (now() at time zone 'Europe/Rome')::date;
+  if oggi >= 3 then return json_build_object('ok', false, 'msg', 'Oggi l’hai già attaccato 3 volte: torna domani'); end if;
+  s := public.w_sup(me);
+  if s.energia < 1 then return json_build_object('ok', false, 'msg', format('Serve 1 energia: si ricarica da sola (1 ogni %s min)', public.w_en_ric(s.abil))); end if;
+  update public.world_superstite set energia = energia - 1,
+    energia_at = case when energia >= public.w_en_max(abil) then now() else energia_at end where user_id = me;
+  update public.world_boss_colpi set fine_at = now(), colpi = 0 where user_id = me and fine_at is null;
+  base := 1 + case when public.w_eq(s.equip, 'arma') >= 2 then 1 else 0 end + public.w_ab(s.abil, 'combattente') / 2;
+  m := public.w_boss_molt(me, b.id);
+  insert into public.world_boss_colpi(boss_id, user_id, base, molt) values (b.id, me, base, m) returning id into nid;
+  return json_build_object('ok', true, 'id', nid, 'nome', b.nome, 'ic', b.ic, 'hp', b.hp, 'hp0', b.hp0, 'base', base, 'molt', m, 'durata', 20, 'rimasti', 2 - oggi);
+end $$;
+
+--
 -- Name: world_bottega_compra(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3351,6 +3526,85 @@ begin
   insert into public.world_defs(building_id, kind, level) values (p_bid, p_kind, lv + 1)
     on conflict (building_id, kind) do update set level = excluded.level;
   return json_build_object('ok',true,'level',lv+1,'cost',cost,'msg','Fortificazione migliorata: livello '||(lv+1));
+end $$;
+
+--
+-- Name: world_difar_fine(bigint, integer, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_difar_fine(p_id bigint, p_uccisi integer, p_casa integer) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); r public.world_difar; el numeric; u int; v boolean; xp int; q int; got json; mt int := 0;
+  w public.world_wallet; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD'); s public.world_superstite; g0 int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  select * into r from public.world_difar where id = p_id and user_id = me for update;
+  if r.id is null or r.fine_at is not null then return json_build_object('ok', false, 'msg', 'Difesa già chiusa'); end if;
+  el := extract(epoch from (now() - r.start_at));
+  if el > 600 then u := 0; else u := greatest(0, least(coalesce(p_uccisi, 0), r.n, floor((el - 2) / 0.8)::int)); end if;
+  v := coalesce(p_casa, 0) > 0 and el >= r.ultimo and el <= 600;
+  update public.world_difar set fine_at = now(), uccisi = u, vinto = v where id = p_id;
+  s := public.w_sup(me); g0 := public.w_grado(s.xp);
+  xp := 4 * u + case when v then 25 else 0 end;
+  q := 2 * u + case when v then 10 else 0 end;
+  got := public.w_res(me, q, q, q / 2);
+  if xp > 0 then perform public.w_xp(me, xp); end if;
+  if v then
+    w := public.w_wallet(me);
+    if coalesce((w.caps->>('difar_win:' || day))::int, 0) = 0 then
+      mt := 15; perform public.w_pay(me, mt, 'Lente: casa difesa');
+      update public.world_wallet set caps = jsonb_set(caps, array['difar_win:' || day], '1'::jsonb) where user_id = me;
+    end if;
+  end if;
+  s := public.w_sup(me);
+  return json_build_object('ok', true, 'uccisi', u, 'n', r.n, 'vinto', v, 'xp', xp, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int,
+    'carb', (got->>'carb')::int, 'mattoni', mt, 'salito', public.w_grado(s.xp) > g0, 'grado', public.w_grado(s.xp));
+end $$;
+
+--
+-- Name: world_difar_inizia(double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_difar_inizia(p_lat double precision, p_lon double precision) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); h public.world_homes; s public.world_superstite; w public.world_wallet; a public.world_assedio;
+  day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD'); fatte int; g int; d numeric; z jsonb := '[]'::jsonb;
+  o int; i int; n int; k text; tot int := 0; ult numeric := 0; dt numeric; nid bigint; tor int; casa int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  select * into h from public.world_homes where user_id = me;
+  if h.user_id is null then return json_build_object('ok', false, 'msg', 'Prima registra la tua casa nel mondo'); end if;
+  if p_lat is null then return json_build_object('ok', false, 'msg', 'Serve la posizione: permetti il GPS'); end if;
+  d := public.w_km(p_lat, p_lon, h.lat, h.lon);
+  if d > 0.3 then return json_build_object('ok', false, 'msg', format('Si difende solo vicino a casa: sei a %s m (serve meno di 300 m)', round(d * 1000))); end if;
+  w := public.w_wallet(me); s := public.w_sup(me);
+  fatte := coalesce((w.caps->>('difar:' || day))::int, 0);
+  if fatte >= 6 then return json_build_object('ok', false, 'msg', 'Oggi hai già difeso la casa 6 volte: riposati'); end if;
+  if s.energia < 1 then return json_build_object('ok', false, 'msg', format('Serve 1 energia: si ricarica da sola (1 ogni %s min)', public.w_en_ric(s.abil))); end if;
+  update public.world_difar set fine_at = now(), uccisi = 0, vinto = false where user_id = me and fine_at is null;
+  select * into a from public.world_assedio where user_id = me;
+  tor := 1 + least(2, public.w_ass_up(coalesce(a.up, '{}'::jsonb), 'torretta'));
+  casa := 5 + public.w_ass_up(coalesce(a.up, '{}'::jsonb), 'casa');
+  g := public.w_grado(s.xp);
+  for o in 1..3 loop
+    n := least(8, 2 + o + g / 6);
+    for i in 1..n loop
+      k := case when random() < 0.1 + 0.06 * o then 'bruto' when random() < 0.35 then 'corridore' else 'lento' end;
+      dt := round(((o - 1) * 22 + (i - 1) * 2.4 + random() * 1.5)::numeric, 1);
+      z := z || jsonb_build_object('k', k, 'hp', case k when 'bruto' then 4 else 2 end, 'o', o, 'b', round(random() * 360), 'dt', dt);
+      tot := tot + 1; ult := greatest(ult, dt);
+    end loop;
+  end loop;
+  update public.world_superstite set energia = energia - 1,
+    energia_at = case when energia >= public.w_en_max(abil) then now() else energia_at end where user_id = me;
+  update public.world_wallet set caps = jsonb_set(caps, array['difar:' || day], to_jsonb(fatte + 1)) where user_id = me;
+  insert into public.world_difar(user_id, n, ultimo, zombie) values (me, tot, ult, z) returning id into nid;
+  return json_build_object('ok', true, 'id', nid, 'zombie', z, 'n', tot, 'torrette', tor, 'casa', casa, 'rimaste', 5 - fatte,
+    'danno', 1 + case when public.w_eq(s.equip, 'arma') >= 2 then 1 else 0 end);
 end $$;
 
 --
@@ -5964,6 +6218,56 @@ CREATE SEQUENCE public.world_bonus_id_seq
 ALTER SEQUENCE public.world_bonus_id_seq OWNED BY public.world_bonus.id;
 
 --
+-- Name: world_boss_colpi; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_boss_colpi (
+    id bigint NOT NULL,
+    boss_id bigint NOT NULL,
+    user_id uuid NOT NULL,
+    start_at timestamp with time zone DEFAULT now() NOT NULL,
+    base integer DEFAULT 1 NOT NULL,
+    molt numeric DEFAULT 1 NOT NULL,
+    fine_at timestamp with time zone,
+    colpi integer,
+    danno integer DEFAULT 0 NOT NULL
+);
+
+--
+-- Name: world_boss_colpi_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_boss_colpi_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_boss_colpi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_boss_colpi_id_seq OWNED BY public.world_boss_colpi.id;
+
+--
+-- Name: world_boss_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_boss_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_boss_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_boss_id_seq OWNED BY public.world_boss.id;
+
+--
 -- Name: world_buildings; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -6128,6 +6432,39 @@ CREATE TABLE public.world_defs (
     level integer DEFAULT 0 NOT NULL,
     CONSTRAINT world_defs_kind_check CHECK ((kind = ANY (ARRAY['fossato'::text, 'barricate'::text, 'sirena'::text, 'fondamenta'::text, 'fari'::text, 'trappole'::text, 'grate'::text, 'recinto'::text, 'cani'::text, 'pompa'::text])))
 );
+
+--
+-- Name: world_difar; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_difar (
+    id bigint NOT NULL,
+    user_id uuid NOT NULL,
+    start_at timestamp with time zone DEFAULT now() NOT NULL,
+    n integer NOT NULL,
+    ultimo numeric DEFAULT 0 NOT NULL,
+    zombie jsonb NOT NULL,
+    fine_at timestamp with time zone,
+    uccisi integer,
+    vinto boolean
+);
+
+--
+-- Name: world_difar_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_difar_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_difar_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_difar_id_seq OWNED BY public.world_difar.id;
 
 --
 -- Name: world_dm; Type: TABLE; Schema: public; Owner: -
@@ -6705,6 +7042,18 @@ ALTER TABLE ONLY public.world_assedio_partite ALTER COLUMN id SET DEFAULT nextva
 ALTER TABLE ONLY public.world_bonus ALTER COLUMN id SET DEFAULT nextval('public.world_bonus_id_seq'::regclass);
 
 --
+-- Name: world_boss id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_boss ALTER COLUMN id SET DEFAULT nextval('public.world_boss_id_seq'::regclass);
+
+--
+-- Name: world_boss_colpi id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_boss_colpi ALTER COLUMN id SET DEFAULT nextval('public.world_boss_colpi_id_seq'::regclass);
+
+--
 -- Name: world_cacce id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -6721,6 +7070,12 @@ ALTER TABLE ONLY public.world_chat ALTER COLUMN id SET DEFAULT nextval('public.w
 --
 
 ALTER TABLE ONLY public.world_condo_gifts ALTER COLUMN id SET DEFAULT nextval('public.world_condo_gifts_id_seq'::regclass);
+
+--
+-- Name: world_difar id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_difar ALTER COLUMN id SET DEFAULT nextval('public.world_difar_id_seq'::regclass);
 
 --
 -- Name: world_dm id; Type: DEFAULT; Schema: public; Owner: -
@@ -7007,6 +7362,27 @@ ALTER TABLE ONLY public.world_bonus
     ADD CONSTRAINT world_bonus_pkey PRIMARY KEY (id);
 
 --
+-- Name: world_boss world_boss_cella_settimana_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_boss
+    ADD CONSTRAINT world_boss_cella_settimana_key UNIQUE (cella, settimana);
+
+--
+-- Name: world_boss_colpi world_boss_colpi_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_boss_colpi
+    ADD CONSTRAINT world_boss_colpi_pkey PRIMARY KEY (id);
+
+--
+-- Name: world_boss world_boss_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_boss
+    ADD CONSTRAINT world_boss_pkey PRIMARY KEY (id);
+
+--
 -- Name: world_buildings world_buildings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -7068,6 +7444,13 @@ ALTER TABLE ONLY public.world_curses
 
 ALTER TABLE ONLY public.world_defs
     ADD CONSTRAINT world_defs_pkey PRIMARY KEY (building_id, kind);
+
+--
+-- Name: world_difar world_difar_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_difar
+    ADD CONSTRAINT world_difar_pkey PRIMARY KEY (id);
 
 --
 -- Name: world_dm world_dm_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -7327,6 +7710,18 @@ CREATE INDEX world_b_owner ON public.world_buildings USING btree (owner);
 CREATE INDEX world_b_pos ON public.world_buildings USING btree (lat, lon);
 
 --
+-- Name: world_boss_colpi_boss; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_boss_colpi_boss ON public.world_boss_colpi USING btree (boss_id, user_id);
+
+--
+-- Name: world_boss_colpi_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_boss_colpi_user ON public.world_boss_colpi USING btree (user_id, start_at DESC);
+
+--
 -- Name: world_cacce_user; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -7337,6 +7732,12 @@ CREATE INDEX world_cacce_user ON public.world_cacce USING btree (user_id, start_
 --
 
 CREATE INDEX world_chat_room ON public.world_chat USING btree (room, id DESC);
+
+--
+-- Name: world_difar_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_difar_user ON public.world_difar USING btree (user_id, start_at DESC);
 
 --
 -- Name: world_dm_pair; Type: INDEX; Schema: public; Owner: -
@@ -7760,6 +8161,20 @@ ALTER TABLE ONLY public.world_bonus
     ADD CONSTRAINT world_bonus_owner_fkey FOREIGN KEY (owner) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 --
+-- Name: world_boss_colpi world_boss_colpi_boss_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_boss_colpi
+    ADD CONSTRAINT world_boss_colpi_boss_id_fkey FOREIGN KEY (boss_id) REFERENCES public.world_boss(id) ON DELETE CASCADE;
+
+--
+-- Name: world_boss_colpi world_boss_colpi_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_boss_colpi
+    ADD CONSTRAINT world_boss_colpi_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
 -- Name: world_buildings world_buildings_owner_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -7814,6 +8229,13 @@ ALTER TABLE ONLY public.world_curses
 
 ALTER TABLE ONLY public.world_curses
     ADD CONSTRAINT world_curses_target_fkey FOREIGN KEY (target) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
+-- Name: world_difar world_difar_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_difar
+    ADD CONSTRAINT world_difar_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 --
 -- Name: world_dm world_dm_from_u_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -8447,6 +8869,18 @@ ALTER TABLE public.world_blocks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.world_bonus ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: world_boss; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_boss ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_boss_colpi; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_boss_colpi ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: world_buildings; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -8499,6 +8933,12 @@ ALTER TABLE public.world_curses ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.world_defs ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_difar; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_difar ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: world_dm; Type: ROW SECURITY; Schema: public; Owner: -
@@ -8835,6 +9275,18 @@ REVOKE ALL ON FUNCTION public.w_azione(me uuid, p_bid text, p_lat double precisi
 --
 
 REVOKE ALL ON FUNCTION public.w_boost(p_user uuid) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_boss_di(p_user uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_boss_di(p_user uuid) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_boss_molt(p_user uuid, p_boss bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_boss_molt(p_user uuid, p_boss bigint) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_canon(p_bid text, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
@@ -9382,6 +9834,27 @@ GRANT ALL ON FUNCTION public.world_assi(p_bid text, p_lat double precision, p_lo
 GRANT ALL ON FUNCTION public.world_block(p_user uuid, p_on boolean) TO authenticated;
 
 --
+-- Name: FUNCTION world_boss_fine(p_id bigint, p_colpi integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_boss_fine(p_id bigint, p_colpi integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_boss_fine(p_id bigint, p_colpi integer) TO authenticated;
+
+--
+-- Name: FUNCTION world_boss_info(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_boss_info() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_boss_info() TO authenticated;
+
+--
+-- Name: FUNCTION world_boss_inizia(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_boss_inizia() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_boss_inizia() TO authenticated;
+
+--
 -- Name: FUNCTION world_bottega_compra(p_item text); Type: ACL; Schema: public; Owner: -
 --
 
@@ -9497,6 +9970,20 @@ GRANT ALL ON FUNCTION public.world_coresidents() TO authenticated;
 --
 
 GRANT ALL ON FUNCTION public.world_def_upgrade(p_bid text, p_kind text) TO authenticated;
+
+--
+-- Name: FUNCTION world_difar_fine(p_id bigint, p_uccisi integer, p_casa integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_difar_fine(p_id bigint, p_uccisi integer, p_casa integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_difar_fine(p_id bigint, p_uccisi integer, p_casa integer) TO authenticated;
+
+--
+-- Name: FUNCTION world_difar_inizia(p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_difar_inizia(p_lat double precision, p_lon double precision) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_difar_inizia(p_lat double precision, p_lon double precision) TO authenticated;
 
 --
 -- Name: FUNCTION world_difendi(p_bid text, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -

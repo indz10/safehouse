@@ -33,6 +33,11 @@ w_attivita(uuid) 23dc6eab3e
 w_azione(uuid, text, double precision, double precision, text) 91b6665588
 w_bad(text) 2115eb8cd1
 w_boost(uuid) 23b0f9792c
+w_boss_cella(double precision, double precision) 8fde921ddb
+w_boss_di(uuid) cefec0f58b
+w_boss_molt(uuid, bigint) 615a35bfc9
+w_boss_settimana() 17eeaa47c2
+w_boss_tipi() aef051a09a
 w_canon(text, double precision, double precision) a8cd798858
 w_casa_extra(text, text) d8d69de76d
 w_casa_manca_tick() 395b46963e
@@ -167,6 +172,9 @@ world_assedio_inizia(integer, boolean) ce92716a8a
 world_assedio_potenzia(text) 7e22d051ec
 world_assi(text, double precision, double precision) 3f866c9d5a
 world_block(uuid, boolean) d5c18b09f9
+world_boss_fine(bigint, integer) 44f64bc338
+world_boss_info() 629f6298cc
+world_boss_inizia() d442e7ddcb
 world_bottega_compra(text) 9c218790d7
 world_buy(text, double precision, double precision) c1440ed06d
 world_buy_mezzo(text) 18d40e73af
@@ -185,6 +193,8 @@ world_condo_peace(uuid) 388d9d7b53
 world_consigli() 4d91cb3c39
 world_coresidents() f6b396fcc0
 world_def_upgrade(text, text) 17ee5d8a24
+world_difar_fine(bigint, integer, integer) aabe94000f
+world_difar_inizia(double precision, double precision) 8d47a973dc
 world_difendi(text, double precision, double precision) 243f32d609
 world_difesa_bomba(bigint) 625d7efc64
 world_difesa_fine(bigint, integer, boolean) d3b79a0a58
@@ -303,6 +313,8 @@ world_assedio_partite 13b83d80
 world_attack_given cb6a22cb
 world_blocks c89fb2f6
 world_bonus fa82d7ad
+world_boss 6162ea72
+world_boss_colpi 20d37768
 world_buildings 2b1feaf6
 world_cacce 713a63d8
 world_chat 36d8e2a6
@@ -312,6 +324,7 @@ world_condo_gifts 17d3c1e4
 world_condo_rifts 16de30cd
 world_curses 203cd63e
 world_defs 9c26ecac
+world_difar 67ea58b4
 world_dm 42f21988
 world_eventi ca175234
 world_eventi_azioni c757a3af

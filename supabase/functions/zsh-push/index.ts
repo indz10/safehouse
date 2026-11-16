@@ -164,6 +164,7 @@ function feedMsg(f: any, who: string, id: string): { title: string; body: string
       const m = T[k] || ["🚨 Evento qui vicino", "Tocca per partecipare col tuo superstite"];
       return { title: m[0], body: m[1], url: `/?go=mappa&evt=${id || ""}` }; }
     case "evento_vinto": return { title: "💥 Abbattuto!", body: `${who} ha dato il colpo finale a «${f.info || "l’evento"}»: hai ricevuto la tua parte di premi`, url: "/?go=mappa" };
+    case "boss_caduto": return { title: "💀 Boss abbattuto!", body: `«${f.info || "Il boss"}» è caduto: hai ricevuto la tua parte di premi`, url: "/?go=mappa&boss=1" };
     case "sfida_vinta": return { title: "🏆 Sfida del quartiere", body: `Sei arrivato ${f.info}° nel tuo quartiere la settimana scorsa: premio in 🧱 Mattoni!`, url: "/?go=mappa&sfida=1" };
     case "casa_manca": return { title: "🏠 Registra la tua casa nel mondo", body: "Abiti in un condominio? La tua casa non risulta ancora nel mondo: tocca qui e premi “Registra la mia casa” (o “Sono a casa adesso”). Senza, le orde non la contano e i vicini non ti vedono.", url: "/?go=mappa&reg=1" };
     case "sped_ok": return { title: "🎒 Il tuo superstite è tornato", body: `Dalla spedizione a «${f.info || "un posto vicino"}»: tocca per raccogliere provviste ed esperienza`, url: "/?go=mappa&sup=1" };
