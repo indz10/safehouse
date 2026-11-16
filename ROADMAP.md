@@ -158,4 +158,6 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 23 | fatta (#67; migrazione 022) | #67 | 👉 una mossa alla volta (carta ADESSO), ⚡ eventi dal vivo, 🏆 sfida del quartiere, 🏢 scelta del condominio |
 | 24 | fatta (#68; migrazione 023) | #68 | 🎮 Difendi la casa: minigioco da 45 s sempre disponibile, premi in scorte ed esperienza; 🛒 Bottega con ⚡ energia, 💣 bombe, 🛡️ scudi |
 | 25 | fatta (#69) | #69 | 📬 Richieste in un posto solo (accetta/rifiuta alleanze, inviti, coinquilini); energia 🔋 spiegata, eventi 🚨 |
-| 26 | in revisione (migrazione 024) | — | 🧟 Assedio a livelli al posto di Difendi la casa: strada dei livelli, difese da piazzare, stelle, potenziamenti |
+| 26 | fatta (#70; migrazione 024) | #70 | 🧟 Assedio a livelli al posto di Difendi la casa: strada dei livelli, difese da piazzare, stelle, potenziamenti |
+| 27 | in revisione (nessun SQL) | — | 📱 schermata semplice con 4 tasti in basso (Mondo, Gioca, Io, Amici): stesse funzioni, meno pulsanti sullo schermo |
+| 28 | da fare (migrazione 025 pronta) | — | 🧟 zombie nel mondo vero nella Lente (stile Pokémon GO), 📦 casse, 📖 Zombipedia, lotta con punti deboli e schivate; dopo: difesa in realtà aumentata e boss |
