@@ -1136,6 +1136,37 @@ CREATE FUNCTION public.w_league(p_lvl integer) RETURNS text
 $$;
 
 --
+-- Name: w_lente_tick(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_lente_tick() RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare h int := extract(hour from now() at time zone 'Europe/Rome'); o bigint := public.w_zm_ora(); u record; i int; j int; ci int; cj int; q json;
+  nz int; nc int; mr int; n int := 0; r int;
+begin
+  if h < 10 or h >= 20 then return 0; end if;
+  for u in select distinct on (hm.user_id) hm.user_id, hm.lat, hm.lon from public.world_homes hm
+           where exists (select 1 from public.push_subs ps where ps.user_id = hm.user_id)
+             and not exists (select 1 from public.world_feed f where f.target = hm.user_id and f.kind = 'lente' and f.created_at > now() - interval '8 hours') loop
+    ci := floor(u.lat / 0.0014); cj := floor(u.lon / 0.0019); nz := 0; nc := 0; mr := 0;
+    for i in ci - 2 .. ci + 2 loop for j in cj - 2 .. cj + 2 loop
+      q := public.w_zm_qua(i, j, o);
+      if (q->>'zombie')::boolean and not exists (select 1 from public.world_zombie_presi p where p.user_id = u.user_id and p.zid = q->>'zid') then
+        nz := nz + 1; select greatest(mr, x.rar) into mr from public.w_zm_tipi() x where x.k = q->>'tipo';
+      end if;
+      if (q->>'cassa')::boolean and not exists (select 1 from public.world_zombie_presi p where p.user_id = u.user_id and p.zid = q->>'cid') then nc := nc + 1; end if;
+    end loop; end loop;
+    if nz + nc > 0 then
+      insert into public.world_feed(kind, actor, target, info) values ('lente', null, u.user_id, nz || '|' || nc || '|' || coalesce(mr, 0));
+      n := n + 1;
+    end if;
+  end loop;
+  return n;
+end $$;
+
+--
 -- Name: w_level(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1144,6 +1175,15 @@ CREATE FUNCTION public.w_level(p_life integer) RETURNS integer
     AS $$
   select 1 + floor(sqrt(greatest(p_life,0)/100.0))::int;
 $$;
+
+--
+-- Name: w_lontano_costo(double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_lontano_costo(p_km double precision) RETURNS json
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select json_build_object('cibo', 20, 'carb', 10 + least(40, ceil(coalesce(p_km, 0) / 250))::int, 'mattoni', 25, 'pts', 6); $$;
 
 --
 -- Name: w_lvl_of(uuid); Type: FUNCTION; Schema: public; Owner: -
@@ -1792,6 +1832,15 @@ CREATE FUNCTION public.w_sped_calc(p_km numeric, p_abil jsonb, p_equip jsonb, p_
     'tesoro', (5 + 3 * public.w_ab(p_abil,'cercatore') + 2 * public.w_eq(p_equip,'torcia'))::int); $$;
 
 --
+-- Name: w_sped_costo(numeric); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_sped_costo(p_km numeric) RETURNS json
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select json_build_object('cibo', (2 + ceil(p_km))::int, 'carb', case when p_km > 3 then ceil(p_km / 3)::int else 0 end); $$;
+
+--
 -- Name: w_sped_km(uuid, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2272,6 +2321,38 @@ CREATE FUNCTION public.w_ztypes() RETURNS TABLE(k text, minl integer, base numer
   values ('runner',2,4.0,'fossato','trappole'),('casco',3,4.0,'barricate','grate'),('strillone',3,3.0,'sirena','cani'),
          ('scavatore',4,5.0,'fondamenta','pompa'),('brute',5,6.0,'barricate','recinto'),('ombra',6,5.0,'fari','cani'),('boss',8,9.0,'barricate','recinto');
 $$;
+
+--
+-- Name: world_aiuto_lontano(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_aiuto_lontano(p_target uuid) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); d double precision; co json; w public.world_wallet; k text := 'lontani:' || to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD');
+  n int; sid text; cc int; ck int; cm int; v int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if p_target is null or p_target = me then return json_build_object('ok', false, 'msg', 'Non puoi aiutare te stesso'); end if;
+  if not public.w_are_allies(me, p_target) then return json_build_object('ok', false, 'msg', 'I pacchi da lontano si mandano solo agli alleati'); end if;
+  d := public.w_dist_km(me, p_target);
+  if d is null then return json_build_object('ok', false, 'msg', 'Per aiutare serve che abbiate entrambi una casa nel mondo'); end if;
+  co := public.w_lontano_costo(d); cc := (co->>'cibo')::int; ck := (co->>'carb')::int; cm := (co->>'mattoni')::int; v := (co->>'pts')::int;
+  w := public.w_wallet(me); n := coalesce((w.caps->>k)::int, 0);
+  if n >= 2 then return json_build_object('ok', false, 'msg', 'Oggi hai già mandato 2 pacchi da lontano'); end if;
+  if w.cibo < cc or w.carb < ck or w.mattoni < cm then
+    return json_build_object('ok', false, 'msg', format('Servono 🥫 %s, ⛽ %s e 🧱 %s', cc, ck, cm));
+  end if;
+  sid := public.w_slot_id(public.w_next_slot(now() + interval '3 hours'));
+  insert into public.world_help_given(helper, target, slot_id, pts) values (me, p_target, sid, v) on conflict do nothing;
+  if not found then return json_build_object('ok', false, 'msg', 'Gli hai già mandato aiuti per quella orda'); end if;
+  update public.world_wallet set cibo = cibo - cc, carb = carb - ck, mattoni = mattoni - cm, caps = jsonb_set(caps, array[k], to_jsonb(n + 1)) where user_id = me;
+  insert into public.world_log(user_id, delta, reason, seen) values (me, -cm, 'Pacco di aiuti da lontano', true);
+  insert into public.world_feed(kind, actor, target, info) values ('aiuto_lontano', me, p_target, round(d)::text);
+  return json_build_object('ok', true, 'pts', v, 'slot', sid, 'km', round(d),
+    'msg', format('📦 Pacco partito (%s km): +%s alla sua difesa all’orda delle %s:00 · 🥫 −%s ⛽ −%s 🧱 −%s', round(d), v, right(sid, 2), cc, ck, cm));
+end $$;
 
 --
 -- Name: world_alleanza_chat(bigint); Type: FUNCTION; Schema: public; Owner: -
@@ -4430,6 +4511,55 @@ CREATE FUNCTION public.world_player(p_user uuid) RETURNS json
 $$;
 
 --
+-- Name: world_posto_visita(text, text, double precision, double precision, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_posto_visita(p_kind text, p_nome text, p_lat double precision, p_lon double precision, p_mylat double precision, p_mylon double precision) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); spid uuid; d numeric; ch text; s public.world_superstite; g int; b int; l int := 0; f int := 0; k int := 0; e int := 0;
+  xp int; got json; oggi int; g0 int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if p_kind not in ('cibo','legno','carb','farmaco','misto','sponsor') then return json_build_object('ok', false, 'msg', 'Posto sconosciuto'); end if;
+  if p_lat is null or p_mylat is null then return json_build_object('ok', false, 'msg', 'Serve la posizione: permetti il GPS'); end if;
+  d := public.w_km(p_mylat, p_mylon, p_lat, p_lon);
+  if d > 0.05 then return json_build_object('ok', false, 'msg', format('Avvicinati: sei a %s m (serve meno di 50 m)', round(d * 1000))); end if;
+  if p_kind = 'sponsor' then
+    select sp.id into spid from public.sponsors sp where sp.active and sp.lat is not null
+      and public.w_km(p_lat, p_lon, sp.lat, sp.lon) < 0.06 order by public.w_km(p_lat, p_lon, sp.lat, sp.lon) limit 1;
+    if spid is null then return json_build_object('ok', false, 'msg', 'Questa attività non è più sponsor'); end if;
+  end if;
+  ch := round(p_lat * 2500)::text || ':' || round(p_lon * 2000)::text;
+  if exists (select 1 from public.world_posti_visite where user_id = me and chiave = ch and at > now() - interval '12 hours') then
+    return json_build_object('ok', false, 'msg', 'Ci sei già passato: il posto si riempie di nuovo fra 12 ore');
+  end if;
+  select count(*) into oggi from public.world_posti_visite where user_id = me
+    and (at at time zone 'Europe/Rome')::date = (now() at time zone 'Europe/Rome')::date;
+  if oggi >= 12 then return json_build_object('ok', false, 'msg', 'Oggi hai già visitato 12 posti: torna domani'); end if;
+  insert into public.world_posti_visite(user_id, chiave, kind, nome) values (me, ch, p_kind, left(coalesce(p_nome, ''), 60));
+  s := public.w_sup(me); g0 := public.w_grado(s.xp); g := g0;
+  b := 15 + least(15, g) + case when p_kind = 'sponsor' then 8 else 0 end;
+  case p_kind
+    when 'cibo' then f := b;
+    when 'legno' then l := b;
+    when 'carb' then k := round(b * 0.6);
+    when 'farmaco' then f := b / 2; e := 2;
+    when 'sponsor' then l := b / 2; f := b / 2; k := b / 3;
+    else l := b / 3; f := b / 3; k := b / 3;
+  end case;
+  got := public.w_res(me, l, f, k);
+  if e > 0 then perform public.w_en_add(me, e); end if;
+  xp := 15 + case when p_kind = 'sponsor' then 5 else 0 end;
+  perform public.w_xp(me, xp);
+  if spid is not null then insert into public.sponsor_events(sponsor_id, kind) values (spid, 'visita'); end if;
+  s := public.w_sup(me);
+  return json_build_object('ok', true, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int, 'energia', e, 'xp', xp,
+    'rimasti', 11 - oggi, 'salito', public.w_grado(s.xp) > g0, 'grado', public.w_grado(s.xp));
+end $$;
+
+--
 -- Name: world_prepare(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4991,7 +5121,7 @@ CREATE FUNCTION public.world_send_help(p_target uuid) RETURNS json
     SET search_path TO 'public'
     AS $$
 declare me uuid := auth.uid(); nid text := public.w_slot_id(public.w_next_slot(now())); w public.world_wallet; k text; n int;
-  mz text; mzp text; c int; d double precision; arr timestamptz; sid text; v int; eta int; quando text;
+  mz text; mzp text; c int; d double precision; arr timestamptz; sid text; v int; eta int; quando text; co json;
 begin
   if me is null then return json_build_object('ok',false,'msg','Accedi'); end if;
   if p_target = me then return json_build_object('ok',false,'msg','Non puoi aiutare te stesso'); end if;
@@ -5001,6 +5131,11 @@ begin
   if d is null then return json_build_object('ok',false,'msg','Per aiutare serve che abbiate entrambi una casa nel mondo'); end if;
   mzp := public.w_mezzo(me); mz := public.w_mz_eff(me, d); c := public.w_mz_carb(mz, d);
   if d > public.w_mz_range(mz) then
+    if public.w_are_allies(me, p_target) and d > public.w_mz_range(mzp) then
+      co := public.w_lontano_costo(d);
+      return json_build_object('ok',false,'lontano',true,'km',round(d),'costo',co,'target',p_target,
+        'msg','È a ' || round(d::numeric) || ' km: troppo lontano per i rinforzi. Puoi mandargli un 📦 pacco da lontano (🥫 ' || (co->>'cibo') || ', ⛽ ' || (co->>'carb') || ', 🧱 ' || (co->>'mattoni') || ' → +' || (co->>'pts') || ' alla sua difesa)');
+    end if;
     return json_build_object('ok',false,'msg','È a ' || round(d::numeric,1) || ' km: ' || public.w_mz_nome(mz) || ' arrivi fino a ' || public.w_mz_range(mz) || ' km'
       || case when mz <> mzp then ' (per andare ' || public.w_mz_nome(mzp) || ' servono ⛽ ' || public.w_mz_carb(mzp, d) || ')' when public.w_mz_range(mz) < 20 then '. Un mezzo più veloce in Bottega' else '' end); end if;
   if exists (select 1 from public.world_help_given where helper = me and target = p_target and slot_id >= nid) then return json_build_object('ok',false,'msg','I tuoi rinforzi sono già in viaggio'); end if;
@@ -5184,10 +5319,10 @@ CREATE FUNCTION public.world_sped_parti(p_kind text, p_nome text, p_lat double p
     SET search_path TO 'public'
     AS $$
 declare me uuid := auth.uid(); s public.world_superstite; spid uuid; km numeric; c json; en int; mins int; h int; nid bigint; notte boolean;
+  co json; cc int; ck int; w public.world_wallet;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
   if p_kind not in ('cibo','legno','carb','farmaco','misto','sponsor') then return json_build_object('ok', false, 'msg', 'Posto sconosciuto'); end if;
-  -- ⭐ sponsor: solo un'attività sponsor attiva vera a meno di 60 m dal punto
   if p_kind = 'sponsor' then
     select sp.id into spid from public.sponsors sp where sp.active and sp.lat is not null
       and public.w_km(p_lat, p_lon, sp.lat, sp.lon) < 0.06 order by public.w_km(p_lat, p_lon, sp.lat, sp.lon) limit 1;
@@ -5211,19 +5346,25 @@ begin
   c := public.w_sped_calc(km, s.abil, s.equip, notte);
   en := (c->>'energia')::int; mins := (c->>'min')::int;
   if s.energia < en then
-    return json_build_object('ok', false, 'msg', format('Serve ⚡ %s: ne hai %s (una carica ogni %s min)', en, s.energia, public.w_en_ric(s.abil)));
+    return json_build_object('ok', false, 'msg', format('Serve %s energia: ne hai %s (una carica ogni %s min)', en, s.energia, public.w_en_ric(s.abil)));
   end if;
+  co := public.w_sped_costo(km); cc := (co->>'cibo')::int; ck := (co->>'carb')::int;
+  w := public.w_wallet(me);
+  if w.cibo < cc or w.carb < ck then
+    return json_build_object('ok', false, 'msg', format('Per il viaggio servono 🥫 %s%s: vai di persona con la Lente (gratis) o prendi scorte', cc, case when ck > 0 then ' e ⛽ ' || ck else '' end));
+  end if;
+  update public.world_wallet set cibo = cibo - cc, carb = carb - ck where user_id = me;
   update public.world_superstite set energia = energia - en,
     energia_at = case when energia >= public.w_en_max(abil) then now() else energia_at end where user_id = me;
   insert into public.world_spedizioni(user_id, kind, nome, lat, lon, km, end_at, rischio, energia, calc)
-    values (me, p_kind, left(coalesce(nullif(trim(p_nome), ''), 'Posto senza nome'), 60), p_lat, p_lon, km, now() + make_interval(mins => mins), (c->>'rischio')::int, en, c::jsonb)
+    values (me, p_kind, left(coalesce(nullif(trim(p_nome), ''), 'Posto senza nome'), 60), p_lat, p_lon, km, now() + make_interval(mins => mins), (c->>'rischio')::int, en, (c::jsonb || co::jsonb))
     returning world_spedizioni.id into nid;
   if spid is not null then
     update public.world_spedizioni set calc = calc || jsonb_build_object('sponsor', spid) where id = nid;
     insert into public.sponsor_events(sponsor_id, kind) values (spid, 'spedizione');
   end if;
-  return json_build_object('ok', true, 'id', nid, 'min', mins, 'energia', en, 'end_at', now() + make_interval(mins => mins),
-    'msg', format('🎒 Partito! Torna fra %s min', mins));
+  return json_build_object('ok', true, 'id', nid, 'min', mins, 'energia', en, 'cibo', cc, 'carb', ck, 'end_at', now() + make_interval(mins => mins),
+    'msg', format('🎒 Partito! Torna fra %s min · 🥫 −%s%s', mins, cc, case when ck > 0 then ' ⛽ −' || ck else '' end));
 end $$;
 
 --
@@ -5571,6 +5712,7 @@ CREATE FUNCTION public.world_zombie_fine(p_id bigint, p_vinto boolean) RETURNS j
     SET search_path TO 'public'
     AS $$
 declare me uuid := auth.uid(); l public.world_zombie_lotte; t record; el numeric; v boolean; xp int := 0; q int := 0; mt int := 0; got json; nuovo boolean := false; g0 int; s public.world_superstite;
+  z json; prot int := 0;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
   select * into l from public.world_zombie_lotte where id = p_id and user_id = me for update;
@@ -5587,8 +5729,18 @@ begin
     q := case t.rar when 1 then 4 when 2 then 7 when 3 then 12 else 20 end;
     got := public.w_res(me, q, q, q / 2); perform public.w_xp(me, xp);
     if t.rar >= 3 then mt := case t.rar when 3 then 10 else 30 end; perform public.w_pay(me, mt, 'Lente: ' || t.nome || ' abbattuto'); end if;
+    -- 🛡️ i vicini: chi ha la casa a meno di 200 m dallo zombie riceve la novità (max una ogni 3 ore da te)
+    z := public.w_zm_trova(l.zid);
+    if z is not null then
+      insert into public.world_feed(kind, actor, target, info)
+        select distinct 'zm_aiuto', me, hm.user_id, t.ic || ' ' || t.nome || '|' || round(public.w_km((z->>'lat')::float, (z->>'lon')::float, hm.lat, hm.lon) * 1000)
+        from public.world_homes hm
+        where hm.user_id <> me and public.w_km((z->>'lat')::float, (z->>'lon')::float, hm.lat, hm.lon) < 0.2
+          and not exists (select 1 from public.world_feed f where f.kind = 'zm_aiuto' and f.actor = me and f.target = hm.user_id and f.created_at > now() - interval '3 hours');
+      get diagnostics prot = row_count;
+    end if;
     s := public.w_sup(me);
-    return json_build_object('ok', true, 'vinto', true, 'nome', t.nome, 'ic', t.ic, 'rar', t.rar, 'nuovo', nuovo, 'xp', xp,
+    return json_build_object('ok', true, 'vinto', true, 'nome', t.nome, 'ic', t.ic, 'rar', t.rar, 'nuovo', nuovo, 'xp', xp, 'protetti', prot,
       'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int, 'mattoni', mt, 'salito', public.w_grado(s.xp) > g0, 'grado', public.w_grado(s.xp));
   end if;
   return json_build_object('ok', true, 'vinto', false, 'nome', t.nome, 'msg', 'È scappato: riprova (resta lì fino alla fine dell’ora)');
@@ -5866,7 +6018,7 @@ CREATE TABLE public.sponsor_events (
     sponsor_id uuid NOT NULL,
     kind text NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
-    CONSTRAINT sponsor_events_kind_check CHECK ((kind = ANY (ARRAY['vista_mappa'::text, 'vista_verdetto'::text, 'vista_gioco'::text, 'scheda'::text, 'chiama'::text, 'whatsapp'::text, 'indicazioni'::text, 'sito'::text, 'codice_creato'::text, 'codice_usato'::text, 'preventivo'::text, 'spedizione'::text])))
+    CONSTRAINT sponsor_events_kind_check CHECK ((kind = ANY (ARRAY['vista_mappa'::text, 'vista_verdetto'::text, 'vista_gioco'::text, 'scheda'::text, 'chiama'::text, 'whatsapp'::text, 'indicazioni'::text, 'sito'::text, 'codice_creato'::text, 'codice_usato'::text, 'preventivo'::text, 'spedizione'::text, 'visita'::text])))
 );
 
 --
@@ -6758,6 +6910,36 @@ CREATE SEQUENCE public.world_partite_id_seq
 ALTER SEQUENCE public.world_partite_id_seq OWNED BY public.world_partite.id;
 
 --
+-- Name: world_posti_visite; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_posti_visite (
+    id bigint NOT NULL,
+    user_id uuid NOT NULL,
+    chiave text NOT NULL,
+    kind text NOT NULL,
+    nome text,
+    at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
+-- Name: world_posti_visite_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_posti_visite_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_posti_visite_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_posti_visite_id_seq OWNED BY public.world_posti_visite.id;
+
+--
 -- Name: world_pres_defs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -7112,6 +7294,12 @@ ALTER TABLE ONLY public.world_log ALTER COLUMN id SET DEFAULT nextval('public.wo
 --
 
 ALTER TABLE ONLY public.world_partite ALTER COLUMN id SET DEFAULT nextval('public.world_partite_id_seq'::regclass);
+
+--
+-- Name: world_posti_visite id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_posti_visite ALTER COLUMN id SET DEFAULT nextval('public.world_posti_visite_id_seq'::regclass);
 
 --
 -- Name: world_presidi_tenute id; Type: DEFAULT; Schema: public; Owner: -
@@ -7544,6 +7732,13 @@ ALTER TABLE ONLY public.world_partite
     ADD CONSTRAINT world_partite_pkey PRIMARY KEY (id);
 
 --
+-- Name: world_posti_visite world_posti_visite_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_posti_visite
+    ADD CONSTRAINT world_posti_visite_pkey PRIMARY KEY (id);
+
+--
 -- Name: world_pres_defs world_pres_defs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -7804,6 +7999,12 @@ CREATE INDEX world_log_user ON public.world_log USING btree (user_id, seen);
 --
 
 CREATE INDEX world_partite_user ON public.world_partite USING btree (user_id, start_at DESC);
+
+--
+-- Name: world_posti_visite_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_posti_visite_user ON public.world_posti_visite USING btree (user_id, at DESC);
 
 --
 -- Name: world_presidi_holder; Type: INDEX; Schema: public; Owner: -
@@ -8348,6 +8549,13 @@ ALTER TABLE ONLY public.world_log
 
 ALTER TABLE ONLY public.world_partite
     ADD CONSTRAINT world_partite_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
+-- Name: world_posti_visite world_posti_visite_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_posti_visite
+    ADD CONSTRAINT world_posti_visite_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 --
 -- Name: world_pres_defs world_pres_defs_presidio_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -9019,6 +9227,12 @@ ALTER TABLE public.world_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.world_partite ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: world_posti_visite; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_posti_visite ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: world_pres_defs; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -9413,6 +9627,13 @@ GRANT ALL ON FUNCTION public.w_is_npc(p_bid text) TO anon;
 GRANT ALL ON FUNCTION public.w_is_npc(p_bid text) TO authenticated;
 
 --
+-- Name: FUNCTION w_lente_tick(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_lente_tick() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.w_lente_tick() TO service_role;
+
+--
 -- Name: FUNCTION w_median_near(p_user uuid); Type: ACL; Schema: public; Owner: -
 --
 
@@ -9617,6 +9838,13 @@ REVOKE ALL ON FUNCTION public.w_xp(p_user uuid, p_n integer) FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_zona_libera(p_user uuid, p_lat double precision, p_lon double precision, p_aid bigint) FROM PUBLIC;
+
+--
+-- Name: FUNCTION world_aiuto_lontano(p_target uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_aiuto_lontano(p_target uuid) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_aiuto_lontano(p_target uuid) TO authenticated;
 
 --
 -- Name: FUNCTION world_alleanza_chat(p_after bigint); Type: ACL; Schema: public; Owner: -
@@ -10200,6 +10428,13 @@ GRANT ALL ON FUNCTION public.world_near_survivors(p_lat double precision, p_lon 
 --
 
 GRANT ALL ON FUNCTION public.world_player(p_user uuid) TO authenticated;
+
+--
+-- Name: FUNCTION world_posto_visita(p_kind text, p_nome text, p_lat double precision, p_lon double precision, p_mylat double precision, p_mylon double precision); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_posto_visita(p_kind text, p_nome text, p_lat double precision, p_lon double precision, p_mylat double precision, p_mylon double precision) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_posto_visita(p_kind text, p_nome text, p_lat double precision, p_lon double precision, p_mylat double precision, p_mylon double precision) TO authenticated;
 
 --
 -- Name: FUNCTION world_prepare(); Type: ACL; Schema: public; Owner: -

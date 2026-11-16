@@ -164,6 +164,9 @@ function feedMsg(f: any, who: string, id: string): { title: string; body: string
       const m = T[k] || ["🚨 Evento qui vicino", "Tocca per partecipare col tuo superstite"];
       return { title: m[0], body: m[1], url: `/?go=mappa&evt=${id || ""}` }; }
     case "evento_vinto": return { title: "💥 Abbattuto!", body: `${who} ha dato il colpo finale a «${f.info || "l’evento"}»: hai ricevuto la tua parte di premi`, url: "/?go=mappa" };
+    case "zm_aiuto": { const [z, m] = String(f.info || "").split("|"); return { title: "🛡️ Ti hanno protetto!", body: `${who} ha abbattuto ${z || "uno zombie"} a ${m || "pochi"} m da casa tua. Ringrazialo o proponigli un’alleanza`, url: "/?go=social" }; }
+    case "lente": { const [z, c, r] = String(f.info || "").split("|"); return { title: +r >= 3 ? "👑 Zombie raro vicino a casa!" : "📷 Apri la Lente", body: `Vicino a casa tua: 🧟 ${z || 0} zombie${+c ? ` e 📦 ${c} ${+c === 1 ? "cassa" : "casse"}` : ""}. Esci e prendili: esperienza e scorte`, url: "/?go=mappa&lente=1" }; }
+    case "aiuto_lontano": return { title: "📦 Pacco di aiuti da lontano", body: `${who} ti ha mandato aiuti da ${Number(f.info || 0).toLocaleString("it-IT")} km: +6 alla tua difesa alla prossima orda`, url: "/?go=social" };
     case "boss_caduto": return { title: "💀 Boss abbattuto!", body: `«${f.info || "Il boss"}» è caduto: hai ricevuto la tua parte di premi`, url: "/?go=mappa&boss=1" };
     case "sfida_vinta": return { title: "🏆 Sfida del quartiere", body: `Sei arrivato ${f.info}° nel tuo quartiere la settimana scorsa: premio in 🧱 Mattoni!`, url: "/?go=mappa&sfida=1" };
     case "casa_manca": return { title: "🏠 Registra la tua casa nel mondo", body: "Abiti in un condominio? La tua casa non risulta ancora nel mondo: tocca qui e premi “Registra la mia casa” (o “Sono a casa adesso”). Senza, le orde non la contano e i vicini non ti vedono.", url: "/?go=mappa&reg=1" };
@@ -241,6 +244,8 @@ Deno.serve(async (req) => {
     try { await sb.rpc("w_sped_tick"); } catch { /* blocco SQL 020 non ancora eseguito */ }
     // eventi dal vivo e premi della sfida del quartiere (migrazione 022)
     try { await sb.rpc("w_eventi_tick"); } catch { /* blocco SQL 022 non ancora eseguito */ }
+    // "📷 Apri la Lente": zombie e casse vicino a casa, tra le 10 e le 20, al massimo ogni 8 ore (migrazione 027)
+    try { await sb.rpc("w_lente_tick"); } catch { /* blocco SQL 027 non ancora eseguito */ }
     try { await sb.rpc("w_sfida_premi"); } catch { /* blocco SQL 022 non ancora eseguito */ }
     // chi ha valutato la casa ma non ce l'ha nel mondo (condomini): promemoria al massimo ogni 3 giorni (migrazione 021)
     if (t.m < 10) { try { await sb.rpc("w_casa_manca_tick"); } catch { /* blocco SQL 021 non ancora eseguito */ } }

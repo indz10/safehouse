@@ -140,10 +140,10 @@ async function supSped(box){const d=SUP.d;const H=supPlaces();const via=supVia()
       .sort((a,b)=>(b.k==='sponsor'&&b.km<=d.raggio_km)-(a.k==='sponsor'&&a.km<=d.raggio_km)||a.km-b.km).slice(0,50);
     const recenti=(d.spedizioni||[]).filter(x=>Date.now()-new Date(x.start_at)<12*3600e3);
     pb.innerHTML=(stato?`<p class="muted supst">${stato}</p>`:'')+(L.length?L.map((p,i)=>{const c=supCalc(p.km);const b=p.k==='sponsor'?Math.round(c.bottino*4/3):c.bottino;const fuori=p.km>d.raggio_km;const gia=recenti.some(x=>Math.abs(x.lat-p.lat)<0.0003&&Math.abs(x.lon-p.lon)<0.0004);
-        const pieno=via.length>=maxs;const poca=d.energia<c.energia;const k=SUP_K[p.k]||SUP_K.misto;
+        const pieno=via.length>=maxs;const R0=(typeof RES!=='undefined'&&RES.d)||{};const poca=d.energia<c.energia;const scorte=R0.cibo!=null&&(R0.cibo<2+Math.ceil(p.km)||(R0.carb||0)<(p.km>3?Math.ceil(p.km/3):0));const k=SUP_K[p.k]||SUP_K.misto;
         return`<div class="supp ${fuori?'off':''} ${p.k==='sponsor'?'sp':''}"><span class="supi">${k[0]}</span><div><b>${esc(p.name)}</b><small>${esc(p.cat)} · ${kmTxt(p.km)} · ⏱ ${c.min} min · ⚠️ ${c.rischio}%</small>
-          <small class="supg">${supLoot(p.k,b)} · ⭐ +${c.xp+(p.k==='sponsor'?5:0)}</small></div>
-          <button class="btn small" data-spgo="${i}" ${fuori||gia||pieno||poca?'disabled':''}>${fuori?'Troppo lontano':gia?'Già visitato':pieno?'Squadra fuori':poca?`Serve ${c.energia} energia`:`Parti (${c.energia} energia)`}</button></div>`;}).join('')
+          <small class="supg">${supLoot(p.k,b)} · ⭐ +${c.xp+(p.k==='sponsor'?5:0)}</small><small class="supcost">Viaggio: 🥫 ${2+Math.ceil(p.km)}${p.km>3?' ⛽ '+Math.ceil(p.km/3):''} · di persona con la 📷 Lente è gratis</small></div>
+          <button class="btn small" data-spgo="${i}" ${fuori||gia||pieno||poca||scorte?'disabled':''}>${fuori?'Troppo lontano':gia?'Già visitato':pieno?'Squadra fuori':poca?`Serve ${c.energia} energia`:scorte?'Scorte insufficienti':`Parti (${c.energia} energia)`}</button></div>`;}).join('')
       :(stato?'':`<p class="muted">Nessun posto di questo tipo entro ${String(d.raggio_km).replace('.',',')} km. Prova un altro filtro o un’altra casa.</p>`));
     pb.querySelectorAll('[data-spgo]').forEach(b=>b.onclick=async()=>{const p=L[+b.dataset.spgo];b.disabled=true;
       try{const{data,error}=await SB.rpc('world_sped_parti',{p_kind:p.k,p_nome:p.name,p_lat:p.lat,p_lon:p.lon});if(error)throw error;toast(data.msg);if(data.ok&&p.k==='sponsor'&&p.sk){try{dbEvent(p.sk,'scheda');}catch(e){}}}catch(e){toast('Non riuscito: riprova');}

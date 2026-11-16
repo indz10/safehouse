@@ -69,7 +69,9 @@ w_in_alleanza(uuid, bigint) 5c963dd3f1
 w_is_npc(text) baa4920d26
 w_km(double precision, double precision, double precision, double precision) d1b3103a50
 w_league(integer) 049550122f
+w_lente_tick() 91d7ad7a70
 w_level(integer) b510960b5d
+w_lontano_costo(double precision) b8a4bb05b4
 w_lvl_of(uuid) 584babf18f
 w_max(integer) 76812ad5cd
 w_median_near(uuid) 1ef0515265
@@ -114,6 +116,7 @@ w_slope(text) 0dcd67cdba
 w_slot_id(timestamp with time zone) 5fd33c951a
 w_slot_t(text) 3048adad4f
 w_sped_calc(numeric, jsonb, jsonb, boolean) 2ad80807a7
+w_sped_costo(numeric) ece0057dfc
 w_sped_km(uuid, double precision, double precision) 10d4964e35
 w_sped_tick() 7608d6b7b3
 w_sup(uuid) 6e87cf96ab
@@ -140,6 +143,7 @@ w_zm_tipi() 718d02b32e
 w_zm_trova(text) 634565e13e
 w_zona_libera(uuid, double precision, double precision, bigint) f1ff4a04c7
 w_ztypes() 76112a7194
+world_aiuto_lontano(uuid) 0e40477078
 world_alleanza_chat(bigint) 6b3a056d2f
 world_alleanza_chat2(bigint, bigint) 29cbbb58ae
 world_alleanza_chiedi(bigint) 240c57e1f3
@@ -229,6 +233,7 @@ world_my_defense() 376cc40503
 world_my_effects() 7e4bd22f9b
 world_near_survivors(double precision, double precision, double precision) 479ebf94cf
 world_player(uuid) d549da37b6
+world_posto_visita(text, text, double precision, double precision, double precision, double precision) 87fb22391c
 world_prepare() 6c8f3e9765
 world_pres_fortifica(text, text) 0921041cb2
 world_presenza(double precision, double precision, double precision) 9d781fb54b
@@ -253,7 +258,7 @@ world_seen() ce2347cdff
 world_sell(text) 75a73e6d6f
 world_send_attack(uuid) 1b9ef66106
 world_send_curse(uuid, text) bbdf70a979
-world_send_help(uuid) aa1c73cbbe
+world_send_help(uuid) f030546bb1
 world_set_home(text, text) f3eb706e13
 world_set_mezzo_vero(text, integer) a344e73057
 world_set_realshield(integer) 9aae268eb7
@@ -261,7 +266,7 @@ world_sfida_quartiere() 4d02fd8635
 world_shape_get(text, text) 9835883569
 world_shape_put(text, text, jsonb) c184167164
 world_shout(uuid, integer) ab6a2241e6
-world_sped_parti(text, text, double precision, double precision) 782017806c
+world_sped_parti(text, text, double precision, double precision) d99a7ed99d
 world_sped_raccogli(bigint) d1d4a6be0c
 world_status_extra() b12cc9499a
 world_sup_abilita(text) dd94b1074a
@@ -276,7 +281,7 @@ world_trade(text, integer) ee230abc99
 world_upgrade(text) 56e37f8b3d
 world_view(double precision, double precision, double precision, double precision) 8d26637b91
 world_welcome() 91b230ff05
-world_zombie_fine(bigint, boolean) 32b6a853fe
+world_zombie_fine(bigint, boolean) dc5c05c970
 world_zombie_lotta(text, double precision, double precision) 59dd248e33
 world_zombie_vicini(double precision, double precision) 5bbe1b845b
 world_zombipedia() e3b20b95f2
@@ -338,6 +343,7 @@ world_homes df7624c7
 world_house_req e60b8c36
 world_log a7c8214e
 world_partite 49661f40
+world_posti_visite e5cb7b24
 world_pres_defs 8a272827
 world_presidi f2b03cfd
 world_presidi_guardie 7b35dd10
