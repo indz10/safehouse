@@ -102,6 +102,13 @@ Solo nel server (`w_sped_calc` e dintorni); l'app (`supCalc` in p82) copia la fo
 - Lotta (`world_zombie_lotta`): entro 80 m, 🔋 1, max 40 al giorno; vita = vita del tipo + ⌊grado / 8⌋. Vinta (`world_zombie_fine`) solo se durata ≥ vita × 0,35 s e ≤ 300 s; esperienza 8 / 15 / 30 / 60 per rarità (+20 se tipo nuovo per la Zombipedia); scorte q = 4 / 7 / 12 / 20 di 🪵 e 🥫, q/2 di ⛽ (passa da `w_res`); 🧱 10 (raro) / 30 (leggendario).
 - Cassa (`world_cassa_apri`): entro 40 m, una volta per giocatore; 🪵 e 🥫 6–15, ⛽ 3–8, esperienza 10; 15% 🧱 10–24; 10% 💣 bomba (max 5).
 
+## Il mondo vero (migrazione 027)
+- Posto di persona (`world_posto_visita`): entro 0,05 km (GPS), ogni posto (chiave = round(lat × 2500):round(lon × 2000)) una volta ogni 12 ore, max 12 al giorno; niente energia né scorte. Bottino b = 15 + min(15, grado) (+8 sponsor), diviso per tipo come la spedizione (cibo → 🥫 b; legno → 🪵 b; carb → ⛽ round(0,6 b); farmaco → 🥫 b/2 e 🔋 +2; sponsor → 🪵 b/2, 🥫 b/2, ⛽ b/3; misto → b/3 ciascuno); esperienza 15 (+5 sponsor).
+- Spedizione col superstite: oltre all'energia, costo di viaggio `w_sped_costo` = 🥫 2 + ⌈km⌉, ⛽ ⌈km / 3⌉ se km > 3.
+- Zombie abbattuto: novità `zm_aiuto` a chi ha la casa vera entro 0,2 km dallo zombie (max una ogni 3 ore dallo stesso giocatore).
+- "Apri la Lente" (`w_lente_tick`): tra le 10 e le 20 (Roma), al massimo ogni 8 ore, a chi ha le notifiche e zombie o casse non presi nei quadretti ±2 intorno a casa.
+- Pacco da lontano (`world_aiuto_lontano`, solo alleati): 🥫 20, ⛽ 10 + min(40, ⌈km / 250⌉), 🧱 25; +6 alla difesa all'orda successiva a (adesso + 3 ore); max 2 al giorno. `world_send_help` lo propone quando la distanza supera la portata del proprio mezzo migliore.
+
 ## Difesa nella Lente e boss della settimana (migrazione 026)
 - Difesa: entro 0,3 km dalla casa vera (`world_homes`), 🔋 1, max 6 al giorno. Torrette = 1 + min(2, torretta dell'Assedio); vite della casa = 5 + casa dell'Assedio. 3 ondate: zombie per ondata = min(8, 2 + ondata + ⌊grado / 6⌋); bruto con probabilità 0,1 + 0,06 × ondata (4 colpi), altrimenti corridore 35% / lento (2 colpi); ritardo = (ondata − 1) × 22 + (i − 1) × 2,4 + caso(0–1,5) s.
 - Fine (`world_difar_fine`): abbattuti = min(dichiarati, n, ⌊(secondi − 2) / 0,8⌋), zero oltre 600 s; vinta se la casa ha vite e sono passati almeno i secondi dell'ultimo zombie. Esperienza 4 × abbattuti + 25 se vinta; scorte q = 2 × abbattuti + 10 se vinta (🪵 q, 🥫 q, ⛽ q/2); 🧱 15 alla prima vittoria del giorno.
