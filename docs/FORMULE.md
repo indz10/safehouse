@@ -97,6 +97,11 @@ Solo nel server (`w_sped_calc` e dintorni); l'app (`supCalc` in p82) copia la fo
 - Cassa (30 min): primi 3 → 24 / 14 / 8 di 🪵 🥫 ⛽, ⭐ 30 / 20 / 10. Salva (30 min): 🥫 5 → ⭐ 50, 🧱 20, ⛽ 10. Nido (60 min) e sponsor (45 min): vita = min(80, 20 + 10 × giocatori della cella); colpo = 5 + ⌊grado / 2⌋ + 2 × Combattente + 2 × Arma, ⭐ 5 a colpo, max 3 colpi a testa; quando cade a ognuno 10 + round(40 × danno suo / danno totale) di 🪵 e 🥫 (metà ⛽), ⭐ 20 + danno; 🧱 15 al colpo finale. Ogni mossa ⚡ 1, solo entro il raggio del superstite.
 - Sfida: punti = zombie abbattuti × 2 + spedizioni raccolte × 5 + mosse negli eventi × 10, settimana da lunedì (ora di Roma); quartiere = case entro 10 km; premi il lunedì ai primi 3 del proprio quartiere: 🧱 150 / 100 / 50.
 
+## Zombie nel mondo vero (migrazione 025)
+- Quadretti di 0,0014° × 0,0019° (~150 m); ogni ora (`w_zm_ora` = ore dal 1970) ogni quadretto ha uno zombie con probabilità 35% e una cassa con probabilità 7%, posizione e tipo da `hashtext` (uguali per tutti). Rarità: comune 60%, non comune 25%, raro 12%, leggendario 3%. `world_zombie_vicini` mostra la griglia ±4 quadretti.
+- Lotta (`world_zombie_lotta`): entro 80 m, 🔋 1, max 40 al giorno; vita = vita del tipo + ⌊grado / 8⌋. Vinta (`world_zombie_fine`) solo se durata ≥ vita × 0,35 s e ≤ 300 s; esperienza 8 / 15 / 30 / 60 per rarità (+20 se tipo nuovo per la Zombipedia); scorte q = 4 / 7 / 12 / 20 di 🪵 e 🥫, q/2 di ⛽ (passa da `w_res`); 🧱 10 (raro) / 30 (leggendario).
+- Cassa (`world_cassa_apri`): entro 40 m, una volta per giocatore; 🪵 e 🥫 6–15, ⛽ 3–8, esperienza 10; 15% 🧱 10–24; 10% 💣 bomba (max 5).
+
 ## Difendi la casa (migrazione 023)
 - Vite = min(8, livello della casa vera + 2) + 2 con 🛡️ scudo. Costo ⚡ 1 (prima partita del giorno gratis), max 15 al giorno. Velocità degli zombie × (1 + 0,04 × min(grado, 20)).
 - Fine: abbattuti = min(dichiarati, ⌊secondi × 4⌋ + 12 × bombe usate, 260), zero oltre 5 minuti; casa salva solo se dichiarata e partita ≥ 40 s. ⭐ = 2 × abbattuti + 15 se salva; ⌊abbattuti / 2⌋ scorte da 2 (🥫 40% / 🪵 35% / ⛽ 25%); casa salva 🧱 5 (max 50 al giorno).

@@ -129,6 +129,10 @@ w_wallet(uuid) 27de1a6e90
 w_wxev(text, text) 042a705ec9
 w_xp(uuid, integer) d133cceaa6
 w_zm(text, numeric, text, integer) 94a9eab19e
+w_zm_ora() 380a5e5e72
+w_zm_qua(integer, integer, bigint) da0f1aff96
+w_zm_tipi() 718d02b32e
+w_zm_trova(text) 634565e13e
 w_zona_libera(uuid, double precision, double precision, bigint) f1ff4a04c7
 w_ztypes() 76112a7194
 world_alleanza_chat(bigint) 6b3a056d2f
@@ -168,6 +172,7 @@ world_buy(text, double precision, double precision) c1440ed06d
 world_buy_mezzo(text) 18d40e73af
 world_caccia_fine(bigint, integer) 578ccf45de
 world_caccia_inizia() 2f03ec55ac
+world_cassa_apri(text, double precision, double precision) 3cb92372a4
 world_chat_list(text, bigint) ffb3c046c7
 world_chat_report(bigint) 89cee22a5d
 world_chat_send(text, text) 8c7ba570ba
@@ -261,6 +266,10 @@ world_trade(text, integer) ee230abc99
 world_upgrade(text) 56e37f8b3d
 world_view(double precision, double precision, double precision, double precision) 8d26637b91
 world_welcome() 91b230ff05
+world_zombie_fine(bigint, boolean) 32b6a853fe
+world_zombie_lotta(text, double precision, double precision) 59dd248e33
+world_zombie_vicini(double precision, double precision) 5bbe1b845b
+world_zombipedia() e3b20b95f2
 zsh_stats() 9085d780db
 TABELLE
 admins 05af36e7
@@ -330,6 +339,8 @@ world_superstite 3b3a0d2c
 world_terrain b6c5b216
 world_wallet 0fde9277
 world_wx 6b1c15c8
+world_zombie_lotte 0788ba7f
+world_zombie_presi da614ede
 REGOLE
 admins admin vede admin
 coupons lettura codici

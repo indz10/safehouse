@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **66** · viste: **1** · indici: **27** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
-- Funzioni: **263** (263 nomi); usate (direttamente o tramite altre funzioni): **255**; **non usate: 8**
+- Tabelle: **68** · viste: **1** · indici: **29** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
+- Funzioni: **272** (272 nomi); usate (direttamente o tramite altre funzioni): **264**; **non usate: 8**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -73,7 +73,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_en_add` |  |  |  | w_sup_inviti, world_sped_raccogli, world_sup_serie, world_sup_share | 1: migr. 020_superstite |
 | `w_en_max` |  |  |  | w_sup, w_en_add, world_sup_info, world_sped_parti, world_caccia_inizia, world_evento_azione … | 1: migr. 020_superstite |
 | `w_en_ric` |  |  |  | w_sup, world_sup_info, world_sped_parti, world_caccia_inizia, world_evento_azione, world_difesa_inizia … | 1: migr. 020_superstite |
-| `w_eq` |  |  |  | w_sped_calc, world_sup_info, world_sup_equip, world_sped_parti, world_caccia_inizia, world_evento_azione | 1: migr. 020_superstite |
+| `w_eq` |  |  |  | w_sped_calc, world_sup_info, world_sup_equip, world_sped_parti, world_caccia_inizia, world_evento_azione … | 1: migr. 020_superstite |
 | `w_eventi_tick` |  | ✓ |  |  | 1: migr. 022_eventi_sfide |
 | `w_feed_add` |  |  |  | w_tr_feed, w_tr_dm, world_house_invite, world_house_answer, w_pres_tick, w_assalti_tick … | 1: social |
 | `w_fort` |  |  |  | world_send_attack, world_player, w_atk_b, world_edificio_info, world_consigli | 2: migr. 014_territorio → migr. 017_presidi_fortificazioni |
@@ -150,6 +150,10 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_wxev` |  |  |  | w_attack3, w_threats_of | 2: zombie → zombie_alleati |
 | `w_xp` |  |  |  | w_pay, world_sped_raccogli, world_sup_serie, world_sup_share, world_caccia_fine, world_evento_azione … | 1: migr. 020_superstite |
 | `w_zm` |  |  |  | w_attack3, w_threats_of | 2: zombie → zombie_alleati |
+| `w_zm_ora` |  |  |  | world_zombie_vicini, w_zm_trova | 1: migr. 025_zombie_mondo |
+| `w_zm_qua` |  |  |  | world_zombie_vicini, w_zm_trova | 1: migr. 025_zombie_mondo |
+| `w_zm_tipi` |  |  |  | w_zm_qua, world_zombie_lotta, world_zombie_fine, world_zombipedia | 1: migr. 025_zombie_mondo |
+| `w_zm_trova` |  |  |  | world_zombie_lotta, world_cassa_apri | 1: migr. 025_zombie_mondo |
 | `w_zona_libera` |  |  |  | w_ancora, world_alleanza_fonda | 1: migr. 019_alleanze_multiple |
 | `w_ztypes` |  |  |  | w_attack3, w_threats_of | 3: zombie → zombie_alleati → fortezze |
 | `world_alleanza_chat` |  |  |  |  | 2: migr. 018_alleanze_gruppi → migr. 019_alleanze_multiple |
@@ -189,6 +193,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_buy_mezzo` | ✓ |  |  |  | 1: migr. 009_mezzi_assalti |
 | `world_caccia_fine` | ✓ |  |  |  | 1: migr. 021_caccia_condomini |
 | `world_caccia_inizia` | ✓ |  |  |  | 1: migr. 021_caccia_condomini |
+| `world_cassa_apri` | ✓ |  |  |  | 1: migr. 025_zombie_mondo |
 | `world_chat_list` | ✓ |  |  |  | 1: chat |
 | `world_chat_report` | ✓ |  |  |  | 1: chat |
 | `world_chat_send` | ✓ |  |  |  | 1: chat |
@@ -282,6 +287,10 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_upgrade` | ✓ |  |  |  | 1: mondo_unico |
 | `world_view` | ✓ |  |  |  | 4: mondo_unico → residenti → casa_abitata → nome_casa |
 | `world_welcome` | ✓ |  |  |  | 1: equita |
+| `world_zombie_fine` | ✓ |  |  |  | 1: migr. 025_zombie_mondo |
+| `world_zombie_lotta` | ✓ |  |  |  | 1: migr. 025_zombie_mondo |
+| `world_zombie_vicini` | ✓ |  |  |  | 1: migr. 025_zombie_mondo |
+| `world_zombipedia` | ✓ |  |  |  | 1: migr. 025_zombie_mondo |
 | `zsh_stats` | ✓ |  |  |  | 2: ZombieSafeHouse_backend_sponsor → community |
 
 ## Tabelle
@@ -353,3 +362,5 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_terrain` | zombie | 0 | ✓ |
 | `world_wallet` | mondo_unico | 3 | ✓ |
 | `world_wx` | zombie | 0 | ✓ |
+| `world_zombie_lotte` | supabase/migrazioni/025_zombie_mondo | 0 | ✓ |
+| `world_zombie_presi` | supabase/migrazioni/025_zombie_mondo | 0 | ✓ |
