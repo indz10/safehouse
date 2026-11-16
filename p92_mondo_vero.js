@@ -42,7 +42,7 @@ function mvPoiExtra(x){const L=LENTE;const pan=L.root&&L.root.querySelector('.ln
   box.querySelector('[data-mvsped]').onclick=async e=>{e.currentTarget.disabled=true;try{const{data,error}=await SB.rpc('world_sped_parti',{p_kind:k,p_nome:x.name,p_lat:x.lat,p_lon:x.lon});if(error)throw error;toast(data.msg);if(data.ok){RES.t=0;try{resLoad(true);supLoad(true);}catch(er){}}}catch(er){toast('Non riuscito: riprova');}};}
 async function mvVisita(x,k){const p=LENTE.pos||S.geo;if(!p){toast('📍 Serve la posizione');return;}let r=null;
   try{const{data,error}=await SB.rpc('world_posto_visita',{p_kind:k,p_nome:x.name,p_lat:x.lat,p_lon:x.lon,p_mylat:p.lat,p_mylon:p.lon});if(error)throw error;r=data;}catch(e){toast('📍 I posti di persona arrivano dopo l’aggiornamento del server (blocco SQL 027)');return;}
-  if(!r.ok){toast(r.msg);return;}if(x.k==='sponsor'&&x.sk){try{dbEvent(x.sk,'scheda');}catch(e){}}
+  if(!r.ok){if(/già passato/.test(r.msg||'')){try{pvSegna(x);}catch(e){}}toast(r.msg);return;}try{pvSegna(x);}catch(e){}if(x.k==='sponsor'&&x.sk){try{dbEvent(x.sk,'scheda');}catch(e){}}
   RES.t=0;try{resLoad(true);supLoad(true);}catch(e){}try{sfx&&sfx('win');}catch(e){}
   toast(`🎁 ${x.name}: ${[r.legno?'🪵 +'+r.legno:'',r.cibo?'🥫 +'+r.cibo:'',r.carb?'⛽ +'+r.carb:'',r.energia?'🔋 +'+r.energia:'','⭐ +'+r.xp].filter(Boolean).join(' ')}${r.salito?' · 🎖️ grado '+r.grado+'!':''}`);
   const pan=LENTE.root&&LENTE.root.querySelector('.lnpan');if(pan)pan.remove();}

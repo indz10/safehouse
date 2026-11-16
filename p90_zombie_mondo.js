@@ -39,7 +39,8 @@ function zmRender(){const L=LENTE;if(!L.on||!L.root||!L.pos)return;const lay=L.r
   zmAct(mira,vic);
   const rd=L.root.querySelector('.zmradar b');if(rd){if(!vic)rd.textContent=ZM.L.length?'🧟 Tutti presi qui: torna fra un’ora':'🧟 Cerco zombie…';
     else{const rel=((lnBearing(L.pos.lat,L.pos.lon,vic.lat,vic.lon)-head+540)%360)-180;const fr=Math.abs(rel)<20?'⬆️ davanti':rel<0?'⬅️ a sinistra':'➡️ a destra';
-      rd.textContent=`${vic.k==='cassa'?'📦':'🧟'} ${vivi.length} qui intorno · il più vicino ${Math.round(vic.d)} m ${fr}`;}}}
+      rd.textContent=`${vic.k==='cassa'?'📦':'🧟'} ${vivi.length} qui intorno · il più vicino ${Math.round(vic.d)} m ${fr}`;}}
+  if(rd&&typeof pvLente==='function'){const n=pvLente().filter(q=>!pvPreso(q)&&trM(L.pos.lat,L.pos.lon,q.lat,q.lon)<=80).length;if(n)rd.textContent+=` · 🎁 ${n} ${n===1?'posto':'posti'}`;}}
 function zmTap(z){const p=LENTE.pos;const d=trM(p.lat,p.lon,z.lat,z.lon);
   if(z.k==='cassa'){if(d>40){toast(`📦 Avvicinati: sei a ${Math.round(d)} m (serve meno di 40)`);return;}zmCassa(z);return;}
   if(d>80){toast(`🧟 Avvicinati: sei a ${Math.round(d)} m (serve meno di 80)`);return;}zmSpara(z);}
