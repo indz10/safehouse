@@ -160,4 +160,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 25 | fatta (#69) | #69 | 📬 Richieste in un posto solo (accetta/rifiuta alleanze, inviti, coinquilini); energia 🔋 spiegata, eventi 🚨 |
 | 26 | fatta (#70; migrazione 024) | #70 | 🧟 Assedio a livelli al posto di Difendi la casa: strada dei livelli, difese da piazzare, stelle, potenziamenti |
 | 27 | fatta (#71; nessun SQL) | #71 | 📱 schermata semplice con 4 tasti in basso (Mondo, Gioca, Io, Amici): stesse funzioni, meno pulsanti sullo schermo |
-| 28 | in revisione (migrazione 025) | — | 🧟 zombie nel mondo vero nella Lente (stile Pokémon GO), 📦 casse, 📖 Zombipedia, lotta con punti deboli e schivate; dopo: difesa in realtà aumentata e boss |
+| 28 | fatta (#72; migrazione 025) | #72 | 🧟 zombie nel mondo vero nella Lente (stile Pokémon GO), 📦 casse, 📖 Zombipedia, lotta con punti deboli e schivate; dopo: difesa in realtà aumentata e boss |
+| 29 | in revisione (migrazione 026) | — | 🛡️ difesa della casa nella Lente (torrette nelle direzioni vere, 3 ondate) e 👹 boss della settimana per zona, più forte insieme agli alleati |

@@ -102,6 +102,12 @@ Solo nel server (`w_sped_calc` e dintorni); l'app (`supCalc` in p82) copia la fo
 - Lotta (`world_zombie_lotta`): entro 80 m, 🔋 1, max 40 al giorno; vita = vita del tipo + ⌊grado / 8⌋. Vinta (`world_zombie_fine`) solo se durata ≥ vita × 0,35 s e ≤ 300 s; esperienza 8 / 15 / 30 / 60 per rarità (+20 se tipo nuovo per la Zombipedia); scorte q = 4 / 7 / 12 / 20 di 🪵 e 🥫, q/2 di ⛽ (passa da `w_res`); 🧱 10 (raro) / 30 (leggendario).
 - Cassa (`world_cassa_apri`): entro 40 m, una volta per giocatore; 🪵 e 🥫 6–15, ⛽ 3–8, esperienza 10; 15% 🧱 10–24; 10% 💣 bomba (max 5).
 
+## Difesa nella Lente e boss della settimana (migrazione 026)
+- Difesa: entro 0,3 km dalla casa vera (`world_homes`), 🔋 1, max 6 al giorno. Torrette = 1 + min(2, torretta dell'Assedio); vite della casa = 5 + casa dell'Assedio. 3 ondate: zombie per ondata = min(8, 2 + ondata + ⌊grado / 6⌋); bruto con probabilità 0,1 + 0,06 × ondata (4 colpi), altrimenti corridore 35% / lento (2 colpi); ritardo = (ondata − 1) × 22 + (i − 1) × 2,4 + caso(0–1,5) s.
+- Fine (`world_difar_fine`): abbattuti = min(dichiarati, n, ⌊(secondi − 2) / 0,8⌋), zero oltre 600 s; vinta se la casa ha vite e sono passati almeno i secondi dell'ultimo zombie. Esperienza 4 × abbattuti + 25 se vinta; scorte q = 2 × abbattuti + 10 se vinta (🪵 q, 🥫 q, ⛽ q/2); 🧱 15 alla prima vittoria del giorno.
+- Boss: zona = cella 0,25° × 0,35°, settimana ISO (ora di Roma), finisce il lunedì alle 00:00; vita = min(4000, 300 + 150 × case della cella). Colpo: max 3 al giorno, 🔋 1; base = 1 + 1 (Arma ≥ 2) + ⌊Combattente / 2⌋; molt = min(2, 1 + 0,25 × alleati che l'hanno colpito oggi); colpi = min(dichiarati, 45, ⌊secondi / 0,45⌋), zero oltre 120 s; danno = round(colpi × base × molt) + grado; esperienza 5 + ⌊colpi / 3⌋.
+- Caduta: a ognuno 🪵 e 🥫 25 + min(75, ⌊danno / 8⌋), ⛽ 10 + min(40, ⌊danno / 16⌋), esperienza 40 + min(80, ⌊danno / 5⌋); 🧱 40 / 25 / 15 ai primi 3 per danno.
+
 ## Difendi la casa (migrazione 023)
 - Vite = min(8, livello della casa vera + 2) + 2 con 🛡️ scudo. Costo ⚡ 1 (prima partita del giorno gratis), max 15 al giorno. Velocità degli zombie × (1 + 0,04 × min(grado, 20)).
 - Fine: abbattuti = min(dichiarati, ⌊secondi × 4⌋ + 12 × bombe usate, 260), zero oltre 5 minuti; casa salva solo se dichiarata e partita ≥ 40 s. ⭐ = 2 × abbattuti + 15 se salva; ⌊abbattuti / 2⌋ scorte da 2 (🥫 40% / 🪵 35% / ⛽ 25%); casa salva 🧱 5 (max 50 al giorno).

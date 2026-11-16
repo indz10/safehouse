@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **68** · viste: **1** · indici: **29** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
-- Funzioni: **272** (272 nomi); usate (direttamente o tramite altre funzioni): **264**; **non usate: 8**
+- Tabelle: **71** · viste: **1** · indici: **32** · regole (policy): **42** · trigger: **16** · lavori programmati: **3**
+- Funzioni: **282** (282 nomi); usate (direttamente o tramite altre funzioni): **274**; **non usate: 8**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -45,7 +45,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_are_allies` |  |  |  | world_quote, world_send_help, world_send_attack, world_give, world_feed_list, world_player … | 5: mondo_v4 → social → alleanze2 → migr. 013_condominio → migr. 018_alleanze_gruppi |
 | `w_ass` |  |  |  | world_assedio_info, world_assedio_inizia, world_assedio_fine, world_assedio_potenzia | 1: migr. 024_assedio |
 | `w_ass_piano` |  |  |  | world_assedio_inizia | 1: migr. 024_assedio |
-| `w_ass_up` |  |  |  | world_assedio_inizia, world_assedio_potenzia | 1: migr. 024_assedio |
+| `w_ass_up` |  |  |  | world_assedio_inizia, world_assedio_potenzia, world_difar_inizia | 1: migr. 024_assedio |
 | `w_assalti_tick` |  |  |  | world_raid_status, world_edificio_info, world_consigli | 1: migr. 014_territorio |
 | `w_atk_b` |  |  |  | w_azione | 1: migr. 014_territorio |
 | `w_atk_pts` |  |  |  |  | 1: migr. 009_mezzi_assalti |
@@ -54,6 +54,11 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_azione` |  |  |  | world_edificio_info, world_assalta, world_difendi, world_assi, world_consigli | 2: migr. 014_territorio → migr. 017_presidi_fortificazioni |
 | `w_bad` |  |  |  | world_chat_send, world_dm_send, world_alleanza_fonda, world_alleanza_scrivi2 | 1: chat |
 | `w_boost` |  |  |  | w_pay, world_status_extra | 1: equita |
+| `w_boss_cella` |  |  |  | w_boss_di | 1: migr. 026_difesa_lente_boss |
+| `w_boss_di` |  |  |  | world_boss_info, world_boss_inizia | 1: migr. 026_difesa_lente_boss |
+| `w_boss_molt` |  |  |  | world_boss_info, world_boss_inizia | 1: migr. 026_difesa_lente_boss |
+| `w_boss_settimana` |  |  |  | w_boss_di | 1: migr. 026_difesa_lente_boss |
+| `w_boss_tipi` |  |  |  | w_boss_di | 1: migr. 026_difesa_lente_boss |
 | `w_canon` |  |  |  | world_claim_home, world_quote, world_buy, w_target | 3: mondo_unico → mondo_unico_agg1 → abitazione |
 | `w_casa_extra` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of, w_pres_def … | 1: migr. 014_territorio |
 | `w_casa_manca_tick` |  | ✓ |  |  | 1: migr. 021_caccia_condomini |
@@ -188,6 +193,9 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_assedio_potenzia` | ✓ |  |  |  | 1: migr. 024_assedio |
 | `world_assi` | ✓ |  |  |  | 1: migr. 014_territorio |
 | `world_block` | ✓ |  |  |  | 1: chat |
+| `world_boss_fine` | ✓ |  |  |  | 1: migr. 026_difesa_lente_boss |
+| `world_boss_info` | ✓ |  |  |  | 1: migr. 026_difesa_lente_boss |
+| `world_boss_inizia` | ✓ |  |  |  | 1: migr. 026_difesa_lente_boss |
 | `world_bottega_compra` | ✓ |  |  |  | 1: migr. 023_difendi_casa |
 | `world_buy` | ✓ |  |  |  | 4: mondo_unico → mondo_unico_agg1 → casa_abitata → nome_casa |
 | `world_buy_mezzo` | ✓ |  |  |  | 1: migr. 009_mezzi_assalti |
@@ -206,6 +214,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_consigli` | ✓ |  |  |  | 1: migr. 016_presidi_guida |
 | `world_coresidents` | ✓ |  |  |  | 1: residenti |
 | `world_def_upgrade` | ✓ |  |  |  | 4: zombie → zombie_alleati → assedio → fortezze |
+| `world_difar_fine` | ✓ |  |  |  | 1: migr. 026_difesa_lente_boss |
+| `world_difar_inizia` | ✓ |  |  |  | 1: migr. 026_difesa_lente_boss |
 | `world_difendi` | ✓ |  |  |  | 1: migr. 014_territorio |
 | `world_difesa_bomba` | ✓ |  |  |  | 1: migr. 023_difendi_casa |
 | `world_difesa_fine` | ✓ |  |  |  | 1: migr. 023_difendi_casa |
@@ -326,6 +336,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_attack_given` | mondo_v3 | 1 | ✓ |
 | `world_blocks` | chat | 0 | ✓ |
 | `world_bonus` | mondo_unico | 0 | ✓ |
+| `world_boss` | supabase/migrazioni/026_difesa_lente_boss | 0 | ✓ |
+| `world_boss_colpi` | supabase/migrazioni/026_difesa_lente_boss | 0 | ✓ |
 | `world_buildings` | mondo_unico | 0 | ✓ |
 | `world_cacce` | supabase/migrazioni/021_caccia_condomini | 0 | ✓ |
 | `world_chat` | chat | 0 | ✓ |
@@ -335,6 +347,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_condo_rifts` | supabase/migrazioni/013_condominio | 0 | ✓ |
 | `world_curses` | dispetti | 0 | ✓ |
 | `world_defs` | zombie | 2 | ✓ |
+| `world_difar` | supabase/migrazioni/026_difesa_lente_boss | 0 | ✓ |
 | `world_dm` | assedio | 0 | ✓ |
 | `world_eventi` | supabase/migrazioni/022_eventi_sfide | 0 | ✓ |
 | `world_eventi_azioni` | supabase/migrazioni/022_eventi_sfide | 0 | ✓ |

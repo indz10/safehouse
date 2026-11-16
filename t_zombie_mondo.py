@@ -45,7 +45,7 @@ async def main():
         print('troppo lontano:',await pg.evaluate("()=>window.__T"))
         await pg.evaluate("()=>document.querySelector('#lente [data-zmped]').click()");await pg.wait_for_timeout(1200)
         print('zombipedia:',await pg.evaluate("()=>[(document.querySelector('#lente .zmped b')||{}).textContent,document.querySelectorAll('#lente .zmcard').length]"))
-        await pg.evaluate("()=>lenteClose()");await pg.wait_for_timeout(800)
+        await pg.evaluate("()=>lenteClose()");await pg.wait_for_timeout(2000)
         await pg.evaluate("()=>document.querySelector('.sbar [data-sb=gioca]').click()");await pg.wait_for_timeout(800)
         print('gioca:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .sbtile b')].map(x=>x.textContent).filter(t=>/Lente|Zombipedia/.test(t))"))
         print('ERR',E);await b.close()
