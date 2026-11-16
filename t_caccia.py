@@ -20,7 +20,7 @@ async def main():
         async def bussola(h):
             await pg.evaluate("h=>{for(let i=0;i<20;i++){const e=new Event('deviceorientation');Object.defineProperty(e,'webkitCompassHeading',{value:h});Object.defineProperty(e,'beta',{value:90});window.dispatchEvent(e);}}",h)
             await pg.wait_for_timeout(300)
-        await pg.click('[data-mwlente]');await pg.wait_for_timeout(2500);await bussola(0)
+        await pg.evaluate("()=>document.querySelector('[data-mwlente]').click()");await pg.wait_for_timeout(2500);await bussola(0)
         print('pulsante caccia:',await pg.evaluate("()=>{const b=document.querySelector('#lente [data-cacgo]');return b&&b.textContent}"))
         en0=await pg.evaluate("()=>__SUP.energia")
         await pg.evaluate("()=>document.querySelector('#lente [data-cacgo]').click()");await pg.wait_for_timeout(1800)
