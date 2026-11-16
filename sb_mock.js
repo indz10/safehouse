@@ -40,6 +40,11 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_assedio_bomba':return{data:{ok:true,bombe:0},error:null};
   case'world_assedio_fine':{const A=window.__ASS;window.__ASSF=a;if(a.p_vinto){A.stelle[3]=a.p_stelle;A.max_liv=Math.max(A.max_liv,3);}return{data:{ok:true,vinto:a.p_vinto,stelle:a.p_stelle,nuove:a.p_stelle,uccisi:a.p_uccisi,xp:40,legno:7,cibo:7,carb:7,mattoni:a.p_vinto?8:0,max_liv:A.max_liv,grado:3,salito:false},error:null};}
   case'world_assedio_potenzia':{const A=window.__ASS;A.up[a.p_k]=(A.up[a.p_k]||0)+1;return{data:{ok:true,livello:A.up[a.p_k],msg:'Potenziato!'},error:null};}
+  case'world_zombie_vicini':{const la=a.p_lat,lo=a.p_lon;const P=window.__ZMP=window.__ZMP||[{k:'zombie',id:'z1_1_1',tipo:'bruto',lat:la+0.0003,lon:lo,preso:false},{k:'zombie',id:'z2_2_1',tipo:'re',lat:la-0.002,lon:lo+0.001,preso:false},{k:'cassa',id:'c1_1_1',lat:la+0.0001,lon:lo-0.0001,preso:false}];return{data:{ora:1,fine:new Date(Date.now()+30*60e3).toISOString(),L:P},error:null};}
+  case'world_zombie_lotta':{const z=(window.__ZMP||[]).find(x=>x.id===a.p_id);return{data:{ok:true,id:3,tipo:z.tipo,nome:'Bruto',ic:'💪',rar:2,hp:window.__ZMHP||3,danno:1,cuori:3},error:null};}
+  case'world_zombie_fine':{window.__ZMF=a;if(a.p_vinto){const z=(window.__ZMP||[])[0];if(z)z.preso=true;}return{data:a.p_vinto?{ok:true,vinto:true,nome:'Bruto',ic:'💪',rar:2,nuovo:true,xp:35,legno:7,cibo:7,carb:3,mattoni:0,salito:false,grado:3}:{ok:true,vinto:false,nome:'Bruto'},error:null};}
+  case'world_cassa_apri':{const z=(window.__ZMP||[]).find(x=>x.id===a.p_id);if(z)z.preso=true;return{data:{ok:true,legno:9,cibo:8,carb:4,mattoni:0,bomba:false,xp:10},error:null};}
+  case'world_zombipedia':return{data:{tipi:[{k:'vagante',nome:'Vagante',ic:'🧟',rar:1,hp:3,presi:2},{k:'bruto',nome:'Bruto',ic:'💪',rar:2,hp:6,presi:window.__ZMF&&window.__ZMF.p_vinto?1:0},{k:'re',nome:'Re dei morti',ic:'👑',rar:4,hp:14,presi:0}],casse:1},error:null};
   case'world_seen':return{data:null,error:null};
   case'sponsor_request':{window.__SPREQ=a.p;return{data:a.p&&a.p.name?{ok:true,id:'sp1',msg:'Richiesta inviata'}:{ok:false,msg:'Scrivi il nome'},error:null};}
   case'world_presidi_list':{const P=window.__PRES=window.__PRES||[];if(!P.length&&!window.__PRES_VUOTO){const la=(a.p_minlat+a.p_maxlat)/2,lo=(a.p_minlon+a.p_maxlon)/2;
