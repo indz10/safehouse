@@ -18,24 +18,32 @@ async def main():
                           "await wMine(true);closeSheet();await resLoad(true);await supLoad(true);S.zv='mondo';go('mappa');}")
         await pg.wait_for_timeout(6500)
         print('segnaposti sulla mappa:',await pg.evaluate("()=>document.querySelectorAll('.lm-zm').length"))
+        # 📷 tasto Lente sulla mappa con quello che c'è entro 80 m; cassetto che si abbassa
+        print('tasto Lente sulla mappa:',await pg.evaluate("()=>{const b=document.querySelector('.mapfull .mlfab');return b?[b.textContent,b.classList.contains('caldo')]:null}"))
+        await pg.evaluate("()=>document.querySelector('.mapfull [data-mldown]').click()");await pg.wait_for_timeout(500)
+        print('cassetto abbassato:',await pg.evaluate("()=>[document.querySelector('.mapfull .mwdrawer').classList.contains('min'),(document.querySelector('.mapfull .mlmin')||{}).textContent,document.querySelector('.mapfull .mwdrawer').offsetHeight]"))
+        if os.environ.get('SHOT0'):await pg.screenshot(path=os.environ['SHOT0'])
+        await pg.evaluate("()=>document.querySelector('.mapfull [data-mlup]').click()");await pg.wait_for_timeout(500)
+        print('cassetto rialzato:',await pg.evaluate("()=>!document.querySelector('.mapfull .mwdrawer').classList.contains('min')"))
         async def bussola(h):
             await pg.evaluate("h=>{for(let i=0;i<20;i++){const e=new Event('deviceorientation');Object.defineProperty(e,'webkitCompassHeading',{value:h});Object.defineProperty(e,'beta',{value:90});window.dispatchEvent(e);}}",h)
             await pg.wait_for_timeout(400)
-        await pg.evaluate("()=>lenteOpen()");await pg.wait_for_timeout(2500);await bussola(0);await pg.wait_for_timeout(800)
+        await pg.evaluate("()=>document.querySelector('.mapfull .mlfab').click()");await pg.wait_for_timeout(2500);await bussola(0);await pg.wait_for_timeout(800)
         print('radar:',await pg.evaluate("()=>(document.querySelector('#lente .zmradar b')||{}).textContent"))
         print('zombie davanti:',await pg.evaluate("()=>[...document.querySelectorAll('#lente .zmobj')].map(e=>e.textContent)"))
         if os.environ.get('SHOT1'):await pg.screenshot(path=os.environ['SHOT1'])
-        await pg.evaluate("()=>{const z=[...document.querySelectorAll('#lente .zmobj')].find(e=>/Bruto/.test(e.textContent));z.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))}");await pg.wait_for_timeout(1500)
-        print('lotta:',await pg.evaluate("()=>[!!document.querySelector('#lente .zmfight'),(document.querySelector('#lente .zmfbar b')||{}).textContent,ZM.f&&ZM.f.cuori]"))
+        print('tasto grande:',await pg.evaluate("()=>(document.querySelector('#lente .zmact')||{}).textContent"))
+        # 🎯 mira e spara: il primo colpo fa partire la lotta, poi si spara col tasto grande
+        await pg.evaluate("()=>document.querySelector('#lente .zmact').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))");await pg.wait_for_timeout(700)
+        print('lotta:',await pg.evaluate("()=>[!!ZM.f,(document.querySelector('#lente .zmhud b')||{}).textContent,(document.querySelector('#lente .zmact')||{}).textContent,!!document.querySelector('#lente .zmobj .zmvita')]"))
         if os.environ.get('SHOT2'):await pg.screenshot(path=os.environ['SHOT2'])
-        # schivata sbagliata: perde un cuore; poi colpi sui punti deboli
-        await pg.evaluate("()=>{ZM.f.nextAtk=0}");await pg.wait_for_timeout(300)
-        await pg.evaluate("()=>{const d=ZM.f.atk.dir==='l'?'r':'l';document.querySelector(`#lente [data-zmd=${d}]`).dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))}");await pg.wait_for_timeout(300)
-        print('cuori dopo la schivata sbagliata:',await pg.evaluate("()=>ZM.f.cuori"))
+        await bussola(90);await pg.wait_for_timeout(300)
+        print('fuori mira:',await pg.evaluate("()=>(document.querySelector('#lente .zmact')||{}).textContent"))
+        await bussola(0)
         for i in range(30):
-            await pg.evaluate("()=>{const w=document.querySelector('#lente .zmweak');if(w)w.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));if(ZM.f&&ZM.f.atk){document.querySelector(`#lente [data-zmd=${ZM.f.atk.dir}]`).dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))}}");await pg.wait_for_timeout(350)
-            if await pg.evaluate("()=>!!document.querySelector('#lente .zmfight .difres')"):break
-        print('fine:',await pg.evaluate("()=>[(document.querySelector('#lente .zmfight .difres b')||{}).textContent,(window.__ZMF||{}).p_vinto]"))
+            await pg.evaluate("()=>{const b=document.querySelector('#lente .zmact');if(b)b.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))}");await pg.wait_for_timeout(450)
+            if await pg.evaluate("()=>!!document.querySelector('#lente .zmres')"):break
+        print('fine:',await pg.evaluate("()=>[(document.querySelector('#lente .zmres b')||{}).textContent,(window.__ZMF||{}).p_vinto]"))
         await pg.evaluate("()=>document.querySelector('#lente [data-zmok]').click()");await pg.wait_for_timeout(800)
         # cassa a 15 m
         await pg.evaluate("()=>{const c=ZM.L.find(z=>z.k==='cassa');zmTap(c)}");await pg.wait_for_timeout(1200)

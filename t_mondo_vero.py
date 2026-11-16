@@ -39,9 +39,9 @@ async def main():
         await pg.evaluate("()=>lnPoiCard(LENTE.area.P[1])");await pg.wait_for_timeout(500)
         print('super lontano:',await pg.evaluate("()=>[document.querySelector('#lente [data-mvvis]').disabled,(document.querySelector('#lente .mvdue>div small')||{}).textContent]"))
         # 🛡️ zombie vicino alla casa di altri
-        await pg.evaluate("async()=>{await zmLoad(true);const z=ZM.L.find(x=>x.k==='zombie');await zmFight(z);}");await pg.wait_for_timeout(800)
+        await pg.evaluate("async()=>{await zmLoad(true);const z=ZM.L.find(x=>x.k==='zombie');await zmSpara(z);}");await pg.wait_for_timeout(800)
         await pg.evaluate("()=>zmEnd(true)");await pg.wait_for_timeout(900)
-        print('protetti:',await pg.evaluate("()=>[...document.querySelectorAll('#lente .zmfight .difres span')].map(x=>x.textContent).filter(t=>/protetto/.test(t))"))
+        print('protetti:',await pg.evaluate("()=>[...document.querySelectorAll('#lente .zmres span')].map(x=>x.textContent).filter(t=>/protetto/.test(t))"))
         await pg.evaluate("()=>{const b=document.querySelector('#lente [data-zmok]');if(b)b.click();lenteClose();}");await pg.wait_for_timeout(1500)
         # 📦 pacco da lontano
         await pg.evaluate("()=>{window.__LONT=1;RES.d.carb=100;RES.d.cibo=100;}");await pg.evaluate("()=>alHelp('u2')");await pg.wait_for_timeout(1200)
