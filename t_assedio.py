@@ -1,34 +1,42 @@
 import os;D=os.path.dirname(os.path.abspath(__file__))  # cartella del repository
-import asyncio,json,math
+# 🧟 ASSEDIO A LIVELLI (migrazione 024): 🎮 Gioca apre la strada dei livelli; livello → piazzo difese → ▶️ Via → zombie che
+# scendono, torrette che sparano, tocchi; fine con stelle e premi; potenziamenti; carta nella guida.
+import asyncio,sys
+sys.path.insert(0,D)
 from playwright.async_api import async_playwright
-import t_terr, t_reale
-async def route(r):
-    return await t_reale.route(r)
+import t_terr
 async def main():
     async with async_playwright() as p:
-        b=await p.chromium.launch();dev=p.devices['iPhone 13'];pg=await (await b.new_context(**dev)).new_page();pg.set_default_timeout(9000);errs=[];pg.on('pageerror',lambda e:errs.append(str(e)[:160]))
-        await pg.route('**/*',route);await pg.add_init_script(path='sb_mock.js');await pg.add_init_script(path='ml_stub.js');await pg.add_init_script('window.__noHello=1')
-        await pg.goto('file://'+D+'/app.html');await pg.wait_for_timeout(500)
-        await pg.evaluate("async()=>{SB=__mockSB;S.user={id:'me',nick:'ale'};S.pubOk=true;zSyncProfile.asked=1;localStorage.clear();localStorage.setItem('zsh_kit_me','1');S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');await rmFetch(S.zone.address||'A');S.answers={...SAMPLE};S.result=computeScore(S.answers,S.zone);G.tourAsked=1;G.tourDone=1;G.howSeen=1;"
-          "__W.b['g45.32600_10.65900']={owner:'me',lat:45.3255,lon:10.6582,level:2,paid:200};__W.b['g45.33000_10.66000']={owner:'me',lat:45.3255,lon:10.6582,level:1,paid:200};__W.defs={'g45.32600_10.65900fossato':2,'g45.32600_10.65900barricate':2};__W.wallet.mattoni=900;await wMine(true);await orLoad(true);await defLoad(true);go('casa');}")
-        await pg.wait_for_timeout(4500);await pg.evaluate("()=>closeSheet()")
-        print('La mia casa, schede:',await pg.evaluate("()=>[...document.querySelectorAll('.mycasa')].map(c=>c.querySelector('.disp').textContent+' | disegno vero: '+(c.querySelector('.mcart').dataset.real||'no')+' | '+[...c.querySelectorAll('.mcchips span')].map(s=>s.textContent).join(' · '))"))
-        el=await pg.query_selector('.mycasa2');await el.screenshot(path='y_mc2.png')
-        await pg.evaluate("()=>{const d=document.querySelector('.mycasa2 .mcdia');d.open=true;d.dispatchEvent(new Event('toggle'));}");await pg.wait_for_timeout(600)
-        print('diario:',await pg.evaluate("()=>document.querySelector('.mycasa2 [data-mcdl]').textContent.replace(/\\s+/g,' ').trim()"))
-        await pg.evaluate("()=>document.querySelector('.mycasa2 [data-mcs]').click()");await pg.wait_for_timeout(2000)
-        await pg.evaluate("()=>document.querySelector('#sheet.open [data-sadv]').click()");await pg.wait_for_timeout(500)
-        print('consigliami:',await pg.evaluate("()=>[document.querySelector('#sheet.open .thres').textContent.replace(/\\s+/g,' '),(document.querySelector('#sheet.open [data-sbuy]')||{}).textContent]"))
-        await pg.evaluate("()=>{closeSheet();assalto('sim');}");await pg.wait_for_timeout(5500)
-        print('assedio:',await pg.evaluate("()=>{const F=document.getElementById('fumetto');return [F.className,!!F.querySelector('.p1 .fbg svg.real'),F.querySelector('.fspec')&&F.querySelector('.fspec').textContent,[...F.querySelectorAll('.fcron span')].map(s=>s.textContent)]}"))
-        await pg.screenshot(path='y_assedio.png')
-        await pg.evaluate("()=>{document.getElementById('fumetto').remove();go('mappa');}");await pg.wait_for_timeout(3000)
-        print('effetti sulla mappa:',await pg.evaluate("()=>[...document.querySelectorAll('.fxm')].map(e=>e.className+' '+e.textContent)"))
-        await pg.evaluate("()=>playerSheet('u2')");await pg.wait_for_timeout(800)
-        await pg.evaluate("()=>document.querySelector('#sheet.open [data-pdm]').click()");await pg.wait_for_timeout(800)
-        await pg.fill('#dmT','Ti mando lo scudo!');await pg.evaluate("()=>document.querySelector('#sheet.open [data-dms]').click()");await pg.wait_for_timeout(900)
-        print('messaggi:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .dmm')].map(m=>(m.classList.contains('mine')?'io: ':'lui: ')+m.querySelector('span').textContent)"))
-        await pg.evaluate("()=>{closeSheet();SOC.tab='piazza';go('social');}");await pg.wait_for_timeout(1500)
-        print('Piazza → Privati:',await pg.evaluate("()=>(document.querySelector('[data-pzdm]')||{}).textContent"))
-        print('ERR',errs[:5]);await b.close()
+        b=await p.chromium.launch();pg=await (await b.new_context(**p.devices['iPhone 13'])).new_page();E=[];pg.on('pageerror',lambda e:E.append(str(e)[:200]))
+        await pg.route('**/*',t_terr.route);await pg.add_init_script(path=D+'/sb_mock.js');await pg.add_init_script(path=D+'/ml_stub.js');await pg.add_init_script('window.__noHello=1;window.__ASSZ=4;window.__ASSI=0.4')
+        await pg.goto('file://'+D+'/app.html');await pg.wait_for_timeout(800)
+        await pg.evaluate("async()=>{SB=__mockSB;localStorage.setItem('zsh_kit_me','1');localStorage.setItem('zsh_sup_intro','1');S.user={id:'me',nick:'ale'};S.pubOk=true;zSyncProfile.asked=1;G.tourAsked=1;G.tourDone=1;G.howSeen=1;"
+                          "S.geo={lat:45.3255,lon:10.6582,acc:10,addr:'A',src:'gps'};S.zone=await analyzeZone('A');S.answers={...SAMPLE};S.result=computeScore(S.answers,S.zone);"
+                          "await wMine(true);closeSheet();await resLoad(true);await supLoad(true);S.zv='mondo';go('mappa');}")
+        await pg.wait_for_timeout(3500)
+        await pg.evaluate("()=>document.querySelector('.mwside [data-mws=gioca]').click()");await pg.wait_for_timeout(1500)
+        print('strada dei livelli:',await pg.evaluate("()=>[document.querySelectorAll('#assedio .assnodo').length,document.querySelectorAll('#assedio .assnodo:not(.chiuso)').length,(document.querySelector('#assedio .assnodo.qui b')||{}).textContent]"))
+        if os.environ.get('SHOT1'):await pg.screenshot(path=os.environ['SHOT1'])
+        await pg.evaluate("()=>document.querySelector('#assedio .assnodo.qui').click()");await pg.wait_for_timeout(600)
+        await pg.evaluate("()=>document.querySelector('#assedio [data-assgo]').click()");await pg.wait_for_timeout(1500)
+        print('campo:',await pg.evaluate("()=>[document.querySelectorAll('#assedio .asscell').length,ASS.prov,ASS.fase]"))
+        # piazzo una torretta e una barricata nella colonna centrale, e torrette ai lati
+        await pg.evaluate("()=>{const t=document.querySelector('#assedio [data-assd=torretta]');t.click();[22,20,24].forEach(i=>document.querySelector(`#assedio .asscell[data-c='${i}']`).dispatchEvent(new PointerEvent('pointerdown',{bubbles:true})));}")
+        await pg.wait_for_timeout(300)
+        print('difese:',await pg.evaluate("()=>[ASS.D.map(d=>d.k+d.col+d.row).join(','),ASS.prov]"))
+        await pg.evaluate("()=>document.querySelector('#assedio [data-assvia]').click()");await pg.wait_for_timeout(2500)
+        if os.environ.get('SHOT2'):await pg.screenshot(path=os.environ['SHOT2'])
+        for i in range(20):
+            await pg.evaluate("()=>{document.querySelectorAll('#assedio .assz:not(.morto)').forEach(z=>{for(let k=0;k<3;k++)z.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))})}");await pg.wait_for_timeout(400)
+            if await pg.evaluate("()=>!!document.querySelector('#assedio .difres')"):break
+        print('fine:',await pg.evaluate("()=>[(document.querySelector('#assedio .difres b')||{}).textContent,(window.__ASSF||{}).p_vinto,(window.__ASSF||{}).p_stelle,ASS.uccisi]"))
+        if os.environ.get('SHOT3'):await pg.screenshot(path=os.environ['SHOT3'])
+        await pg.evaluate("()=>document.querySelector('#assedio [data-assmap]').click()");await pg.wait_for_timeout(1500)
+        await pg.evaluate("()=>document.querySelector('#assedio [data-assup]').click()");await pg.wait_for_timeout(1200)
+        await pg.evaluate("()=>document.querySelector('#assedio [data-assu=torretta]').click()");await pg.wait_for_timeout(1500)
+        print('potenziamento:',await pg.evaluate("()=>__ASS.up.torretta"))
+        await pg.evaluate("()=>assClose()");await pg.wait_for_timeout(300)
+        await pg.evaluate("async()=>{await gdLoad(true);gdSheet()}");await pg.wait_for_timeout(1800)
+        print('nella guida:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .gdcard .gdtx>b')].map(x=>x.textContent).filter(t=>/Assedio/.test(t)).length"))
+        print('ERR',E);await b.close()
 asyncio.run(main())

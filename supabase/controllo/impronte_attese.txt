@@ -22,6 +22,9 @@ w_allies_of(uuid) a696d73f51
 w_ally_state(uuid, uuid) cf9a34567a
 w_ancora(uuid, bigint) 1571ce7ead
 w_are_allies(uuid, uuid) d3e2331ab7
+w_ass(uuid) a33e9a1e43
+w_ass_piano(integer) 287c0882e8
+w_ass_up(jsonb, text) 21f43a52df
 w_assalti_tick() dd5faea182
 w_atk_b(uuid, text, text) 8093f93f04
 w_atk_pts(uuid, uuid) 2031640ee7
@@ -153,6 +156,11 @@ world_ally_shield(uuid) ebd03e1ab8
 world_ally_view(uuid) ef33f8ac73
 world_ask_help() eaa8fd1b52
 world_assalta(text, double precision, double precision) 8f9023dba2
+world_assedio_bomba(bigint) 3de5bbb54b
+world_assedio_fine(bigint, boolean, integer, integer) d6323a4c4a
+world_assedio_info() 1b3d0c0248
+world_assedio_inizia(integer, boolean) ce92716a8a
+world_assedio_potenzia(text) 7e22d051ec
 world_assi(text, double precision, double precision) 3f866c9d5a
 world_block(uuid, boolean) d5c18b09f9
 world_bottega_compra(text) 9c218790d7
@@ -281,6 +289,8 @@ world_alleanze_membri 1aad7768
 world_allies 9e7a3019
 world_assalti f9d9eb2f
 world_assalti_esiti 86609925
+world_assedio e03ebb71
+world_assedio_partite 13b83d80
 world_attack_given cb6a22cb
 world_blocks c89fb2f6
 world_bonus fa82d7ad

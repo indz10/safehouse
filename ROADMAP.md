@@ -157,4 +157,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 22 | fatta (#66; migrazione 021) | #66 | 🔫 caccia agli zombie nella Lente; spedizioni con raggio da 3 km (+1 per grado, max 30) e ⭐ sponsor come mete, posti mostrati subito; condomini: edificio riconosciuto dal bordo, registrazione automatica, guida, scheda e notifica a chi non ha la casa nel mondo |
 | 23 | fatta (#67; migrazione 022) | #67 | 👉 una mossa alla volta (carta ADESSO), ⚡ eventi dal vivo, 🏆 sfida del quartiere, 🏢 scelta del condominio |
 | 24 | fatta (#68; migrazione 023) | #68 | 🎮 Difendi la casa: minigioco da 45 s sempre disponibile, premi in scorte ed esperienza; 🛒 Bottega con ⚡ energia, 💣 bombe, 🛡️ scudi |
-| 25 | in revisione (nessun SQL) | — | 📬 Richieste in un posto solo (accetta/rifiuta alleanze, inviti, coinquilini); energia 🔋 spiegata, eventi 🚨 |
+| 25 | fatta (#69) | #69 | 📬 Richieste in un posto solo (accetta/rifiuta alleanze, inviti, coinquilini); energia 🔋 spiegata, eventi 🚨 |
+| 26 | in revisione (migrazione 024) | — | 🧟 Assedio a livelli al posto di Difendi la casa: strada dei livelli, difese da piazzare, stelle, potenziamenti |
