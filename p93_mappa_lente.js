@@ -28,8 +28,8 @@ function mlNear(){const p=typeof zmPos==='function'?zmPos():null;if(!p||typeof Z
   (ZM.L||[]).forEach(o=>{if(o.preso)return;const d=trM(p.lat,p.lon,o.lat,o.lon);if(d>80)return;if(o.k==='cassa')c++;else z++;if(!v||d<v.d)v={...o,d};});return{z,c,v};}
 function mlFab(){const w=document.querySelector('.mapfull');if(!w||S.tab!=='mappa'||!S.user||document.getElementById('lente')){const o=document.querySelector('.mlfab');if(o&&!w)o.remove();return;}
   let b=w.querySelector('.mlfab');if(!b){w.insertAdjacentHTML('beforeend','<button class="mlfab" type="button" data-mlfab><span>📷</span><b>Lente</b><i></i></button>');b=w.querySelector('.mlfab');b.onclick=()=>lenteOpen();}
-  const n=mlNear();const t=n.z||n.c?`${n.z?'🧟 '+n.z:''}${n.z&&n.c?' · ':''}${n.c?'📦 '+n.c:''}`:'';const i=b.querySelector('i');if(i.textContent!==t)i.textContent=t;i.hidden=!t;
-  b.classList.toggle('caldo',!!n.v);b.title=n.v?`${n.v.k==='cassa'?'📦 Cassa':'🧟 Zombie'} a ${Math.round(n.v.d)} m: entra nella Lente!`:'Apri la Lente: zombie, casse e posti veri intorno a te';}
+  const n=mlNear();const g=typeof pvNear==='function'?pvNear(80):0;const t=[n.z?'🧟 '+n.z:'',n.c?'📦 '+n.c:'',g?'🎁 '+g:''].filter(Boolean).join(' · ');const i=b.querySelector('i');if(i.textContent!==t)i.textContent=t;i.hidden=!t;
+  b.classList.toggle('caldo',!!n.v||g>0);b.title=n.v?`${n.v.k==='cassa'?'📦 Cassa':'🧟 Zombie'} a ${Math.round(n.v.d)} m: entra nella Lente!`:'Apri la Lente: zombie, casse e posti veri intorno a te';}
 zEvery(()=>{try{if(!document.hidden)mlFab();}catch(e){}},1500,'lente-mappa');
 /* nella Lente: 🛡️ Difendi casa solo vicino a casa */
 zEvery(()=>{try{if(typeof LENTE==='undefined'||!LENTE.on||!LENTE.root)return;const b=LENTE.root.querySelector('[data-dfago]');if(!b)return;const p=LENTE.pos;let h=null;try{h=myHouses().find(x=>x.home);}catch(e){}

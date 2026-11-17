@@ -163,4 +163,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 28 | fatta (#72; migrazione 025) | #72 | 🧟 zombie nel mondo vero nella Lente (stile Pokémon GO), 📦 casse, 📖 Zombipedia, lotta con punti deboli e schivate; dopo: difesa in realtà aumentata e boss |
 | 29 | fatta (#73; migrazione 026) | #73 | 🛡️ difesa della casa nella Lente (torrette nelle direzioni vere, 3 ondate) e 👹 boss della settimana per zona, più forte insieme agli alleati |
 | 30 | fatta (#74; migrazione 027) | #74 | 🌍 il mondo vero spiegato: posti veri di persona gratis con la Lente o col superstite a pagamento, "hai protetto un vicino", notifiche "apri la Lente", pacchi da lontano per gli alleati, Gioca a sezioni |
-| 31 | in revisione (nessun SQL) | — | 🎯 mira e spara nella Lente (un tasto solo), 📷 tasto Lente sulla mappa con zombie e casse entro 80 m, riquadro ADESSO che si abbassa |
+| 31 | fatta (#75; nessun SQL) | #75 | 🎯 mira e spara nella Lente (un tasto solo), 📷 tasto Lente sulla mappa con zombie e casse entro 80 m, riquadro ADESSO che si abbassa |
+| 32 | in revisione (nessun SQL) | — | 🎁 posti veri sulla mappa col premio, nella Lente "🎁 PRENDI" gratis di persona, dal divano col superstite a pagamento; mappa più pulita |
