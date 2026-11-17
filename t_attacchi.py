@@ -65,6 +65,21 @@ async def main():
         await pg.evaluate("()=>pvpRiepilogo({id:41,io:'att',altro:'mario',altro_id:'u3',casa_vera:true,stato:'risolto',alleanza:'🐺 Lupi',mia:{legno:19,cibo:19,carb:14,mattoni:23},esito:{r:2.5,caso:0.02,att:156,dif:62,esito:3,loot:{legno:84,cibo:84,carb:63,mattoni:100},quote:{},squadra:[{nick:'ale',c:120},{nick:'gina',c:36}],danno:15},quando:new Date().toISOString()})");await pg.wait_for_timeout(800)
         print('riepilogo alleanza:',await pg.evaluate("()=>(document.querySelector('#sheet.open')||{}).textContent.replace(/\\s+/g,' ').slice(0,260)"))
         await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(300)
+        # 🏚️ integrità delle case comprate (Fase 38): righe in Io, ripara, riepilogo, scheda d'attacco, guida
+        await pg.evaluate("()=>{window.__PVP.ci=[{bid:'wb1',integrita:0,danno:10,caduta_at:new Date().toISOString(),scade:new Date(Date.now()+47*3600e3).toISOString(),chi:'bruto',legno:120,mattoni:50},{bid:'wb2',integrita:58,danno:0,caduta_at:null,legno:42,mattoni:0}];PVP.t=0;}")
+        await pg.wait_for_timeout(2500)
+        print('case danneggiate:',await pg.evaluate("()=>[...document.querySelectorAll('.pvpbox .pvprow.crollo b, .pvpbox .pvprow.integ b, .pvpbox [data-pvrc]')].map(x=>x.textContent)"))
+        print('carta crollo:',await pg.evaluate("()=>gdItems({}).filter(x=>x.ic==='💥').map(x=>x.t+' · '+x.cost)"))
+        if os.environ.get('SHOT8'):
+            await pg.evaluate("()=>document.querySelector('.pvpbox .pvprow.crollo').scrollIntoView({block:'center'})");await pg.wait_for_timeout(300);await pg.screenshot(path=os.environ['SHOT8'])
+        await pg.evaluate("()=>document.querySelector('.pvpbox [data-pvrc=\"wb1\"]').click()");await pg.wait_for_timeout(1500)
+        print('riparata:',await pg.evaluate("()=>[(window.__PVR||{}).p_bid,document.querySelectorAll('.pvpbox .pvprow.crollo').length]"))
+        await pg.evaluate("()=>pvpSheet({bid:'w9'})");await pg.wait_for_timeout(1200)
+        print('integrità bersaglio:',await pg.evaluate("()=>(document.querySelector('#sheet.open .sheet-b p, #sheet.open p')||{}).textContent"))
+        await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(300)
+        await pg.evaluate("()=>pvpRiepilogo({id:42,io:'dif',altro:'bruto',altro_id:'u7',casa_vera:false,stato:'risolto',esito:{r:1.7,caso:0,att:120,dif:70,esito:3,loot:{legno:20,cibo:10,carb:5,mattoni:0},danno:15,integ:25,integrita:0,crollata:true},quando:new Date().toISOString()})");await pg.wait_for_timeout(800)
+        print('riepilogo crollo:',await pg.evaluate("()=>(document.querySelector('#sheet.open .pvpcrollo')||{}).textContent"))
+        await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(300)
         # riepilogo del combattimento
         await pg.evaluate("()=>{window.__pvpPop=1;window.__PVP.storico=[{id:9,io:'dif',altro:'giangy',altro_id:'u2',casa_vera:true,stato:'risolto',esito:{r:1.31,caso:0.04,att:120,dif:92,esito:2,loot:{legno:30,cibo:12,carb:5,mattoni:40},danno:10},quando:new Date().toISOString()}];PVP.t=0;}")
         await pg.wait_for_timeout(2500)

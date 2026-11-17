@@ -28,8 +28,9 @@ w_ass_up(jsonb, text) 21f43a52df
 w_assalti_tick() dd5faea182
 w_atk_b(uuid, text, text) 8093f93f04
 w_atk_pts(uuid, uuid) 2031640ee7
+w_attacchi_integ() d136cc5f67
 w_attacchi_tick() f32dd129a6
-w_attacco_no(uuid, jsonb) e026608ebc
+w_attacco_no(uuid, jsonb) 79bcdf48f2
 w_attack3(text, text, integer) 4deba51e53
 w_attivita(uuid) 23dc6eab3e
 w_azione(uuid, text, double precision, double precision, text) 91b6665588
@@ -42,6 +43,7 @@ w_boss_molt(uuid, bigint) 615a35bfc9
 w_boss_settimana() 17eeaa47c2
 w_boss_tipi() aef051a09a
 w_bottino(uuid, integer) d943f8aaa0
+w_cadute_tick() f90c9db38f
 w_canon(text, double precision, double precision) a8cd798858
 w_casa_extra(text, text) d8d69de76d
 w_casa_manca_tick() 395b46963e
@@ -108,7 +110,7 @@ w_pres_tick() 8f83c2d423
 w_prev_slot(timestamp with time zone) 304fb96aeb
 w_price(double precision, double precision) 15fba21ed2
 w_price2(uuid, double precision, double precision) c076f18600
-w_pvp_cfg() 04985155bf
+w_pvp_cfg() d02457d4ec
 w_radius(integer) d64febc04f
 w_raduni_tick() 7eb338b9f5
 w_raduno_entra(uuid, bigint) 11591943a9
@@ -204,12 +206,13 @@ world_buy(text, double precision, double precision) c1440ed06d
 world_buy_mezzo(text) 18d40e73af
 world_caccia_fine(bigint, integer) 578ccf45de
 world_caccia_inizia() 2f03ec55ac
+world_case_integrita() 206e0a54c5
 world_cassa_apri(text, double precision, double precision) 3cb92372a4
 world_chat_list(text, bigint) ffb3c046c7
 world_chat_report(bigint) 89cee22a5d
 world_chat_send(text, text) 8c7ba570ba
 world_claim_home(text, double precision, double precision) 0feb434a8a
-world_collect() 192198b655
+world_collect() 47b7f286df
 world_condo_break(uuid) d50c77df62
 world_condo_give(text, integer) 4e869d6f22
 world_condo_info() 8911c9ba1c
@@ -244,6 +247,7 @@ world_house_info() 5f6ae0dbf5
 world_house_invite(uuid) af3b41f4b3
 world_house_leave() b719c91511
 world_house_log(text) 43ff9091a4
+world_integrita(text) 4d7008b122
 world_inviter(text) efefc86acc
 world_loans() ed625fbef7
 world_mezzo() 75bdd91ccd
@@ -278,7 +282,7 @@ world_reward(integer, text) cf34570f62
 world_rinforza(bigint) 5b56cabf58
 world_rinforzi_chiedi(bigint) a67f5235f1
 world_rinforzi_info(bigint) 24a46935f9
-world_ripara(text) c4a2f710c5
+world_ripara(text) 459105f6cf
 world_rivals() 9b44911f45
 world_saccheggia(uuid) 15affd0c16
 world_score(uuid, text) 1190c1faef
@@ -350,7 +354,7 @@ world_blocks c89fb2f6
 world_bonus fa82d7ad
 world_boss 6162ea72
 world_boss_colpi 20d37768
-world_buildings 5c16365d
+world_buildings e3b7799e
 world_cacce 713a63d8
 world_chat 36d8e2a6
 world_chat_reports bb8b38ef
