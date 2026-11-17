@@ -66,6 +66,7 @@ w_en_add(uuid, integer) bbbd4e4ff9
 w_en_max(jsonb) 8a3f3d1692
 w_en_ric(jsonb) 14229acc85
 w_eq(jsonb, text) de48d8f850
+w_esito(numeric) 6ab928a75c
 w_eventi_tick() 17689ab1a4
 w_feed_add(text, uuid, uuid, double precision, double precision, text) 1a92b9dc6f
 w_fort(text) bafcee35d6
@@ -96,6 +97,7 @@ w_mz_rank(text) 0c32d9db64
 w_mz_speed(text) 54122832f6
 w_next_slot(timestamp with time zone) e7098146fc
 w_nick(uuid) 0f0ebfc0c0
+w_orde_tick() a133602a9c
 w_pay(uuid, integer, text, text) 1a72164541
 w_perche_no(uuid, bigint) 5335d9836d
 w_piazza_nuovi(uuid, timestamp with time zone, text) 11b8e1d2c2
@@ -110,7 +112,7 @@ w_pres_tick() 8f83c2d423
 w_prev_slot(timestamp with time zone) 304fb96aeb
 w_price(double precision, double precision) 15fba21ed2
 w_price2(uuid, double precision, double precision) c076f18600
-w_pvp_cfg() d02457d4ec
+w_pvp_cfg() 5ac1824ce6
 w_radius(integer) d64febc04f
 w_raduni_tick() 7eb338b9f5
 w_raduno_entra(uuid, bigint) 11591943a9
@@ -256,6 +258,7 @@ world_mine2() 1abdaf5ab7
 world_my_defense() 376cc40503
 world_my_effects() 7e4bd22f9b
 world_near_survivors(double precision, double precision, double precision) 479ebf94cf
+world_orde_mie() 26cd5c2bc8
 world_player(uuid) d549da37b6
 world_posto_visita(text, text, double precision, double precision, double precision, double precision) 87fb22391c
 world_prepare() 6c8f3e9765
@@ -376,6 +379,8 @@ world_help_given b0775a2b
 world_homes 4e376177
 world_house_req e60b8c36
 world_log a7c8214e
+world_orde_avvio 9ab1c358
+world_orde_esiti 11d15a0d
 world_partite 49661f40
 world_posti_visite e5cb7b24
 world_pres_defs 8a272827

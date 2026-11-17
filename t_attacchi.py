@@ -80,6 +80,14 @@ async def main():
         await pg.evaluate("()=>pvpRiepilogo({id:42,io:'dif',altro:'bruto',altro_id:'u7',casa_vera:false,stato:'risolto',esito:{r:1.7,caso:0,att:120,dif:70,esito:3,loot:{legno:20,cibo:10,carb:5,mattoni:0},danno:15,integ:25,integrita:0,crollata:true},quando:new Date().toISOString()})");await pg.wait_for_timeout(800)
         print('riepilogo crollo:',await pg.evaluate("()=>(document.querySelector('#sheet.open .pvpcrollo')||{}).textContent"))
         await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(300)
+        # 🧟 orde sul motore unico (Fase 39): ultime orde in Io e riepilogo automatico delle perdite
+        await pg.evaluate("()=>{window.__pvpPop=1;window.__PVP.storico=[];window.__PVP.or=[{slot:'2026-11-17-21',quando:new Date(Date.now()-600e3).toISOString(),esito:2,scudo:false,loot:{legno:30,cibo:40,carb:12,mattoni:60},case:[{bid:'w1',home:true,attacco:120,difesa:80,esito:2}]},{slot:'2026-11-17-09',quando:new Date(Date.now()-12*3600e3).toISOString(),esito:0,scudo:false,loot:{},case:[]}];PVP.t=0;}")
+        await pg.wait_for_timeout(2500)
+        print('riepilogo orda:',await pg.evaluate("()=>(document.querySelector('#sheet.open')||{}).textContent.replace(/\\s+/g,' ').slice(0,200)"))
+        if os.environ.get('SHOT9'):await pg.screenshot(path=os.environ['SHOT9'])
+        await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(2000)
+        print('ultime orde:',await pg.evaluate("()=>[...document.querySelectorAll('.pvpbox [data-pvor] b')].map(x=>x.textContent)"))
+        await pg.evaluate("()=>{window.__pvpPop=0;}")
         # riepilogo del combattimento
         await pg.evaluate("()=>{window.__pvpPop=1;window.__PVP.storico=[{id:9,io:'dif',altro:'giangy',altro_id:'u2',casa_vera:true,stato:'risolto',esito:{r:1.31,caso:0.04,att:120,dif:92,esito:2,loot:{legno:30,cibo:12,carb:5,mattoni:40},danno:10},quando:new Date().toISOString()}];PVP.t=0;}")
         await pg.wait_for_timeout(2500)

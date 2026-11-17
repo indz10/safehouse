@@ -170,5 +170,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 35 | fatta (migrazione 028) | #79 | ⚔️ attacchi tra superstiti: regole e motore unico, attacco singolo con viaggio, notifica, risoluzione anche offline, bottino, danni, storico; Combattente fino a +45% |
 | 36 | fatta (migrazione 029) | #80 | 🛡️ rinforzi che arrivano in tempo e richiesta all'alleanza durante l'avvicinamento |
 | 37 | fatta (migrazione 030) | #81 | 🛡️ attacchi d'alleanza (raduno, partecipanti, bottino diviso per contributo) |
-| 38 | in revisione (migrazione 031) | — | 🏚️ integrità delle case comprate (0–100), caduta, 48 ore per riparare, conquista o recupero |
-| 39 | da fare | — | 🧟 orde sul motore unico: stesse perdite (10/20/30%), danni e integrità, avvisi a 60 e 15 minuti |
+| 38 | fatta (migrazione 031) | #82 | 🏚️ integrità delle case comprate (0–100), caduta, 48 ore per riparare, conquista o recupero |
+| 39 | in revisione (migrazione 032) | — | 🧟 orde sul motore unico: stesse perdite (10/20/30%), danni e integrità, avvisi a 60 e 15 minuti |

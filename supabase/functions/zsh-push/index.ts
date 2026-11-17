@@ -164,7 +164,10 @@ function feedMsg(f: any, who: string, id: string): { title: string; body: string
       const m = T[k] || ["🚨 Evento qui vicino", "Tocca per partecipare col tuo superstite"];
       return { title: m[0], body: m[1], url: `/?go=mappa&evt=${id || ""}` }; }
     case "evento_vinto": return { title: "💥 Abbattuto!", body: `${who} ha dato il colpo finale a «${f.info || "l’evento"}»: hai ricevuto la tua parte di premi`, url: "/?go=mappa" };
-    case "casa_crollata": return { title: "💥 Una tua casa è crollata!", body: `${who} l’ha abbattuta. Hai 48 ore per ripararla (🪵 e 🧱 50), altrimenti passa a lui. Niente affitto finché è crollata`, url: "/?go=orda&attacchi=1" };
+    case "orda_perdite": { const [, e, l] = String(f.info || "").split("|"); const [le, ci, ca, ma] = String(l || "").split(",").map(Number); const v = [le ? `🪵 ${le}` : "", ci ? `🥫 ${ci}` : "", ca ? `⛽ ${ca}` : "", ma ? `🧱 ${ma}` : ""].filter(Boolean).join(" ");
+      return { title: ["", "🧟 L’orda ti ha colpito", "🧟 L’orda ha sfondato", "💀 L’orda ha travolto le tue case"][Number(e) || 1], body: `Scorte distrutte: ${v || "poche"}. Difese e case danneggiate: riparale in Io con 🪵`, url: "/?go=orda&attacchi=1" }; }
+    case "casa_crollata": if (String(f.info || "").endsWith("|orda")) return { title: "💥 L’orda ha fatto crollare una tua casa!", body: "Hai 48 ore per ripararla in Io (🪵 e 🧱 50), altrimenti torna libera e ti rendiamo metà della spesa", url: "/?go=orda&attacchi=1" };
+      return { title: "💥 Una tua casa è crollata!", body: `${who} l’ha abbattuta. Hai 48 ore per ripararla (🪵 e 🧱 50), altrimenti passa a lui. Niente affitto finché è crollata`, url: "/?go=orda&attacchi=1" };
     case "casa_libera": return { title: "🏚️ Casa persa", body: "Una tua casa comprata è crollata e non è stata riparata in 48 ore: è tornata libera. Ti torna metà della spesa", url: "/?go=orda&attacchi=1" };
     case "raduno": { const [, m, chi, all] = String(f.info || "").split("|"); return { title: `📯 ${all || "La tua alleanza"} all’attacco!`, body: `${who} chiama il raduno contro @${chi || "un rivale"}: hai ${m || "pochi"} minuti per unirti. Il bottino si divide secondo la forza di ciascuno`, url: "/?go=orda&attacchi=1" }; }
     case "pvp_arrivo": { const [, m, c, all, n] = String(f.info || "").split("|"); if (all) return { title: "⚔️ Un’alleanza ti attacca!", body: `«${all}» (${n || "più"} superstiti, guidati da ${who}) arriva alla tua ${c === "comprata" ? "casa comprata" : "casa"} fra ${m || "pochi"} minuti. Prepara la difesa e chiedi rinforzi!`, url: "/?go=orda&attacchi=1" };
@@ -222,7 +225,7 @@ Deno.serve(async (req) => {
   if (body.task === "test") {
     const { data: s } = await sb.from("push_subs").select("*").eq("endpoint", body.endpoint).maybeSingle();
     if (!s) return json({ ok: false, msg: "telefono non iscritto" });
-    const ok = await sendTo(s, { title: "✅ Notifiche attive", body: "Ti avviseremo 30 minuti prima di ogni orda e quando ti cercano.", url: "/?go=orda" });
+    const ok = await sendTo(s, { title: "✅ Notifiche attive", body: "Ti avviseremo un’ora e 15 minuti prima di ogni orda e quando ti cercano.", url: "/?go=orda" });
     return json({ ok: !!ok });
   }
 
@@ -243,12 +246,18 @@ Deno.serve(async (req) => {
     for (const H of [9, 21]) {
       const hh = String(H).padStart(2, "0");
       const slot = `${t.date}-${hh}`;
-      if (t.h === H - 1 && t.m >= 30 && await once(slot, "prep")) {
-        for (const s of L) sent += await sendTo(s, { title: "🧟 Tra 30 minuti arriva l’orda!", body: "Prepara le case (+15 di difesa) e chiedi aiuto agli alleati.", url: "/?go=orda" });
+      // avvisi 60 e 15 minuti prima (Fase 39: le case che cadono perdono scorte, difese e integrità)
+      if (t.h === H - 1 && t.m < 30 && await once(slot, "prep60")) {
+        for (const s of L) sent += await sendTo(s, { title: "🧟 Fra un’ora arriva l’orda!", body: "Se una casa cade perdi dal 10 al 30% delle scorte e si danneggia. Prepara le case (+15) e chiedi rinforzi agli alleati.", url: "/?go=orda" });
+      }
+      if (t.h === H - 1 && t.m >= 45 && await once(slot, "prep15")) {
+        for (const s of L) sent += await sendTo(s, { title: "🧟 Fra 15 minuti l’orda!", body: "Ultimo momento per preparare le case e chiedere aiuto: dopo l’orda le scorte perse spariscono.", url: "/?go=orda" });
       }
       if (t.h === H && t.m < 30 && await once(slot, "raid")) {
         for (const s of L) sent += await sendTo(s, { title: `🧟 L’orda delle ${hh}:00 sta attaccando!`, body: "Guarda l’assalto sulle tue case e riscatta i premi.", url: "/?assalto=last" });
       }
+      // conseguenze dell'orda (migrazione 032): anche qui, oltre al pg_cron ogni 5 minuti
+      if (t.h === H && t.m < 30) { try { await sb.rpc("w_orde_tick"); } catch { /* blocco SQL 032 non ancora eseguito */ } }
     }
     // spedizioni tornate (migrazione 020): una novità "sped_ok" per ciascuna, poi la manda feedFor
     try { await sb.rpc("w_sped_tick"); } catch { /* blocco SQL 020 non ancora eseguito */ }

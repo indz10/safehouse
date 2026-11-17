@@ -14,12 +14,15 @@
      "📯 Raduni della tua alleanza" in Io (unisciti, partite adesso, annulla), quote del bottino nello storico e nel riepilogo.
    - 🏚️ Integrità delle case comprate (031, Fase 38): righe in Io (world_case_integrita → PVP.ci, 🔨 Ripara = world_ripara),
      barra nella pagina della casa (trrSection), integrità nella scheda d’attacco (world_integrita), riepilogo, carta pvpCiGdItems.
+   - 🧟 Orde sul motore unico (032, Fase 39): "Le ultime orde" in Io (world_orde_mie → PVP.or, ordaHTML) e riepilogo automatico
+     delle perdite (ordaRiepilogo, zsh_orda_visti).
    ========================================================= */
 const PVP={d:null,t:0,uid:null};
 const PVP_ESITO=['🛡️ Respinto','⚔️ Vittoria di misura','⚔️ Vittoria','💥 Vittoria schiacciante'];
 const PVP_PERSO=['🛡️ Attacco respinto','😣 Sconfitta di misura','😣 Sconfitta','💀 Sconfitta pesante'];
 async function pvpLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return PVP.d;if(!force&&PVP.d&&Date.now()-PVP.t<30000)return PVP.d;PVP.t=Date.now();
   try{const{data,error}=await SB.rpc('world_case_integrita');PVP.ci=!error&&data&&data.ok?(data.case||[]):null;}catch(e){PVP.ci=null;}
+  try{const{data,error}=await SB.rpc('world_orde_mie');PVP.or=!error&&data&&data.ok?(data.orde||[]):null;}catch(e){PVP.or=null;}
   try{const{data,error}=await SB.rpc('world_attacchi_miei');if(!error&&data&&data.ok){PVP.d=data;PVP.skew=Date.now()-new Date(data.ora).getTime();}}catch(e){}return PVP.d;}
 const pvpLeft=iso=>{const ms=new Date(iso).getTime()-(Date.now()-(PVP.skew||0));if(ms<=0)return'adesso';const m=Math.floor(ms/60000),s=Math.floor(ms%60000/1000);if(m>=60)return`${Math.floor(m/60)} h ${m%60} min`;return`${m}:${String(s).padStart(2,'0')}`;};
 const pvpLoot=l=>{l=l||{};const t=[l.legno?'🪵 '+l.legno:'',l.cibo?'🥫 '+l.cibo:'',l.carb?'⛽ '+l.carb:'',l.mattoni?'🧱 '+l.mattoni:''].filter(Boolean).join(' · ');return t||'niente';};
@@ -78,7 +81,7 @@ function pvpHTML(){const d=PVP.d;if(!d)return'';const A=d.in_arrivo||[],V=d.in_v
   return`<div class="panel pvpbox"><b class="disp" style="font-size:22px">⚔️ Attacchi</b>
     ${arr||'<p class="muted" style="margin:4px 0">Nessun attacco in arrivo. Per attaccare: tocca un superstite o una casa e poi ⚔️ Attacca.</p>'}${rad?`<h4 style="margin:10px 0 4px">📯 Raduni della tua alleanza</h4>${rad}`:''}${via}${al?`<h4 style="margin:10px 0 4px">🆘 Alleati sotto attacco</h4>${al}`:''}
     ${dn?`<div class="pvprow dan"><span>🔨</span><div><b>Difese danneggiate: −${dn}</b><small>riparale con 🪵 (2 a punto)</small></div><button class="btn small" data-pvrip>Ripara</button></div>`:''}${ci}
-    ${st?`<h4 style="margin:10px 0 4px">📜 Storico</h4>${st}`:''}</div>`;}
+    ${ordaHTML()}${st?`<h4 style="margin:10px 0 4px">📜 Storico</h4>${st}`:''}</div>`;}
 function pvpPaint(){if(S.tab!=='orda'||!document.body.classList.contains('iopage'))return;const pg=app.querySelector('.page.orda1');if(!pg)return;const h=pvpHTML();
   let b=pg.querySelector('.pvpbox');const top=pg.querySelector('.iotop .sbtiles')||pg.querySelector('.iotop .iosec');
   if(!h){if(b)b.remove();return;}const k=h.replace(/data-pvt="[^"]*">[^<]*</g,'');if(b&&b.dataset.k===k)return;
@@ -93,6 +96,7 @@ function pvpPaint(){if(S.tab!=='orda'||!document.body.classList.contains('iopage
   b.querySelectorAll('[data-pvrc]').forEach(x=>x.onclick=()=>pvpRiparaCasa(x.dataset.pvrc,x));
   const rp=b.querySelector('[data-pvrip]');if(rp)rp.onclick=async()=>{rp.disabled=true;const d=PVP.d;const L=[];try{const h=myHouses().find(x=>x.home);if(d.danno_casa)L.push((h&&h.bid)||'');}catch(e){}if(!PVP.ci)(d.danni||[]).forEach(x=>L.push(x.bid));
     for(const bid of L){try{const{data}=await SB.rpc('world_ripara',{p_bid:bid});toast(data.msg);}catch(e){}}RES.t=0;try{resLoad(true);}catch(e){}pvpLoad(true).then(pvpPaint);};
+  b.querySelectorAll('[data-pvor]').forEach(x=>x.onclick=()=>{const o=(PVP.or||[]).find(y=>y.slot===x.dataset.pvor);if(o)ordaRiepilogo(o);});
   b.querySelectorAll('[data-pvst]').forEach(x=>x.onclick=()=>{const s=(PVP.d.storico||[]).find(y=>String(y.id)===x.dataset.pvst);if(s)pvpRiepilogo(s);});}
 /* ---------- riepilogo del combattimento ---------- */
 function pvpRiepilogo(x){const e=x.esito||{};const k=+e.esito||0;const io=x.io==='att';try{const v=JSON.parse(localStorage.getItem('zsh_pvp_visti')||'[]');if(!v.includes(x.id)){v.push(x.id);localStorage.setItem('zsh_pvp_visti',JSON.stringify(v.slice(-60)));}}catch(er){}
@@ -104,7 +108,8 @@ function pvpRiepilogo(x){const e=x.esito||{};const k=+e.esito||0;const io=x.io==
     ${k&&io&&x.mia?`<p>🎒 La tua parte (secondo la forza che hai portato): <b>${pvpLoot(x.mia)}</b><br><small class="muted">Bottino di tutta la squadra: ${pvpLoot(e.loot)}</small></p>`:''}
     ${k&&!(io&&x.mia)?`<p>${io?'🎒 Bottino':'📦 Scorte perse'}: <b>${pvpLoot(e.loot)}</b></p>`:''}${k?`${e.danno?`<p>🔨 Difese ${io?'nemiche':'tue'} danneggiate: −${e.danno}${io?'':' (riparale in Io con 🪵)'}</p>`:''}`:''}${k&&e.integ!=null?(e.crollata?`<p class="pvpcrollo">💥 ${io?'La sua casa comprata è crollata! Se non la ripara entro 48 ore passa a chi l’ha abbattuta.':'La tua casa comprata è crollata! Riparala entro 48 ore in Io, o la perdi.'}</p>`:`<p>🏚️ Integrità della casa comprata −${e.integ} → ${e.integrita}/100${io?'':' (riparala in Io)'}</p>`):''}${!k?`<p>${io?'La sua difesa ha tenuto: niente bottino.':'La tua casa ha tenuto: nessuna perdita.'}</p>`:''}
     <p class="muted" style="font-size:12.5px">${io?'Sali di 🔪 Combattente e attacca con gli alleati per vincere più spesso.':'Per difenderti meglio: prepara le case, fortifica, chiedi rinforzi agli alleati e sali di 🔪 Combattente.'}</p>`);}
-function pvpNuovi(){const d=PVP.d;if(window.__noHello&&!window.__pvpPop)return;if(!d||document.querySelector('#sheet.open')||document.getElementById('lente'))return;let v=[];try{v=JSON.parse(localStorage.getItem('zsh_pvp_visti')||'[]');}catch(e){}
+function pvpNuovi(){const d=PVP.d;if(window.__noHello&&!window.__pvpPop)return;if(!d||document.querySelector('#sheet.open')||document.getElementById('lente'))return;
+  try{const ov=JSON.parse(localStorage.getItem('zsh_orda_visti')||'[]');const no=(PVP.or||[]).find(o=>o.esito>0&&!ov.includes(o.slot)&&Date.now()-new Date(o.quando)<24*3600e3);if(no){ordaRiepilogo(no);return;}}catch(e){}let v=[];try{v=JSON.parse(localStorage.getItem('zsh_pvp_visti')||'[]');}catch(e){}
   const n=(d.storico||[]).find(x=>!v.includes(x.id)&&x.stato==='risolto'&&Date.now()-new Date(x.quando)<48*3600e3);if(n)pvpRiepilogo(n);}
 /* ---------- 🗺️ allarme sulla mappa ---------- */
 function pvpAllarme(){const w=app.querySelector('.mapfull');const A=(PVP.d&&PVP.d.in_arrivo)||[];const L=((PVP.d&&PVP.d.alleati)||[]).filter(x=>x.in_tempo&&!x.partito);let a=w&&w.querySelector('.pvpal');
@@ -160,4 +165,15 @@ const _trrSectionCi=trrSection;trrSection=async function(c,bid){const r=await _t
   if(x&&p&&!p.querySelector('.pvpcibox')){p.insertAdjacentHTML('afterbegin',`<div class="pvpcibox ${x.caduta_at?'crollo':''}"><b>${x.caduta_at?'💥 Crollata':'🏚️ Integrità'} ${x.integrita}/100</b><div class="pvpbar integ"><span style="width:${Math.max(2,x.integrita)}%"></span></div>
     <small>${x.caduta_at?'Riparala entro '+pvpLeft(x.scade)+' o la perdi':'Gli attacchi persi la abbassano; a 0 crolla'}</small><button class="btn small" data-pvrc2>🔨 Ripara · 🪵 ${x.legno}${x.mattoni?' 🧱 '+x.mattoni:''}</button></div>`);
     p.querySelector('[data-pvrc2]').onclick=e=>{e.stopPropagation();pvpRiparaCasa(bid,e.currentTarget);};}}catch(e){}return r;};
+/* ---------- 🧟 le orde sul motore unico (migrazione 032, Fase 39) ---------- */
+const ORDA_ESITO=['🛡️ Le case hanno tenuto','🧟 L’orda ti ha colpito (di misura)','🧟 L’orda ha sfondato','💀 L’orda ti ha travolto'];
+const ordaOra=o=>{const m=/^(\d{4})-(\d{2})-(\d{2})-(\d{2})$/.exec(o.slot||'');return m?`delle ${m[4]}:00 del ${+m[3]}/${+m[2]}`:'';};
+function ordaHTML(){const L=(PVP.or||[]).slice(0,3);if(!L.length)return'';
+  return`<h4 style="margin:10px 0 4px">🧟 Le ultime orde</h4>${L.map(o=>{const nc=(o.case||[]).length;const t=o.scudo&&nc?'🛡️ Scudo del nuovo arrivato: niente perdite':o.esito>0?ORDA_ESITO[o.esito]:nc?'🔪 Case cadute, ma il tuo Combattente ha salvato le scorte':ORDA_ESITO[0];
+    return`<button class="pvprow st ${o.esito>0?'lose':'win'}" data-pvor="${esc(o.slot)}"><span>🧟</span><div><b>Orda ${ordaOra(o)} · ${t}</b><small>${o.esito>0?'scorte distrutte: '+pvpLoot(o.loot):nc?nc+' '+(nc==1?'casa caduta':'case cadute'):'nessuna perdita'}</small></div></button>`;}).join('')}`;}
+function ordaRiepilogo(o){try{const v=JSON.parse(localStorage.getItem('zsh_orda_visti')||'[]');if(!v.includes(o.slot)){v.push(o.slot);localStorage.setItem('zsh_orda_visti',JSON.stringify(v.slice(-30)));}}catch(e){}
+  const C=o.case||[];const k=+o.esito||0;
+  openSheet(`🧟 Orda ${ordaOra(o)}`,`<div class="pvpris ${k?'lose':'win'}"><b>${ORDA_ESITO[k]}</b>${C.map(c=>`<small>${c.home?'❤️ Casa vera':'🔑 Casa comprata'}: orda 🧟 ${c.attacco} contro 🛡️ ${c.difesa} → ${['tenuto grazie al Combattente','di misura','normale','schiacciante'][c.esito]||''}</small>`).join('')}</div>
+    ${o.scudo?'<p>🛡️ Hai ancora lo scudo del nuovo arrivato: questa volta niente perdite.</p>':k?`<p>📦 Scorte distrutte (oltre la scorta protetta): <b>${pvpLoot(o.loot)}</b></p><p>🔨 Le difese delle case cadute si sono danneggiate (−${[0,5,10,15][k]}) e le case comprate hanno perso integrità (−${[0,10,17,25][k]}). Riparale qui in Io con 🪵.</p>`:'<p>Nessuna scorta persa.</p>'}
+    <p class="muted" style="font-size:12.5px">Le orde usano le stesse regole degli attacchi: di misura 10%, normale 20%, schiacciante 30% delle scorte, che però spariscono. Prima dell’orda: 🛡️ Prepara, fortifica, chiedi rinforzi agli alleati e sali di 🔪 Combattente.</p>`);}
 </script>

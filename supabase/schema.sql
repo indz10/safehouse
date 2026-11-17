@@ -1238,6 +1238,16 @@ CREATE FUNCTION public.w_eq(p_equip jsonb, p_k text) RETURNS integer
   select least(3, greatest(0, coalesce((p_equip->>p_k)::int, 0))); $$;
 
 --
+-- Name: w_esito(numeric); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_esito(p_r numeric) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  with k as (select public.w_pvp_cfg() as c)
+  select case when p_r < (c->'soglie'->>0)::numeric then 0 when p_r < (c->'soglie'->>1)::numeric then 1 when p_r < (c->'soglie'->>2)::numeric then 2 else 3 end from k; $$;
+
+--
 -- Name: w_eventi_tick(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1621,6 +1631,56 @@ CREATE FUNCTION public.w_nick(p_user uuid) RETURNS text
 $$;
 
 --
+-- Name: w_orde_tick(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_orde_tick() RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare k jsonb := public.w_pvp_cfg(); pt timestamptz := public.w_prev_slot(now()); pid text := public.w_slot_id(public.w_prev_slot(now()));
+  u uuid; x record; lvl int; bon int; cb int; comb numeric; p int; a int; e int; emax int; cad jsonb; loot jsonb; sc boolean; resta int; n int := 0;
+begin
+  -- solo le orde arrivate dopo l'installazione, e al massimo 12 ore fa
+  if pt <= coalesce((select t from public.world_orde_avvio where id = 1), now()) or pt < now() - interval '12 hours' then return 0; end if;
+  for u in select z.uid from (select h.user_id as uid from public.world_homes h where h.first_at <= pt
+                              union select b.owner from public.world_buildings b where b.owner is not null and b.bought_at <= pt) z
+           where not exists (select 1 from public.world_orde_esiti o where o.slot_id = pid and o.user_id = z.uid) limit 300 loop
+    lvl := public.w_lvl_of(u); bon := public.w_upower(u, pid); cb := public.w_condo_bonus(u); comb := public.w_comb_bonus(u);
+    emax := 0; cad := '[]'::jsonb; sc := public.w_shielded(u);
+    for x in select * from public.w_raid_houses(u, pt) loop
+      p := public.w_power3(x.level, bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id, pid) + public.w_casa_extra(x.building_id, pid), x.home);
+      a := public.w_attack3(pid, x.building_id, lvl);
+      if p >= a then continue; end if;
+      e := public.w_esito(round(a::numeric / greatest(1, p * (1 + comb)), 3));
+      cad := cad || jsonb_build_object('bid', x.building_id, 'home', x.home, 'attacco', a, 'difesa', p, 'esito', e);
+      if sc or e <= 0 then continue; end if;
+      emax := greatest(emax, e);
+      if x.home then
+        update public.world_homes set danno = least((k->>'danni_max')::int, danno + (k->'danni'->>e)::int) where user_id = u;
+      else
+        update public.world_buildings set danno = least((k->>'danni_max')::int, danno + (k->'danni'->>e)::int),
+          integrita = greatest(0, integrita - (k->'integ'->>e)::int),
+          caduta_at = case when caduta_at is null and integrita - (k->'integ'->>e)::int <= 0 then now() else caduta_at end
+          where building_id = x.building_id and owner = u and caduta_at is null returning integrita into resta;
+        if resta is not null and resta <= 0 then
+          perform public.w_feed_add('casa_crollata', u, u, x.lat, x.lon, x.building_id || '|' || (k->>'caduta_ore') || '|orda');
+        end if;
+        resta := null;
+      end if;
+    end loop;
+    loot := public.w_bottino(u, emax);   -- le scorte perse con l'orda spariscono
+    insert into public.world_orde_esiti(slot_id, user_id, esito, scudo, loot, case_cadute) values (pid, u, emax, sc, loot, cad) on conflict do nothing;
+    if emax > 0 then
+      perform public.w_feed_add('orda_perdite', u, u, null, null,
+        pid || '|' || emax || '|' || (loot->>'legno') || ',' || (loot->>'cibo') || ',' || (loot->>'carb') || ',' || (loot->>'mattoni'));
+    end if;
+    n := n + 1;
+  end loop;
+  return n;
+end $$;
+
+--
 -- Name: w_pay(uuid, integer, text, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1886,7 +1946,10 @@ CREATE FUNCTION public.w_pvp_cfg() RETURNS jsonb
     'integ', jsonb_build_array(0, 10, 17, 25),                         -- integrità persa per esito (di misura, normale, schiacciante)
     'caduta_ore', 48,                                                  -- ore per riparare una casa crollata prima di perderla
     'rip_integ_legno', 1, 'rip_caduta_mattoni', 50,                    -- riparare: 🪵 1 a punto di integrità, +🧱 50 se è crollata
-    'integ_conquista', 50); $$;
+    'integ_conquista', 50,
+    -- orde sul motore unico (032)
+    'orda_avvisi', jsonb_build_array(60, 15));                        -- minuti prima dell'orda in cui arriva l'avviso
+  $$;
 
 --
 -- Name: w_radius(integer); Type: FUNCTION; Schema: public; Owner: -
@@ -5105,6 +5168,23 @@ CREATE FUNCTION public.world_near_survivors(p_lat double precision, p_lon double
   limit 80; $$;
 
 --
+-- Name: world_orde_mie(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_orde_mie() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid();
+begin
+  if me is null then return json_build_object('ok', false); end if;
+  perform public.w_orde_tick();
+  return json_build_object('ok', true, 'orde', coalesce((select json_agg(json_build_object('slot', o.slot_id, 'quando', public.w_slot_t(o.slot_id), 'esito', o.esito,
+      'scudo', o.scudo, 'loot', o.loot, 'case', o.case_cadute) order by o.created_at desc)
+    from (select * from public.world_orde_esiti where user_id = me order by created_at desc limit 6) o), '[]'::json));
+end $$;
+
+--
 -- Name: world_player(uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -7746,6 +7826,29 @@ CREATE SEQUENCE public.world_log_id_seq
 ALTER SEQUENCE public.world_log_id_seq OWNED BY public.world_log.id;
 
 --
+-- Name: world_orde_avvio; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_orde_avvio (
+    id integer DEFAULT 1 NOT NULL,
+    t timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
+-- Name: world_orde_esiti; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_orde_esiti (
+    slot_id text NOT NULL,
+    user_id uuid NOT NULL,
+    esito integer DEFAULT 0 NOT NULL,
+    scudo boolean DEFAULT false NOT NULL,
+    loot jsonb,
+    case_cadute jsonb,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
 -- Name: world_partite; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -8689,6 +8792,20 @@ ALTER TABLE ONLY public.world_log
     ADD CONSTRAINT world_log_pkey PRIMARY KEY (id);
 
 --
+-- Name: world_orde_avvio world_orde_avvio_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_orde_avvio
+    ADD CONSTRAINT world_orde_avvio_pkey PRIMARY KEY (id);
+
+--
+-- Name: world_orde_esiti world_orde_esiti_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_orde_esiti
+    ADD CONSTRAINT world_orde_esiti_pkey PRIMARY KEY (slot_id, user_id);
+
+--
 -- Name: world_partite world_partite_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -8995,6 +9112,12 @@ CREATE INDEX world_h_b ON public.world_homes USING btree (building_id, status);
 --
 
 CREATE INDEX world_log_user ON public.world_log USING btree (user_id, seen);
+
+--
+-- Name: world_orde_esiti_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_orde_esiti_user ON public.world_orde_esiti USING btree (user_id, created_at DESC);
 
 --
 -- Name: world_partite_user; Type: INDEX; Schema: public; Owner: -
@@ -9590,6 +9713,13 @@ ALTER TABLE ONLY public.world_house_req
 
 ALTER TABLE ONLY public.world_log
     ADD CONSTRAINT world_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
+-- Name: world_orde_esiti world_orde_esiti_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_orde_esiti
+    ADD CONSTRAINT world_orde_esiti_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 --
 -- Name: world_partite world_partite_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -10316,6 +10446,18 @@ ALTER TABLE public.world_house_req ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.world_log ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: world_orde_avvio; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_orde_avvio ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_orde_esiti; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_orde_esiti ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: world_partite; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -10789,6 +10931,13 @@ REVOKE ALL ON FUNCTION public.w_median_near(p_user uuid) FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_mz_eff(p_user uuid, p_km double precision) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_orde_tick(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_orde_tick() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.w_orde_tick() TO service_role;
 
 --
 -- Name: FUNCTION w_pay(p_user uuid, p_delta integer, p_reason text, p_ref text); Type: ACL; Schema: public; Owner: -
@@ -11645,6 +11794,13 @@ GRANT ALL ON FUNCTION public.world_my_effects() TO authenticated;
 
 REVOKE ALL ON FUNCTION public.world_near_survivors(p_lat double precision, p_lon double precision, p_km double precision) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_near_survivors(p_lat double precision, p_lon double precision, p_km double precision) TO authenticated;
+
+--
+-- Name: FUNCTION world_orde_mie(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_orde_mie() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_orde_mie() TO authenticated;
 
 --
 -- Name: FUNCTION world_player(p_user uuid); Type: ACL; Schema: public; Owner: -
