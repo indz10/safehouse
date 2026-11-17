@@ -199,7 +199,7 @@ function fallbackChat(t){
   /* Fase 7a: risposte automatiche aggiornate al gioco di oggi (servono quando l'IA non è attiva) */
   t=t.toLowerCase();
   const R=[
-   [/notific|avvis|campanell/,'🔔 Le notifiche arrivano 30 minuti prima di ogni orda e quando succede qualcosa a te. Su iPhone funzionano solo se apri l’app dall’icona sulla schermata Home (Safari → Condividi → Aggiungi alla schermata Home), poi menu ☰ → Notifiche delle orde → Consenti.'],
+   [/notific|avvis|campanell/,'🔔 Le notifiche arrivano un’ora e 15 minuti prima di ogni orda e quando succede qualcosa a te. Su iPhone funzionano solo se apri l’app dall’icona sulla schermata Home (Safari → Condividi → Aggiungi alla schermata Home), poi menu ☰ → Notifiche delle orde → Consenti.'],
    [/foto|fotocamera|camera/,'📷 Fotografa porta, finestre basse e cancello: le foto aiutano a rispondere alle domande della valutazione. Restano sul telefono, non vengono salvate.'],
    [/indice|punteggio casa|voto/,'🏠 L’indice della casa va da 1 a 10: più è basso, più la casa è sicura. Pesano di più gli accessi (porte e finestre), poi perimetro e scorte. Nel piano d’azione (Le mie case → ❤️ Casa tua) trovi cosa migliorare, prima le cose gratis.'],
    [/porta|finestr|grat|serratur|allarm|luc|ladr|sicur/,'🔒 Le migliorie con più effetto: porta blindata o barra sulla porta sul retro, grate o vetri antisfondamento al piano terra, luci con sensore di movimento, niente scale o bidoni appoggiati ai muri. Il tuo piano d’azione le mette in ordine per la tua casa.'],

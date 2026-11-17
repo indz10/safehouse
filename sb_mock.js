@@ -60,6 +60,7 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_rinforzi_chiedi':{window.__RFC=a;const x=(window.__PVP.in_arrivo||[]).find(y=>y.id===a.p_att);if(x)x.chiesto=true;return{data:{ok:true,n:2,msg:'📣 Chiamati 2 alleati'},error:null};}
   case'world_rinforzi_info':{window.__RFI=a;const x=(window.__PVP.in_arrivo||[]).find(y=>y.id===a.p_att)||{};return{data:{ok:true,impatto:x.impatto,chiesto:!!x.chiesto,rinf:13,alleati:[{id:'u2',nick:'giangy',km:0.4,minuti:5,in_tempo:true,partito:false},{id:'u5',nick:'lontano',km:240,minuti:90,in_tempo:false,partito:false}]},error:null};}
   case'world_rinforza':{window.__RFR=a;const x=((window.__PVP||{}).alleati||[]).find(y=>y.id===a.p_att);if(x){x.partito=true;x.arrivo=new Date(Date.now()+300e3).toISOString();}return{data:{ok:true,minuti:5,msg:'🛡️ Rinforzi partiti: arrivano fra 5 min'},error:null};}
+  case'world_orde_mie':return{data:{ok:true,orde:(window.__PVP&&window.__PVP.or)||[]},error:null};
   case'world_case_integrita':return{data:{ok:true,case:(window.__PVP&&window.__PVP.ci)||[]},error:null};
   case'world_integrita':return{data:{ok:true,integrita:60,crollata:false},error:null};
   case'world_ripara':{window.__PVR=a;if(window.__PVP&&window.__PVP.ci)window.__PVP.ci=window.__PVP.ci.filter(x=>x.bid!==a.p_bid);if(window.__PVP)window.__PVP.danno=0;return{data:{ok:true,msg:'🔨 Difese riparate: +10 · 🪵 −20'},error:null};}

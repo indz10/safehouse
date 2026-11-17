@@ -79,7 +79,7 @@ function bvNotifCheck(){try{if(document.getElementById('bvnot')||document.getEle
   if(typeof pushOk==='function'&&!pushOk())return;if(document.querySelector('#sheet.open'))return;const oggi=new Date().toISOString().slice(0,10);
   if(localStorage.getItem('zsh_bvnot')===oggi)return;
   document.body.insertAdjacentHTML('beforeend',`<div id="bvnot" role="dialog" aria-label="Notifiche"><div class="bvcard">
-    <div class="bvhead"><img src="icon-192.png" alt="" onerror="this.remove()"><div><b class="disp">Ultimo passo 🔔</b><small>L’app è installata. Attiva le notifiche: ti avvisiamo 30 minuti prima di ogni orda, quando un alleato ti aiuta o un rivale ti attacca, e per i messaggi della piazza.</small></div></div>
+    <div class="bvhead"><img src="icon-192.png" alt="" onerror="this.remove()"><div><b class="disp">Ultimo passo 🔔</b><small>L’app è installata. Attiva le notifiche: ti avvisiamo un’ora e 15 minuti prima di ogni orda, quando un alleato ti aiuta o un rivale ti attacca, e per i messaggi della piazza.</small></div></div>
     <div class="bvbody"><div class="bvst done"><span>✅</span><div><b>Account</b><small>@${esc(S.user.nick||'')}</small></div></div><div class="bvst done"><span>✅</span><div><b>App installata</b><small>Aperta dall’icona</small></div></div>
     <div class="bvst"><span>3</span><div><b>Notifiche</b><small>Tocca il pulsante, poi <b>Consenti</b>.</small><button class="btn" data-bvnon>🔔 Attiva le notifiche</button></div></div></div>
     <button class="bvskip" data-bvnlt>Più tardi</button></div></div>`);
