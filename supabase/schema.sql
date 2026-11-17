@@ -298,7 +298,7 @@ end $$;
 CREATE FUNCTION public.w_ab(p_abil jsonb, p_k text) RETURNS integer
     LANGUAGE sql IMMUTABLE
     AS $$
-  select least(5, greatest(0, coalesce((p_abil->>p_k)::int, 0))); $$;
+  select least(case when p_k = 'combattente' then 9 else 5 end, greatest(0, coalesce((p_abil->>p_k)::int, 0))); $$;
 
 --
 -- Name: w_alleanza_chiudi(bigint); Type: FUNCTION; Schema: public; Owner: -
@@ -546,6 +546,75 @@ CREATE FUNCTION public.w_atk_pts(a uuid, b uuid) RETURNS integer
 $$;
 
 --
+-- Name: w_attacchi_tick(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_attacchi_tick() RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare k jsonb := public.w_pvp_cfg(); a public.world_attacchi; t jsonb; dif numeric; res jsonb; e int; loot jsonb; dn int; n int := 0;
+begin
+  for a in select * from public.world_attacchi where stato = 'viaggio' and impatto <= now() order by impatto limit 50 for update skip locked loop
+    t := public.w_bersaglio(null, a.bid);
+    -- regola assoluta e bersaglio ancora valido, controllati anche all'impatto
+    if t is null or (t->>'owner')::uuid <> a.vittima or public.w_are_allies(a.attaccante, a.vittima) or public.w_coinq(a.attaccante, a.vittima)
+       or ((t->>'home')::boolean and public.w_custodita(a.vittima)) then
+      update public.world_attacchi set stato = 'annullato', esito = jsonb_build_object('msg', 'Attacco annullato: il bersaglio non è più attaccabile') where id = a.id;
+      update public.world_wallet set cibo = cibo + (k->>'costo_cibo')::int where user_id = a.attaccante;
+      continue;
+    end if;
+    dif := public.w_forza_dif(a.vittima, a.bid);
+    res := public.w_combat(a.forza, dif, 'pvp' || a.id); e := (res->>'esito')::int;
+    loot := public.w_bottino(a.vittima, e);
+    if e > 0 then
+      perform public.w_wallet(a.attaccante);
+      update public.world_wallet set legno = legno + (loot->>'legno')::int, cibo = cibo + (loot->>'cibo')::int, carb = carb + (loot->>'carb')::int,
+        mattoni = mattoni + (loot->>'mattoni')::int where user_id = a.attaccante;
+      if (loot->>'mattoni')::int > 0 then insert into public.world_log(user_id, delta, reason, seen) values (a.attaccante, (loot->>'mattoni')::int, 'Bottino di un attacco', false); end if;
+      dn := (k->'danni'->>e)::int;
+      if a.casa_vera then update public.world_homes set danno = least((k->>'danni_max')::int, danno + dn) where user_id = a.vittima;
+      else update public.world_buildings set danno = least((k->>'danni_max')::int, danno + dn) where building_id = a.bid; end if;
+    else dn := 0; end if;
+    update public.world_attacchi set stato = 'risolto', esito = res || jsonb_build_object('att', a.forza, 'dif', dif, 'loot', loot, 'danno', dn) where id = a.id;
+    perform public.w_feed_add('pvp_esito', a.attaccante, a.vittima, null, null, a.id || '|' || e || '|' || 'dif');
+    perform public.w_feed_add('pvp_esito', a.vittima, a.attaccante, null, null, a.id || '|' || e || '|' || 'att');
+    n := n + 1;
+  end loop;
+  return n;
+end $$;
+
+--
+-- Name: w_attacco_no(uuid, jsonb); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_attacco_no(p_me uuid, p_t jsonb) RETURNS text
+    LANGUAGE plpgsql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare k jsonb := public.w_pvp_cfg(); o uuid; last timestamptz; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD');
+begin
+  if p_t is null then return 'Qui non abita nessuno'; end if;
+  o := (p_t->>'owner')::uuid;
+  if o = p_me then return 'È casa tua'; end if;
+  if public.w_are_allies(p_me, o) or public.w_coinq(p_me, o) then return 'È un tuo alleato: tra alleati non ci si attacca'; end if;
+  if public.w_shielded(o) then return 'È appena arrivato: ha lo scudo del nuovo arrivato (15 giorni)'; end if;
+  if (p_t->>'home')::boolean and public.w_custodita(o) then return 'È la sua casa vera ed è custodita (ci passa ogni settimana): intoccabile'; end if;
+  if public.w_lvl_of(o) < public.w_lvl_of(p_me) - 3 then return 'È molto più debole di te: è protetto'; end if;
+  if exists (select 1 from public.world_attacchi where attaccante = p_me and bid = p_t->>'bid' and stato = 'viaggio') then return 'La tua squadra è già in viaggio verso questa casa'; end if;
+  select max(partenza) into last from public.world_attacchi where attaccante = p_me and vittima = o and stato <> 'annullato';
+  if last > now() - make_interval(hours => (k->>'coppia_ore')::int) then
+    return format('L’hai già attaccato: riprova fra %s ore', ceil(extract(epoch from (last + make_interval(hours => (k->>'coppia_ore')::int) - now())) / 3600)); end if;
+  if exists (select 1 from public.world_attacchi where vittima = o and stato = 'risolto' and (esito->>'esito')::int > 0 and impatto > now() - make_interval(hours => (k->>'scudo_ore')::int)) then
+    return 'È appena stato saccheggiato: riprova fra qualche ora'; end if;
+  if (select count(*) from public.world_attacchi where vittima = o and stato = 'risolto' and (esito->>'esito')::int > 0 and impatto > now() - interval '24 hours') >= (k->>'max_sconfitte')::int then
+    return 'Oggi ha già perso troppe volte: lascialo respirare'; end if;
+  if (select count(*) from public.world_attacchi where attaccante = p_me and (partenza at time zone 'Europe/Rome')::date = (now() at time zone 'Europe/Rome')::date) >= (k->>'max_attacchi')::int then
+    return format('Oggi hai già fatto %s attacchi', k->>'max_attacchi'); end if;
+  return null;
+end $$;
+
+--
 -- Name: w_attack3(text, text, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -637,6 +706,28 @@ CREATE FUNCTION public.w_bad(p_text text) RETURNS boolean
     AS $$
   select lower(p_text) ~ '(porc[oa] ?(dio|madonna)|dio ?(cane|porco|maiale|boia)|madonna ?(puttana|troia)|\mnegr[oaie]\M|\mfroc[io]|ricchion|\mterron[ei]\M|ti ammazzo|ti uccido|ti sgozzo|ti vengo a prendere|ammazzati|\mpedofil|\mstupr|\mnazist)';
 $$;
+
+--
+-- Name: w_bersaglio(uuid, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_bersaglio(p_user uuid, p_bid text) RETURNS jsonb
+    LANGUAGE plpgsql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare h public.world_homes; b public.world_buildings;
+begin
+  if p_bid is not null then
+    select * into h from public.world_homes where building_id = p_bid limit 1;
+    if h.user_id is not null then return jsonb_build_object('owner', h.user_id, 'bid', h.building_id, 'home', true, 'lat', h.lat, 'lon', h.lon, 'label', 'casa di @' || public.w_nick(h.user_id)); end if;
+    select * into b from public.world_buildings where building_id = p_bid;
+    if b.owner is not null then return jsonb_build_object('owner', b.owner, 'bid', b.building_id, 'home', false, 'lat', b.lat, 'lon', b.lon, 'label', 'casa comprata di @' || public.w_nick(b.owner)); end if;
+    return null;
+  end if;
+  select * into h from public.world_homes where user_id = p_user;
+  if h.user_id is null then return null; end if;
+  return jsonb_build_object('owner', h.user_id, 'bid', h.building_id, 'home', true, 'lat', h.lat, 'lon', h.lon, 'label', 'casa di @' || public.w_nick(h.user_id));
+end $$;
 
 --
 -- Name: w_boost(uuid); Type: FUNCTION; Schema: public; Owner: -
@@ -731,6 +822,30 @@ CREATE FUNCTION public.w_boss_tipi() RETURNS TABLE(k text, nome text, ic text)
   values ('gigante','Il Gigante di fango','👹'),('abominio','L’Abominio','🐙'),('colosso','Il Colosso','🦍'),('conte','Il Conte dei morti','🧛'),('regina','La Regina dell’orda','👸'); $$;
 
 --
+-- Name: w_bottino(uuid, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_bottino(p_vittima uuid, p_esito integer) RETURNS jsonb
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare k jsonb := public.w_pvp_cfg(); w public.world_wallet; pc numeric; out jsonb := '{}'::jsonb; r text; val int; prot int; prend int;
+begin
+  if coalesce(p_esito, 0) <= 0 then return jsonb_build_object('legno',0,'cibo',0,'carb',0,'mattoni',0); end if;
+  pc := (k->'perc'->>p_esito)::numeric; w := public.w_wallet(p_vittima);
+  foreach r in array array['legno','cibo','carb','mattoni'] loop
+    val := case r when 'legno' then w.legno when 'cibo' then w.cibo when 'carb' then w.carb else w.mattoni end;
+    prot := greatest((k->'prot_min'->>r)::int, floor(val * (k->>'prot_pct')::numeric)::int);
+    prend := least((k->'cap'->>r)::int, floor(greatest(0, val - prot) * pc)::int);
+    out := out || jsonb_build_object(r, prend);
+  end loop;
+  update public.world_wallet set legno = legno - (out->>'legno')::int, cibo = cibo - (out->>'cibo')::int, carb = carb - (out->>'carb')::int,
+    mattoni = mattoni - (out->>'mattoni')::int where user_id = p_vittima;
+  if (out->>'mattoni')::int > 0 then insert into public.world_log(user_id, delta, reason, seen) values (p_vittima, -(out->>'mattoni')::int, 'Scorte perse in un attacco', false); end if;
+  return out;
+end $$;
+
+--
 -- Name: w_canon(text, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -819,6 +934,29 @@ CREATE FUNCTION public.w_coinq(p_a uuid, p_b uuid) RETURNS boolean
     AS $$
   select coalesce(p_a <> p_b and not public.w_rift(p_a, p_b) and exists (select 1 from public.world_homes a, public.world_homes b where a.user_id = p_a and b.user_id = p_b
     and (a.building_id = b.building_id or public.w_km(a.lat,a.lon,b.lat,b.lon) < 0.025)), false); $$;
+
+--
+-- Name: w_comb_bonus(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_comb_bonus(p_user uuid) RETURNS numeric
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select (public.w_pvp_cfg()->>'comb_pct')::numeric * coalesce((select public.w_ab(s.abil, 'combattente') from public.world_superstite s where s.user_id = p_user), 0); $$;
+
+--
+-- Name: w_combat(numeric, numeric, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_combat(p_att numeric, p_dif numeric, p_seed text) RETURNS jsonb
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  with c as (select public.w_pvp_cfg() as k),
+  v as (select k, (abs(hashtext(p_seed)) % 2001 - 1000) / 1000.0 * (k->>'caso')::numeric as x from c),
+  r as (select k, x, round(p_att * (1 + x) / greatest(1, p_dif), 3) as r from v)
+  select jsonb_build_object('r', r, 'caso', round(x, 3),
+    'esito', case when r < (k->'soglie'->>0)::numeric then 0 when r < (k->'soglie'->>1)::numeric then 1 when r < (k->'soglie'->>2)::numeric then 2 else 3 end) from r; $$;
 
 --
 -- Name: w_condo_admin(text); Type: FUNCTION; Schema: public; Owner: -
@@ -1051,6 +1189,35 @@ CREATE FUNCTION public.w_fort(p_bid text) RETURNS integer
     AS $$
   select case when p_bid like 'pres:%' then 2 * public.w_pres_liv(substr(p_bid, 6), 'torretta')
     else public.w_def(p_bid,'barricate') + public.w_def(p_bid,'recinto') + public.w_def(p_bid,'fossato') end; $$;
+
+--
+-- Name: w_forza_att(uuid, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_forza_att(p_user uuid, p_mz text) RETURNS numeric
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select round(((public.w_pvp_cfg()->>'atk_base')::numeric + (public.w_pvp_cfg()->>'atk_lvl')::numeric * least(greatest(public.w_lvl_of(p_user), 1), 30))
+               * (1 + public.w_comb_bonus(p_user)) * public.w_mz_atk(p_mz), 1); $$;
+
+--
+-- Name: w_forza_dif(uuid, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_forza_dif(p_owner uuid, p_bid text) RETURNS numeric
+    LANGUAGE plpgsql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare sid text := public.w_slot_id(public.w_next_slot(now())); home boolean; lvl int; d int; base numeric;
+begin
+  home := exists (select 1 from public.world_homes where user_id = p_owner and building_id = p_bid);
+  lvl := coalesce((select level from public.world_buildings where building_id = p_bid), 1);
+  d := case when home then coalesce((select danno from public.world_homes where user_id = p_owner), 0) else coalesce((select danno from public.world_buildings where building_id = p_bid), 0) end;
+  base := 45 + 12 * greatest(lvl, 1) + case when home then 5 + public.w_condo_bonus(p_owner) else 0 end
+        + public.w_upower(p_owner, sid) + public.w_pres_bonus(p_bid, sid) + public.w_casa_extra(p_bid, sid);
+  return round(greatest(10, base * (1 + public.w_comb_bonus(p_owner)) - d), 1);
+end $$;
 
 --
 -- Name: w_grado(integer); Type: FUNCTION; Schema: public; Owner: -
@@ -1563,6 +1730,30 @@ CREATE FUNCTION public.w_price2(p_user uuid, p_lat double precision, p_lon doubl
     (public.w_price(p_lat,p_lon) + coalesce((select (floor(public.w_km(h.lat,h.lon,p_lat,p_lon)/50)*10)::int from public.world_homes h where h.user_id = p_user),0))
     * (1 + 0.10 * (select count(*) from public.world_buildings b where b.owner = p_user))))::int;
 $$;
+
+--
+-- Name: w_pvp_cfg(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_pvp_cfg() RETURNS jsonb
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select jsonb_build_object(
+    'comb_pct', 0.05, 'comb_max', 9,                                   -- Combattente: +5% attacco e difesa per livello (max 9 = +45%)
+    'viaggio', jsonb_build_array(jsonb_build_array(1,5), jsonb_build_array(5,10), jsonb_build_array(20,20), jsonb_build_array(50,40), jsonb_build_array(100,60)),
+    'viaggio_oltre', 90,                                               -- minuti oltre 100 km
+    'soglie', jsonb_build_array(1, 1.25, 1.6),                         -- rapporto attacco/difesa per misura, normale, schiacciante
+    'perc', jsonb_build_array(0, 0.10, 0.20, 0.30),                    -- scorte perse per esito
+    'danni', jsonb_build_array(0, 5, 10, 15),                          -- punti di difesa danneggiati per esito
+    'danni_max', 30,
+    'prot_pct', 0.30,                                                  -- scorta protetta: il più alto tra il 30% e il minimo
+    'prot_min', jsonb_build_object('legno', 50, 'cibo', 50, 'carb', 50, 'mattoni', 100),
+    'cap', jsonb_build_object('legno', 150, 'cibo', 150, 'carb', 150, 'mattoni', 100),   -- massimo per attacco
+    'caso', 0.10,                                                      -- variazione casuale ±10% decisa dal server
+    'atk_base', 30, 'atk_lvl', 3,                                      -- forza = (30 + 3 × livello) × (1 + Combattente) × mezzo
+    'costo_cibo', 10, 'energia', 1,
+    'coppia_ore', 12, 'scudo_ore', 6, 'max_sconfitte', 3, 'max_attacchi', 5,
+    'riparo_legno', 2); $$;
 
 --
 -- Name: w_radius(integer); Type: FUNCTION; Schema: public; Owner: -
@@ -2147,6 +2338,16 @@ CREATE FUNCTION public.w_upower(p_user uuid, p_slot text) RETURNS integer
        - least(35, least(30, atk) + least(10, 5 * fog) + (case when sab > 0 and prep > 0 then 15 else 0 end))
   from x;
 $$;
+
+--
+-- Name: w_viaggio_min(double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_viaggio_min(p_km double precision) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select coalesce((select (x->>1)::int from jsonb_array_elements(public.w_pvp_cfg()->'viaggio') with ordinality t(x, i)
+                   where coalesce(p_km, 0) <= (x->>0)::numeric order by i limit 1), (public.w_pvp_cfg()->>'viaggio_oltre')::int); $$;
 
 --
 -- Name: w_vicino_alleanza(uuid, bigint); Type: FUNCTION; Schema: public; Owner: -
@@ -2809,6 +3010,7 @@ CREATE FUNCTION public.world_assalta(p_bid text, p_lat double precision, p_lon d
     AS $$
 declare me uuid := auth.uid(); a json; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD'); lost boolean := false; n int; quando text;
 begin
+  if p_bid not like 'pres:%' then return json_build_object('ok', false, 'nuovo', true, 'bid', p_bid, 'msg', 'Ora si attacca con ⚔️ Attacca: viaggio, bottino e difesa'); end if;
   a := public.w_azione(me, p_bid, p_lat, p_lon, 'atk');
   if not (a->>'ok')::boolean then return a; end if;
   update public.world_wallet set cibo = cibo - 10, carb = carb - (a->>'carb')::int where user_id = me and cibo >= 10 and carb >= (a->>'carb')::int;
@@ -2821,7 +3023,7 @@ begin
   perform public.w_feed_add('assalto', me, (a->>'owner')::uuid, null, null, a->>'tipo');
   quando := case when (a->>'in_tempo')::boolean then 'per l’orda delle ' || right(a->>'slot',2) || ':00' else 'troppo tardi per questa orda: conta per quella delle ' || right(a->>'slot',2) || ':00' end;
   return json_build_object('ok',true,'pts',(a->>'pts')::int,'slot',a->>'slot','msg','⚔️ Squadra partita ' || public.w_mz_nome(a->>'mezzo') || ': arriva tra ' || (a->>'eta_min') || ' min, ' || quando
-    || ': −' || (a->>'pts') || ' alla sua difesa. ' || case when a->>'tipo' = 'home' then 'Se cade, saccheggi le sue scorte' else 'Se cade, è tua' end
+    || ': −' || (a->>'pts') || ' alla sua difesa. Se cade, è tuo'
     || case when (a->>'carb')::int > 0 then ' · ⛽ −' || (a->>'carb') else '' end || ' · 🥫 −10' || case when lost then '. Hai perso il tuo scudo del nuovo arrivato' else '' end);
 end $$;
 
@@ -2973,6 +3175,89 @@ begin
     on conflict (bid, user_id, slot_id, kind) do update set pts = public.world_assalti.pts + 6;
   if (a->>'owner')::uuid <> me then perform public.w_feed_add('assi', me, (a->>'owner')::uuid, null, null, a->>'tipo'); end if;
   return json_build_object('ok',true,'msg','🪵 Assi inchiodate: +6 alla difesa per l’orda delle ' || right(a->>'slot',2) || ':00 (in tutto +' || least(18, (a->>'somma')::int + 6) || ')');
+end $$;
+
+--
+-- Name: world_attacca(uuid, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_attacca(p_user uuid, p_bid text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); k jsonb := public.w_pvp_cfg(); t jsonb; why text; km double precision; mz text; c int; mins int; s public.world_superstite; nid bigint; lost boolean;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  t := public.w_bersaglio(p_user, p_bid); why := public.w_attacco_no(me, t);
+  if why is not null then return json_build_object('ok', false, 'msg', why); end if;
+  km := public.w_dist_pt(me, (t->>'lat')::float, (t->>'lon')::float);
+  if km is null then return json_build_object('ok', false, 'msg', 'Per attaccare ti serve una casa nel mondo'); end if;
+  s := public.w_sup(me);
+  if s.energia < (k->>'energia')::int then return json_build_object('ok', false, 'msg', 'Serve 1 energia: si ricarica da sola'); end if;
+  mz := public.w_mz_eff(me, km); c := public.w_mz_carb(mz, km); mins := public.w_viaggio_min(km);
+  update public.world_wallet set cibo = cibo - (k->>'costo_cibo')::int, carb = carb - c where user_id = me and cibo >= (k->>'costo_cibo')::int and carb >= c;
+  if not found then return json_build_object('ok', false, 'msg', format('Servono 🥫 %s%s', k->>'costo_cibo', case when c > 0 then ' e ⛽ ' || c else '' end)); end if;
+  update public.world_superstite set energia = energia - (k->>'energia')::int,
+    energia_at = case when energia >= public.w_en_max(abil) then now() else energia_at end where user_id = me;
+  lost := public.w_shielded(me);
+  if lost then perform public.w_wallet(me); update public.world_wallet set caps = jsonb_set(caps, '{scudo_off}', '1') where user_id = me; end if;
+  insert into public.world_attacchi(kind, attaccante, vittima, bid, casa_vera, lat, lon, km, minuti, mezzo, forza, impatto)
+    values ('pvp', me, (t->>'owner')::uuid, t->>'bid', (t->>'home')::boolean, (t->>'lat')::float, (t->>'lon')::float, round(km::numeric, 2), mins, mz,
+            public.w_forza_att(me, mz), now() + make_interval(mins => mins)) returning id into nid;
+  perform public.w_feed_add('pvp_arrivo', me, (t->>'owner')::uuid, null, null, nid || '|' || mins || '|' || case when (t->>'home')::boolean then 'casa' else 'comprata' end);
+  return json_build_object('ok', true, 'id', nid, 'minuti', mins, 'impatto', now() + make_interval(mins => mins),
+    'msg', format('⚔️ Squadra partita %s: arriva fra %s min alla %s', public.w_mz_nome(mz), mins, t->>'label')
+           || ' · 🥫 −' || (k->>'costo_cibo') || case when c > 0 then ' ⛽ −' || c else '' end || case when lost then '. Hai perso il tuo scudo del nuovo arrivato' else '' end);
+end $$;
+
+--
+-- Name: world_attacchi_miei(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_attacchi_miei() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid();
+begin
+  if me is null then return json_build_object('ok', false); end if;
+  perform public.w_attacchi_tick();
+  return json_build_object('ok', true, 'ora', now(),
+    'in_arrivo', coalesce((select json_agg(json_build_object('id', a.id, 'da', public.w_nick(a.attaccante), 'da_id', a.attaccante, 'bid', a.bid, 'casa_vera', a.casa_vera,
+        'impatto', a.impatto, 'minuti', a.minuti, 'km', a.km) order by a.impatto) from public.world_attacchi a where a.vittima = me and a.stato = 'viaggio'), '[]'::json),
+    'in_viaggio', coalesce((select json_agg(json_build_object('id', a.id, 'contro', public.w_nick(a.vittima), 'contro_id', a.vittima, 'bid', a.bid, 'casa_vera', a.casa_vera,
+        'impatto', a.impatto, 'minuti', a.minuti, 'forza', a.forza) order by a.impatto) from public.world_attacchi a where a.attaccante = me and a.stato = 'viaggio'), '[]'::json),
+    'storico', coalesce((select json_agg(z.x order by z.quando desc) from (
+        select json_build_object('id', a.id, 'io', case when a.attaccante = me then 'att' else 'dif' end, 'altro', public.w_nick(case when a.attaccante = me then a.vittima else a.attaccante end),
+          'altro_id', case when a.attaccante = me then a.vittima else a.attaccante end, 'casa_vera', a.casa_vera, 'stato', a.stato, 'esito', a.esito, 'quando', a.impatto) as x, a.impatto as quando
+        from public.world_attacchi a where (a.attaccante = me or a.vittima = me) and a.stato <> 'viaggio' order by a.impatto desc limit 20) z(x, quando)), '[]'::json),
+    'danno_casa', coalesce((select danno from public.world_homes where user_id = me), 0),
+    'danni', coalesce((select json_agg(json_build_object('bid', building_id, 'danno', danno)) from public.world_buildings where owner = me and danno > 0), '[]'::json));
+end $$;
+
+--
+-- Name: world_attacco_info(uuid, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_attacco_info(p_user uuid, p_bid text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); t jsonb; why text; km double precision; mz text; att numeric; dif numeric; c int; s public.world_superstite; r jsonb;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  t := public.w_bersaglio(p_user, p_bid);
+  why := public.w_attacco_no(me, t);
+  if t is null then return json_build_object('ok', false, 'msg', why); end if;
+  km := public.w_dist_pt(me, (t->>'lat')::float, (t->>'lon')::float);
+  if km is null then return json_build_object('ok', false, 'msg', 'Per attaccare ti serve una casa nel mondo'); end if;
+  mz := public.w_mz_eff(me, km); att := public.w_forza_att(me, mz); dif := public.w_forza_dif((t->>'owner')::uuid, t->>'bid');
+  r := public.w_combat(att, dif, 'stima'); s := public.w_sup(me);
+  return json_build_object('ok', why is null, 'msg', why, 'owner', t->>'owner', 'nick', public.w_nick((t->>'owner')::uuid), 'bid', t->>'bid', 'home', (t->>'home')::boolean,
+    'label', t->>'label', 'km', round(km::numeric, 1), 'minuti', public.w_viaggio_min(km), 'mezzo', mz, 'mezzo_nome', public.w_mz_nome(mz),
+    'costo', json_build_object('cibo', (public.w_pvp_cfg()->>'costo_cibo')::int, 'carb', public.w_mz_carb(mz, km), 'energia', (public.w_pvp_cfg()->>'energia')::int),
+    'forza', att, 'difesa', round(dif / 10) * 10, 'rapporto', round(att / greatest(1, dif), 2), 'energia', s.energia,
+    'combattente', public.w_ab(s.abil, 'combattente'));
 end $$;
 
 --
@@ -4973,6 +5258,29 @@ begin
 end $$;
 
 --
+-- Name: world_ripara(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_ripara(p_bid text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); d int; costo int; home boolean;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  home := coalesce(p_bid, '') = '' or exists (select 1 from public.world_homes where user_id = me and building_id = p_bid);
+  if home then d := (select danno from public.world_homes where user_id = me);
+  else d := (select danno from public.world_buildings where building_id = p_bid and owner = me); end if;
+  if d is null then return json_build_object('ok', false, 'msg', 'Non è casa tua'); end if;
+  if d <= 0 then return json_build_object('ok', false, 'msg', 'Niente da riparare'); end if;
+  costo := d * (public.w_pvp_cfg()->>'riparo_legno')::int;
+  update public.world_wallet set legno = legno - costo where user_id = me and legno >= costo;
+  if not found then return json_build_object('ok', false, 'msg', format('Servono 🪵 %s', costo)); end if;
+  if home then update public.world_homes set danno = 0 where user_id = me; else update public.world_buildings set danno = 0 where building_id = p_bid; end if;
+  return json_build_object('ok', true, 'msg', format('🔨 Difese riparate: +%s · 🪵 −%s', d, costo));
+end $$;
+
+--
 -- Name: world_rivals(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4996,15 +5304,10 @@ $$;
 --
 
 CREATE FUNCTION public.world_saccheggia(p_user uuid) RETURNS json
-    LANGUAGE plpgsql SECURITY DEFINER
+    LANGUAGE sql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-declare h public.world_homes;
-begin
-  select * into h from public.world_homes where user_id = p_user and status = 'home';
-  if h.user_id is null then return json_build_object('ok',false,'msg','Non ha una casa confermata nel mondo'); end if;
-  return public.world_assalta(h.building_id, h.lat, h.lon);
-end $$;
+  select json_build_object('ok', false, 'nuovo', true, 'target', p_user, 'msg', 'Ora si attacca con ⚔️ Attacca: viaggio, bottino e difesa'); $$;
 
 --
 -- Name: world_score(uuid, text); Type: FUNCTION; Schema: public; Owner: -
@@ -5052,41 +5355,10 @@ end $$;
 --
 
 CREATE FUNCTION public.world_send_attack(p_target uuid) RETURNS json
-    LANGUAGE plpgsql SECURITY DEFINER
+    LANGUAGE sql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-declare me uuid := auth.uid(); nid text := public.w_slot_id(public.w_next_slot(now())); w public.world_wallet; k text; n int; lost boolean := false;
-  mz text; mzp text; c int; d double precision; arr timestamptz; sid text; v int; eta int; quando text;
-begin
-  if me is null then return json_build_object('ok',false,'msg','Accedi'); end if;
-  if p_target = me then return json_build_object('ok',false,'msg','Non puoi attaccare te stesso'); end if;
-  if not exists (select 1 from public.world_homes where user_id = p_target) then return json_build_object('ok',false,'msg','Non ha una casa nel mondo'); end if;
-  if public.w_shielded(p_target) then return json_build_object('ok',false,'msg','È appena arrivato: 15 giorni di scudo del nuovo arrivato'); end if;
-  if public.w_are_allies(me, p_target) then return json_build_object('ok',false,'msg','È un tuo alleato (o coinquilino): niente orde'); end if;
-  if public.w_lvl_of(p_target) < public.w_lvl_of(me) - 3 then return json_build_object('ok',false,'msg','È molto più debole di te: è protetto'); end if;
-  d := public.w_dist_km(me, p_target);
-  mzp := public.w_mezzo(me); mz := public.w_mz_eff(me, coalesce(d, 0)); c := public.w_mz_carb(mz, d);
-  if d is null or d > least(20, public.w_mz_range(mz)) then
-    return json_build_object('ok',false,'msg','È a ' || coalesce(round(d::numeric,1)::text,'?') || ' km: ' || case when coalesce(d,99) > 20 then 'le orde arrivano solo entro 20 km (da lontano puoi fare solo dispetti)'
-      else public.w_mz_nome(mz) || ' arrivi fino a ' || public.w_mz_range(mz) || ' km' || case when mz <> mzp then ' (per andare ' || public.w_mz_nome(mzp) || ' servono ⛽ ' || public.w_mz_carb(mzp, d) || ')' else '. Un mezzo più veloce in Bottega' end end); end if;
-  if exists (select 1 from public.world_attack_given where attacker = me and target = p_target and slot_id >= nid) then return json_build_object('ok',false,'msg','La tua orda è già in viaggio verso di lui'); end if;
-  w := public.w_wallet(me); k := 'orde:' || to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD'); n := coalesce((w.caps->>k)::int,0);
-  if n >= 3 then return json_build_object('ok',false,'msg','Oggi hai già mandato 3 orde'); end if;
-  if w.mattoni < 30 then return json_build_object('ok',false,'msg','Servono 30 Mattoni'); end if;
-  if w.carb < c then return json_build_object('ok',false,'msg','Servono ⛽ ' || c); end if;
-  eta := ceil(d / public.w_mz_speed(mz) * 60); arr := now() + make_interval(mins => eta);
-  sid := public.w_slot_id(public.w_next_slot(arr));
-  v := greatest(3, round((6 + 0.5 * public.w_lvl_of(me)) * public.w_mz_atk(mz)
-         * (1 - least(0.6, 0.1 * coalesce((select public.w_fort(h.building_id) from public.world_homes h where h.user_id = p_target limit 1), 0)))))::int;
-  quando := case when sid = nid then 'per l’orda delle ' || right(sid,2) || ':00' else 'troppo tardi per questa orda: colpirà a quella delle ' || right(sid,2) || ':00' end;
-  insert into public.world_attack_given(attacker, target, slot_id, pts) values (me, p_target, sid, v) on conflict do nothing;
-  if not found then return json_build_object('ok',false,'msg','Gli hai già mandato un’orda per quella volta'); end if;
-  if public.w_shielded(me) then lost := true; end if;
-  update public.world_wallet set mattoni = mattoni - 30, carb = carb - c, caps = jsonb_set(jsonb_set(caps, array[k], to_jsonb(n+1)), '{scudo_off}', case when lost then '1' else coalesce(caps->'scudo_off','0') end) where user_id = me;
-  insert into public.world_log(user_id, delta, reason, seen) values (me, -30, 'Orda mandata a un rivale', true);
-  return json_build_object('ok',true,'msg','Orda in viaggio ' || public.w_mz_nome(mz) || ': arriva tra ' || eta || ' min, ' || quando || ': −' || v || ' alla sua difesa. Se la sua casa cade, taglia di 25 Mattoni'
-    || case when c > 0 then ' · ⛽ −' || c else '' end || case when lost then '. Hai perso il tuo scudo del nuovo arrivato' else '' end, 'eta_min', eta, 'slot', sid, 'pts', v, 'carb', c);
-end $$;
+  select json_build_object('ok', false, 'nuovo', true, 'target', p_target, 'msg', 'Ora si attacca con ⚔️ Attacca: viaggio, bottino e difesa'); $$;
 
 --
 -- Name: world_send_curse(uuid, text); Type: FUNCTION; Schema: public; Owner: -
@@ -5438,15 +5710,15 @@ CREATE FUNCTION public.world_sup_abilita(p_k text) RETURNS json
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-declare me uuid := auth.uid(); s public.world_superstite; liberi int; a int;
+declare me uuid := auth.uid(); s public.world_superstite; liberi int; a int; mx int;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
   if p_k not in ('esploratore','resistenza','combattente','cercatore','mercante') then return json_build_object('ok', false, 'msg', 'Abilità sconosciuta'); end if;
   s := public.w_sup(me);
   liberi := (public.w_grado(s.xp) - 1) - (select coalesce(sum(public.w_ab(s.abil, k)), 0) from unnest(array['esploratore','resistenza','combattente','cercatore','mercante']) k);
-  a := public.w_ab(s.abil, p_k);
+  a := public.w_ab(s.abil, p_k); mx := case when p_k = 'combattente' then 9 else 5 end;
   if liberi <= 0 then return json_build_object('ok', false, 'msg', 'Nessun punto libero: sali di grado con l’esperienza'); end if;
-  if a >= 5 then return json_build_object('ok', false, 'msg', 'Questa abilità è già al massimo (5)'); end if;
+  if a >= mx then return json_build_object('ok', false, 'msg', format('Questa abilità è già al massimo (%s)', mx)); end if;
   update public.world_superstite set abil = jsonb_set(abil, array[p_k], to_jsonb(a + 1)) where user_id = me;
   return json_build_object('ok', true, 'livello', a + 1, 'msg', 'Abilità migliorata');
 end $$;
@@ -6317,6 +6589,47 @@ CREATE SEQUENCE public.world_assedio_partite_id_seq
 ALTER SEQUENCE public.world_assedio_partite_id_seq OWNED BY public.world_assedio_partite.id;
 
 --
+-- Name: world_attacchi; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_attacchi (
+    id bigint NOT NULL,
+    kind text DEFAULT 'pvp'::text NOT NULL,
+    attaccante uuid,
+    vittima uuid NOT NULL,
+    bid text NOT NULL,
+    casa_vera boolean NOT NULL,
+    lat double precision,
+    lon double precision,
+    km numeric,
+    minuti integer NOT NULL,
+    mezzo text,
+    forza numeric NOT NULL,
+    partenza timestamp with time zone DEFAULT now() NOT NULL,
+    impatto timestamp with time zone NOT NULL,
+    stato text DEFAULT 'viaggio'::text NOT NULL,
+    esito jsonb,
+    CONSTRAINT world_attacchi_stato_check CHECK ((stato = ANY (ARRAY['viaggio'::text, 'risolto'::text, 'annullato'::text])))
+);
+
+--
+-- Name: world_attacchi_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_attacchi_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_attacchi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_attacchi_id_seq OWNED BY public.world_attacchi.id;
+
+--
 -- Name: world_attack_given; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -6431,7 +6744,8 @@ CREATE TABLE public.world_buildings (
     paid integer DEFAULT 0 NOT NULL,
     upgrades integer DEFAULT 0 NOT NULL,
     level integer DEFAULT 1 NOT NULL,
-    bought_at timestamp with time zone
+    bought_at timestamp with time zone,
+    danno integer DEFAULT 0 NOT NULL
 );
 
 --
@@ -6828,6 +7142,7 @@ CREATE TABLE public.world_homes (
     kind_set boolean DEFAULT false NOT NULL,
     vis text DEFAULT 'alleati'::text NOT NULL,
     presente_at timestamp with time zone DEFAULT now(),
+    danno integer DEFAULT 0 NOT NULL,
     CONSTRAINT world_homes_kind_check CHECK ((kind = ANY (ARRAY['casa'::text, 'condominio'::text, 'residence'::text]))),
     CONSTRAINT world_homes_vis_check CHECK ((vis = ANY (ARRAY['tutti'::text, 'alleati'::text])))
 );
@@ -7218,6 +7533,12 @@ ALTER TABLE ONLY public.world_alleanze_domande ALTER COLUMN id SET DEFAULT nextv
 ALTER TABLE ONLY public.world_assedio_partite ALTER COLUMN id SET DEFAULT nextval('public.world_assedio_partite_id_seq'::regclass);
 
 --
+-- Name: world_attacchi id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_attacchi ALTER COLUMN id SET DEFAULT nextval('public.world_attacchi_id_seq'::regclass);
+
+--
 -- Name: world_bonus id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -7527,6 +7848,13 @@ ALTER TABLE ONLY public.world_assedio_partite
 
 ALTER TABLE ONLY public.world_assedio
     ADD CONSTRAINT world_assedio_pkey PRIMARY KEY (user_id);
+
+--
+-- Name: world_attacchi world_attacchi_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_attacchi
+    ADD CONSTRAINT world_attacchi_pkey PRIMARY KEY (id);
 
 --
 -- Name: world_attack_given world_attack_given_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -7891,6 +8219,24 @@ CREATE INDEX world_assalti_slot ON public.world_assalti USING btree (slot_id, ki
 --
 
 CREATE INDEX world_assedio_partite_user ON public.world_assedio_partite USING btree (user_id, start_at DESC);
+
+--
+-- Name: world_attacchi_att; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_attacchi_att ON public.world_attacchi USING btree (attaccante, partenza DESC);
+
+--
+-- Name: world_attacchi_stato; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_attacchi_stato ON public.world_attacchi USING btree (stato, impatto);
+
+--
+-- Name: world_attacchi_vittima; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_attacchi_vittima ON public.world_attacchi USING btree (vittima, partenza DESC);
 
 --
 -- Name: world_b_owner; Type: INDEX; Schema: public; Owner: -
@@ -8318,6 +8664,20 @@ ALTER TABLE ONLY public.world_assedio_partite
 
 ALTER TABLE ONLY public.world_assedio
     ADD CONSTRAINT world_assedio_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
+-- Name: world_attacchi world_attacchi_attaccante_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_attacchi
+    ADD CONSTRAINT world_attacchi_attaccante_fkey FOREIGN KEY (attaccante) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
+-- Name: world_attacchi world_attacchi_vittima_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_attacchi
+    ADD CONSTRAINT world_attacchi_vittima_fkey FOREIGN KEY (vittima) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 --
 -- Name: world_attack_given world_attack_given_attacker_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -9059,6 +9419,12 @@ ALTER TABLE public.world_assedio ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.world_assedio_partite ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: world_attacchi; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_attacchi ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: world_attack_given; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -9473,6 +9839,19 @@ REVOKE ALL ON FUNCTION public.w_assalti_tick() FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.w_atk_b(p_user uuid, p_mz text, p_bid text) FROM PUBLIC;
 
 --
+-- Name: FUNCTION w_attacchi_tick(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_attacchi_tick() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.w_attacchi_tick() TO service_role;
+
+--
+-- Name: FUNCTION w_attacco_no(p_me uuid, p_t jsonb); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_attacco_no(p_me uuid, p_t jsonb) FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_attivita(p_user uuid); Type: ACL; Schema: public; Owner: -
 --
 
@@ -9501,6 +9880,12 @@ REVOKE ALL ON FUNCTION public.w_boss_di(p_user uuid) FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_boss_molt(p_user uuid, p_boss bigint) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_bottino(p_vittima uuid, p_esito integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_bottino(p_vittima uuid, p_esito integer) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_canon(p_bid text, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
@@ -9600,6 +9985,12 @@ GRANT ALL ON FUNCTION public.w_eventi_tick() TO service_role;
 --
 
 REVOKE ALL ON FUNCTION public.w_feed_add(p_kind text, p_actor uuid, p_target uuid, p_lat double precision, p_lon double precision, p_info text) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_forza_dif(p_owner uuid, p_bid text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_forza_dif(p_owner uuid, p_bid text) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_home_held(p_user uuid, p_slot text); Type: ACL; Schema: public; Owner: -
@@ -10054,6 +10445,27 @@ GRANT ALL ON FUNCTION public.world_assedio_potenzia(p_k text) TO authenticated;
 
 REVOKE ALL ON FUNCTION public.world_assi(p_bid text, p_lat double precision, p_lon double precision) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_assi(p_bid text, p_lat double precision, p_lon double precision) TO authenticated;
+
+--
+-- Name: FUNCTION world_attacca(p_user uuid, p_bid text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_attacca(p_user uuid, p_bid text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_attacca(p_user uuid, p_bid text) TO authenticated;
+
+--
+-- Name: FUNCTION world_attacchi_miei(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_attacchi_miei() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_attacchi_miei() TO authenticated;
+
+--
+-- Name: FUNCTION world_attacco_info(p_user uuid, p_bid text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_attacco_info(p_user uuid, p_bid text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_attacco_info(p_user uuid, p_bid text) TO authenticated;
 
 --
 -- Name: FUNCTION world_block(p_user uuid, p_on boolean); Type: ACL; Schema: public; Owner: -
@@ -10550,6 +10962,13 @@ GRANT ALL ON FUNCTION public.world_resources() TO authenticated;
 --
 
 GRANT ALL ON FUNCTION public.world_reward(p_amount integer, p_reason text) TO authenticated;
+
+--
+-- Name: FUNCTION world_ripara(p_bid text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_ripara(p_bid text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_ripara(p_bid text) TO authenticated;
 
 --
 -- Name: FUNCTION world_rivals(); Type: ACL; Schema: public; Owner: -
