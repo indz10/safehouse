@@ -28,7 +28,7 @@ w_ass_up(jsonb, text) 21f43a52df
 w_assalti_tick() dd5faea182
 w_atk_b(uuid, text, text) 8093f93f04
 w_atk_pts(uuid, uuid) 2031640ee7
-w_attacchi_tick() 94c87b1923
+w_attacchi_tick() 24ff0ce2eb
 w_attacco_no(uuid, jsonb) f6a2489cbf
 w_attack3(text, text, integer) 4deba51e53
 w_attivita(uuid) 23dc6eab3e
@@ -108,11 +108,13 @@ w_pres_tick() 8f83c2d423
 w_prev_slot(timestamp with time zone) 304fb96aeb
 w_price(double precision, double precision) 15fba21ed2
 w_price2(uuid, double precision, double precision) c076f18600
-w_pvp_cfg() 99a9476693
+w_pvp_cfg() d0282d8de1
 w_radius(integer) d64febc04f
 w_raid_houses(uuid, timestamp with time zone) 81af815347
 w_res(uuid, integer, integer, integer) 6de01c39a5
 w_rift(uuid, uuid) 79ca44e7de
+w_rinf_no(uuid, bigint) bf68e91c20
+w_rinf_tot(bigint, timestamp with time zone) 4053ad92fb
 w_room(text) ab86838fbb
 w_score(uuid, boolean) 836191a166
 w_settimana(timestamp with time zone) 18e024a71d
@@ -186,7 +188,7 @@ world_assedio_inizia(integer, boolean) ce92716a8a
 world_assedio_potenzia(text) 7e22d051ec
 world_assi(text, double precision, double precision) 3f866c9d5a
 world_attacca(uuid, text) 655895cbce
-world_attacchi_miei() 4a93cd0549
+world_attacchi_miei() 2abd818eed
 world_attacco_info(uuid, text) 139175020d
 world_block(uuid, boolean) d5c18b09f9
 world_boss_fine(bigint, integer) 44f64bc338
@@ -264,6 +266,9 @@ world_rank_alleanze() 4cc5f6d7f3
 world_rank_lega(text) e575360a99
 world_resources() 52d06d9645
 world_reward(integer, text) cf34570f62
+world_rinforza(bigint) 5b56cabf58
+world_rinforzi_chiedi(bigint) a67f5235f1
+world_rinforzi_info(bigint) 24a46935f9
 world_ripara(text) c4a2f710c5
 world_rivals() 9b44911f45
 world_saccheggia(uuid) 15affd0c16
@@ -329,7 +334,8 @@ world_assalti f9d9eb2f
 world_assalti_esiti 86609925
 world_assedio e03ebb71
 world_assedio_partite 13b83d80
-world_attacchi c93fefa9
+world_attacchi fef50207
+world_attacchi_rinforzi 376b751b
 world_attack_given cb6a22cb
 world_blocks c89fb2f6
 world_bonus fa82d7ad
