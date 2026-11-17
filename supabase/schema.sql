@@ -546,6 +546,36 @@ CREATE FUNCTION public.w_atk_pts(a uuid, b uuid) RETURNS integer
 $$;
 
 --
+-- Name: w_attacchi_integ(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_attacchi_integ() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare k jsonb := public.w_pvp_cfg(); e int; meno int; resta int; chi uuid; gia boolean;
+begin
+  if new.stato <> 'risolto' or old.stato <> 'viaggio' or new.casa_vera then return new; end if;
+  e := coalesce((new.esito->>'esito')::int, 0);
+  if e <= 0 then return new; end if;
+  meno := (k->'integ'->>e)::int;
+  chi := coalesce((new.esito->'squadra'->0->>'u')::uuid, new.attaccante);
+  select caduta_at is not null into gia from public.world_buildings where building_id = new.bid and owner = new.vittima;
+  if gia is null then return new; end if;
+  if gia then new.esito := new.esito || jsonb_build_object('integ', 0, 'integrita', 0, 'crollata', true); return new; end if;
+  update public.world_buildings set integrita = greatest(0, integrita - meno),
+    caduta_at = case when integrita - meno <= 0 then now() else caduta_at end,
+    caduta_da = case when integrita - meno <= 0 then chi else caduta_da end
+    where building_id = new.bid and owner = new.vittima returning integrita into resta;
+  if resta is null then return new; end if;
+  new.esito := new.esito || jsonb_build_object('integ', meno, 'integrita', resta, 'crollata', resta <= 0);
+  if resta <= 0 then
+    perform public.w_feed_add('casa_crollata', chi, new.vittima, new.lat, new.lon, new.bid || '|' || (k->>'caduta_ore'));
+  end if;
+  return new;
+end $$;
+
+--
 -- Name: w_attacchi_tick(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -651,6 +681,8 @@ begin
   if o = p_me then return 'È casa tua'; end if;
   if public.w_are_allies(p_me, o) or public.w_coinq(p_me, o) then return 'È un tuo alleato: tra alleati non ci si attacca'; end if;
   if public.w_shielded(o) then return 'È appena arrivato: ha lo scudo del nuovo arrivato (15 giorni)'; end if;
+  if not (p_t->>'home')::boolean and exists (select 1 from public.world_buildings where building_id = p_t->>'bid' and caduta_at is not null) then
+    return 'È già crollata: aspetta che la ripari o che passi a chi l’ha abbattuta'; end if;
   if (p_t->>'home')::boolean and public.w_custodita(o) then return 'È la sua casa vera ed è custodita (ci passa ogni settimana): intoccabile'; end if;
   if public.w_lvl_of(o) < public.w_lvl_of(p_me) - 3 then return 'È molto più debole di te: è protetto'; end if;
   if exists (select 1 from public.world_attacchi where (attaccante = p_me or p_me = any(coalesce(squadra, '{}'))) and bid = p_t->>'bid' and stato = 'viaggio') then
@@ -900,6 +932,38 @@ begin
     mattoni = mattoni - (out->>'mattoni')::int where user_id = p_vittima;
   if (out->>'mattoni')::int > 0 then insert into public.world_log(user_id, delta, reason, seen) values (p_vittima, -(out->>'mattoni')::int, 'Scorte perse in un attacco', false); end if;
   return out;
+end $$;
+
+--
+-- Name: w_cadute_tick(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_cadute_tick() RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare k jsonb := public.w_pvp_cfg(); b public.world_buildings; refund int; n int := 0;
+begin
+  for b in select * from public.world_buildings where caduta_at is not null and caduta_at < now() - make_interval(hours => (k->>'caduta_ore')::int)
+           order by caduta_at limit 50 for update skip locked loop
+    refund := round(0.5 * (coalesce(b.paid, 0) + coalesce(b.upgrades, 0)));
+    if b.owner is not null and refund > 0 then
+      update public.world_wallet set mattoni = mattoni + refund where user_id = b.owner;
+      insert into public.world_log(user_id, delta, reason, ref, seen) values (b.owner, refund, 'Casa crollata e non riparata: ti torna metà della spesa', b.building_id, false);
+    end if;
+    if b.caduta_da is not null and b.caduta_da <> coalesce(b.owner, '00000000-0000-0000-0000-000000000000'::uuid)
+       and (select count(*) from public.world_buildings x where x.owner = b.caduta_da) < public.w_max(public.w_lvl_of(b.caduta_da)) then
+      update public.world_buildings set owner = b.caduta_da, paid = 0, upgrades = 0, bought_at = now(), integrita = (k->>'integ_conquista')::int,
+        danno = 0, caduta_at = null, caduta_da = null where building_id = b.building_id;
+      perform public.w_feed_add('conquista', b.caduta_da, b.owner, b.lat, b.lon, 'casa');
+    else
+      update public.world_buildings set owner = null, paid = 0, upgrades = 0, bought_at = null, integrita = 100, danno = 0, caduta_at = null, caduta_da = null
+        where building_id = b.building_id;
+      if b.owner is not null then perform public.w_feed_add('casa_libera', b.owner, b.owner, b.lat, b.lon, b.building_id); end if;
+    end if;
+    n := n + 1;
+  end loop;
+  return n;
 end $$;
 
 --
@@ -1817,7 +1881,12 @@ CREATE FUNCTION public.w_pvp_cfg() RETURNS jsonb
     'rinf_max', 60, 'rinf_max_n', 6,
     'rinf_cibo', 5, 'rinf_xp', 15, 'rinf_premio_cibo', 5,
     -- attacchi d'alleanza (030)
-    'raduno_max', 10, 'raduno_minuti', jsonb_build_array(10, 20, 30)); $$;
+    'raduno_max', 10, 'raduno_minuti', jsonb_build_array(10, 20, 30),
+    -- integrità delle case comprate (031)
+    'integ', jsonb_build_array(0, 10, 17, 25),                         -- integrità persa per esito (di misura, normale, schiacciante)
+    'caduta_ore', 48,                                                  -- ore per riparare una casa crollata prima di perderla
+    'rip_integ_legno', 1, 'rip_caduta_mattoni', 50,                    -- riparare: 🪵 1 a punto di integrità, +🧱 50 se è crollata
+    'integ_conquista', 50); $$;
 
 --
 -- Name: w_radius(integer); Type: FUNCTION; Schema: public; Owner: -
@@ -3776,6 +3845,25 @@ begin
 end $$;
 
 --
+-- Name: world_case_integrita(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_case_integrita() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); k jsonb := public.w_pvp_cfg();
+begin
+  if me is null then return json_build_object('ok', false); end if;
+  return json_build_object('ok', true, 'ora', now(), 'case', coalesce((select json_agg(json_build_object('bid', b.building_id, 'lat', b.lat, 'lon', b.lon, 'level', b.level,
+      'integrita', b.integrita, 'danno', b.danno, 'caduta_at', b.caduta_at,
+      'scade', b.caduta_at + make_interval(hours => (k->>'caduta_ore')::int), 'chi', public.w_nick(b.caduta_da),
+      'legno', b.danno * (k->>'riparo_legno')::int + (100 - b.integrita) * (k->>'rip_integ_legno')::int,
+      'mattoni', case when b.caduta_at is not null then (k->>'rip_caduta_mattoni')::int else 0 end) order by b.caduta_at nulls last, b.integrita)
+    from public.world_buildings b where b.owner = me and (b.integrita < 100 or b.danno > 0 or b.caduta_at is not null)), '[]'::json));
+end $$;
+
+--
 -- Name: world_cassa_apri(text, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3922,7 +4010,7 @@ declare me uuid := auth.uid(); w public.world_wallet; rate int; hrs double preci
 begin
   if me is null then return json_build_object('ok',false); end if;
   w := public.w_wallet(me);
-  select coalesce(sum(5 + 5*level + public.w_price(lat, lon) / 100),0) into rate from public.world_buildings where owner = me;
+  select coalesce(sum(5 + 5*level + public.w_price(lat, lon) / 100),0) into rate from public.world_buildings where owner = me and caduta_at is null;
   hrs := least(168, extract(epoch from (now() - w.last_rent)) / 3600.0);
   amt := floor(rate * hrs / 24.0);
   if amt < 1 then return json_build_object('ok',false,'msg','Ancora niente da riscuotere','rate',rate); end if;
@@ -4842,6 +4930,17 @@ CREATE FUNCTION public.world_house_log(p_bid text) RETURNS TABLE(reason text, de
 $$;
 
 --
+-- Name: world_integrita(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_integrita(p_bid text) RETURNS json
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select coalesce((select json_build_object('ok', true, 'integrita', integrita, 'crollata', caduta_at is not null) from public.world_buildings where building_id = p_bid and owner is not null),
+    json_build_object('ok', false)); $$;
+
+--
 -- Name: world_inviter(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5670,19 +5769,32 @@ CREATE FUNCTION public.world_ripara(p_bid text) RETURNS json
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-declare me uuid := auth.uid(); d int; costo int; home boolean;
+declare me uuid := auth.uid(); k jsonb := public.w_pvp_cfg(); d int; home boolean; b public.world_buildings; v_legno int; v_mat int := 0;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  perform public.w_cadute_tick();
   home := coalesce(p_bid, '') = '' or exists (select 1 from public.world_homes where user_id = me and building_id = p_bid);
-  if home then d := (select danno from public.world_homes where user_id = me);
-  else d := (select danno from public.world_buildings where building_id = p_bid and owner = me); end if;
-  if d is null then return json_build_object('ok', false, 'msg', 'Non è casa tua'); end if;
-  if d <= 0 then return json_build_object('ok', false, 'msg', 'Niente da riparare'); end if;
-  costo := d * (public.w_pvp_cfg()->>'riparo_legno')::int;
-  update public.world_wallet set legno = legno - costo where user_id = me and legno >= costo;
-  if not found then return json_build_object('ok', false, 'msg', format('Servono 🪵 %s', costo)); end if;
-  if home then update public.world_homes set danno = 0 where user_id = me; else update public.world_buildings set danno = 0 where building_id = p_bid; end if;
-  return json_build_object('ok', true, 'msg', format('🔨 Difese riparate: +%s · 🪵 −%s', d, costo));
+  if home then
+    d := (select danno from public.world_homes where user_id = me);
+    if d is null then return json_build_object('ok', false, 'msg', 'Non è casa tua'); end if;
+    if d <= 0 then return json_build_object('ok', false, 'msg', 'Niente da riparare'); end if;
+    v_legno := d * (k->>'riparo_legno')::int;
+    update public.world_wallet w set legno = w.legno - v_legno where w.user_id = me and w.legno >= v_legno;
+    if not found then return json_build_object('ok', false, 'msg', format('Servono 🪵 %s', v_legno)); end if;
+    update public.world_homes set danno = 0 where user_id = me;
+    return json_build_object('ok', true, 'msg', format('🔨 Difese riparate: +%s · 🪵 −%s', d, v_legno));
+  end if;
+  select * into b from public.world_buildings where building_id = p_bid and owner = me for update;
+  if b.building_id is null then return json_build_object('ok', false, 'msg', 'Non è casa tua (o l’hai già persa)'); end if;
+  if b.danno <= 0 and b.integrita >= 100 and b.caduta_at is null then return json_build_object('ok', false, 'msg', 'Niente da riparare'); end if;
+  v_legno := b.danno * (k->>'riparo_legno')::int + (100 - b.integrita) * (k->>'rip_integ_legno')::int;
+  if b.caduta_at is not null then v_mat := (k->>'rip_caduta_mattoni')::int; end if;
+  update public.world_wallet w set legno = w.legno - v_legno, mattoni = w.mattoni - v_mat where w.user_id = me and w.legno >= v_legno and w.mattoni >= v_mat;
+  if not found then return json_build_object('ok', false, 'msg', format('Servono 🪵 %s%s', v_legno, case when v_mat > 0 then ' e 🧱 ' || v_mat else '' end)); end if;
+  if v_mat > 0 then insert into public.world_log(user_id, delta, reason, ref, seen) values (me, -v_mat, 'Casa crollata ricostruita', p_bid, true); end if;
+  update public.world_buildings set danno = 0, integrita = 100, caduta_at = null, caduta_da = null where building_id = p_bid;
+  return json_build_object('ok', true, 'msg', format('🔨 %s · 🪵 −%s%s', case when b.caduta_at is not null then 'Casa ricostruita: è di nuovo tua al 100%' else 'Casa riparata: integrità 100' end,
+    v_legno, case when v_mat > 0 then ' 🧱 −' || v_mat else '' end));
 end $$;
 
 --
@@ -7187,7 +7299,10 @@ CREATE TABLE public.world_buildings (
     upgrades integer DEFAULT 0 NOT NULL,
     level integer DEFAULT 1 NOT NULL,
     bought_at timestamp with time zone,
-    danno integer DEFAULT 0 NOT NULL
+    danno integer DEFAULT 0 NOT NULL,
+    integrita integer DEFAULT 100 NOT NULL,
+    caduta_at timestamp with time zone,
+    caduta_da uuid
 );
 
 --
@@ -9032,6 +9147,12 @@ CREATE TRIGGER tr_feed AFTER INSERT ON public.world_shields FOR EACH ROW EXECUTE
 CREATE TRIGGER tr_feed AFTER INSERT ON public.world_shouts FOR EACH ROW EXECUTE FUNCTION public.w_tr_feed();
 
 --
+-- Name: world_attacchi world_attacchi_integ; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER world_attacchi_integ BEFORE UPDATE OF stato ON public.world_attacchi FOR EACH ROW EXECUTE FUNCTION public.w_attacchi_integ();
+
+--
 -- Name: world_feed world_feed_push; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -10459,6 +10580,12 @@ REVOKE ALL ON FUNCTION public.w_assalti_tick() FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.w_atk_b(p_user uuid, p_mz text, p_bid text) FROM PUBLIC;
 
 --
+-- Name: FUNCTION w_attacchi_integ(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_attacchi_integ() FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_attacchi_tick(); Type: ACL; Schema: public; Owner: -
 --
 
@@ -10506,6 +10633,13 @@ REVOKE ALL ON FUNCTION public.w_boss_molt(p_user uuid, p_boss bigint) FROM PUBLI
 --
 
 REVOKE ALL ON FUNCTION public.w_bottino(p_vittima uuid, p_esito integer) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_cadute_tick(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_cadute_tick() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.w_cadute_tick() TO service_role;
 
 --
 -- Name: FUNCTION w_canon(p_bid text, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
@@ -11192,6 +11326,13 @@ REVOKE ALL ON FUNCTION public.world_caccia_inizia() FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_caccia_inizia() TO authenticated;
 
 --
+-- Name: FUNCTION world_case_integrita(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_case_integrita() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_case_integrita() TO authenticated;
+
+--
 -- Name: FUNCTION world_cassa_apri(p_id text, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
 --
 
@@ -11446,6 +11587,13 @@ GRANT ALL ON FUNCTION public.world_house_leave() TO authenticated;
 --
 
 GRANT ALL ON FUNCTION public.world_house_log(p_bid text) TO authenticated;
+
+--
+-- Name: FUNCTION world_integrita(p_bid text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_integrita(p_bid text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_integrita(p_bid text) TO authenticated;
 
 --
 -- Name: FUNCTION world_inviter(p_code text); Type: ACL; Schema: public; Owner: -
