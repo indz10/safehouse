@@ -25,7 +25,7 @@ async def main():
             await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(300)
         await pg.click('.sbar [data-sb=mondo]');await pg.wait_for_timeout(900)
         print('mondo:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .sbtile b')].map(x=>x.textContent)"))
-        await pg.evaluate("()=>document.querySelector('#sheet.open [data-sbt=pres]').click()");await pg.wait_for_timeout(1500)
+        await pg.evaluate("()=>document.querySelector('.mapfull .iobtns [data-iob=pres]').click()");await pg.wait_for_timeout(1500)
         print('presidi aperti:',await pg.evaluate("()=>!!document.querySelector('#sheet.open .pres-row')||/Presidi/.test((document.querySelector('#sheet.open')||{}).textContent||'')"))
         await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(300)
         await pg.click('.sbar [data-sb=amici]');await pg.wait_for_timeout(800)

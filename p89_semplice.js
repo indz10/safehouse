@@ -14,7 +14,7 @@ const SB4={on:false};
 const sbOk=()=>{try{return mwOk()&&document.body.classList.contains('nonav');}catch(e){return false;}};
 function sbBadges(){const g=(typeof EVT!=='undefined'?evtAperti().filter(e=>!evtFatto(e)&&e.km!=null&&e.km<=e.raggio).length:0)+(typeof supReady==='function'?supReady():0);
   const io=(typeof SUP!=='undefined'&&SUP.d)?((SUP.d.punti||0)+(SUP.d.serie_oggi?0:1)):0;const am=(typeof REQ!=='undefined'?REQ.n:0)+(typeof MSG!=='undefined'?MSG.n:0);return{gioca:g,io,amici:am};}
-function sbHTML(){const b=sbBadges();const on=k=>(k==='mondo'&&['mappa','orda'].includes(S.tab))||(k==='amici'&&S.tab==='social')?'on':'';
+function sbHTML(){const b=sbBadges();const on=k=>(k==='mondo'&&S.tab==='mappa')||(k==='io'&&S.tab==='orda')||(k==='amici'&&S.tab==='social')?'on':'';
   const B=(k,ic,n)=>`<button data-sb="${k}" class="${on(k)}"><span>${ic}</span><b>${n}</b>${b[k]?`<i>${b[k]}</i>`:''}</button>`;
   return B('mondo','🗺️','Mondo')+B('gioca','🎮','Gioca')+B('io','🧑','Io')+B('amici','👥','Amici');}
 function sbPaint(){let n=document.querySelector('.sbar');const ok=sbOk()&&!document.getElementById('lente')&&!document.getElementById('assedio');
@@ -37,7 +37,7 @@ function sbGo(k){try{zmClose();}catch(e){}
        sec('🎒 Da casa col superstite · costa scorte'),sbTile('sped','🎒','Spedizioni',r?`${r} da raccogliere!`:'mandalo nei posti veri (🥫 e ⛽ per il viaggio)',r),
        sec('🤝 Con gli alleati'),sbTile('boss','👹','Boss della settimana',typeof BOSS!=='undefined'&&BOSS.d&&BOSS.d.ok?(BOSS.d.caduto?'abbattuto! il prossimo lunedì':`${Math.round(BOSS.d.hp/Math.max(1,BOSS.d.hp0)*100)}% di vita · con gli alleati`):'battetelo insieme agli alleati'),
        sbTile('evt','🚨','Eventi qui vicino',ev.length?`${ev.length} attivi ora`:'nessuno adesso: arrivano ogni ora',ev.length),sbTile('sfida','🏆','Sfida del quartiere','classifica della settimana'),
-       sec('🛋️ Dal divano'),sbTile('ass','🧟','Assedio',ad?`livello ${(ad.max_liv||0)+1} · ⭐ ${ad.tot_stelle||0}`:'difendi la casa livello dopo livello'),sbTile('premi','🎁','Premi di oggi','ruota, gratta e vinci, premio del giorno')],
+       sec('🛋️ Dal divano'),sbTile('ass','🧟','Assedio',ad?`livello ${(ad.max_liv||0)+1} · ⭐ ${ad.tot_stelle||0}`:'difendi la casa livello dopo livello')],
       {mv:()=>mvSheet(),ass:()=>assOpen(),lente:()=>lenteOpen(),pedia:()=>zmPedia(),dfa:()=>dfaGo(),boss:()=>bossSheet(),sped:()=>supSheet('sped'),evt:()=>{if(ev.length)evtSheet(ev[0].id);else toast('🚨 Nessun evento qui vicino adesso: ti arriva la notifica quando compare');},premi:()=>premiSheet(),sfida:()=>sfidaSheet()});return;}
   if(k==='io'){const d=(typeof SUP!=='undefined'&&SUP.d)||null;const rk=typeof supRank==='function'?supRank(d?d.grado:1):['','🧑','Superstite',''];
     const head=d?`<div class="sbme"><span>${rk[1]}</span><div><b>@${esc((S.user&&S.user.nick)||'tu')} · ${rk[2]} · grado ${d.grado}</b><small>🔋 Energia ${d.energia}/${d.energia_max}: ogni azione del superstite ne usa 1, si ricarica da sola</small><div class="sbbar"><span style="width:${Math.round(d.energia/Math.max(1,d.energia_max)*100)}%"></span></div></div></div>`:'';
@@ -47,7 +47,7 @@ function sbGo(k){try{zmClose();}catch(e){}
       {sup:()=>supSheet('io'),case:()=>casasSheet(),scorte:()=>trrScorteSheet(),shop:()=>shopSheet(0),share:()=>shareSheet(),regole:()=>openSheet('📚 Tutte le regole',rulesHTML()),menu:()=>zmOpen()});return;}
   if(k==='amici'){const nr=typeof REQ!=='undefined'?REQ.n:0,nm=typeof MSG!=='undefined'?MSG.n:0;
     sbSheet('👥 Amici','',[sbTile('rich','📬','Richieste',nr?`${nr} da accettare o rifiutare`:'alleanze, inviti, coinquilini',nr),sbTile('msg','💬','Messaggi',nm?`${nm} da leggere`:'chat con chi vuoi',nm),
-       sbTile('alz','🛡️','Le mie alleanze','gruppi, voti, chat'),sbTile('ally','🤝','I miei alleati','rinforzi, scudi, regali'),sbTile('social','🏆','Superstiti e classifica','bacheca, piazza, classifiche'),sbTile('inv','📨','Invita un amico','e ricevi premi quando entra')],
-      {rich:()=>msgHub('rich'),msg:()=>msgHub('conv'),alz:()=>alzMenu(),ally:()=>alPick(),social:()=>go('social'),inv:()=>inviteSheet()});return;}}
+       sbTile('aiuta','🛡️','Aiuta un alleato','manda rinforzi per la prossima orda'),sbTile('alz','🛡️','Le mie alleanze','gruppi, voti, chat'),sbTile('ally','🗺️','Alleati sulla mappa','dove sono le loro case'),sbTile('social','🏆','Superstiti e classifica','bacheca, piazza, classifiche'),sbTile('inv','📨','Invita un amico','e ricevi premi quando entra')],
+      {aiuta:()=>ioAiuta(),rich:()=>msgHub('rich'),msg:()=>msgHub('conv'),alz:()=>alzMenu(),ally:()=>alPick(),social:()=>go('social'),inv:()=>inviteSheet()});return;}}
 zEvery(()=>{if(!document.hidden)sbPaint();},1000,'quattro-tasti');
 </script>
