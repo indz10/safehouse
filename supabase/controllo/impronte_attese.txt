@@ -28,8 +28,8 @@ w_ass_up(jsonb, text) 21f43a52df
 w_assalti_tick() dd5faea182
 w_atk_b(uuid, text, text) 8093f93f04
 w_atk_pts(uuid, uuid) 2031640ee7
-w_attacchi_tick() 24ff0ce2eb
-w_attacco_no(uuid, jsonb) f6a2489cbf
+w_attacchi_tick() f32dd129a6
+w_attacco_no(uuid, jsonb) e026608ebc
 w_attack3(text, text, integer) 4deba51e53
 w_attivita(uuid) 23dc6eab3e
 w_azione(uuid, text, double precision, double precision, text) 91b6665588
@@ -108,8 +108,12 @@ w_pres_tick() 8f83c2d423
 w_prev_slot(timestamp with time zone) 304fb96aeb
 w_price(double precision, double precision) 15fba21ed2
 w_price2(uuid, double precision, double precision) c076f18600
-w_pvp_cfg() d0282d8de1
+w_pvp_cfg() 04985155bf
 w_radius(integer) d64febc04f
+w_raduni_tick() 7eb338b9f5
+w_raduno_entra(uuid, bigint) 11591943a9
+w_raduno_no(uuid, bigint) d545e7f5fc
+w_raduno_rimborsa(bigint, boolean) 182a40741a
 w_raid_houses(uuid, timestamp with time zone) 81af815347
 w_res(uuid, integer, integer, integer) 6de01c39a5
 w_rift(uuid, uuid) 79ca44e7de
@@ -130,6 +134,7 @@ w_sped_calc(numeric, jsonb, jsonb, boolean) 2ad80807a7
 w_sped_costo(numeric) ece0057dfc
 w_sped_km(uuid, double precision, double precision) 10d4964e35
 w_sped_tick() 7608d6b7b3
+w_squadra(bigint, uuid) c32a64d193
 w_sup(uuid) 6e87cf96ab
 w_sup_inviti(uuid) 4b9cce9772
 w_sup_raggio(integer, jsonb) 462872077a
@@ -188,8 +193,8 @@ world_assedio_inizia(integer, boolean) ce92716a8a
 world_assedio_potenzia(text) 7e22d051ec
 world_assi(text, double precision, double precision) 3f866c9d5a
 world_attacca(uuid, text) 655895cbce
-world_attacchi_miei() 2abd818eed
-world_attacco_info(uuid, text) 139175020d
+world_attacchi_miei() 32d85903bc
+world_attacco_info(uuid, text) 21da642bd3
 world_block(uuid, boolean) d5c18b09f9
 world_boss_fine(bigint, integer) 44f64bc338
 world_boss_info() 629f6298cc
@@ -258,6 +263,10 @@ world_presidio_guardia(text) 339c3076ed
 world_presidio_lascia(text) 2e26b385d7
 world_presidio_occupa(text) 63a5ea877c
 world_quote(text, double precision, double precision) 4cee44195d
+world_raduno_annulla(bigint) 36ec8eee9b
+world_raduno_crea(bigint, uuid, text, integer) bb621f8df3
+world_raduno_parti(bigint) e141322930
+world_raduno_unisciti(bigint) 8a5e46f3d6
 world_raid_claim() 4764232a63
 world_raid_status() 6ee39c1edb
 world_raid_view(double precision, double precision, double precision, double precision) 4c0cb1eb28
@@ -334,7 +343,7 @@ world_assalti f9d9eb2f
 world_assalti_esiti 86609925
 world_assedio e03ebb71
 world_assedio_partite 13b83d80
-world_attacchi fef50207
+world_attacchi 2e809726
 world_attacchi_rinforzi 376b751b
 world_attack_given cb6a22cb
 world_blocks c89fb2f6
@@ -369,6 +378,8 @@ world_pres_defs 8a272827
 world_presidi f2b03cfd
 world_presidi_guardie 7b35dd10
 world_presidi_tenute 171e1299
+world_raduni acf79e30
+world_raduni_membri 16be6d60
 world_sfide_fatte a47a40ce
 world_sfide_premi c2ace6eb
 world_shapes 90c99d30
