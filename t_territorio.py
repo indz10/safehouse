@@ -40,7 +40,7 @@ async def main():
         await pg.evaluate("async()=>{closeSheet();window.confirm=()=>true;await wSheetEdificio('x5',45.326,10.66);}");await pg.wait_for_timeout(3500)
         print('casa del rivale · azioni:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .trrpan [data-trk]')].map(b=>b.dataset.trk)"))
         await pg.evaluate("()=>document.querySelector('#sheet.open [data-trk=atk]').click()");await pg.wait_for_timeout(2500)
-        print('dopo l\'assalto:',await pg.evaluate("()=>[(document.querySelector('#sheet.open .trrnext')||{}).textContent.replace(/\\s+/g,' '),(document.querySelector('#sheet.open .trrwhy')||{}).textContent]"))
+        print('assalto → ⚔️ Attacca (Fase 35):',await pg.evaluate("()=>[!!document.querySelector('#sheet.open .pvpgrid'),(document.querySelector('#sheet.open [data-pvgo]')||{}).textContent||null]"))
         # casa di un alleato: difendi e assi
         await pg.evaluate("async()=>{closeSheet();await wSheetEdificio('al1',45.327,10.661);}");await pg.wait_for_timeout(3500)
         print('casa dell\'alleato · azioni:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .trrpan [data-trk]')].map(b=>b.dataset.trk)"))

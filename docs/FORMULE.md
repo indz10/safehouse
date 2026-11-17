@@ -102,6 +102,16 @@ Solo nel server (`w_sped_calc` e dintorni); l'app (`supCalc` in p82) copia la fo
 - Lotta (`world_zombie_lotta`): entro 80 m, 🔋 1, max 40 al giorno; vita = vita del tipo + ⌊grado / 8⌋. Vinta (`world_zombie_fine`) solo se durata ≥ vita × 0,35 s e ≤ 300 s; esperienza 8 / 15 / 30 / 60 per rarità (+20 se tipo nuovo per la Zombipedia); scorte q = 4 / 7 / 12 / 20 di 🪵 e 🥫, q/2 di ⛽ (passa da `w_res`); 🧱 10 (raro) / 30 (leggendario).
 - Cassa (`world_cassa_apri`): entro 40 m, una volta per giocatore; 🪵 e 🥫 6–15, ⛽ 3–8, esperienza 10; 15% 🧱 10–24; 10% 💣 bomba (max 5).
 
+## Attacchi tra superstiti (migrazione 028) — regole in `w_pvp_cfg()`
+- **Forza** di chi attacca (alla partenza): `(30 + 3 × min(livello, 30)) × (1 + 0,05 × Combattente) × mezzo` (a piedi 0,8 · bici 0,9 · moto 1 · auto 1,2 · fuoristrada 1,3; il mezzo dipende dal carburante, `w_mz_eff`).
+- **Difesa** della casa (all'impatto): `(45 + 12 × livello + casa vera: 5 + condominio + bonus dell'orda + presidi + edificio) × (1 + 0,05 × Combattente del padrone) − danni`, minimo 10.
+- **Combattente**: abilità 0–9, +5% a livello (max +45%).
+- **Esito**: `R = attacco × (1 + c) / difesa`, con `c` tra −0,10 e +0,10 deciso dal server (`hashtext('pvp' || id)`). R < 1 respinto; < 1,25 di misura; < 1,6 normale; altrimenti schiacciante.
+- **Perdite**: 10% / 20% / 30% di `scorta − protetta`, con protetta = max(minimo, 30% della scorta) — minimi 🪵 🥫 ⛽ 50, 🧱 100; massimo per attacco 🪵 🥫 ⛽ 150, 🧱 100. Nel PvP vanno all'attaccante.
+- **Danni** alla difesa del vinto: −5 / −10 / −15 (massimo −30), finché non ripara con 🪵 2 a punto (`world_ripara`).
+- **Viaggio**: fino a 1 km 5 min · 5 km 10 · 20 km 20 · 50 km 40 · 100 km 60 · oltre 90 (dalla tua casa più vicina). Costo: 🥫 10 + carburante del mezzo + 1 energia.
+- **Limiti**: mai contro alleati, coinquilini o la tua alleanza (controllato alla partenza e all'impatto); scudo 15 giorni; chi ha 4+ livelli meno di te è protetto; casa vera custodita intoccabile; stessa coppia 1 volta ogni 12 ore; dopo una sconfitta 6 ore al sicuro; max 3 sconfitte al giorno per bersaglio; max 5 attacchi al giorno per attaccante.
+
 ## Il mondo vero (migrazione 027)
 - Posto di persona (`world_posto_visita`): entro 0,05 km (GPS), ogni posto (chiave = round(lat × 2500):round(lon × 2000)) una volta ogni 12 ore, max 12 al giorno; niente energia né scorte. Bottino b = 15 + min(15, grado) (+8 sponsor), diviso per tipo come la spedizione (cibo → 🥫 b; legno → 🪵 b; carb → ⛽ round(0,6 b); farmaco → 🥫 b/2 e 🔋 +2; sponsor → 🪵 b/2, 🥫 b/2, ⛽ b/3; misto → b/3 ciascuno); esperienza 15 (+5 sponsor).
 - Spedizione col superstite: oltre all'energia, costo di viaggio `w_sped_costo` = 🥫 2 + ⌈km⌉, ⛽ ⌈km / 3⌉ se km > 3.

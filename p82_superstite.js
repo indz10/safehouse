@@ -13,7 +13,7 @@
    ========================================================= */
 const SUP={d:null,t:0,tab:'io',P:null,Pk:'',f:'tutti',h:0,busy:false,mk:[],mkSig:'',mkMap:null};
 const SUP_AB=[['esploratore','🧭','Esploratore','+1 km di raggio e +10% di bottino nelle spedizioni'],['resistenza','💪','Resistenza','+1 🔋 di energia massima e ricarica 10 minuti più veloce'],
-  ['combattente','🔪','Combattente','−4% di rischio di dover scappare dagli zombie'],['cercatore','🔍','Cercatore','+3% di trovare un tesoro (🧱) in spedizione'],['mercante','🤝','Mercante','+1 🧱 ogni 10 🧱 scambiati al Mercato']];
+  ['combattente','🔪','Combattente','+5% di attacco e difesa negli attacchi tra superstiti (fino a +45% al livello 9) e −4% di rischio in spedizione'],['cercatore','🔍','Cercatore','+3% di trovare un tesoro (🧱) in spedizione'],['mercante','🤝','Mercante','+1 🧱 ogni 10 🧱 scambiati al Mercato']];
 const SUP_EQ=[['zaino','🎒','Zaino','porta 15 provviste in più (senza zaino: 25)'],['torcia','🔦','Torcia','di notte (dalle 20 alle 7) niente rischio in più, e +2% di tesoro'],
   ['arma','🪓','Arma','−5% di rischio in spedizione'],['radio','📻','Radio','una spedizione in più nello stesso momento']];
 const SUP_K={cibo:['🥫','Cibo','supermercati, alimentari, panifici, mercati'],legno:['🪵','Legno','ferramenta, fai da te, vivai, parchi'],carb:['⛽','Carburante','distributori'],
@@ -32,7 +32,8 @@ function supAdesso(){const d=SUP.d;if(!d)return null;const r=supReady();
   return{ic:'😴',t:`Si sta riposando: +🔋1 fra ${supLeft(Date.now()+d.prossima_s*1000)}`,b:'❓ Come si cresce',go:'come'};}
 function supStato(){const d=SUP.d;if(!d)return{l:'Tu',c:''};const r=supReady();if(r)return{l:'✅ Tornato',c:'ok'};const v=supVia();if(v.length)return{l:'🎒 '+supLeft(v[0].end_at).replace(' min','′'),c:'via'};
   if(!d.serie_oggi||d.punti)return{l:'❗ Novità',c:'ok'};return{l:'🔋 '+d.energia+' energia',c:''};}
-const supAb=(k)=>Math.min(5,Math.max(0,+((SUP.d&&SUP.d.abil||{})[k])||0));
+const supAbMax=k=>k==='combattente'?9:5;
+const supAb=(k)=>Math.min(supAbMax(k),Math.max(0,+((SUP.d&&SUP.d.abil||{})[k])||0));
 const supEq=(k)=>Math.min(3,Math.max(0,+((SUP.d&&SUP.d.equip||{})[k])||0));
 /* stessa formula del server (w_sped_calc): serve solo a mostrare durata, rischio e bottino prima di partire */
 function supCalc(km){const ab=supAb,eq=supEq,notte=!!(SUP.d&&SUP.d.notte);
@@ -73,8 +74,8 @@ function supIoPaint(box){const d=SUP.d;const pc=d.xp_a>d.xp_da?Math.round((d.xp-
     ${d.serie_oggi?'<p class="muted" style="font-size:12.5px">Premio di oggi preso: torna domani per non perdere la serie.</p>':'<button class="btn wide" data-spserie>📅 Ritira il premio di oggi</button>'}
     ${supVia().length||supReady()?`<button class="btn wide alt" data-spt2="sped">🎒 ${supReady()?`${supReady()} spedizioni tornate: raccogli`:`${supVia().length} in spedizione`}</button>`:`<button class="btn wide alt" data-spt2="sped">🎒 Manda il superstite in spedizione</button>`}
     <h4 class="hh">🧠 Abilità ${d.punti?`<span class="supdot">${d.punti} ${d.punti===1?'punto libero':'punti liberi'}</span>`:''}</h4>
-    <p class="muted" style="font-size:12.5px;margin:0 0 6px">A ogni grado guadagni un punto: mettilo dove ti serve (massimo 5 per abilità).</p>
-    ${SUP_AB.map(([k,ic,n,ds])=>{const a=supAb(k);return`<div class="supab"><span>${ic}</span><div><b>${n} <i class="supdots">${'●'.repeat(a)}${'○'.repeat(5-a)}</i></b><small>${ds}</small></div><button class="btn small" data-spab="${k}" ${!d.punti||a>=5?'disabled':''}>+1</button></div>`;}).join('')}
+    <p class="muted" style="font-size:12.5px;margin:0 0 6px">A ogni grado guadagni un punto: mettilo dove ti serve (massimo 5 per abilità, 9 per 🔪 Combattente).</p>
+    ${SUP_AB.map(([k,ic,n,ds])=>{const a=supAb(k);return`<div class="supab"><span>${ic}</span><div><b>${n} <i class="supdots">${'●'.repeat(a)}${'○'.repeat(supAbMax(k)-a)}</i></b><small>${ds}</small></div><button class="btn small" data-spab="${k}" ${!d.punti||a>=supAbMax(k)?'disabled':''}>+1</button></div>`;}).join('')}
     <h4 class="hh">📣 Fatti conoscere</h4>
     <p class="muted" style="font-size:12.5px;margin:0 0 6px">La prima condivisione del giorno: ⭐ +20 e 🔋 +1. Ogni amico che crea l’account col tuo link: ⭐ +50, 🔋 +2 e scorte; quando valuta la casa ⭐ +150 e 🧱 150.</p>
     <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" data-spshare>📣 Condividi sui social${d.share_oggi?'':' · ⭐ +20'}</button><button class="btn ghost small" data-spinv>📨 Invita un amico</button></div>`;

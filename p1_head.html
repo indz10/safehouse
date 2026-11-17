@@ -1776,6 +1776,24 @@ body.semplice .mfochips{bottom:calc(66px + var(--mwdh,120px) + 12px + env(safe-a
 .mfocal b{font-size:19px}.mfocal small{font-size:10px;font-weight:900;text-transform:uppercase}
 .mfocal small:first-child{color:var(--blood)}
 .mfoped{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.pvpno{border:3px solid var(--blood);background:#ffe0e3;border-radius:12px;padding:8px 10px;font-weight:800;margin-bottom:8px}
+.pvpgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}
+.pvpgrid>div{border:2.5px solid var(--ink);border-radius:12px;background:#fff;padding:6px;text-align:center;display:flex;flex-direction:column;gap:1px}
+.pvpgrid span{font-size:20px}.pvpgrid b{font-size:14px}.pvpgrid small{font-size:11px;color:#555}
+.pvpvs{display:flex;align-items:center;gap:8px;margin:10px 0 4px}.pvpvs>div:first-child,.pvpvs>div:last-child{display:flex;flex-direction:column;align-items:center;min-width:64px}
+.pvpvs small{font-size:11px}.pvpvs b{font-size:16px}
+.pvpbar{flex:1;height:14px;border:3px solid var(--ink);border-radius:9px;background:#5b8def;overflow:hidden}
+.pvpbar span{display:block;height:100%;background:var(--blood)}
+.pvpstima{font-weight:900;text-align:center;margin:6px 0}.pvpstima.ok{color:#1f7a3f}.pvpstima.mid{color:#b8620b}.pvpstima.ko{color:var(--blood)}
+.pvpbox{margin-bottom:12px}
+.pvprow{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;border:2.5px solid var(--ink);border-radius:12px;background:#fff;padding:7px 9px;margin:6px 0}
+.pvprow>span{font-size:22px}.pvprow>div{flex:1;display:flex;flex-direction:column;gap:2px}.pvprow small{font-size:12px;color:#555}
+.pvprow.arr{background:#ffe0e3;border-color:var(--blood)}.pvprow.arr i{font-style:normal;font-weight:900;color:var(--blood)}
+.pvprow.dan{background:#fff3d6}.pvprow.st.win{background:#e3f6e8}.pvprow.st.lose{background:#fbe4e6}
+.pvpacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.pvpris{border:3px solid var(--ink);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.pvpris.win{background:#e3f6e8}.pvpris.lose{background:#fbe4e6}
+.pvpal{position:absolute;left:50%;transform:translateX(-50%);top:192px;z-index:11;border:3px solid #fff;background:var(--blood);color:#fff;font-weight:900;font-size:14px;border-radius:14px;padding:6px 12px;box-shadow:3px 3px 0 #000;animation:zmbob .9s ease-in-out infinite;white-space:nowrap}
 .ioprem{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-weight:700}
 body.semplice .mapfull .mwbar{padding:4px 8px;gap:6px}
 body.semplice .mapfull .mwt small{display:none}
