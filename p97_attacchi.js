@@ -10,6 +10,8 @@
    - Riepilogo del combattimento (pvpRiepilogo) la prima volta che vedi un esito nuovo (zsh_pvp_visti).
    - 🛡️ Rinforzi (029, Fase 36): "📣 Chiedi rinforzi" (world_rinforzi_chiedi), "👥 Chi arriva in tempo" (pvpRinfSheet),
      "🆘 Alleati sotto attacco" con "🛡️ Manda rinforzi" (world_rinforza), allarme .pvpal.sos, carte pvpGdItems.
+   - 📯 Attacchi d’alleanza (030, Fase 37): "🛡️ Attacca con l’alleanza" nella scheda (pvpAlzHTML → world_raduno_crea),
+     "📯 Raduni della tua alleanza" in Io (unisciti, partite adesso, annulla), quote del bottino nello storico e nel riepilogo.
    ========================================================= */
 const PVP={d:null,t:0,uid:null};
 const PVP_ESITO=['🛡️ Respinto','⚔️ Vittoria di misura','⚔️ Vittoria','💥 Vittoria schiacciante'];
@@ -30,7 +32,11 @@ async function pvpSheet(o){o=o||{};let d=null;try{const{data,error}=await SB.rpc
     <div class="pvpvs"><div><small>La tua forza</small><b>⚔️ ${Math.round(d.forza)}</b></div><div class="pvpbar"><span style="width:${pc}%"></span></div><div><small>La sua difesa</small><b>🛡️ ~${d.difesa}</b></div></div>
     <p class="pvpstima ${st[1]}">${st[0]}</p>
     <p class="muted" style="font-size:12.5px">Forza = (30 + 3 × livello) × mezzo × 🔪 Combattente (${d.combattente}/9: +${d.combattente*5}%). Lui si difende con case, fortificazioni, preparazione, rinforzi e il suo Combattente. Vinci se attacco > difesa: di misura 10%, normale 20%, schiacciante 30% delle sue scorte (oltre la scorta protetta). Riceve subito la notifica e può prepararsi.</p>
-    ${d.ok?`<button class="btn wide" data-pvgo>⚔️ Parti all’attacco (arrivo fra ${d.minuti} min)</button>`:''}`,box=>{
+    ${d.ok?`<button class="btn wide" data-pvgo>⚔️ Parti all’attacco (arrivo fra ${d.minuti} min)</button>`:''}${pvpAlzHTML(d)}`,box=>{
+    box.querySelectorAll('[data-pvrad]').forEach(x=>x.onclick=async()=>{const[aid,min]=x.dataset.pvrad.split('|');box.querySelectorAll('[data-pvrad]').forEach(y=>y.disabled=true);
+      try{const{data,error}=await SB.rpc('world_raduno_crea',{p_alleanza:+aid,p_user:o.user||null,p_bid:o.bid||null,p_minuti:+min});if(error)throw error;toast(data.msg);if(data.ok){closeSheet();RES.t=0;try{resLoad(true);supLoad(true);}catch(e){}pvpVaiBox();}else box.querySelectorAll('[data-pvrad]').forEach(y=>y.disabled=false);}
+      catch(e){toast('🛡️ Gli attacchi d’alleanza arrivano dopo l’aggiornamento del server (blocco SQL 030)');box.querySelectorAll('[data-pvrad]').forEach(y=>y.disabled=false);}});
+    box.querySelectorAll('[data-pvjoin]').forEach(x=>x.onclick=async()=>{await pvpUnisciti(+x.dataset.pvjoin,x);closeSheet();pvpVaiBox();});
     const b=box.querySelector('[data-pvgo]');if(b)b.onclick=async()=>{b.disabled=true;try{const{data,error}=await SB.rpc('world_attacca',{p_user:o.user||null,p_bid:o.bid||null});if(error)throw error;toast(data.msg);
       if(data.ok){closeSheet();RES.t=0;try{resLoad(true);supLoad(true);}catch(e){}pvpLoad(true).then(pvpPaint);}else b.disabled=false;}catch(e){toast('Non riuscito');b.disabled=false;}};});}
 /* le vecchie azioni portano qui */
@@ -50,16 +56,19 @@ const PVP_RF_CIBO=5;
 function pvpRinfRiga(a){const R=a.rinforzi||[];if(!R.length)return a.chiesto?'<small class="pvprf">🛡️ Rinforzi chiesti: aspetta le squadre degli alleati</small>':'';
   return`<small class="pvprf">🛡️ Rinforzi +${Math.round(a.rinf||0)} · ${R.map(r=>`@${esc(r.nick)} ${r.in_tempo?(new Date(r.arrivo).getTime()<=Date.now()-(PVP.skew||0)?'✅ arrivato':`⏱️ <i data-pvt="${r.arrivo}">${pvpLeft(r.arrivo)}</i>`):'❌ in ritardo'}`).join(' · ')}</small>`;}
 function pvpHTML(){const d=PVP.d;if(!d)return'';const A=d.in_arrivo||[],V=d.in_viaggio||[],H=(d.storico||[]).slice(0,6);
-  const arr=A.map(a=>`<div class="pvprow arr"><span>⚔️</span><div><b>@${esc(a.da)} attacca la tua ${a.casa_vera?'casa vera':'casa comprata'}</b><small>impatto fra <i data-pvt="${a.impatto}">${pvpLeft(a.impatto)}</i> · ${String(a.km).replace('.',',')} km</small>
+  const arr=A.map(a=>`<div class="pvprow arr"><span>⚔️</span><div><b>${a.alleanza?`${esc(a.alleanza)} (${a.n}) con @${esc(a.da)}`:'@'+esc(a.da)} attacca la tua ${a.casa_vera?'casa vera':'casa comprata'}</b><small>impatto fra <i data-pvt="${a.impatto}">${pvpLeft(a.impatto)}</i> · ${String(a.km).replace('.',',')} km</small>
       ${pvpRinfRiga(a)}<div class="pvpacts"><button class="btn small" data-pvprep>🛡️ Prepara (+15)</button>${a.chiesto?'<button class="btn small ghost" disabled>📣 Rinforzi chiesti</button>':`<button class="btn small ghost" data-pvaiuto="${a.id}">📣 Chiedi rinforzi</button>`}<button class="btn small ghost" data-pvchi="${a.id}">👥 Chi arriva in tempo</button></div></div></div>`).join('');
   const al=(d.alleati||[]).map(a=>`<div class="pvprow sos"><span>🆘</span><div><b>@${esc(a.chi)} è attaccato da @${esc(a.da)}</b><small>impatto fra <i data-pvt="${a.impatto}">${pvpLeft(a.impatto)}</i> · tu sei a ${String(a.km==null?'?':a.km).replace('.',',')} km (${a.minuti} min)</small>
       <div class="pvpacts">${a.partito?`<span class="pvpok">✅ La tua squadra arriva fra <i data-pvt="${a.arrivo}">${pvpLeft(a.arrivo)}</i></span>`:a.in_tempo?`<button class="btn small" data-pvrf="${a.id}">🛡️ Manda rinforzi · 🥫 ${PVP_RF_CIBO}</button>`:'<span class="pvpno2">❌ Non arrivi in tempo</span>'}</div></div></div>`).join('');
-  const via=V.map(a=>`<div class="pvprow"><span>🏃</span><div><b>Squadra verso @${esc(a.contro)}</b><small>arriva fra <i data-pvt="${a.impatto}">${pvpLeft(a.impatto)}</i> · forza ${Math.round(a.forza)}</small></div></div>`).join('');
+  const rad=(d.raduni||[]).map(r=>`<div class="pvprow rad"><span>📯</span><div><b>${esc(r.alleanza)} contro @${esc(r.contro)}</b><small>partenza fra <i data-pvt="${r.partenza}">${pvpLeft(r.partenza)}</i> · ${r.n}/${r.max} · forza insieme ⚔️ ${Math.round(r.forza||0)} · chiamato da @${esc(r.capo)}</small>
+      <small>${(r.membri||[]).map(m=>'@'+esc(m)).join(' · ')}</small>
+      <div class="pvpacts">${r.ci_sono?(r.io_capo?`<button class="btn small" data-pvpart="${r.id}">🚀 Partite adesso</button><button class="btn small ghost" data-pvann="${r.id}">✖ Annulla</button>`:'<span class="pvpok">✅ Ci sei: partite insieme</span>'):r.no?`<span class="pvpno2">🚫 ${esc(r.no)}</span>`:`<button class="btn small" data-pvjoin="${r.id}">⚔️ Unisciti · 🥫 ${(r.costo||{}).cibo||10}${(r.costo||{}).carb?' ⛽ '+r.costo.carb:''}</button>`}</div></div></div>`).join('');
+  const via=V.map(a=>`<div class="pvprow"><span>🏃</span><div><b>${a.alleanza?`Squadra ${esc(a.alleanza)} (${a.n})`:'Squadra'} verso @${esc(a.contro)}</b><small>arriva fra <i data-pvt="${a.impatto}">${pvpLeft(a.impatto)}</i> · forza ${Math.round(a.forza)}</small></div></div>`).join('');
   const st=H.map(x=>{const e=x.esito||{};const k=+e.esito||0;const io=x.io==='att';const t=x.stato==='annullato'?'↩️ Annullato':io?PVP_ESITO[k]:PVP_PERSO[k];
-    return`<button class="pvprow st ${io?(k?'win':'lose'):(k?'lose':'win')}" data-pvst="${x.id}"><span>${io?'⚔️':'🛡️'}</span><div><b>${t} · @${esc(x.altro)}</b><small>${x.stato==='annullato'?esc(e.msg||''):(io?(k?'preso: ':'niente bottino'):(k?'perso: ':'nessuna perdita'))+(k&&x.stato!=='annullato'?pvpLoot(e.loot):'')}</small></div></button>`;}).join('');
+    return`<button class="pvprow st ${io?(k?'win':'lose'):(k?'lose':'win')}" data-pvst="${x.id}"><span>${io?'⚔️':'🛡️'}</span><div><b>${t} · @${esc(x.altro)}</b><small>${x.stato==='annullato'?esc(e.msg||''):(io?(k?(x.alleanza?'la tua parte: ':'preso: '):'niente bottino'):(k?'perso: ':'nessuna perdita'))+(k&&x.stato!=='annullato'?pvpLoot(io&&x.mia?x.mia:e.loot):'')}${x.alleanza?' · '+esc(x.alleanza):''}</small></div></button>`;}).join('');
   const dn=(d.danno_casa||0)+(d.danni||[]).reduce((s,x)=>s+(+x.danno||0),0);
   return`<div class="panel pvpbox"><b class="disp" style="font-size:22px">⚔️ Attacchi</b>
-    ${arr||'<p class="muted" style="margin:4px 0">Nessun attacco in arrivo. Per attaccare: tocca un superstite o una casa e poi ⚔️ Attacca.</p>'}${via}${al?`<h4 style="margin:10px 0 4px">🆘 Alleati sotto attacco</h4>${al}`:''}
+    ${arr||'<p class="muted" style="margin:4px 0">Nessun attacco in arrivo. Per attaccare: tocca un superstite o una casa e poi ⚔️ Attacca.</p>'}${rad?`<h4 style="margin:10px 0 4px">📯 Raduni della tua alleanza</h4>${rad}`:''}${via}${al?`<h4 style="margin:10px 0 4px">🆘 Alleati sotto attacco</h4>${al}`:''}
     ${dn?`<div class="pvprow dan"><span>🔨</span><div><b>Difese danneggiate: −${dn}</b><small>riparale con 🪵 (2 a punto)</small></div><button class="btn small" data-pvrip>Ripara</button></div>`:''}
     ${st?`<h4 style="margin:10px 0 4px">📜 Storico</h4>${st}`:''}</div>`;}
 function pvpPaint(){if(S.tab!=='orda'||!document.body.classList.contains('iopage'))return;const pg=app.querySelector('.page.orda1');if(!pg)return;const h=pvpHTML();
@@ -70,6 +79,9 @@ function pvpPaint(){if(S.tab!=='orda'||!document.body.classList.contains('iopage
   b.querySelectorAll('[data-pvaiuto]').forEach(x=>x.onclick=()=>pvpChiedi(+x.dataset.pvaiuto,x));
   b.querySelectorAll('[data-pvchi]').forEach(x=>x.onclick=()=>pvpRinfSheet(+x.dataset.pvchi));
   b.querySelectorAll('[data-pvrf]').forEach(x=>x.onclick=()=>pvpRinforza(+x.dataset.pvrf,x));
+  b.querySelectorAll('[data-pvjoin]').forEach(x=>x.onclick=()=>pvpUnisciti(+x.dataset.pvjoin,x));
+  b.querySelectorAll('[data-pvpart]').forEach(x=>x.onclick=()=>pvpRadRpc('world_raduno_parti',+x.dataset.pvpart,x));
+  b.querySelectorAll('[data-pvann]').forEach(x=>x.onclick=()=>pvpRadRpc('world_raduno_annulla',+x.dataset.pvann,x));
   const rp=b.querySelector('[data-pvrip]');if(rp)rp.onclick=async()=>{rp.disabled=true;const d=PVP.d;const L=[];try{const h=myHouses().find(x=>x.home);if(d.danno_casa)L.push((h&&h.bid)||'');}catch(e){}(d.danni||[]).forEach(x=>L.push(x.bid));
     for(const bid of L){try{const{data}=await SB.rpc('world_ripara',{p_bid:bid});toast(data.msg);}catch(e){}}RES.t=0;try{resLoad(true);}catch(e){}pvpLoad(true).then(pvpPaint);};
   b.querySelectorAll('[data-pvst]').forEach(x=>x.onclick=()=>{const s=(PVP.d.storico||[]).find(y=>String(y.id)===x.dataset.pvst);if(s)pvpRiepilogo(s);});}
@@ -79,7 +91,9 @@ function pvpRiepilogo(x){const e=x.esito||{};const k=+e.esito||0;const io=x.io==
   const titolo=io?PVP_ESITO[k]:PVP_PERSO[k];const pc=Math.max(4,Math.min(100,Math.round((+e.att||0)/Math.max(1,(+e.att||0)+(+e.dif||0))*100)));
   openSheet(`${titolo}`,`<div class="pvpris ${io===!!k?'win':'lose'}"><b>${io?'La tua squadra':'@'+esc(x.altro)} ⚔️ ${Math.round(e.att||0)} contro 🛡️ ${Math.round(e.dif||0)} ${io?'@'+esc(x.altro):'la tua casa'}</b>
       <div class="pvpbar"><span style="width:${pc}%"></span></div><small>Rapporto ${String(e.r||0).replace('.',',')} (caso ${(e.caso>0?'+':'')+Math.round((e.caso||0)*100)}%)${e.rinf_n?` · 🛡️ ${e.rinf_n} ${e.rinf_n==1?'squadra':'squadre'} di rinforzo +${Math.round(e.rinf||0)}`:''}</small></div>
-    ${k?`<p>${io?'🎒 Bottino':'📦 Scorte perse'}: <b>${pvpLoot(e.loot)}</b></p>${e.danno?`<p>🔨 Difese ${io?'nemiche':'tue'} danneggiate: −${e.danno}${io?'':' (riparale in Io con 🪵)'}</p>`:''}`:`<p>${io?'La sua difesa ha tenuto: niente bottino.':'La tua casa ha tenuto: nessuna perdita.'}</p>`}
+    ${x.alleanza&&e.squadra?`<p class="pvpsq">${io?'La tua squadra':'La squadra'} ${esc(x.alleanza)}: ${e.squadra.map(m=>`@${esc(m.nick)} ⚔️ ${Math.round(m.c)}`).join(' · ')}</p>`:''}
+    ${k&&io&&x.mia?`<p>🎒 La tua parte (secondo la forza che hai portato): <b>${pvpLoot(x.mia)}</b><br><small class="muted">Bottino di tutta la squadra: ${pvpLoot(e.loot)}</small></p>`:''}
+    ${k&&!(io&&x.mia)?`<p>${io?'🎒 Bottino':'📦 Scorte perse'}: <b>${pvpLoot(e.loot)}</b></p>`:''}${k?`${e.danno?`<p>🔨 Difese ${io?'nemiche':'tue'} danneggiate: −${e.danno}${io?'':' (riparale in Io con 🪵)'}</p>`:''}`:''}${!k?`<p>${io?'La sua difesa ha tenuto: niente bottino.':'La tua casa ha tenuto: nessuna perdita.'}</p>`:''}
     <p class="muted" style="font-size:12.5px">${io?'Sali di 🔪 Combattente e attacca con gli alleati per vincere più spesso.':'Per difenderti meglio: prepara le case, fortifica, chiedi rinforzi agli alleati e sali di 🔪 Combattente.'}</p>`);}
 function pvpNuovi(){const d=PVP.d;if(window.__noHello&&!window.__pvpPop)return;if(!d||document.querySelector('#sheet.open')||document.getElementById('lente'))return;let v=[];try{v=JSON.parse(localStorage.getItem('zsh_pvp_visti')||'[]');}catch(e){}
   const n=(d.storico||[]).find(x=>!v.includes(x.id)&&x.stato==='risolto'&&Date.now()-new Date(x.quando)<48*3600e3);if(n)pvpRiepilogo(n);}
@@ -117,4 +131,14 @@ function pvpGdItems(I){const d=PVP.d;if(!d)return;
   (d.alleati||[]).filter(a=>a.in_tempo&&!a.partito).slice(0,1).forEach(a=>I.push({p:90,ic:'🆘',t:`@${esc(a.chi)} è sotto attacco`,why:`@${esc(a.da)} arriva fra ${pvpLeft(a.impatto)}: tu ci metti ${a.minuti} min. Se lo respingete: ⭐ 15 e 🥫 5.`,cost:`🥫 ${PVP_RF_CIBO}`,
     acts:[{b:'🛡️ Manda rinforzi',run:async()=>{await pvpRinforza(a.id);return{skip:1};}}]}));}
 const _gdItemsPvp=gdItems;gdItems=function(){const I=_gdItemsPvp.apply(this,arguments);try{pvpGdItems(I);I.sort((a,b)=>b.p-a.p);}catch(e){}return I;};
+/* ---------- 📯 attacchi d'alleanza (migrazione 030, Fase 37) ---------- */
+function pvpAlzHTML(d){const L=d.alleanze||[];if(!L.length||!(d.ok||L.some(a=>a.raduno)))return'';
+  return`<div class="pvpalz"><b>🛡️ Attacca con l’alleanza</b><small>Chiami i membri: hanno 10, 20 o 30 minuti per unirsi, poi partite insieme (il viaggio dura quanto quello del più lontano). Le forze si sommano con un calo (la più forte intera, poi 60%, 40%, 25%), al massimo 10; il bottino si divide secondo la forza di ciascuno. Ognuno paga 🥫 10, il carburante e 1 energia.</small>
+    ${L.map(a=>`<div class="pvpalzr"><span>${esc(a.emblema||'🛡️')} ${esc(a.nome)} · ${a.membri} membri</span>${a.raduno?`<button class="btn small" data-pvjoin="${a.raduno}">⚔️ Unisciti al raduno</button>`:`<span class="pvpalzb">📯 Raduno fra ${[10,20,30].map(m=>`<button class="btn small ghost" data-pvrad="${a.id}|${m}">${m} min</button>`).join('')}</span>`}</div>`).join('')}</div>`;}
+async function pvpUnisciti(id,x){if(x)x.disabled=true;try{const{data,error}=await SB.rpc('world_raduno_unisciti',{p_raduno:id});if(error)throw error;toast(data.msg);if(data.ok){RES.t=0;try{resLoad(true);supLoad(true);}catch(e){}}else if(x)x.disabled=false;}
+  catch(e){toast('🛡️ Gli attacchi d’alleanza arrivano dopo l’aggiornamento del server (blocco SQL 030)');if(x)x.disabled=false;}pvpLoad(true).then(pvpPaint);}
+async function pvpRadRpc(fn,id,x){if(x)x.disabled=true;try{const{data,error}=await SB.rpc(fn,{p_raduno:id});if(error)throw error;toast(data.msg);if(data.ok){RES.t=0;try{resLoad(true);}catch(e){}}}catch(e){toast('Non riuscito');}if(x)x.disabled=false;pvpLoad(true).then(pvpPaint);}
+function pvpRadGdItems(I){const d=PVP.d;if(!d)return;(d.raduni||[]).filter(r=>!r.ci_sono&&!r.no).slice(0,1).forEach(r=>I.push({p:89,ic:'📯',t:`${esc(r.alleanza)} attacca @${esc(r.contro)}`,why:`@${esc(r.capo)} chiama il raduno: partenza fra ${pvpLeft(r.partenza)}, siete ${r.n}. Il bottino si divide secondo la forza di ciascuno.`,cost:`🥫 ${(r.costo||{}).cibo||10}${(r.costo||{}).carb?' ⛽ '+r.costo.carb:''} + 1 energia`,
+  acts:[{b:'⚔️ Unisciti',run:async()=>{await pvpUnisciti(r.id);return{skip:1};}},{b:'Vedi',run:async()=>{pvpVaiBox();return{skip:1};}}]}));}
+const _gdItemsRad=gdItems;gdItems=function(){const I=_gdItemsRad.apply(this,arguments);try{pvpRadGdItems(I);I.sort((a,b)=>b.p-a.p);}catch(e){}return I;};
 </script>
