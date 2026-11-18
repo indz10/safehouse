@@ -4,7 +4,7 @@ Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sq
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
 - Tabelle: **78** · viste: **1** · indici: **40** · regole (policy): **42** · trigger: **17** · lavori programmati: **6**
-- Funzioni: **323** (323 nomi); usate (direttamente o tramite altre funzioni): **315**; **non usate: 8**
+- Funzioni: **324** (324 nomi); usate (direttamente o tramite altre funzioni): **316**; **non usate: 8**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -282,6 +282,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_near_survivors` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
 | `world_orde_mie` | ✓ |  |  |  | 1: migr. 032_orde_motore |
 | `world_player` | ✓ |  |  |  | 3: social → migr. 009_mezzi_assalti → migr. 014_territorio |
+| `world_player_extra` | ✓ |  |  |  | 1: migr. 034_scheda_giocatore |
 | `world_posto_visita` | ✓ |  |  |  | 1: migr. 027_mondo_vero |
 | `world_prepare` | ✓ |  |  |  | 1: orda_mondo |
 | `world_pres_fortifica` | ✓ |  |  |  | 1: migr. 017_presidi_fortificazioni |

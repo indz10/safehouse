@@ -203,6 +203,8 @@ async function feedFor(L: any[]): Promise<number> {
       const x = show[i];
       const { data: p } = await sb.from("profili_pubblici").select("nick").eq("user_id", x.actor).maybeSingle();
       const m = feedMsg(x, p?.nick ? "@" + p.nick : "Un superstite", x.actor || "");
+      // chi ha fatto l'azione: se la notifica non porta già in un posto preciso, apre la sua scheda (pl=)
+      if (x.actor && x.actor !== s.user_id && m.url && !/[?&](dm|pl|attacchi|casse|lente|evt|boss|sfida|reg|sup)=/.test(m.url)) m.url += (m.url.includes("?") ? "&" : "?") + "pl=" + x.actor;
       const more = i === show.length - 1 && f.length > show.length ? ` (+${f.length - show.length} novità)` : "";
       sent += await sendTo(s, { title: m.title, body: m.body + more, url: m.url, tag: "zsh-" + x.kind + "-" + x.id });
     }
