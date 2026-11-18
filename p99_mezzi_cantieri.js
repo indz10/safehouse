@@ -34,4 +34,41 @@ const _pvpHTMLCn=pvpHTML;pvpHTML=function(){let h=_pvpHTMLCn.apply(this,argument
 document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('[data-pvacc]');if(!b)return;e.preventDefault();e.stopPropagation();b.disabled=true;
   try{const{data,error}=await SB.rpc('world_cantiere_accelera',{p_id:+b.dataset.pvacc});if(error)throw error;toast(data.msg);if(!data.ok)b.disabled=false;}catch(er){toast('Non riuscito');b.disabled=false;}
   RES.t=0;try{resLoad(true);wMine(true);}catch(er){}pvpLoad(true).then(pvpPaint);},true);
+/* ---------- 📊 stato delle case: danni, cantieri, assalto, case perse (migrazione 036) ---------- */
+const CS={d:null,t:0};
+async function csLoad(force){if(!force&&CS.d&&Date.now()-CS.t<20000)return CS.d;CS.t=Date.now();
+  try{const{data,error}=await SB.rpc('world_case_stato');if(!error&&data&&data.ok)CS.d=data;}catch(e){}
+  try{await pvpLoad(true);}catch(e){}return CS.d;}
+const CS_DEF={fossato:'🌊 Fossato',barricate:'🪵 Barricate',sirena:'🚨 Sirena',fondamenta:'🧱 Fondamenta',fari:'💡 Fari',trappole:'🪤 Trappole',grate:'🔩 Grate',recinto:'🚧 Recinto',cani:'🐕 Cani',pompa:'🚿 Pompa'};
+const csCant=bid=>((PVP&&PVP.cn)||[]).filter(c=>c.bid===bid||(c.home&&!bid));
+function csLavori(L){return L.map(c=>`<div class="cslav"><span>${c.tipo==='potenzia'?'🏗️':'🔨'}</span><div><b>${c.tipo==='potenzia'?`${CS_DEF[c.def_kind]||c.def_kind} → livello ${c.def_level}`:'Riparazione'}</b><small>pronto fra <i data-pvt="${c.fine}">${pvpLeft(c.fine)}</i></small></div><button class="btn small" data-pvacc="${c.id}">⚡ 🧱 ${c.accelera}</button></div>`).join('');}
+function csRiga(h){const d=CS.d;if(!d)return'';const x=(d.case||[]).find(c=>c.bid===h.bid||(h.home&&c.home));const L=csCant(h.bid);const t=[];
+  if(x&&(x.danno_pct||x.integrita<100))t.push(`💥 danni ${x.danno_pct}%`+(h.home?'':` · integrità ${x.integrita}%`));if(x&&x.crollata)t.push('🏚️ crollata');
+  L.forEach(c=>t.push(`${c.tipo==='potenzia'?'🏗️ '+(CS_DEF[c.def_kind]||c.def_kind)+' '+c.def_level:'🔨 riparazione'} fra ${pvpLeft(c.fine)}`));
+  return t.length?`<small class="csst">${t.join(' · ')}</small>`:'';}
+function csBox(h){const d=CS.d;if(!d)return'';const x=(d.case||[]).find(c=>c.bid===h.bid||(h.home&&c.home))||{danno:0,danno_pct:0,integrita:100};const L=csCant(h.bid);
+  const ord=d.orda&&(d.orda.case||[]).find(c=>c.bid===h.bid);const att=(d.attacchi||[]).filter(a=>a.bid===h.bid).slice(0,3);const rip=L.some(c=>c.tipo==='ripara');
+  const bar=(v,cl)=>`<div class="pvpbar integ ${cl||''}"><span style="width:${Math.max(2,v)}%"></span></div>`;
+  return`<div class="csbox"><b class="disp" style="font-size:19px">📊 Stato della casa</b>
+    <div class="csgrid"><div><small>💥 Danni alle difese</small><b>${x.danno_pct}%</b>${bar(100-x.danno_pct)}</div>${h.home?'':`<div><small>🏚️ Integrità</small><b>${x.integrita}%</b>${bar(x.integrita)}</div>`}</div>
+    ${ord?`<p class="csorda">🧟 Ultima orda: <b>${['tenuta grazie al Combattente','sfondata di misura','sfondata','travolta'][ord.esito]||'sfondata'}</b> · orda ${ord.attacco} contro difesa ${ord.difesa}</p>`:''}
+    ${att.map(a=>`<p class="csorda">⚔️ @${esc(a.da)}: ${a.esito?'ha vinto':'respinto'}${a.danno?' · difese −'+a.danno:''}${a.integ?' · integrità −'+a.integ:''}</p>`).join('')}
+    ${L.length?`<h4 style="margin:8px 0 2px">⏱️ Lavori in corso</h4>${csLavori(L)}`:''}
+    <div class="pvpacts">${(x.danno>0||x.integrita<100)&&!rip?`<button class="btn small" data-csrip>🔨 Ripara</button>`:''}<button class="btn small ghost" data-cswatch>🎬 Rivedi l’assalto</button></div></div>`;}
+function csBind(c,h){const r=c.querySelector('[data-csrip]');if(r)r.onclick=async()=>{r.disabled=true;try{const{data}=await SB.rpc('world_ripara',{p_bid:h.home?'':h.bid});toast(data.msg);}catch(e){toast('Non riuscito');}RES.t=0;try{resLoad(true);}catch(e){}await csLoad(true);csPaint(h);};
+  const w=c.querySelector('[data-cswatch]');if(w)w.onclick=()=>{closeSheet();const i=myHouses().findIndex(x=>x.bid===h.bid&&x.home===h.home);assalto('last',Math.max(0,i));};}
+function csPaint(h){const c=document.querySelector('#sheet.open');if(!c)return;const b=c.querySelector('.sheet-b')||c;let x=b.querySelector('.csbox');const html=csBox(h);if(!html)return;
+  if(x)x.outerHTML=html;else b.insertAdjacentHTML('afterbegin',html);x=b.querySelector('.csbox');x._h=h;csBind(x,h);}
+const _houseSheetCs=houseSheet;houseSheet=async function(h){CS.h=h;CS.ht=(h&&h.label)||'';csLoad().catch(()=>{});return _houseSheetCs.apply(this,arguments);};
+zEvery(()=>{try{const h=CS.h;const c=document.querySelector('#sheet.open');if(!h||!c)return;const t=(c.querySelector('.sheet-h h3')||{}).textContent||'';
+  if(t&&CS.ht&&t.indexOf(CS.ht)<0)return;const b=c.querySelector('.sheet-b');if(b&&b.style.visibility==='hidden')return;if(!c.querySelector('.csbox')&&CS.d)csPaint(h);}catch(e){}},700,'stato-casa');
+const _casasSheetCs=casasSheet;casasSheet=function(){const r=_casasSheetCs.apply(this,arguments);(async()=>{try{await csLoad();const c=document.querySelector('#sheet.open');if(!c)return;const H=myHouses();
+  c.querySelectorAll('[data-cs]').forEach(b=>{const h=H[+b.dataset.cs];if(!h||b.querySelector('.csst'))return;const t=csRiga(h);if(t)b.querySelector('div').insertAdjacentHTML('beforeend',t);});
+  const P=(CS.d&&CS.d.perse)||[];const box=c.querySelector('.sheet-b')||c;if(!box.querySelector('.csperse')){box.insertAdjacentHTML('beforeend',`<div class="csperse"><button class="btn small ghost" data-cswall>🎬 Guarda l’ultima orda sulle tue case</button>${P.length?`<h4 style="margin:10px 0 4px">🏴 Case perse (30 giorni)</h4>${P.map(p=>`<p class="csorda">${p.kind==='conquista'?'🏴 Conquistata da @'+esc(p.da||'?'):'🏚️ Crollata e non riparata: tornata libera'} · ${new Date(p.quando).toLocaleDateString('it-IT')}</p>`).join('')}`:''}</div>`);
+    box.querySelector('[data-cswall]').onclick=()=>{closeSheet();assalto('last',0);};}}catch(e){}})();return r;};
+/* dopo "Prepara" (tutte le case) o un potenziamento: la scheda delle case; se sei già nella pagina di una casa resti lì */
+zEvery(()=>{try{if(typeof SB==='undefined'||!SB||SB.__csw||!SB.rpc)return;const o=SB.rpc.bind(SB);
+  SB.rpc=async function(n,a){const r=await o(n,a);try{const d=r&&r.data;if(d&&d.ok&&['world_prepare','world_def_upgrade','world_ripara'].includes(n)&&!(window.__noHello&&!window.__casePop)){CS.t=0;
+    setTimeout(async()=>{const x=document.querySelector('#sheet.open .csbox');if(x){await csLoad(true);csPaint(x._h);return;}
+      if(n==='world_prepare'&&!document.getElementById('lente')){window.SHEET_BACK=null;casasSheet();}},700);}}catch(e){}return r;};SB.__csw=1;}catch(e){}},1000,'case-dopo');
 </script>
