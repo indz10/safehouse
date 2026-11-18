@@ -64,6 +64,7 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_case_integrita':return{data:{ok:true,case:(window.__PVP&&window.__PVP.ci)||[]},error:null};
   case'world_integrita':return{data:{ok:true,integrita:60,crollata:false},error:null};
   case'world_ripara':{window.__PVR=a;if(window.__PVP&&window.__PVP.ci)window.__PVP.ci=window.__PVP.ci.filter(x=>x.bid!==a.p_bid);if(window.__PVP)window.__PVP.danno=0;return{data:{ok:true,msg:'🔨 Difese riparate: +10 · 🪵 −20'},error:null};}
+  case'world_cassa_manda':{window.__CSM=a;const z=(window.__ZMP||[]).find(x=>x.id===a.p_id);if(z)z.preso=true;return{data:{ok:true,id:7,min:16,msg:'🎒 Partito! Torna fra 16 min · 🥫 −3'},error:null};}
   case'world_cassa_apri':{const z=(window.__ZMP||[]).find(x=>x.id===a.p_id);if(z)z.preso=true;return{data:{ok:true,legno:9,cibo:8,carb:4,mattoni:0,bomba:false,xp:10},error:null};}
   case'world_zombipedia':return{data:{tipi:[{k:'vagante',nome:'Vagante',ic:'🧟',rar:1,hp:3,presi:2},{k:'bruto',nome:'Bruto',ic:'💪',rar:2,hp:6,presi:window.__ZMF&&window.__ZMF.p_vinto?1:0},{k:'re',nome:'Re dei morti',ic:'👑',rar:4,hp:14,presi:0}],casse:1},error:null};
   case'world_seen':return{data:null,error:null};

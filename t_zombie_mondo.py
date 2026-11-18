@@ -18,6 +18,12 @@ async def main():
                           "await wMine(true);closeSheet();await resLoad(true);await supLoad(true);S.zv='mondo';go('mappa');}")
         await pg.wait_for_timeout(6500)
         print('segnaposti sulla mappa:',await pg.evaluate("()=>document.querySelectorAll('.lm-zm').length"))
+        # 📦 cassa presa dal divano (migrazione 033): la scheda della cassa sulla mappa ha "🎒 Manda il superstite"
+        await pg.evaluate("()=>{const c=document.querySelector('.lm-zm.cassa');if(c)c.click();}");await pg.wait_for_timeout(800)
+        print('cassa dal divano:',await pg.evaluate("()=>[(document.querySelector('#sheet.open [data-zmsped]')||{}).textContent||null]"))
+        await pg.evaluate("()=>{const b=document.querySelector('#sheet.open [data-zmsped]');if(b){b.disabled=false;b.click();}}");await pg.wait_for_timeout(1200)
+        print('mandato:',await pg.evaluate("()=>[!!window.__CSM,!document.querySelector('#sheet.open')]"))
+        await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(300)
         # 📷 tasto Lente sulla mappa con quello che c'è entro 80 m; cassetto che si abbassa
         print('tasto Lente sulla mappa:',await pg.evaluate("()=>{const b=document.querySelector('.mapfull .mlfab');return b?[b.textContent,b.classList.contains('caldo')]:null}"))
         await pg.evaluate("()=>document.querySelector('.mapfull [data-mldown]').click()");await pg.wait_for_timeout(500)
