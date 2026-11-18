@@ -5250,6 +5250,30 @@ CREATE FUNCTION public.world_player(p_user uuid) RETURNS json
 $$;
 
 --
+-- Name: world_player_extra(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_player_extra(p_user uuid) RETURNS json
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select case when auth.uid() is null then json_build_object('ok', false) else json_build_object('ok', true,
+    'livello', public.w_lvl_of(p_user),
+    'grado', coalesce((select public.w_grado(s.xp) from public.world_superstite s where s.user_id = p_user), 1),
+    'combattente', coalesce((select public.w_ab(s.abil, 'combattente') from public.world_superstite s where s.user_id = p_user), 0),
+    'casa_vera', exists (select 1 from public.world_homes h where h.user_id = p_user),
+    'case', (select count(*) from public.world_buildings b where b.owner = p_user),
+    'crollate', (select count(*) from public.world_buildings b where b.owner = p_user and b.caduta_at is not null),
+    'alleanze', coalesce((select json_agg(json_build_object('nome', a.nome, 'emblema', a.emblema, 'membri', (select count(*) from public.world_alleanze_membri x where x.alleanza_id = a.id)) order by m.dal)
+                 from public.world_alleanze_membri m join public.world_alleanze a on a.id = m.alleanza_id where m.user_id = p_user), '[]'::json),
+    'scorte', (select json_build_object('legno', round(w.legno, -1), 'cibo', round(w.cibo, -1), 'carb', round(w.carb, -1), 'mattoni', round(w.mattoni, -1))
+                 from public.world_wallet w where w.user_id = p_user),
+    'vinti', (select count(*) from public.world_attacchi a where a.stato = 'risolto' and (a.esito->>'esito')::int > 0
+                and (a.attaccante = p_user or p_user = any(coalesce(a.squadra, '{}')))),
+    'subiti', (select count(*) from public.world_attacchi a where a.stato = 'risolto' and a.vittima = p_user and (a.esito->>'esito')::int > 0),
+    'respinti', (select count(*) from public.world_attacchi a where a.stato = 'risolto' and a.vittima = p_user and (a.esito->>'esito')::int = 0)) end; $$;
+
+--
 -- Name: world_posto_visita(text, text, double precision, double precision, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -11839,6 +11863,13 @@ GRANT ALL ON FUNCTION public.world_orde_mie() TO authenticated;
 --
 
 GRANT ALL ON FUNCTION public.world_player(p_user uuid) TO authenticated;
+
+--
+-- Name: FUNCTION world_player_extra(p_user uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_player_extra(p_user uuid) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_player_extra(p_user uuid) TO authenticated;
 
 --
 -- Name: FUNCTION world_posto_visita(p_kind text, p_nome text, p_lat double precision, p_lon double precision, p_mylat double precision, p_mylon double precision); Type: ACL; Schema: public; Owner: -

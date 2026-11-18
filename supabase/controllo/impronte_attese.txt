@@ -261,6 +261,7 @@ world_my_effects() 7e4bd22f9b
 world_near_survivors(double precision, double precision, double precision) 479ebf94cf
 world_orde_mie() 26cd5c2bc8
 world_player(uuid) d549da37b6
+world_player_extra(uuid) 4c0c27cac5
 world_posto_visita(text, text, double precision, double precision, double precision, double precision) 87fb22391c
 world_prepare() 6c8f3e9765
 world_pres_fortifica(text, text) 0921041cb2
