@@ -60,6 +60,10 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_rinforzi_chiedi':{window.__RFC=a;const x=(window.__PVP.in_arrivo||[]).find(y=>y.id===a.p_att);if(x)x.chiesto=true;return{data:{ok:true,n:2,msg:'📣 Chiamati 2 alleati'},error:null};}
   case'world_rinforzi_info':{window.__RFI=a;const x=(window.__PVP.in_arrivo||[]).find(y=>y.id===a.p_att)||{};return{data:{ok:true,impatto:x.impatto,chiesto:!!x.chiesto,rinf:13,alleati:[{id:'u2',nick:'giangy',km:0.4,minuti:5,in_tempo:true,partito:false},{id:'u5',nick:'lontano',km:240,minuti:90,in_tempo:false,partito:false}]},error:null};}
   case'world_rinforza':{window.__RFR=a;const x=((window.__PVP||{}).alleati||[]).find(y=>y.id===a.p_att);if(x){x.partito=true;x.arrivo=new Date(Date.now()+300e3).toISOString();}return{data:{ok:true,minuti:5,msg:'🛡️ Rinforzi partiti: arrivano fra 5 min'},error:null};}
+  case'world_mezzi_info':{window.__MZI=a;const M=[['piedi','a piedi',5,0,0.8],['bici','in bici',15,0,0.9],['moto','in moto',40,1,1],['auto','in auto',60,1.5,1.2]];return{data:{ok:true,km:a.p_km,scelto:window.__MZS||null,usato:window.__MZS||'auto',carb:40,mezzi:M.map(m=>({mz:m[0],nome:m[1],kmh:m[2],min:Math.max(3,2+Math.ceil(a.p_km/m[2]*60)),carb:Math.ceil(a.p_km*m[3]),forza:m[4]}))},error:null};}
+  case'world_mezzo_scegli':window.__MZS=a.p_mz==='migliore'?null:a.p_mz;return{data:{ok:true,msg:'🚗 Viaggerai '+a.p_mz},error:null};
+  case'world_cantieri_miei':return{data:{ok:true,cantieri:(window.__PVP&&window.__PVP.cn)||[]},error:null};
+  case'world_cantiere_accelera':window.__CNA=a;if(window.__PVP)window.__PVP.cn=[];return{data:{ok:true,msg:'⚡ Lavori finiti subito · 🧱 −12'},error:null};
   case'world_orde_mie':return{data:{ok:true,orde:(window.__PVP&&window.__PVP.or)||[]},error:null};
   case'world_case_integrita':return{data:{ok:true,case:(window.__PVP&&window.__PVP.ci)||[]},error:null};
   case'world_integrita':return{data:{ok:true,integrita:60,crollata:false},error:null};

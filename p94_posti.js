@@ -40,7 +40,7 @@ function pvSheet(q){const v=(typeof MV_VANT!=='undefined'&&MV_VANT[q.k])||['📦
     <div class="mvdue pvdue"><div class="on"><span>📍 Di persona</span><small>${preso?'✅ Già preso: si riempie di nuovo fra '+Math.max(1,Math.ceil((12*3600e3-(Date.now()-preso))/3600e3))+' ore':'GRATIS: vai lì, apri la 📷 Lente e a meno di 50 m tocca 🎁 PRENDI'}</small>
       <button class="btn small" data-pvl>📷 Apri la Lente</button></div>
     <div><span>🎒 Dal divano</span><small>${c?`mandi il superstite: costa 🥫 ${c.cibo}${c.carb?' ⛽ '+c.carb:''} + energia`:'serve una casa nel mondo'}</small>
-      <button class="btn small ghost" data-pvs ${c?'':'disabled'}>🎒 Mandalo</button></div></div>
+      <button class="btn small ghost" data-pvs data-km="${km!=null?km:''}" ${c?'':'disabled'}>🎒 Mandalo</button></div></div>
     <p class="muted" style="font-size:12.5px;margin-top:8px">Di persona guadagni e basta; col superstite spendi scorte per il viaggio.</p>`,box=>{
     box.querySelector('[data-pvl]').onclick=()=>{closeSheet();lenteOpen();};
     const s=box.querySelector('[data-pvs]');if(s)s.onclick=async()=>{s.disabled=true;try{const{data,error}=await SB.rpc('world_sped_parti',{p_kind:q.k,p_nome:q.name,p_lat:q.lat,p_lon:q.lon});if(error)throw error;toast(data.msg);if(data.ok){closeSheet();RES.t=0;try{resLoad(true);supLoad(true);}catch(e){}}else s.disabled=false;}catch(e){toast('Non riuscito: riprova');s.disabled=false;}};});}

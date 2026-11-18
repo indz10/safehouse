@@ -945,6 +945,7 @@ CREATE FUNCTION public.w_cadute_tick() RETURNS integer
 declare k jsonb := public.w_pvp_cfg(); b public.world_buildings; refund int; n int := 0;
 begin
   for b in select * from public.world_buildings where caduta_at is not null and caduta_at < now() - make_interval(hours => (k->>'caduta_ore')::int)
+           and not exists (select 1 from public.world_cantieri c where c.bid = building_id and c.stato = 'lavori')
            order by caduta_at limit 50 for update skip locked loop
     refund := round(0.5 * (coalesce(b.paid, 0) + coalesce(b.upgrades, 0)));
     if b.owner is not null and refund > 0 then
@@ -985,6 +986,26 @@ CREATE FUNCTION public.w_canon(p_bid text, p_lat double precision, p_lon double 
      ) x where x.d <= 0.004 order by x.d limit 1),
     split_part(p_bid,'#',1));
 $$;
+
+--
+-- Name: w_cantieri_tick(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_cantieri_tick() RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare c public.world_cantieri; n int := 0;
+begin
+  for c in select * from public.world_cantieri where stato = 'lavori' and fine <= now() order by fine limit 100 for update skip locked loop
+    if c.home then update public.world_homes set danno = 0 where user_id = c.user_id;
+    else update public.world_buildings set danno = 0, integrita = 100, caduta_at = null, caduta_da = null where building_id = c.bid and owner = c.user_id; end if;
+    update public.world_cantieri set stato = 'finito' where id = c.id;
+    perform public.w_feed_add('cantiere_ok', c.user_id, c.user_id, null, null, c.bid || '|' || case when c.home then 'casa' else 'comprata' end);
+    n := n + 1;
+  end loop;
+  return n;
+end $$;
 
 --
 -- Name: w_casa_extra(text, text); Type: FUNCTION; Schema: public; Owner: -
@@ -1557,9 +1578,11 @@ CREATE FUNCTION public.w_mz_eff(p_user uuid, p_km double precision) RETURNS text
     LANGUAGE sql STABLE SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-  with m as (select public.w_mezzo(p_user) as mz, coalesce((select carb from public.world_wallet where user_id = p_user), 0) as carb,
-                    coalesce((select caps->>'mezzo_vero' from public.world_wallet where user_id = p_user), 'piedi') as vero)
-  select case when public.w_mz_carb(mz, p_km) <= carb then mz when vero = 'bici' then 'bici' else 'piedi' end from m; $$;
+  with m as (select public.w_mezzo(p_user) as best, coalesce((select carb from public.world_wallet where user_id = p_user), 0) as carb,
+                    coalesce((select caps->>'mezzo_vero' from public.world_wallet where user_id = p_user), 'piedi') as vero,
+                    (select caps->>'mezzo_scelto' from public.world_wallet where user_id = p_user) as sc),
+  c as (select *, case when sc is not null and public.w_mz_rank(sc) <= public.w_mz_rank(best) then sc else best end as mz from m)
+  select case when public.w_mz_carb(mz, p_km) <= carb then mz when public.w_mz_rank('bici') <= public.w_mz_rank(mz) and (vero = 'bici' or public.w_mz_rank(best) >= public.w_mz_rank('bici')) then 'bici' else 'piedi' end from c; $$;
 
 --
 -- Name: w_mz_help(text); Type: FUNCTION; Schema: public; Owner: -
@@ -1948,7 +1971,13 @@ CREATE FUNCTION public.w_pvp_cfg() RETURNS jsonb
     'rip_integ_legno', 1, 'rip_caduta_mattoni', 50,                    -- riparare: 🪵 1 a punto di integrità, +🧱 50 se è crollata
     'integ_conquista', 50,
     -- orde sul motore unico (032)
-    'orda_avvisi', jsonb_build_array(60, 15));                        -- minuti prima dell'orda in cui arriva l'avviso
+    'orda_avvisi', jsonb_build_array(60, 15),
+    -- mezzi e cantieri (035)
+    'velocita', jsonb_build_object('piedi', 5, 'bici', 15, 'moto', 40, 'auto', 60, 'fuori', 50),   -- km/h
+    'viaggio_base', 2,                                                 -- minuti per partire
+    'sped_ricerca', 5,                                                 -- minuti di ricerca sul posto (spedizioni)
+    'cant_danno', 3, 'cant_integ', 2, 'cant_crollo', 240, 'cant_min', 10,   -- minuti di cantiere
+    'acc_min', 5);                                                     -- accelerare: 🧱 1 ogni 5 minuti che mancano
   $$;
 
 --
@@ -2685,10 +2714,22 @@ $$;
 --
 
 CREATE FUNCTION public.w_viaggio_min(p_km double precision) RETURNS integer
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select case when auth.uid() is not null then public.w_viaggio_mz(p_km, public.w_mz_eff(auth.uid(), p_km))
+    else coalesce((select (x->>1)::int from jsonb_array_elements(public.w_pvp_cfg()->'viaggio') with ordinality t(x, i)
+                   where coalesce(p_km, 0) <= (x->>0)::numeric order by i limit 1), (public.w_pvp_cfg()->>'viaggio_oltre')::int) end; $$;
+
+--
+-- Name: w_viaggio_mz(double precision, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_viaggio_mz(p_km double precision, p_mz text) RETURNS integer
     LANGUAGE sql IMMUTABLE
     AS $$
-  select coalesce((select (x->>1)::int from jsonb_array_elements(public.w_pvp_cfg()->'viaggio') with ordinality t(x, i)
-                   where coalesce(p_km, 0) <= (x->>0)::numeric order by i limit 1), (public.w_pvp_cfg()->>'viaggio_oltre')::int); $$;
+  select least(1440, greatest(3, (public.w_pvp_cfg()->>'viaggio_base')::int
+    + ceil(coalesce(p_km, 0) / greatest(1, coalesce((public.w_pvp_cfg()->'velocita'->>coalesce(p_mz, 'piedi'))::numeric, 5)) * 60)::int)); $$;
 
 --
 -- Name: w_vicino_alleanza(uuid, bigint); Type: FUNCTION; Schema: public; Owner: -
@@ -3908,6 +3949,46 @@ begin
 end $$;
 
 --
+-- Name: world_cantiere_accelera(bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_cantiere_accelera(p_id bigint) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); x public.world_cantieri; rest int; costo int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  select * into x from public.world_cantieri where id = p_id and user_id = me and stato = 'lavori' for update;
+  if x.id is null then return json_build_object('ok', false, 'msg', 'Il cantiere è già finito'); end if;
+  rest := greatest(0, ceil(extract(epoch from x.fine - now()) / 60));
+  costo := greatest(5, ceil(rest::numeric / (public.w_pvp_cfg()->>'acc_min')::int));
+  update public.world_wallet set mattoni = mattoni - costo where user_id = me and mattoni >= costo;
+  if not found then return json_build_object('ok', false, 'msg', format('Servono 🧱 %s', costo)); end if;
+  insert into public.world_log(user_id, delta, reason, ref, seen) values (me, -costo, 'Cantiere accelerato', x.bid, true);
+  update public.world_cantieri set fine = now() where id = x.id;
+  perform public.w_cantieri_tick();
+  return json_build_object('ok', true, 'msg', format('⚡ Lavori finiti subito · 🧱 −%s', costo));
+end $$;
+
+--
+-- Name: world_cantieri_miei(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_cantieri_miei() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid();
+begin
+  if me is null then return json_build_object('ok', false); end if;
+  perform public.w_cantieri_tick();
+  return json_build_object('ok', true, 'ora', now(), 'cantieri', coalesce((select json_agg(json_build_object('id', c.id, 'bid', c.bid, 'home', c.home, 'fine', c.fine,
+      'accelera', greatest(5, ceil(greatest(0, ceil(extract(epoch from c.fine - now()) / 60))::numeric / (public.w_pvp_cfg()->>'acc_min')::int))) order by c.fine)
+    from public.world_cantieri c where c.user_id = me and c.stato = 'lavori'), '[]'::json));
+end $$;
+
+--
 -- Name: world_case_integrita(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5053,6 +5134,21 @@ CREATE FUNCTION public.world_loans() RETURNS TABLE(dir text, nick text, amount i
 $$;
 
 --
+-- Name: world_mezzi_info(numeric); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_mezzi_info(p_km numeric) RETURNS json
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select json_build_object('ok', auth.uid() is not null, 'km', round(coalesce(p_km, 0), 1),
+    'scelto', (select caps->>'mezzo_scelto' from public.world_wallet where user_id = auth.uid()),
+    'usato', public.w_mz_eff(auth.uid(), p_km), 'carb', coalesce((select carb from public.world_wallet where user_id = auth.uid()), 0),
+    'mezzi', (select json_agg(json_build_object('mz', z, 'nome', public.w_mz_nome(z), 'kmh', (public.w_pvp_cfg()->'velocita'->>z)::int,
+        'min', public.w_viaggio_mz(p_km, z), 'carb', public.w_mz_carb(z, p_km), 'forza', public.w_mz_atk(z)) order by public.w_mz_rank(z))
+      from unnest(array['piedi','bici','moto','auto','fuori']) z where public.w_mz_rank(z) <= public.w_mz_rank(public.w_mezzo(auth.uid())))); $$;
+
+--
 -- Name: world_mezzo(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5068,6 +5164,28 @@ CREATE FUNCTION public.world_mezzo() RETURNS json
     'atk_mult', public.w_mz_atk(public.w_mezzo(auth.uid())),
     'prezzi', json_build_object('moto', 300, 'auto', 600, 'fuori', 1200));
 $$;
+
+--
+-- Name: world_mezzo_scegli(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_mezzo_scegli(p_mz text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid();
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  perform public.w_wallet(me);
+  if coalesce(p_mz, '') in ('', 'migliore') then
+    update public.world_wallet set caps = caps - 'mezzo_scelto' where user_id = me;
+    return json_build_object('ok', true, 'msg', '🚗 Userai sempre il mezzo più veloce che hai');
+  end if;
+  if p_mz not in ('piedi','bici','moto','auto','fuori') or public.w_mz_rank(p_mz) > public.w_mz_rank(public.w_mezzo(me)) then
+    return json_build_object('ok', false, 'msg', 'Questo mezzo non ce l’hai: lo trovi in Bottega'); end if;
+  update public.world_wallet set caps = jsonb_set(caps, '{mezzo_scelto}', to_jsonb(p_mz)) where user_id = me;
+  return json_build_object('ok', true, 'msg', '🚗 Viaggerai ' || public.w_mz_nome(p_mz));
+end $$;
 
 --
 -- Name: world_mine(); Type: FUNCTION; Schema: public; Owner: -
@@ -5898,32 +6016,37 @@ CREATE FUNCTION public.world_ripara(p_bid text) RETURNS json
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-declare me uuid := auth.uid(); k jsonb := public.w_pvp_cfg(); d int; home boolean; b public.world_buildings; v_legno int; v_mat int := 0;
+declare me uuid := auth.uid(); k jsonb := public.w_pvp_cfg(); d int; home boolean; b public.world_buildings; v_legno int; v_mat int := 0; mins int; hbid text; x public.world_cantieri;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
-  perform public.w_cadute_tick();
+  perform public.w_cantieri_tick(); perform public.w_cadute_tick();
+  select * into x from public.world_cantieri where user_id = me and stato = 'lavori' order by fine limit 1;
+  if x.id is not null then
+    return json_build_object('ok', false, 'msg', format('🔨 Hai già un cantiere aperto: finisce fra %s min (⚡ accelera con 🧱)', greatest(1, ceil(extract(epoch from x.fine - now()) / 60)))); end if;
   home := coalesce(p_bid, '') = '' or exists (select 1 from public.world_homes where user_id = me and building_id = p_bid);
   if home then
-    d := (select danno from public.world_homes where user_id = me);
+    select building_id, danno into hbid, d from public.world_homes where user_id = me;
     if d is null then return json_build_object('ok', false, 'msg', 'Non è casa tua'); end if;
     if d <= 0 then return json_build_object('ok', false, 'msg', 'Niente da riparare'); end if;
     v_legno := d * (k->>'riparo_legno')::int;
-    update public.world_wallet w set legno = w.legno - v_legno where w.user_id = me and w.legno >= v_legno;
-    if not found then return json_build_object('ok', false, 'msg', format('Servono 🪵 %s', v_legno)); end if;
-    update public.world_homes set danno = 0 where user_id = me;
-    return json_build_object('ok', true, 'msg', format('🔨 Difese riparate: +%s · 🪵 −%s', d, v_legno));
+    mins := greatest((k->>'cant_min')::int, d * (k->>'cant_danno')::int);
+  else
+    select * into b from public.world_buildings where building_id = p_bid and owner = me for update;
+    if b.building_id is null then return json_build_object('ok', false, 'msg', 'Non è casa tua (o l’hai già persa)'); end if;
+    if b.danno <= 0 and b.integrita >= 100 and b.caduta_at is null then return json_build_object('ok', false, 'msg', 'Niente da riparare'); end if;
+    v_legno := b.danno * (k->>'riparo_legno')::int + (100 - b.integrita) * (k->>'rip_integ_legno')::int;
+    if b.caduta_at is not null then v_mat := (k->>'rip_caduta_mattoni')::int; end if;
+    mins := greatest((k->>'cant_min')::int, b.danno * (k->>'cant_danno')::int + (100 - b.integrita) * (k->>'cant_integ')::int
+      + case when b.caduta_at is not null then (k->>'cant_crollo')::int else 0 end);
+    hbid := p_bid;
   end if;
-  select * into b from public.world_buildings where building_id = p_bid and owner = me for update;
-  if b.building_id is null then return json_build_object('ok', false, 'msg', 'Non è casa tua (o l’hai già persa)'); end if;
-  if b.danno <= 0 and b.integrita >= 100 and b.caduta_at is null then return json_build_object('ok', false, 'msg', 'Niente da riparare'); end if;
-  v_legno := b.danno * (k->>'riparo_legno')::int + (100 - b.integrita) * (k->>'rip_integ_legno')::int;
-  if b.caduta_at is not null then v_mat := (k->>'rip_caduta_mattoni')::int; end if;
   update public.world_wallet w set legno = w.legno - v_legno, mattoni = w.mattoni - v_mat where w.user_id = me and w.legno >= v_legno and w.mattoni >= v_mat;
   if not found then return json_build_object('ok', false, 'msg', format('Servono 🪵 %s%s', v_legno, case when v_mat > 0 then ' e 🧱 ' || v_mat else '' end)); end if;
-  if v_mat > 0 then insert into public.world_log(user_id, delta, reason, ref, seen) values (me, -v_mat, 'Casa crollata ricostruita', p_bid, true); end if;
-  update public.world_buildings set danno = 0, integrita = 100, caduta_at = null, caduta_da = null where building_id = p_bid;
-  return json_build_object('ok', true, 'msg', format('🔨 %s · 🪵 −%s%s', case when b.caduta_at is not null then 'Casa ricostruita: è di nuovo tua al 100%' else 'Casa riparata: integrità 100' end,
-    v_legno, case when v_mat > 0 then ' 🧱 −' || v_mat else '' end));
+  if v_mat > 0 then insert into public.world_log(user_id, delta, reason, ref, seen) values (me, -v_mat, 'Cantiere: casa crollata da ricostruire', hbid, true); end if;
+  insert into public.world_cantieri(user_id, bid, home, fine, legno, mattoni) values (me, hbid, home, now() + make_interval(mins => mins), v_legno, v_mat) returning * into x;
+  return json_build_object('ok', true, 'id', x.id, 'minuti', mins, 'fine', x.fine,
+    'msg', format('🔨 Cantiere aperto: lavori finiti fra %s · 🪵 −%s%s', case when mins >= 60 then (mins / 60) || ' h ' || (mins % 60) || ' min' else mins || ' min' end,
+      v_legno, case when v_mat > 0 then ' 🧱 −' || v_mat else '' end));
 end $$;
 
 --
@@ -6237,7 +6360,7 @@ CREATE FUNCTION public.world_sped_parti(p_kind text, p_nome text, p_lat double p
     SET search_path TO 'public'
     AS $$
 declare me uuid := auth.uid(); s public.world_superstite; spid uuid; km numeric; c json; en int; mins int; h int; nid bigint; notte boolean;
-  co json; cc int; ck int; w public.world_wallet;
+  co json; cc int; ck int; w public.world_wallet; mz text;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
   if p_kind not in ('cibo','legno','carb','farmaco','misto','sponsor') then return json_build_object('ok', false, 'msg', 'Posto sconosciuto'); end if;
@@ -6262,11 +6385,14 @@ begin
   end if;
   h := extract(hour from now() at time zone 'Europe/Rome'); notte := h >= 20 or h < 7;
   c := public.w_sped_calc(km, s.abil, s.equip, notte);
-  en := (c->>'energia')::int; mins := (c->>'min')::int;
+  -- tempo e carburante dal mezzo (035): andata e ritorno + ricerca; più veloce = più ⛽
+  mz := public.w_mz_eff(me, km * 2);
+  en := (c->>'energia')::int; mins := 2 * public.w_viaggio_mz(km, mz) + (public.w_pvp_cfg()->>'sped_ricerca')::int;
   if s.energia < en then
     return json_build_object('ok', false, 'msg', format('Serve %s energia: ne hai %s (una carica ogni %s min)', en, s.energia, public.w_en_ric(s.abil)));
   end if;
-  co := public.w_sped_costo(km); cc := (co->>'cibo')::int; ck := (co->>'carb')::int;
+  co := public.w_sped_costo(km); cc := (co->>'cibo')::int; ck := public.w_mz_carb(mz, km * 2);
+  co := json_build_object('cibo', cc, 'carb', ck, 'mezzo', mz);
   w := public.w_wallet(me);
   if w.cibo < cc or w.carb < ck then
     return json_build_object('ok', false, 'msg', format('Per il viaggio servono 🥫 %s%s: vai di persona con la Lente (gratis) o prendi scorte', cc, case when ck > 0 then ' e ⛽ ' || ck else '' end));
@@ -6282,7 +6408,7 @@ begin
     insert into public.sponsor_events(sponsor_id, kind) values (spid, 'spedizione');
   end if;
   return json_build_object('ok', true, 'id', nid, 'min', mins, 'energia', en, 'cibo', cc, 'carb', ck, 'end_at', now() + make_interval(mins => mins),
-    'msg', format('🎒 Partito! Torna fra %s min · 🥫 −%s%s', mins, cc, case when ck > 0 then ' ⛽ −' || ck else '' end));
+    'mezzo', mz, 'msg', format('🎒 Partito %s! Torna fra %s min · 🥫 −%s%s', public.w_mz_nome(mz), mins, cc, case when ck > 0 then ' ⛽ −' || ck else '' end));
 end $$;
 
 --
@@ -7467,6 +7593,40 @@ CREATE SEQUENCE public.world_cacce_id_seq
 ALTER SEQUENCE public.world_cacce_id_seq OWNED BY public.world_cacce.id;
 
 --
+-- Name: world_cantieri; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_cantieri (
+    id bigint NOT NULL,
+    user_id uuid NOT NULL,
+    bid text NOT NULL,
+    home boolean NOT NULL,
+    inizio timestamp with time zone DEFAULT now() NOT NULL,
+    fine timestamp with time zone NOT NULL,
+    legno integer DEFAULT 0 NOT NULL,
+    mattoni integer DEFAULT 0 NOT NULL,
+    stato text DEFAULT 'lavori'::text NOT NULL,
+    CONSTRAINT world_cantieri_stato_check CHECK ((stato = ANY (ARRAY['lavori'::text, 'finito'::text])))
+);
+
+--
+-- Name: world_cantieri_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_cantieri_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_cantieri_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_cantieri_id_seq OWNED BY public.world_cantieri.id;
+
+--
 -- Name: world_chat; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -8331,6 +8491,12 @@ ALTER TABLE ONLY public.world_boss_colpi ALTER COLUMN id SET DEFAULT nextval('pu
 ALTER TABLE ONLY public.world_cacce ALTER COLUMN id SET DEFAULT nextval('public.world_cacce_id_seq'::regclass);
 
 --
+-- Name: world_cantieri id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_cantieri ALTER COLUMN id SET DEFAULT nextval('public.world_cantieri_id_seq'::regclass);
+
+--
 -- Name: world_chat id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -8699,6 +8865,13 @@ ALTER TABLE ONLY public.world_buildings
 
 ALTER TABLE ONLY public.world_cacce
     ADD CONSTRAINT world_cacce_pkey PRIMARY KEY (id);
+
+--
+-- Name: world_cantieri world_cantieri_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_cantieri
+    ADD CONSTRAINT world_cantieri_pkey PRIMARY KEY (id);
 
 --
 -- Name: world_chat world_chat_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -9089,6 +9262,18 @@ CREATE INDEX world_boss_colpi_user ON public.world_boss_colpi USING btree (user_
 --
 
 CREATE INDEX world_cacce_user ON public.world_cacce USING btree (user_id, start_at DESC);
+
+--
+-- Name: world_cantieri_stato; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_cantieri_stato ON public.world_cantieri USING btree (stato, fine);
+
+--
+-- Name: world_cantieri_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_cantieri_user ON public.world_cantieri USING btree (user_id, stato);
 
 --
 -- Name: world_chat_room; Type: INDEX; Schema: public; Owner: -
@@ -9608,6 +9793,13 @@ ALTER TABLE ONLY public.world_buildings
 
 ALTER TABLE ONLY public.world_cacce
     ADD CONSTRAINT world_cacce_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
+-- Name: world_cantieri world_cantieri_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_cantieri
+    ADD CONSTRAINT world_cantieri_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 --
 -- Name: world_chat_reports world_chat_reports_chat_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -10375,6 +10567,12 @@ ALTER TABLE public.world_buildings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.world_cacce ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: world_cantieri; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_cantieri ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: world_chat; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -10838,6 +11036,13 @@ GRANT ALL ON FUNCTION public.w_cadute_tick() TO service_role;
 
 GRANT ALL ON FUNCTION public.w_canon(p_bid text, p_lat double precision, p_lon double precision) TO anon;
 GRANT ALL ON FUNCTION public.w_canon(p_bid text, p_lat double precision, p_lon double precision) TO authenticated;
+
+--
+-- Name: FUNCTION w_cantieri_tick(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_cantieri_tick() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.w_cantieri_tick() TO service_role;
 
 --
 -- Name: FUNCTION w_casa_extra(p_bid text, p_slot text); Type: ACL; Schema: public; Owner: -
@@ -11524,6 +11729,20 @@ REVOKE ALL ON FUNCTION public.world_caccia_inizia() FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_caccia_inizia() TO authenticated;
 
 --
+-- Name: FUNCTION world_cantiere_accelera(p_id bigint); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_cantiere_accelera(p_id bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_cantiere_accelera(p_id bigint) TO authenticated;
+
+--
+-- Name: FUNCTION world_cantieri_miei(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_cantieri_miei() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_cantieri_miei() TO authenticated;
+
+--
 -- Name: FUNCTION world_case_integrita(); Type: ACL; Schema: public; Owner: -
 --
 
@@ -11814,11 +12033,25 @@ GRANT ALL ON FUNCTION public.world_inviter(p_code text) TO authenticated;
 GRANT ALL ON FUNCTION public.world_loans() TO authenticated;
 
 --
+-- Name: FUNCTION world_mezzi_info(p_km numeric); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_mezzi_info(p_km numeric) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_mezzi_info(p_km numeric) TO authenticated;
+
+--
 -- Name: FUNCTION world_mezzo(); Type: ACL; Schema: public; Owner: -
 --
 
 REVOKE ALL ON FUNCTION public.world_mezzo() FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_mezzo() TO authenticated;
+
+--
+-- Name: FUNCTION world_mezzo_scegli(p_mz text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_mezzo_scegli(p_mz text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_mezzo_scegli(p_mz text) TO authenticated;
 
 --
 -- Name: FUNCTION world_mine(); Type: ACL; Schema: public; Owner: -

@@ -104,7 +104,7 @@ function zmMarks(){try{if(S.tab!=='mappa'||!S.user||typeof maplibregl==='undefin
 zEvery(()=>{try{if(document.hidden||!S.user)return;if(S.tab==='mappa'){zmLoad().then(zmMarks);}}catch(e){}},5000,'zombie-mondo');
 /* 📦 la cassa presa dal divano: il superstite ci va con la spedizione di sempre (migrazione 033, world_cassa_manda) */
 function zmCassaSped(z){let c=null;try{const km=supKm(z);c=km!=null?mvCostoSped(km):null;}catch(e){}
-  return`<p class="muted" style="font-size:12.5px;margin:10px 0 4px">🎒 Dal divano: mandi il superstite, come per farmacie e negozi${c?` · costa 🥫 ${c.cibo}${c.carb?' ⛽ '+c.carb:''} + energia`:''}. Una cassa si prende una volta sola, di persona o col superstite.</p><button class="btn wide ghost" data-zmsped ${c?'':'disabled'}>🎒 Manda il superstite</button>`;}
+  return`<p class="muted" style="font-size:12.5px;margin:10px 0 4px">🎒 Dal divano: mandi il superstite, come per farmacie e negozi${c?` · costa 🥫 ${c.cibo}${c.carb?' ⛽ '+c.carb:''} + energia`:''}. Una cassa si prende una volta sola, di persona o col superstite.</p><button class="btn wide ghost" data-zmsped data-km="${c?supKm(z):''}" ${c?'':'disabled'}>🎒 Manda il superstite</button>`;}
 async function zmCassaManda(z,b){b.disabled=true;try{const{data,error}=await SB.rpc('world_cassa_manda',{p_id:z.id});if(error)throw error;toast(data.msg);
     if(data.ok||/già presa/.test(data.msg||'')){z.preso=true;closeSheet();try{zmMarks();RES.t=0;resLoad(true);supLoad(true);}catch(e){}}else b.disabled=false;}
   catch(e){toast('🎒 Arriva dopo l’aggiornamento del server (blocco SQL 033)');b.disabled=false;}}

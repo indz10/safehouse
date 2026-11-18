@@ -16,7 +16,7 @@
 const MV={vis:null,t:0};
 const MV_VANT={cibo:['🥫','cibo'],legno:['🪵','legno'],carb:['⛽','carburante'],farmaco:['💊','🔋 +2 energia e 🥫'],misto:['📦','un po’ di tutto'],sponsor:['⭐','più ricco di tutto']};
 const mvKind=x=>x.k==='sponsor'?'sponsor':(typeof supCatKind==='function'?supCatKind(x.cat):'misto');
-const mvCostoSped=km=>({cibo:2+Math.ceil(km),carb:km>3?Math.ceil(km/3):0});
+const mvCostoSped=km=>({cibo:2+Math.ceil(km),carb:0});  // ⛽: dal mezzo (migrazione 035, tessera .mzchip di p99)
 const mvBreve=k=>{const v=MV_VANT[k]||MV_VANT.misto;return k==='farmaco'?'🔋 🥫':k==='misto'?'🪵 🥫 ⛽':k==='sponsor'?'⭐ 🪵 🥫 ⛽':v[0];};
 /* ---------- 📍 nella Lente: le etichette dei posti dicono cosa danno ---------- */
 const _lnTargetsMv=lnTargets;lnTargets=async function(lat,lon){const T=await _lnTargetsMv.apply(this,arguments);
