@@ -43,8 +43,9 @@ w_boss_molt(uuid, bigint) 615a35bfc9
 w_boss_settimana() 17eeaa47c2
 w_boss_tipi() aef051a09a
 w_bottino(uuid, integer) d943f8aaa0
-w_cadute_tick() f90c9db38f
+w_cadute_tick() 79f7834bf4
 w_canon(text, double precision, double precision) a8cd798858
+w_cantieri_tick() 98acccbfa9
 w_casa_extra(text, text) d8d69de76d
 w_casa_manca_tick() 395b46963e
 w_cella(double precision, double precision) 0c5f11f705
@@ -89,7 +90,7 @@ w_median_near(uuid) 1ef0515265
 w_mezzo(uuid) 8e0e3b4af6
 w_mz_atk(text) 4213b8f4f1
 w_mz_carb(text, double precision) b00362aa6b
-w_mz_eff(uuid, double precision) e943e2d73a
+w_mz_eff(uuid, double precision) 404afc87ee
 w_mz_help(text) 3b86cf9951
 w_mz_nome(text) 5be057edda
 w_mz_range(text) 995efd4498
@@ -112,7 +113,7 @@ w_pres_tick() 8f83c2d423
 w_prev_slot(timestamp with time zone) 304fb96aeb
 w_price(double precision, double precision) 15fba21ed2
 w_price2(uuid, double precision, double precision) c076f18600
-w_pvp_cfg() 5ac1824ce6
+w_pvp_cfg() a22e87b51b
 w_radius(integer) d64febc04f
 w_raduni_tick() 7eb338b9f5
 w_raduno_entra(uuid, bigint) 11591943a9
@@ -151,7 +152,8 @@ w_tr_feed_push() 17e63bafcd
 w_tr_invite_join() bee6d00589
 w_tr_pos_casa() 59d49e4362
 w_upower(uuid, text) 2974e0963a
-w_viaggio_min(double precision) 0033f6cb0e
+w_viaggio_min(double precision) 5f545971e0
+w_viaggio_mz(double precision, text) 89f7b390b2
 w_vicino_alleanza(uuid, bigint) 60958d56d7
 w_votanti(bigint) 049241a6d1
 w_wallet(uuid) 27de1a6e90
@@ -208,6 +210,8 @@ world_buy(text, double precision, double precision) c1440ed06d
 world_buy_mezzo(text) 18d40e73af
 world_caccia_fine(bigint, integer) 578ccf45de
 world_caccia_inizia() 2f03ec55ac
+world_cantiere_accelera(bigint) 47253035be
+world_cantieri_miei() a489804cd1
 world_case_integrita() 206e0a54c5
 world_cassa_apri(text, double precision, double precision) 3cb92372a4
 world_cassa_manda(text) eeca163d65
@@ -253,7 +257,9 @@ world_house_log(text) 43ff9091a4
 world_integrita(text) 4d7008b122
 world_inviter(text) efefc86acc
 world_loans() ed625fbef7
+world_mezzi_info(numeric) 19a4f79e50
 world_mezzo() 75bdd91ccd
+world_mezzo_scegli(text) 1e53cf6d36
 world_mine() 0376f655ab
 world_mine2() 1abdaf5ab7
 world_my_defense() 376cc40503
@@ -287,7 +293,7 @@ world_reward(integer, text) cf34570f62
 world_rinforza(bigint) 5b56cabf58
 world_rinforzi_chiedi(bigint) a67f5235f1
 world_rinforzi_info(bigint) 24a46935f9
-world_ripara(text) 459105f6cf
+world_ripara(text) 937a569abe
 world_rivals() 9b44911f45
 world_saccheggia(uuid) 15affd0c16
 world_score(uuid, text) 1190c1faef
@@ -303,7 +309,7 @@ world_sfida_quartiere() 4d02fd8635
 world_shape_get(text, text) 9835883569
 world_shape_put(text, text, jsonb) c184167164
 world_shout(uuid, integer) ab6a2241e6
-world_sped_parti(text, text, double precision, double precision) d99a7ed99d
+world_sped_parti(text, text, double precision, double precision) 7f083d77fb
 world_sped_raccogli(bigint) d1d4a6be0c
 world_status_extra() b12cc9499a
 world_sup_abilita(text) 6bce682efe
@@ -361,6 +367,7 @@ world_boss 6162ea72
 world_boss_colpi 20d37768
 world_buildings e3b7799e
 world_cacce 713a63d8
+world_cantieri e81727a8
 world_chat 36d8e2a6
 world_chat_reports bb8b38ef
 world_condo 7c5e55f9

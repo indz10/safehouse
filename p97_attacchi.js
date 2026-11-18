@@ -39,7 +39,7 @@ async function pvpSheet(o){o=o||{};let d=null;try{const{data,error}=await SB.rpc
     <div class="pvpvs"><div><small>La tua forza</small><b>⚔️ ${Math.round(d.forza)}</b></div><div class="pvpbar"><span style="width:${pc}%"></span></div><div><small>La sua difesa</small><b>🛡️ ~${d.difesa}</b></div></div>
     <p class="pvpstima ${st[1]}">${st[0]}</p>
     <p class="muted" style="font-size:12.5px">Forza = (30 + 3 × livello) × mezzo × 🔪 Combattente (${d.combattente}/9: +${d.combattente*5}%). Lui si difende con case, fortificazioni, preparazione, rinforzi e il suo Combattente. Vinci se attacco > difesa: di misura 10%, normale 20%, schiacciante 30% delle sue scorte (oltre la scorta protetta). Riceve subito la notifica e può prepararsi.</p>
-    ${d.ok?`<button class="btn wide" data-pvgo>⚔️ Parti all’attacco (arrivo fra ${d.minuti} min)</button>`:''}${pvpAlzHTML(d)}`,box=>{
+    ${d.ok?`<button class="btn wide" data-pvgo data-km="${d.km}" data-viaggio="1">⚔️ Parti all’attacco (arrivo fra ${d.minuti} min)</button>`:''}${pvpAlzHTML(d)}`,box=>{
     box.querySelectorAll('[data-pvrad]').forEach(x=>x.onclick=async()=>{const[aid,min]=x.dataset.pvrad.split('|');box.querySelectorAll('[data-pvrad]').forEach(y=>y.disabled=true);
       try{const{data,error}=await SB.rpc('world_raduno_crea',{p_alleanza:+aid,p_user:o.user||null,p_bid:o.bid||null,p_minuti:+min});if(error)throw error;toast(data.msg);if(data.ok){closeSheet();RES.t=0;try{resLoad(true);supLoad(true);}catch(e){}pvpVaiBox();}else box.querySelectorAll('[data-pvrad]').forEach(y=>y.disabled=false);}
       catch(e){toast('🛡️ Gli attacchi d’alleanza arrivano dopo l’aggiornamento del server (blocco SQL 030)');box.querySelectorAll('[data-pvrad]').forEach(y=>y.disabled=false);}});
