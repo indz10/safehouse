@@ -45,7 +45,7 @@ w_boss_tipi() aef051a09a
 w_bottino(uuid, integer) d943f8aaa0
 w_cadute_tick() 79f7834bf4
 w_canon(text, double precision, double precision) a8cd798858
-w_cantieri_tick() 98acccbfa9
+w_cantieri_tick() 99c4aa603d
 w_casa_extra(text, text) d8d69de76d
 w_casa_manca_tick() 395b46963e
 w_cella(double precision, double precision) 0c5f11f705
@@ -113,7 +113,7 @@ w_pres_tick() 8f83c2d423
 w_prev_slot(timestamp with time zone) 304fb96aeb
 w_price(double precision, double precision) 15fba21ed2
 w_price2(uuid, double precision, double precision) c076f18600
-w_pvp_cfg() a22e87b51b
+w_pvp_cfg() c4bb73aaa5
 w_radius(integer) d64febc04f
 w_raduni_tick() 7eb338b9f5
 w_raduno_entra(uuid, bigint) 11591943a9
@@ -211,8 +211,9 @@ world_buy_mezzo(text) 18d40e73af
 world_caccia_fine(bigint, integer) 578ccf45de
 world_caccia_inizia() 2f03ec55ac
 world_cantiere_accelera(bigint) 47253035be
-world_cantieri_miei() a489804cd1
+world_cantieri_miei() 0bafe5d417
 world_case_integrita() 206e0a54c5
+world_case_stato() 5747ba4e6b
 world_cassa_apri(text, double precision, double precision) 3cb92372a4
 world_cassa_manda(text) eeca163d65
 world_chat_list(text, bigint) ffb3c046c7
@@ -226,7 +227,7 @@ world_condo_info() 8911c9ba1c
 world_condo_peace(uuid) 388d9d7b53
 world_consigli() 4d91cb3c39
 world_coresidents() f6b396fcc0
-world_def_upgrade(text, text) 17ee5d8a24
+world_def_upgrade(text, text) 0c49e9d3b1
 world_difar_fine(bigint, integer, integer) aabe94000f
 world_difar_inizia(double precision, double precision) 8d47a973dc
 world_difendi(text, double precision, double precision) 243f32d609
@@ -293,7 +294,7 @@ world_reward(integer, text) cf34570f62
 world_rinforza(bigint) 5b56cabf58
 world_rinforzi_chiedi(bigint) a67f5235f1
 world_rinforzi_info(bigint) 24a46935f9
-world_ripara(text) 937a569abe
+world_ripara(text) b8cd44d9d0
 world_rivals() 9b44911f45
 world_saccheggia(uuid) 15affd0c16
 world_score(uuid, text) 1190c1faef
@@ -367,7 +368,7 @@ world_boss 6162ea72
 world_boss_colpi 20d37768
 world_buildings e3b7799e
 world_cacce 713a63d8
-world_cantieri e81727a8
+world_cantieri b900cfb4
 world_chat 36d8e2a6
 world_chat_reports bb8b38ef
 world_condo 7c5e55f9
