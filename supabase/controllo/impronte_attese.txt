@@ -60,8 +60,8 @@ w_condo_vicini(uuid, uuid) f4443a8150
 w_custodita(uuid) 89ab0439e5
 w_def(text, text) d1aac29e3d
 w_dist_alleanza(bigint, double precision, double precision) 556484658d
-w_dist_km(uuid, uuid) 981d88669d
-w_dist_pt(uuid, double precision, double precision) 2df92f513c
+w_dist_km(uuid, uuid) 4b9f72bf4f
+w_dist_pt(uuid, double precision, double precision) c3d853156b
 w_dot(uuid) 2eda15dce6
 w_en_add(uuid, integer) bbbd4e4ff9
 w_en_max(jsonb) 8a3f3d1692
@@ -99,6 +99,7 @@ w_mz_speed(text) 54122832f6
 w_next_slot(timestamp with time zone) e7098146fc
 w_nick(uuid) 0f0ebfc0c0
 w_orde_tick() a133602a9c
+w_partenza(uuid) 0dfadb3001
 w_pay(uuid, integer, text, text) 1a72164541
 w_perche_no(uuid, bigint) 5335d9836d
 w_piazza_nuovi(uuid, timestamp with time zone, text) 11b8e1d2c2
@@ -137,7 +138,7 @@ w_slot_id(timestamp with time zone) 5fd33c951a
 w_slot_t(text) 3048adad4f
 w_sped_calc(numeric, jsonb, jsonb, boolean) 2ad80807a7
 w_sped_costo(numeric) ece0057dfc
-w_sped_km(uuid, double precision, double precision) 10d4964e35
+w_sped_km(uuid, double precision, double precision) 09e2d3c995
 w_sped_tick() 7608d6b7b3
 w_squadra(bigint, uuid) c32a64d193
 w_sup(uuid) 6e87cf96ab
@@ -267,6 +268,7 @@ world_my_defense() 376cc40503
 world_my_effects() 7e4bd22f9b
 world_near_survivors(double precision, double precision, double precision) 479ebf94cf
 world_orde_mie() 26cd5c2bc8
+world_partenza_set(text) 6699f09caf
 world_player(uuid) d549da37b6
 world_player_extra(uuid) 4c0c27cac5
 world_posto_visita(text, text, double precision, double precision, double precision, double precision) 87fb22391c
