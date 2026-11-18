@@ -24,6 +24,13 @@ async def main():
         await pg.evaluate("()=>{const b=document.querySelector('#sheet.open [data-zmsped]');if(b){b.disabled=false;b.click();}}");await pg.wait_for_timeout(1200)
         print('mandato:',await pg.evaluate("()=>[!!window.__CSM,!document.querySelector('#sheet.open')]"))
         await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(300)
+        # 📦 vicino a te: tasto Casse sulla mappa e notifica ?casse=1
+        await pg.evaluate("()=>{const b=document.querySelector('.iobtns [data-iob=\"casse\"]');if(b)b.click();else zmVicino();}");await pg.wait_for_timeout(1500)
+        print('vicino a te:',await pg.evaluate("()=>[(document.querySelector('#sheet.open .sheet-t, #sheet.open h2')||{}).textContent,!!document.querySelector('#sheet.open [data-zvl]'),document.querySelectorAll('#sheet.open [data-zmsped]').length,!!document.querySelector('.iobtns [data-iob=\"casse\"]')]"))
+        await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(300)
+        await pg.evaluate("()=>zGoUrl('/?go=mappa&casse=1')");await pg.wait_for_timeout(2500)
+        print('dalla notifica:',await pg.evaluate("()=>!!document.querySelector('#sheet.open [data-zvl]')"))
+        await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(300)
         # 📷 tasto Lente sulla mappa con quello che c'è entro 80 m; cassetto che si abbassa
         print('tasto Lente sulla mappa:',await pg.evaluate("()=>{const b=document.querySelector('.mapfull .mlfab');return b?[b.textContent,b.classList.contains('caldo')]:null}"))
         await pg.evaluate("()=>document.querySelector('.mapfull [data-mldown]').click()");await pg.wait_for_timeout(500)

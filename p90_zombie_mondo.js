@@ -108,4 +108,14 @@ function zmCassaSped(z){let c=null;try{const km=supKm(z);c=km!=null?mvCostoSped(
 async function zmCassaManda(z,b){b.disabled=true;try{const{data,error}=await SB.rpc('world_cassa_manda',{p_id:z.id});if(error)throw error;toast(data.msg);
     if(data.ok||/già presa/.test(data.msg||'')){z.preso=true;closeSheet();try{zmMarks();RES.t=0;resLoad(true);supLoad(true);}catch(e){}}else b.disabled=false;}
   catch(e){toast('🎒 Arriva dopo l’aggiornamento del server (blocco SQL 033)');b.disabled=false;}}
+/* 📦🧟 vicino a te: dalla notifica (?casse=1), dalla novità e dalla mappa — Lente per cacciare, superstite per le casse */
+async function zmVicino(){try{await zmLoad(true);}catch(e){}const p=zmPos();const L=(ZM.L||[]).filter(z=>!z.preso);
+  const d=z=>p?Math.round(trM(p.lat,p.lon,z.lat,z.lon)):null;const C=L.filter(z=>z.k==='cassa').sort((a,b)=>d(a)-d(b)),Z=L.filter(z=>z.k!=='cassa');
+  openSheet('📦 Vicino a te',`<p class="muted" style="margin:0 0 8px">🧟 ${Z.length} zombie e 📦 ${C.length} ${C.length===1?'cassa':'casse'} qui intorno, fino alla fine dell’ora.</p>
+    <button class="btn wide" data-zvl>📷 Caccia con la Lente</button>
+    ${C.length?`<h4 style="margin:12px 0 4px">📦 Casse</h4>${C.map(z=>`<div class="zmvrow"><span>📦</span><div><b>Cassa di rifornimenti</b><small>${d(z)!=null?(d(z)<1000?d(z)+' m':(d(z)/1000).toFixed(1).replace('.',',')+' km'):''}</small>${zmCassaSped(z)}</div></div>`).join('')}`:'<p class="muted">Nessuna cassa da prendere adesso.</p>'}`,c=>{
+    c.querySelector('[data-zvl]').onclick=()=>{closeSheet();lenteOpen();};
+    c.querySelectorAll('[data-zmsped]').forEach((b,i)=>b.onclick=()=>zmCassaManda(C[i],b));});}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-zmvicino]');if(!b)return;e.preventDefault();e.stopPropagation();window.SHEET_BACK=null;zmVicino();},true);
+const _zGoZmv=zGoUrl;zGoUrl=function(u){_zGoZmv(u);try{if(new URL(u,location.href).searchParams.get('casse'))setTimeout(zmVicino,1500);}catch(e){}};
 </script>
