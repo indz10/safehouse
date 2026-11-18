@@ -210,6 +210,7 @@ world_caccia_fine(bigint, integer) 578ccf45de
 world_caccia_inizia() 2f03ec55ac
 world_case_integrita() 206e0a54c5
 world_cassa_apri(text, double precision, double precision) 3cb92372a4
+world_cassa_manda(text) eeca163d65
 world_chat_list(text, bigint) ffb3c046c7
 world_chat_report(bigint) 89cee22a5d
 world_chat_send(text, text) 8c7ba570ba

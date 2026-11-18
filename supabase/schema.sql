@@ -3950,6 +3950,31 @@ begin
 end $$;
 
 --
+-- Name: world_cassa_manda(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_cassa_manda(p_id text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); z json; r json;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  z := public.w_zm_trova(p_id);
+  if z is null or z->>'k' <> 'cassa' then return json_build_object('ok', false, 'msg', 'La cassa non c’è più'); end if;
+  -- prenotata subito: chi la apre con la Lente nello stesso momento trova "L'hai già aperta"
+  insert into public.world_zombie_presi(user_id, zid, tipo) values (me, p_id, 'cassa') on conflict do nothing;
+  if not found then return json_build_object('ok', false, 'msg', 'L’hai già presa'); end if;
+  r := public.world_sped_parti('misto', '📦 Cassa di rifornimenti', (z->>'lat')::float, (z->>'lon')::float);
+  if not coalesce((r->>'ok')::boolean, false) then
+    delete from public.world_zombie_presi where user_id = me and zid = p_id;   -- non è partito: la cassa resta da prendere
+    return r;
+  end if;
+  update public.world_spedizioni set calc = calc || jsonb_build_object('cassa', p_id) where id = (r->>'id')::bigint;
+  return r;
+end $$;
+
+--
 -- Name: world_chat_list(text, bigint); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -11487,6 +11512,13 @@ GRANT ALL ON FUNCTION public.world_case_integrita() TO authenticated;
 
 REVOKE ALL ON FUNCTION public.world_cassa_apri(p_id text, p_lat double precision, p_lon double precision) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_cassa_apri(p_id text, p_lat double precision, p_lon double precision) TO authenticated;
+
+--
+-- Name: FUNCTION world_cassa_manda(p_id text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_cassa_manda(p_id text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_cassa_manda(p_id text) TO authenticated;
 
 --
 -- Name: FUNCTION world_chat_list(p_room text, p_after bigint); Type: ACL; Schema: public; Owner: -

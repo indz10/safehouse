@@ -4,7 +4,7 @@ Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sq
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
 - Tabelle: **78** · viste: **1** · indici: **40** · regole (policy): **42** · trigger: **17** · lavori programmati: **6**
-- Funzioni: **322** (322 nomi); usate (direttamente o tramite altre funzioni): **314**; **non usate: 8**
+- Funzioni: **323** (323 nomi); usate (direttamente o tramite altre funzioni): **315**; **non usate: 8**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -182,7 +182,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_zm_ora` |  |  |  | world_zombie_vicini, w_zm_trova, w_lente_tick | 1: migr. 025_zombie_mondo |
 | `w_zm_qua` |  |  |  | world_zombie_vicini, w_zm_trova, w_lente_tick | 1: migr. 025_zombie_mondo |
 | `w_zm_tipi` |  |  |  | w_zm_qua, world_zombie_lotta, world_zombie_fine, world_zombipedia, w_lente_tick | 1: migr. 025_zombie_mondo |
-| `w_zm_trova` |  |  |  | world_zombie_lotta, world_zombie_fine, world_cassa_apri | 1: migr. 025_zombie_mondo |
+| `w_zm_trova` |  |  |  | world_zombie_lotta, world_zombie_fine, world_cassa_apri, world_cassa_manda | 1: migr. 025_zombie_mondo |
 | `w_zona_libera` |  |  |  | w_ancora, world_alleanza_fonda | 1: migr. 019_alleanze_multiple |
 | `w_ztypes` |  |  |  | w_attack3, w_threats_of | 3: zombie → zombie_alleati → fortezze |
 | `world_aiuto_lontano` | ✓ |  |  |  | 1: migr. 027_mondo_vero |
@@ -231,6 +231,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_caccia_inizia` | ✓ |  |  |  | 1: migr. 021_caccia_condomini |
 | `world_case_integrita` | ✓ |  |  |  | 1: migr. 031_integrita_case |
 | `world_cassa_apri` | ✓ |  |  |  | 1: migr. 025_zombie_mondo |
+| `world_cassa_manda` | ✓ |  |  |  | 1: migr. 033_cassa_superstite |
 | `world_chat_list` | ✓ |  |  |  | 1: chat |
 | `world_chat_report` | ✓ |  |  |  | 1: chat |
 | `world_chat_send` | ✓ |  |  |  | 1: chat |
@@ -322,7 +323,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_shape_get` | ✓ |  |  |  | 1: migr. 003_forme_edifici |
 | `world_shape_put` | ✓ |  |  |  | 1: migr. 003_forme_edifici |
 | `world_shout` | ✓ |  |  |  | 1: social |
-| `world_sped_parti` | ✓ |  |  |  | 3: migr. 020_superstite → migr. 021_caccia_condomini → migr. 027_mondo_vero |
+| `world_sped_parti` | ✓ |  |  | world_cassa_manda | 3: migr. 020_superstite → migr. 021_caccia_condomini → migr. 027_mondo_vero |
 | `world_sped_raccogli` | ✓ |  |  |  | 2: migr. 020_superstite → migr. 021_caccia_condomini |
 | `world_status_extra` | ✓ |  |  |  | 1: equita |
 | `world_sup_abilita` | ✓ |  |  |  | 2: migr. 020_superstite → migr. 028_attacchi |
