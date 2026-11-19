@@ -1192,10 +1192,11 @@ CREATE FUNCTION public.w_dist_km(a uuid, b uuid) RETURNS double precision
     LANGUAGE sql STABLE SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-  with ca as (select lat, lon from public.world_homes where user_id = a union all select lat, lon from public.world_buildings where owner = a),
+  with ca as (select lat, lon from public.w_partenza(a)
+              union all select lat, lon from public.world_homes where user_id = a and not exists (select 1 from public.w_partenza(a))
+              union all select lat, lon from public.world_buildings where owner = a and not exists (select 1 from public.w_partenza(a))),
        cb as (select lat, lon from public.world_homes where user_id = b union all select lat, lon from public.world_buildings where owner = b)
-  select min(public.w_km(ca.lat, ca.lon, cb.lat, cb.lon)) from ca, cb;
-$$;
+  select min(public.w_km(ca.lat, ca.lon, cb.lat, cb.lon)) from ca, cb; $$;
 
 --
 -- Name: w_dist_pt(uuid, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
@@ -1205,8 +1206,9 @@ CREATE FUNCTION public.w_dist_pt(p_user uuid, p_lat double precision, p_lon doub
     LANGUAGE sql STABLE SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-  select min(public.w_km(x.lat, x.lon, p_lat, p_lon)) from (
-    select lat, lon from public.world_homes where user_id = p_user union all select lat, lon from public.world_buildings where owner = p_user) x; $$;
+  select coalesce((select public.w_km(q.lat, q.lon, p_lat, p_lon) from public.w_partenza(p_user) q),
+    (select min(public.w_km(x.lat, x.lon, p_lat, p_lon)) from (
+      select lat, lon from public.world_homes where user_id = p_user union all select lat, lon from public.world_buildings where owner = p_user) x)); $$;
 
 --
 -- Name: w_dot(uuid); Type: FUNCTION; Schema: public; Owner: -
@@ -1705,6 +1707,21 @@ begin
   end loop;
   return n;
 end $$;
+
+--
+-- Name: w_partenza(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_partenza(p_user uuid) RETURNS TABLE(lat double precision, lon double precision)
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  with c as (select caps->'partenza' as p from public.world_wallet where user_id = p_user)
+  select x.lat, x.lon from c, (
+    select h.building_id as bid, h.lat, h.lon from public.world_homes h where h.user_id = p_user
+    union all select b.building_id, b.lat, b.lon from public.world_buildings b where b.owner = p_user) x
+  where c.p is not null and x.bid = c.p->>'bid' and (c.p->>'at')::timestamptz > now() - interval '30 minutes'
+  limit 1; $$;
 
 --
 -- Name: w_pay(uuid, integer, text, text); Type: FUNCTION; Schema: public; Owner: -
@@ -2399,9 +2416,7 @@ CREATE FUNCTION public.w_sped_km(p_user uuid, p_lat double precision, p_lon doub
     LANGUAGE sql STABLE SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-  select round(min(public.w_km(p_lat, p_lon, x.lat, x.lon))::numeric, 2) from (
-    select lat, lon from public.world_homes where user_id = p_user
-    union all select lat, lon from public.world_buildings where owner = p_user) x; $$;
+  select round(public.w_dist_pt(p_user, p_lat, p_lon)::numeric, 2); $$;
 
 --
 -- Name: w_sped_tick(); Type: FUNCTION; Schema: public; Owner: -
@@ -5365,6 +5380,29 @@ begin
   return json_build_object('ok', true, 'orde', coalesce((select json_agg(json_build_object('slot', o.slot_id, 'quando', public.w_slot_t(o.slot_id), 'esito', o.esito,
       'scudo', o.scudo, 'loot', o.loot, 'case', o.case_cadute) order by o.created_at desc)
     from (select * from public.world_orde_esiti where user_id = me order by created_at desc limit 6) o), '[]'::json));
+end $$;
+
+--
+-- Name: world_partenza_set(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_partenza_set(p_bid text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid();
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  perform public.w_wallet(me);
+  if coalesce(p_bid, '') = '' then
+    update public.world_wallet set caps = caps - 'partenza' where user_id = me;
+    return json_build_object('ok', true, 'msg', '🏠 Partirai dalla casa più vicina');
+  end if;
+  if not exists (select 1 from public.world_homes where user_id = me and building_id = p_bid)
+     and not exists (select 1 from public.world_buildings where owner = me and building_id = p_bid) then
+    return json_build_object('ok', false, 'msg', 'Non è una tua casa'); end if;
+  update public.world_wallet set caps = jsonb_set(caps, '{partenza}', jsonb_build_object('bid', p_bid, 'at', now())) where user_id = me;
+  return json_build_object('ok', true, 'msg', '🏠 Parti da questa casa');
 end $$;
 
 --
@@ -11239,6 +11277,12 @@ REVOKE ALL ON FUNCTION public.w_orde_tick() FROM PUBLIC;
 GRANT ALL ON FUNCTION public.w_orde_tick() TO service_role;
 
 --
+-- Name: FUNCTION w_partenza(p_user uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_partenza(p_user uuid) FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_pay(p_user uuid, p_delta integer, p_reason text, p_ref text); Type: ACL; Schema: public; Owner: -
 --
 
@@ -12143,6 +12187,13 @@ GRANT ALL ON FUNCTION public.world_near_survivors(p_lat double precision, p_lon 
 
 REVOKE ALL ON FUNCTION public.world_orde_mie() FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_orde_mie() TO authenticated;
+
+--
+-- Name: FUNCTION world_partenza_set(p_bid text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_partenza_set(p_bid text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_partenza_set(p_bid text) TO authenticated;
 
 --
 -- Name: FUNCTION world_player(p_user uuid); Type: ACL; Schema: public; Owner: -
