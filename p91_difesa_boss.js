@@ -134,5 +134,13 @@ function bossGdItems(I){const d=BOSS.d;if(!d||!d.ok||d.caduto||d.oggi>=d.max)ret
     acts:[{b:'⚔️ Attacca',run:async()=>{bossFight();return{skip:1};}},{b:'Dettagli',run:async()=>{bossSheet();return{skip:1};}}]});}
 const _gdItemsBoss=gdItems;gdItems=function(){const I=_gdItemsBoss.apply(this,arguments);try{bossGdItems(I);I.sort((a,b)=>b.p-a.p);}catch(e){}return I;};
 const _zGoBoss=zGoUrl;zGoUrl=function(u){_zGoBoss(u);try{if(new URL(u,location.href).searchParams.get('boss'))setTimeout(bossSheet,1500);}catch(e){}};
-zEvery(()=>{try{if(!document.hidden&&S.user&&S.tab==='mappa')bossLoad();}catch(e){}},30000,'boss');
+/* 👹 il boss si vede sulla mappa: segnaposto vicino a casa tua (è il boss della tua zona) con la vita in % */
+function bossMark(){try{const lm=window.__mf,d=BOSS.d;let h=null;try{h=myHouses()[0]||null;}catch(e){}
+  if(BOSS.mk&&(!lm||BOSS.mkMap!==lm.map||!d||!d.ok||S.tab!=='mappa')){try{BOSS.mk.remove();}catch(e){}BOSS.mk=null;}
+  if(S.tab!=='mappa'||!lm||!lm.map||!d||!d.ok||!h||h.lat==null||typeof maplibregl==='undefined')return;
+  const pc=Math.max(0,Math.round(d.hp/Math.max(1,d.hp0)*100));const html=`<b>${d.caduto?'💀':esc(d.ic||'👹')}</b><span>Boss · ${esc(d.nome)}</span><i>${d.caduto?'abbattuto':pc+'% di vita'}</i>`;
+  if(!BOSS.mk){const el=elDiv('lm-ally lm-evt lm-boss',html);el.style.zIndex='9';el.onclick=x=>{x.stopPropagation();window.SHEET_BACK=null;bossSheet();};
+    try{BOSS.mk=new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([h.lon+0.0035,h.lat+0.0028]).addTo(lm.map);BOSS.mkMap=lm.map;el.dataset.h=html;}catch(x){}}
+  else{const el=BOSS.mk.getElement();if(el.dataset.h!==html){el.innerHTML=html;el.dataset.h=html;}}}catch(e){}}
+zEvery(()=>{try{if(!document.hidden&&S.user&&S.tab==='mappa')bossLoad().then(bossMark);else bossMark();}catch(e){}},30000,'boss');
 </script>

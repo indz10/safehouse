@@ -4,7 +4,7 @@ Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sq
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
 - Tabelle: **79** · viste: **1** · indici: **42** · regole (policy): **42** · trigger: **17** · lavori programmati: **7**
-- Funzioni: **333** (333 nomi); usate (direttamente o tramite altre funzioni): **325**; **non usate: 8**
+- Funzioni: **334** (334 nomi); usate (direttamente o tramite altre funzioni): **326**; **non usate: 8**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -89,7 +89,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_en_ric` |  |  |  | w_sup, world_sup_info, world_sped_parti, world_caccia_inizia, world_evento_azione, world_difesa_inizia … | 1: migr. 020_superstite |
 | `w_eq` |  |  |  | w_sped_calc, world_sup_info, world_sup_equip, world_sped_parti, world_caccia_inizia, world_evento_azione … | 1: migr. 020_superstite |
 | `w_esito` |  |  |  | w_orde_tick | 1: migr. 032_orde_motore |
-| `w_eventi_tick` |  | ✓ |  |  | 1: migr. 022_eventi_sfide |
+| `w_eventi_tick` |  | ✓ |  |  | 2: migr. 022_eventi_sfide → migr. 038_eventi_vari |
+| `w_evt_stile` |  |  |  | w_eventi_tick, world_evento_azione | 1: migr. 038_eventi_vari |
 | `w_feed_add` |  |  |  | w_tr_feed, w_tr_dm, world_house_invite, world_house_answer, w_pres_tick, w_assalti_tick … | 1: social |
 | `w_fort` |  |  |  | world_player, w_atk_b, world_edificio_info, world_consigli | 2: migr. 014_territorio → migr. 017_presidi_fortificazioni |
 | `w_forza_att` |  |  |  | world_attacco_info, world_attacca, world_rinforza, w_raduno_entra | 1: migr. 028_attacchi |
@@ -262,7 +263,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_earn` | ✓ |  |  |  | 2: mondo_unico → migr. 012_risorse_ricompense |
 | `world_edificio_info` | ✓ |  |  |  | 2: migr. 014_territorio → migr. 017_presidi_fortificazioni |
 | `world_eventi_vicini` | ✓ |  |  |  | 1: migr. 022_eventi_sfide |
-| `world_evento_azione` | ✓ |  |  |  | 1: migr. 022_eventi_sfide |
+| `world_evento_azione` | ✓ |  |  |  | 2: migr. 022_eventi_sfide → migr. 038_eventi_vari |
 | `world_fav_set` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
 | `world_favs_list` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
 | `world_feed_list` | ✓ |  |  |  | 1: social |
@@ -403,7 +404,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_defs` | zombie | 2 | ✓ |
 | `world_difar` | supabase/migrazioni/026_difesa_lente_boss | 0 | ✓ |
 | `world_dm` | assedio | 0 | ✓ |
-| `world_eventi` | supabase/migrazioni/022_eventi_sfide | 0 | ✓ |
+| `world_eventi` | supabase/migrazioni/022_eventi_sfide | 2 | ✓ |
 | `world_eventi_azioni` | supabase/migrazioni/022_eventi_sfide | 0 | ✓ |
 | `world_excluded` | mondo_unico | 0 | ✓ |
 | `world_favs` | supabase/migrazioni/010_trova_preferiti | 0 | ✓ |
