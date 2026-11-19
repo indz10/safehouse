@@ -52,7 +52,7 @@ function mfoChips(){const w=app.querySelector('.mapfull');if(!w||S.tab!=='mappa'
       if(k==='z')zmPedia();else if(k==='p'){try{const h=myHouses().find(x=>x.home);if(h){window.SHEET_BACK=null;houseSheet(h);}}catch(er){}}else oggiSheet();});}
   const n=MFO.comp.length||(()=>{try{return frComp((OR.s&&OR.s.wlevel)||1).length;}catch(e){return 0;}})();
   let pc=null;try{pc=mwPct();}catch(e){}let wx=null;try{wx=frWx();}catch(e){}const d=new Date();
-  const h=`<button data-mfo="z">🧟 ${n} zombie</button>${pc!=null?`<button data-mfo="p" class="${pc>=50?'ok':'ko'}">🛡️ ${pc}% di tenere · <u>perché</u></button>`:''}${wx?`<button data-mfo="g">${wx.ic} ${wx.t}°C · ${esc(wx.name||'')}</button>`:''}<button data-mfo="g" class="mfocal"><small>${GG[d.getDay()].slice(0,3)}</small><b>${d.getDate()}</b><small>${MMs[d.getMonth()]}</small></button>`;
+  const h=`<button data-mfo="z">🧟 ${n} zombie</button>${pc!=null?`<button data-mfo="p" class="${pc>=50?'ok':'ko'}">🛡️ ${pc}% di tenere · <u>perché</u></button>`:''}${wx?`<button data-mfo="g">${wx.ic} ${wx.t!=null&&!isNaN(wx.t)?wx.t+'°C · ':''}${esc(wx.name||'')}</button>`:''}<button data-mfo="g" class="mfocal"><small>${GG[d.getDay()].slice(0,3)}</small><b>${d.getDate()}</b><small>${MMs[d.getMonth()]}</small></button>`;
   if(c.dataset.h!==h){c.dataset.h=h;c.innerHTML=h;}}
 zEvery(()=>{try{if(document.hidden||S.tab!=='mappa'||!S.user)return;mfoMount();mfoChips();}catch(e){}},3000,'fronte-mondo');
 /* 📖 Zombipedia: in fondo gli zombie dell'orda */

@@ -134,28 +134,28 @@ function feedMsg(f: any, who: string, id: string): { title: string; body: string
   const so = "/?go=social", al = "/?go=social&tab=squadra";
   switch (f.kind) {
     case "dm": return { title: `💬 Messaggio da ${who}`, body: f.info ? `«${f.info}»` : "Ti ha scritto un messaggio", url: `/?go=social&dm=${id}` };
-    case "ally_req": return { title: "🤝 Proposta di alleanza", body: `${who} ti propone un’alleanza: tocca per accettare`, url: al };
+    case "ally_req": return { title: "🤝 Proposta di alleanza", body: `${who} ti propone un’alleanza: tocca per accettare`, url: "/?go=social&req=1" };
     case "ally": return { title: "🤝 Nuovo alleato", body: `${who} è ora tuo alleato`, url: al };
-    case "house_req": return { title: "🏠 Richiesta di coinquilino", body: `${who} dice che vivete nella stessa casa: tocca per confermare`, url: so };
+    case "house_req": return { title: "🏠 Richiesta di coinquilino", body: `${who} dice che vivete nella stessa casa: tocca per confermare`, url: "/?go=social&req=1" };
     case "house_ok": return { title: "🏠 Ora abitate insieme", body: `${who} ha confermato: siete coinquilini`, url: so };
     case "invite_join": return { title: "🎉 Il tuo invito ha funzionato", body: `${who} è entrato con il tuo link: ora siete alleati`, url: al };
-    case "help": return { title: "🛡️ Rinforzi in arrivo", body: `${who} ti ha mandato rinforzi per l’orda`, url: "/?go=orda" };
-    case "attack": return { title: "🧟 Ti hanno mandato un’orda!", body: `${who} ti ha mandato un’orda contro: prepara le case`, url: "/?go=orda" };
-    case "curse": return { title: "😈 Dispetto!", body: `${who} ti ha fatto un dispetto: chiedi aiuto agli alleati`, url: "/?go=orda" };
-    case "shield": return { title: "🛡️ Scudo ricevuto", body: `${who} ti ha dato uno scudo: +5 alla prossima orda`, url: "/?go=orda" };
+    case "help": return { title: "🛡️ Rinforzi in arrivo", body: `${who} ti ha mandato rinforzi per l’orda`, url: "/?go=orda&case=1" };
+    case "attack": return { title: "🧟 Ti hanno mandato un’orda!", body: `${who} ti ha mandato un’orda contro: prepara le case`, url: "/?go=orda&case=1" };
+    case "curse": return { title: "😈 Dispetto!", body: `${who} ti ha fatto un dispetto: chiedi aiuto agli alleati`, url: "/?go=orda&case=1" };
+    case "shield": return { title: "🛡️ Scudo ricevuto", body: `${who} ti ha dato uno scudo: +5 alla prossima orda`, url: "/?go=orda&case=1" };
     case "gift": return { title: "🎁 Regalo", body: `${who} ti ha ${f.info === "prestito" ? "prestato dei Mattoni" : "fatto un regalo"}`, url: so };
-    case "all_voto": return { title: "🗳️ Vota chi entra nell’alleanza", body: `${who} ${f.info === "invito" ? "ha invitato un superstite" : "chiede di entrare"}: tocca per votare`, url: "/?go=social" };
-    case "all_invito": return { title: "📨 Invito in un’alleanza", body: `${who} ti invita nell’alleanza «${f.info || ""}»`, url: "/?go=social" };
-    case "all_entrato": return { title: "🛡️ Nuovo membro", body: `${who} è entrato nell’alleanza «${f.info || ""}»`, url: "/?go=social" };
-    case "all_si": return { title: "🛡️ Sei dentro!", body: `Benvenuto nell’alleanza «${f.info || ""}»`, url: "/?go=social" };
-    case "all_no": return { title: "❌ Domanda respinta", body: `La domanda per l’alleanza «${f.info || ""}» non è passata`, url: "/?go=social" };
-    case "all_msg": return { title: "💬 Chat dell’alleanza", body: `${who}: «${f.info || ""}»`, url: "/?go=social" };
-    case "assalto": return { title: "⚔️ Ti stanno assaltando!", body: `${who} ha mandato una squadra contro ${f.info === "pres" ? "il tuo presidio" : f.info === "home" ? "la tua casa (incustodita)" : "una tua casa"}: inchioda le assi e chiama gli alleati`, url: "/?go=mappa" };
-    case "conquista": return { title: "🏴 Hai perso un edificio", body: `${who} ha conquistato ${String(f.info || "").startsWith("presidio") ? "il tuo presidio" : "una tua casa: ti torna metà della spesa"}`, url: "/?go=mappa" };
-    case "saccheggio": return { title: "💰 Saccheggio!", body: `${who} ha saccheggiato le tue scorte. Passa da casa almeno una volta a settimana per renderla intoccabile`, url: "/?go=mappa" };
-    case "respinto": return { title: "🛡️ Assalto respinto", body: `${who} ha respinto il tuo assalto`, url: "/?go=mappa" };
-    case "difesa": return { title: "🛡️ Un alleato ti difende", body: `${who} sta arrivando a difendere un tuo edificio`, url: "/?go=mappa" };
-    case "assi": return { title: "🪵 Assi inchiodate", body: `${who} ha rinforzato una tua casa con le assi`, url: "/?go=mappa" };
+    case "all_voto": return { title: "🗳️ Vota chi entra nell’alleanza", body: `${who} ${f.info === "invito" ? "ha invitato un superstite" : "chiede di entrare"}: tocca per votare`, url: "/?go=social&req=1" };
+    case "all_invito": return { title: "📨 Invito in un’alleanza", body: `${who} ti invita nell’alleanza «${f.info || ""}»`, url: "/?go=social&req=1" };
+    case "all_entrato": return { title: "🛡️ Nuovo membro", body: `${who} è entrato nell’alleanza «${f.info || ""}»`, url: "/?go=social&alz=1" };
+    case "all_si": return { title: "🛡️ Sei dentro!", body: `Benvenuto nell’alleanza «${f.info || ""}»`, url: "/?go=social&alz=1" };
+    case "all_no": return { title: "❌ Domanda respinta", body: `La domanda per l’alleanza «${f.info || ""}» non è passata`, url: "/?go=social&alz=1" };
+    case "all_msg": return { title: "💬 Chat dell’alleanza", body: `${who}: «${f.info || ""}»`, url: "/?go=social&alz=chat" };
+    case "assalto": return { title: "⚔️ Ti stanno assaltando!", body: `${who} ha mandato una squadra contro ${f.info === "pres" ? "il tuo presidio" : f.info === "home" ? "la tua casa (incustodita)" : "una tua casa"}: inchioda le assi e chiama gli alleati`, url: "/?go=orda&case=1" };
+    case "conquista": return { title: "🏴 Hai perso un edificio", body: `${who} ha conquistato ${String(f.info || "").startsWith("presidio") ? "il tuo presidio" : "una tua casa: ti torna metà della spesa"}`, url: "/?go=orda&case=1" };
+    case "saccheggio": return { title: "💰 Saccheggio!", body: `${who} ha saccheggiato le tue scorte. Passa da casa almeno una volta a settimana per renderla intoccabile`, url: "/?go=orda&case=1" };
+    case "respinto": return { title: "🛡️ Assalto respinto", body: `${who} ha respinto il tuo assalto`, url: "/?go=orda&attacchi=1" };
+    case "difesa": return { title: "🛡️ Un alleato ti difende", body: `${who} sta arrivando a difendere un tuo edificio`, url: "/?go=orda&case=1" };
+    case "assi": return { title: "🪵 Assi inchiodate", body: `${who} ha rinforzato una tua casa con le assi`, url: "/?go=orda&case=1" };
     case "evento": { const [k, id] = String(f.info || "").split("|"); const T: Record<string, [string, string]> = {
         cassa: ["📦 Rifornimento caduto vicino a te!", "I primi 3 superstiti che arrivano si prendono le scorte: corri!"],
         salva: ["🚑 Un superstite ferito qui vicino", "Il primo che lo cura con 🥫 5 prende ⭐ 50 e 🧱 20"],
@@ -211,7 +211,7 @@ async function feedFor(L: any[]): Promise<number> {
       const { data: p } = await sb.from("profili_pubblici").select("nick").eq("user_id", x.actor).maybeSingle();
       const m = feedMsg(x, p?.nick ? "@" + p.nick : "Un superstite", x.actor || "");
       // chi ha fatto l'azione: se la notifica non porta già in un posto preciso, apre la sua scheda (pl=)
-      if (x.actor && x.actor !== s.user_id && m.url && !/[?&](dm|pl|attacchi|casse|lente|evt|boss|sfida|reg|sup)=/.test(m.url)) m.url += (m.url.includes("?") ? "&" : "?") + "pl=" + x.actor;
+      if (x.actor && x.actor !== s.user_id && m.url && !/[?&](dm|pl|attacchi|casse|lente|evt|boss|sfida|reg|sup|req|alz|case)=/.test(m.url)) m.url += (m.url.includes("?") ? "&" : "?") + "pl=" + x.actor;
       const more = i === show.length - 1 && f.length > show.length ? ` (+${f.length - show.length} novità)` : "";
       sent += await sendTo(s, { title: m.title, body: m.body + more, url: m.url, tag: "zsh-" + x.kind + "-" + x.id });
     }
