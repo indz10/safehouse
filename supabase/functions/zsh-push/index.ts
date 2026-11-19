@@ -160,7 +160,13 @@ function feedMsg(f: any, who: string, id: string): { title: string; body: string
         cassa: ["📦 Rifornimento caduto vicino a te!", "I primi 3 superstiti che arrivano si prendono le scorte: corri!"],
         salva: ["🚑 Un superstite ferito qui vicino", "Il primo che lo cura con 🥫 5 prende ⭐ 50 e 🧱 20"],
         nido: ["🧟 Nido di zombie nel quartiere!", "Abbattetelo insieme ai vicini: premi a tutti quelli che colpiscono"],
-        sponsor: ["⭐ Un negozio sponsor è sotto assedio!", "Difendilo con i vicini: premi a tutti"] };
+        sponsor: ["⭐ Un negozio sponsor è sotto assedio!", "Difendilo con i vicini: premi a tutti"],
+        lancio: ["🚁 Lancio dall’elicottero qui vicino!", "5 casse di carburante e scorte: i primi 5 le prendono"],
+        auto: ["🚗 Auto abbandonata col pieno!", "I primi 2 superstiti si prendono il carburante"],
+        farmacia: ["💊 Farmacia aperta nel quartiere", "I primi 3 si prendono cibo e carburante"],
+        scorta: ["🚐 Una famiglia chiede una scorta", "Il primo che la porta al sicuro con ⛽ 5 prende ⭐ 60 e 🧱 25"],
+        cani: ["🐕 Cani rabbiosi nel quartiere!", "Abbatteteli insieme: premi a tutti quelli che colpiscono"],
+        orda: ["🧟‍♂️ Un’orda sta attraversando la zona!", "Servono tanti vicini: premi ×1,5 a tutti quelli che colpiscono"] };
       const m = T[k] || ["🚨 Evento qui vicino", "Tocca per partecipare col tuo superstite"];
       return { title: m[0], body: m[1], url: `/?go=mappa&evt=${id || ""}` }; }
     case "evento_vinto": return { title: "💥 Abbattuto!", body: `${who} ha dato il colpo finale a «${f.info || "l’evento"}»: hai ricevuto la tua parte di premi`, url: "/?go=mappa" };

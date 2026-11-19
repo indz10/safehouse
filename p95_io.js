@@ -16,10 +16,10 @@ function ioHud(){if(S.tab!=='mappa'||typeof sbOk!=='function'||!sbOk())return;co
   if(!w.querySelector('.mwtop')){try{w.insertAdjacentHTML('afterbegin',mwTopHTML('mappa'));mwTopBind(w);}catch(e){}}
   const sc=w.querySelector('.mwtop .mwscorte');if(sc&&!sc.querySelector('[data-iohome]')){sc.insertAdjacentHTML('afterbegin','<button class="iohome" data-iohome type="button" aria-label="Le mie case">🏠</button>');
     sc.querySelector('[data-iohome]').addEventListener('click',e=>{e.stopPropagation();window.SHEET_BACK=null;casasSheet();},true);}
-  if(!w.querySelector('.iobtns')){w.insertAdjacentHTML('beforeend',`<div class="iobtns"><button data-iob="3d" type="button">🏙️<small>3D</small></button><button data-iob="pres" type="button">🚩<small>Presidi</small></button><button data-iob="ally" type="button">🤝<small>Alleati</small></button><button data-iob="cerca" type="button">🔎<small>Cerca</small></button><button data-iob="casse" type="button">📦<small>Casse</small></button></div>`);
+  if(!w.querySelector('.iobtns')){w.insertAdjacentHTML('beforeend',`<div class="iobtns"><button data-iob="3d" type="button">🏙️<small>3D</small></button><button data-iob="pres" type="button">🚩<small>Presidi</small></button><button data-iob="ally" type="button">🤝<small>Alleati</small></button><button data-iob="cerca" type="button">🔎<small>Cerca</small></button><button data-iob="casse" type="button">📦<small>Casse</small></button><button data-iob="boss" type="button">👹<small>Boss</small></button></div>`);
     w.querySelectorAll('[data-iob]').forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.iob;
       if(k==='3d'){const t=w.querySelector('.lm-3d');if(t)t.click();else toast('🏙️ Il 3D arriva quando la mappa è pronta');}
-      else if(k==='pres')presList5(window.__mf);else if(k==='casse')zmVicino();else if(k==='ally')sbGo('amici');else cercaLuogo();});}}
+      else if(k==='pres')presList5(window.__mf);else if(k==='casse')zmVicino();else if(k==='boss')bossSheet();else if(k==='ally')sbGo('amici');else cercaLuogo();});}}
 zEvery(()=>{try{if(!document.hidden)ioHud();}catch(e){}},1000,'mondo-tasti');
 /* i tasti in basso: Mondo = solo la mappa, Io = la pagina dell'orda */
 const _sbGoIo=sbGo;sbGo=function(k){if(k==='mondo'){try{zmClose();}catch(e){}closeSheet();if(S.tab!=='mappa'){S.zv='mondo';go('mappa');}else{try{trrFit();}catch(e){}}return;}

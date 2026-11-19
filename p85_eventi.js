@@ -14,12 +14,19 @@ const EVT={L:[],t:0,mk:new Map(),mkMap:null,HI:null,hiT:0,SF:null,sfT:0};
 const EVT_K={cassa:['📦','Rifornimento caduto','I primi 3 superstiti che arrivano si dividono le scorte: 24, 14 e 8 di 🪵 🥫 ⛽. Chi arriva prima prende di più.'],
   salva:['🚑','Superstite ferito','Il primo che lo raggiunge e lo cura con 🥫 5 riceve ⭐ 50, 🧱 20 e ⛽ 10.'],
   nido:['🧟','Nido di zombie','Si abbatte insieme ai vicini: ogni colpo costa 🔋 1 (massimo 3 a testa). Quando cade, tutti quelli che hanno colpito prendono scorte ed esperienza; chi dà il colpo finale anche 🧱 15.'],
-  sponsor:['⭐','Sponsor sotto assedio','Un negozio sponsor del quartiere è assediato: difendetelo insieme come per il nido. Premi a tutti quelli che colpiscono.']};
+  sponsor:['⭐','Sponsor sotto assedio','Un negozio sponsor del quartiere è assediato: difendetelo insieme come per il nido. Premi a tutti quelli che colpiscono.'],
+  lancio:['🚁','Lancio dall’elicottero','Un elicottero ha lanciato 5 casse: i primi 5 che arrivano prendono 30, 22, 16, 10 e 6 di ⛽ (e metà in 🪵 🥫).'],
+  auto:['🚗','Auto abbandonata','Il serbatoio è ancora pieno: i primi 2 prendono ⛽ 30 e ⛽ 15.'],
+  farmacia:['💊','Farmacia aperta','Gli scaffali sono pieni: i primi 3 prendono 30, 18 e 10 di 🥫 e ⛽.'],
+  scorta:['🚐','Famiglia da scortare','Una famiglia deve raggiungere il rifugio: il primo che la scorta con ⛽ 5 riceve ⭐ 60, 🧱 25 e 🥫 15.'],
+  cani:['🐕','Branco di cani rabbiosi','Più veloce da abbattere di un nido (vita più bassa), premi un po’ più piccoli: ogni colpo costa 🔋 1 (massimo 3 a testa).'],
+  orda:['🧟‍♂️','Orda di passaggio','Il doppio di un nido e dura 90 minuti: servono tanti vicini. Premi ×1,5 a tutti quelli che colpiscono e 🧱 25 al colpo finale.']};
+const evtStile=k=>['cassa','lancio','auto','farmacia'].includes(k)?'cassa':['salva','scorta'].includes(k)?'salva':'nido';
 const evtLeft=t=>{const s=Math.max(0,Math.round((new Date(t)-Date.now())/1000));return s>=3600?Math.floor(s/3600)+' h '+Math.floor(s%3600/60)+' min':s>=60?Math.ceil(s/60)+' min':s+' s';};
 async function evtLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return EVT.L;if(!force&&Date.now()-EVT.t<60000)return EVT.L;EVT.t=Date.now();
   try{const{data,error}=await SB.rpc('world_eventi_vicini');if(!error&&Array.isArray(data))EVT.L=data;}catch(e){}return EVT.L;}
 const evtAperti=()=>(EVT.L||[]).filter(e=>new Date(e.end_at)>Date.now());
-function evtFatto(e){const m=e.mio;if(!m)return false;return(e.kind==='cassa'||e.kind==='salva')?true:(m.colpi||0)>=3;}
+function evtFatto(e){const m=e.mio;if(!m)return false;return evtStile(e.kind)!=='nido'?true:(m.colpi||0)>=3;}
 /* ---------- la scheda dell'evento ---------- */
 async function evtSheet(id){await evtLoad(true);const e=(EVT.L||[]).find(x=>String(x.id)===String(id));
   if(!e){openSheet('🚨 Evento','<p class="notice">Questo evento è già finito. Ne arrivano di nuovi ogni ora circa: tieni accese le notifiche.</p>',()=>{});return;}
@@ -27,9 +34,9 @@ async function evtSheet(id){await evtLoad(true);const e=(EVT.L||[]).find(x=>Stri
   openSheet(`${K[0]} ${esc(e.nome.replace(/^\S+\s/,''))}`,`<div class="evtcard k-${e.kind}"><span>${K[0]}</span><div><b>${esc(K[1])}</b><small>⏱ finisce fra ${evtLeft(e.end_at)} · 📏 ${e.km!=null?kmTxt(+e.km):'?'} da casa tua · 👥 ${e.gente} ${e.gente===1?'superstite':'superstiti'}</small></div></div>
     <p style="font-weight:400;font-size:14px">${K[2]}</p>
     ${e.hp_max?`<div class="evthp"><span style="width:${Math.max(2,Math.round(e.hp/e.hp_max*100))}%"></span><b>${e.hp}/${e.hp_max}</b></div>`:''}
-    ${e.mio&&e.mio.colpi?`<p class="muted" style="font-size:13px">Tu: ${e.kind==='cassa'?`arrivato ${e.mio.posto}°`:e.kind==='salva'?'l’hai salvato':`${e.mio.colpi} colpi (−${e.mio.danno})`}</p>`:''}
+    ${e.mio&&e.mio.colpi?`<p class="muted" style="font-size:13px">Tu: ${evtStile(e.kind)==='cassa'?`arrivato ${e.mio.posto}°`:evtStile(e.kind)==='salva'?(e.kind==='scorta'?'li hai scortati':'l’hai salvato'):`${e.mio.colpi} colpi (−${e.mio.danno})`}</p>`:''}
     ${!ok?`<p class="notice">È fuori dal raggio del tuo superstite (${String(e.raggio).replace('.',',')} km): sali di grado o usa 🧭 Esploratore.</p>`:''}
-    <button class="btn wide" data-evgo ${!ok||fatto?'disabled':''}>${fatto?'✅ Fatto':e.kind==='salva'?'🚑 Curalo (🥫 5 e 1 energia)':e.kind==='cassa'?'🎒 Manda il superstite (1 energia)':'💥 Colpisci (1 energia)'}</button>
+    <button class="btn wide" data-evgo ${!ok||fatto?'disabled':''}>${fatto?'✅ Fatto':e.kind==='salva'?'🚑 Curalo (🥫 5 e 1 energia)':e.kind==='scorta'?'🚐 Scortali (⛽ 5 e 1 energia)':evtStile(e.kind)==='cassa'?'🎒 Manda il superstite (1 energia)':'💥 Colpisci (1 energia)'}</button>
     <button class="btn wide ghost" data-evmap>🗺️ Vedi sulla mappa</button>`,c=>{
     c.querySelector('[data-evgo]').onclick=async x=>{x.target.disabled=true;let r=null;try{const{data,error}=await SB.rpc('world_evento_azione',{p_id:e.id});if(error)throw error;r=data;}catch(err){toast('Non riuscito: riprova');}
       if(r){toast(r.msg||(r.ok?'Fatto':'Non riuscito'));try{sfx&&sfx(r.ok?'win':'lose');}catch(z){}}RES.t=0;try{resLoad(true);supLoad(true);}catch(z){}EVT.t=0;evtSheet(e.id);};
@@ -69,8 +76,8 @@ function condoSheet(){const I=EVT.HI||{};const M=I.members||[];
 function evtGdItems(I){
   if(condoServe()){const M=(EVT.HI.members||[]);I.push({p:condoProb()?104:66,ic:'🏠',t:M.length?`Vivi con @${esc(M[0].nick)} o è un condominio?`:'Che tipo di casa è la tua?',why:'Casa singola, stessa famiglia o il tuo appartamento in un condominio: si dice una volta sola e il gioco sistema coinquilini, vicini e difese comuni.',acts:[{b:'🏠 Scegli',run:async()=>{condoSheet();return{skip:1};}}]});}
   evtAperti().forEach(e=>{if(evtFatto(e)||e.km==null||e.km>e.raggio)return;const K=EVT_K[e.kind]||EVT_K.cassa;
-    I.push({p:e.kind==='cassa'?93:e.kind==='salva'?91:86,ic:K[0],t:`${K[1]} a ${kmTxt(+e.km)} · finisce fra ${evtLeft(e.end_at)}`,why:K[2],cost:e.kind==='salva'?'🥫 5 e 1 energia':'1 energia',
-      acts:[{b:e.kind==='cassa'?'🎒 Corri':e.kind==='salva'?'🚑 Curalo':'💥 Colpisci',run:async()=>{const{data,error}=await SB.rpc('world_evento_azione',{p_id:e.id});if(error)throw error;EVT.t=0;evtLoad(true);return data;}},{b:'Dettagli',run:async()=>{evtSheet(e.id);return{skip:1};}}]});});
+    I.push({p:evtStile(e.kind)==='cassa'?93:evtStile(e.kind)==='salva'?91:86,ic:K[0],t:`${K[1]} a ${kmTxt(+e.km)} · finisce fra ${evtLeft(e.end_at)}`,why:K[2],cost:e.kind==='salva'?'🥫 5 e 1 energia':e.kind==='scorta'?'⛽ 5 e 1 energia':'1 energia',
+      acts:[{b:evtStile(e.kind)==='cassa'?'🎒 Corri':e.kind==='salva'?'🚑 Curalo':e.kind==='scorta'?'🚐 Scortali':'💥 Colpisci',run:async()=>{const{data,error}=await SB.rpc('world_evento_azione',{p_id:e.id});if(error)throw error;EVT.t=0;evtLoad(true);return data;}},{b:'Dettagli',run:async()=>{evtSheet(e.id);return{skip:1};}}]});});
   const d=EVT.SF;if(d&&d.ok&&d.io)I.push({p:24,ic:'🏆',t:`Sfida del quartiere: ${d.io.punti>0?'sei '+d.io.pos+'°':'entra in gara'} (${d.io.punti} punti)`,why:`Zombie, spedizioni ed eventi fanno punti. Ai primi 3 del quartiere 🧱 ${(d.premi||[]).join(' / ')} lunedì.`,acts:[{b:'🏆 Classifica',run:async()=>{sfidaSheet();return{skip:1};}}]});}
 /* ---------- 👉 ADESSO: una mossa alla volta ---------- */
 function nowTop(){try{const I=gdItems(GD.d);return{I,x:I[0]||null};}catch(e){return{I:[],x:null};}}
