@@ -29,5 +29,6 @@ async def main():
         await pg.evaluate("()=>{W.m.houses=[{building_id:'w/77',lat:45.34,lon:10.67,level:2}];}")
         await pg.evaluate("()=>{const d=document.createElement('button');d.dataset.spgo='0';d.id='tsp';d.textContent='Parti';document.querySelector('#sheet.open .supbox').appendChild(d);d.click();}");await pg.wait_for_timeout(600)
         print('casa di partenza:',await pg.evaluate("()=>!!document.querySelector('#sheet.open .partpick')"))
+        print('energia col mezzo:',await pg.evaluate("async()=>{window.__MZS='moto';await mzUsoLoad();const m=supCalc(2);window.__MZS='piedi';await mzUsoLoad();const p=supCalc(2);window.__MZS='bici';await mzUsoLoad();const b=supCalc(2);return [m.energia,p.energia,b.energia,m.min<p.min,m.bottino>p.bottino]}"))
         print('ERR',E);await b.close()
 asyncio.run(main())

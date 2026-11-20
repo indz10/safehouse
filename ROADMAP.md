@@ -175,4 +175,4 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 40–47 | fatte (migrazioni 033–038) | #84–#91 | casse dal divano, @nomi, mezzi e cantieri, stato delle case, casa di partenza, eventi vari e boss, creator e notifiche all'azione |
 | 48 | fatta | #92 | 📬 Bacheca e Per te toccabili (la beta per i tester è pronta in `docs/beta/`, da attivare dopo) |
 | 49 | fatta (migrazione 040) | #93 | 🛡️ danni alle singole difese secondo gli zombie dell'orda, % collegata, 🔧 restauro prima del potenziamento |
-| 50 | in revisione (migrazione 041) | — | 🚗 mezzi del superstite: furgone, energia a piedi/bici, ⛽ a motore, bottino per capienza, 🥫 → 🔋, casa di partenza per le spedizioni |
+| 50 | fatta (migrazione 041) | #94 | 🚗 mezzi del superstite: furgone, energia a piedi/bici, ⛽ a motore, bottino per capienza, 🥫 → 🔋, casa di partenza per le spedizioni |
