@@ -15,7 +15,7 @@ const EVN={calma:['🌙','Tempo calmo','nessun effetto'],pioggia:['🌧️','Pio
 function zm(k,s,ev,hh){let t={runner:1-4*s,brute:1-3*s,boss:1-2*s,walker:1-s,casco:1-s,ombra:1-s}[k];if(t==null)t=1;
   const W={pioggia:{runner:.7,walker:.9,scavatore:1.3,ombra:1.1},neve:{runner:.5,walker:.8,scavatore:.6,brute:.8},nebbia:{ombra:1.6,runner:.9},blackout:{ombra:1.6,_:1.05},luna:{_:1.15}}[ev]||{};
   const w=W[k]!=null?W[k]:(W._||1);const tm=k==='ombra'?(hh>=18?1.2:.6):1;return Math.max(.3,Math.min(1.8,t*w*tm));}
-function thrCalc(T,o={}){const lvl=o.level!=null?o.level:T.level;const defs=Object.assign({},T.defs||{},o.defs||{});
+function thrCalc(T,o={}){const lvl=o.level!=null?o.level:T.level;const defs=Object.assign({},T.defe||T.defs||{},o.defs||{});
   const def=T.def+12*(Math.max(lvl,1)-Math.max(T.level,1));const sp=(T.specials||[]).map(x=>{const dl=Math.min(3,defs[x.dk]||0),dl2=x.dk2?Math.min(3,defs[x.dk2]||0):0;return{...x,dl,dl2,p:x.base*x.mod*(1-.3*dl)*(1-.15*dl2)};});
   const tr=1-.06*Math.min(3,defs.trappole||0);const ss=sp.reduce((a,x)=>a+x.p,0);const amin=Math.round(T.std_min*T.mw*tr+ss),amax=Math.round(T.std_max*T.mw*tr+ss);
   const ch=Math.max(0,Math.min(100,Math.round((def-amin+1)/(amax-amin+1)*100)));return{def,amin,amax,ch,sp,ss};}

@@ -713,9 +713,9 @@ CREATE FUNCTION public.w_attack3(p_slot text, p_bid text, p_lvl integer) RETURNS
     AS $$
   with v as (select least(greatest(p_lvl,1),30) as wl, public.w_slope(p_bid) as s, public.w_wxev(p_bid,p_slot) as ev,
                     coalesce(nullif(right(p_slot,2),'')::int, 21) as hh, get_byte(decode(md5(p_slot || p_bid), 'hex'), 0) % 50 as r)
-  select (round((30 + 2*v.wl + v.r) * public.w_zm('walker', v.s, v.ev, v.hh) * (1 - 0.06*least(public.w_def(p_bid,'trappole'),3)))
+  select (round((30 + 2*v.wl + v.r) * public.w_zm('walker', v.s, v.ev, v.hh) * (1 - 0.06*least(public.w_defe(p_bid,'trappole'),3)))
           + coalesce((select sum(t.base * (1 + 0.03*v.wl) * public.w_zm(t.k, v.s, v.ev, v.hh)
-                                 * (1 - 0.3*least(public.w_def(p_bid, t.dk),3)) * (1 - 0.15*least(public.w_def(p_bid, t.dk2),3)))
+                                 * (1 - 0.3*least(public.w_defe(p_bid, t.dk),3)) * (1 - 0.15*least(public.w_defe(p_bid, t.dk2),3)))
                       from public.w_ztypes() t where v.wl >= t.minl), 0))::int
   from v;
 $$;
@@ -1001,6 +1001,8 @@ begin
     if c.tipo = 'potenzia' then
       insert into public.world_defs(building_id, kind, level) values (c.bid, c.def_kind, c.def_level)
         on conflict (building_id, kind) do update set level = greatest(public.world_defs.level, excluded.level);
+    elsif c.tipo = 'restaura' then
+      update public.world_defs set danno = 0 where building_id = c.bid and kind = c.def_kind;
     elsif c.home then update public.world_homes set danno = 0 where user_id = c.user_id;
     else update public.world_buildings set danno = 0, integrita = 100, caduta_at = null, caduta_da = null where building_id = c.bid and owner = c.user_id; end if;
     update public.world_cantieri set stato = 'finito' where id = c.id;
@@ -1173,6 +1175,39 @@ CREATE FUNCTION public.w_def(p_bid text, p_kind text) RETURNS integer
     AS $$
   select coalesce((select level from public.world_defs where building_id = p_bid and kind = p_kind), 0);
 $$;
+
+--
+-- Name: w_defe(text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_defe(p_bid text, p_kind text) RETURNS numeric
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select coalesce((select round(level * (100 - danno) / 100.0, 2) from public.world_defs where building_id = p_bid and kind = p_kind), 0); $$;
+
+--
+-- Name: w_difese_pct(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_difese_pct(p_bid text) RETURNS integer
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select coalesce(round(sum(level * danno)::numeric / nullif(sum(level), 0))::int, 0) from public.world_defs where building_id = p_bid and level > 0; $$;
+
+--
+-- Name: w_difese_stato(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_difese_stato(p_bid text) RETURNS json
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select coalesce(json_agg(json_build_object('kind', kind, 'level', level, 'danno', danno,
+    'restauro', json_build_object('legno', public.w_restauro_legno(level, danno), 'minuti', public.w_restauro_min(level, danno)),
+    'lavori', exists (select 1 from public.world_cantieri c where c.bid = p_bid and c.def_kind = d.kind and c.stato = 'lavori')) order by kind), '[]'::json)
+  from public.world_defs d where building_id = p_bid and level > 0; $$;
 
 --
 -- Name: w_dist_alleanza(bigint, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
@@ -1359,7 +1394,7 @@ CREATE FUNCTION public.w_fort(p_bid text) RETURNS integer
     SET search_path TO 'public'
     AS $$
   select case when p_bid like 'pres:%' then 2 * public.w_pres_liv(substr(p_bid, 6), 'torretta')
-    else public.w_def(p_bid,'barricate') + public.w_def(p_bid,'recinto') + public.w_def(p_bid,'fossato') end; $$;
+    else round(public.w_defe(p_bid,'barricate') + public.w_defe(p_bid,'recinto') + public.w_defe(p_bid,'fossato'))::int end; $$;
 
 --
 -- Name: w_forza_att(uuid, text); Type: FUNCTION; Schema: public; Owner: -
@@ -1681,7 +1716,7 @@ CREATE FUNCTION public.w_orde_tick() RETURNS integer
     SET search_path TO 'public'
     AS $$
 declare k jsonb := public.w_pvp_cfg(); pt timestamptz := public.w_prev_slot(now()); pid text := public.w_slot_id(public.w_prev_slot(now()));
-  u uuid; x record; lvl int; bon int; cb int; comb numeric; p int; a int; e int; emax int; cad jsonb; loot jsonb; sc boolean; resta int; n int := 0;
+  u uuid; x record; lvl int; bon int; cb int; comb numeric; p int; a int; e int; emax int; cad jsonb; loot jsonb; sc boolean; resta int; n int := 0; zt record; wl int; dd jsonb; dm int;
 begin
   -- solo le orde arrivate dopo l'installazione, e al massimo 12 ore fa
   if pt <= coalesce((select t from public.world_orde_avvio where id = 1), now()) or pt < now() - interval '12 hours' then return 0; end if;
@@ -1695,7 +1730,24 @@ begin
       a := public.w_attack3(pid, x.building_id, lvl);
       if p >= a then continue; end if;
       e := public.w_esito(round(a::numeric / greatest(1, p * (1 + comb)), 3));
-      cad := cad || jsonb_build_object('bid', x.building_id, 'home', x.home, 'attacco', a, 'difesa', p, 'esito', e);
+      dd := '{}'::jsonb;
+      if not sc and e > 0 then
+        -- ogni tipo di zombie dell'orda rovina le difese che lo fermano: la principale 10 + 10 × esito, la seconda la metà;
+        -- i vaganti consumano le trappole (5 × esito). Una difesa rovinata va restaurata prima di salire di livello.
+        wl := least(greatest(lvl, 1), 30);
+        dm := 5 * e;
+        update public.world_defs set danno = least(100, danno + dm) where building_id = x.building_id and kind = 'trappole' and level > 0;
+        if found then dd := dd || jsonb_build_object('trappole', dm); end if;
+        for zt in select * from public.w_ztypes() z where wl >= z.minl loop
+          dm := 10 + 10 * e;
+          update public.world_defs set danno = least(100, danno + dm) where building_id = x.building_id and kind = zt.dk and level > 0;
+          if found then dd := dd || jsonb_build_object(zt.dk, coalesce((dd->>zt.dk)::int, 0) + dm); end if;
+          dm := 5 + 5 * e;
+          update public.world_defs set danno = least(100, danno + dm) where building_id = x.building_id and kind = zt.dk2 and level > 0;
+          if found then dd := dd || jsonb_build_object(zt.dk2, coalesce((dd->>zt.dk2)::int, 0) + dm); end if;
+        end loop;
+      end if;
+      cad := cad || jsonb_build_object('bid', x.building_id, 'home', x.home, 'attacco', a, 'difesa', p, 'esito', e, 'difese', dd);
       if sc or e <= 0 then continue; end if;
       emax := greatest(emax, e);
       if x.home then
@@ -2159,6 +2211,24 @@ begin
 end $$;
 
 --
+-- Name: w_restauro_legno(integer, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_restauro_legno(p_level integer, p_danno integer) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select case when p_danno <= 0 then 0 else greatest(5, ceil(p_danno * greatest(p_level, 1) * 0.4))::int end; $$;
+
+--
+-- Name: w_restauro_min(integer, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_restauro_min(p_level integer, p_danno integer) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select case when p_danno <= 0 then 0 else greatest(5, ceil(p_danno * greatest(p_level, 1) * 0.3))::int end; $$;
+
+--
 -- Name: w_rift(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2589,11 +2659,11 @@ begin
     select hm.building_id as bid, true as home, coalesce((select bb.level from public.world_buildings bb where bb.building_id = hm.building_id),1) as lvl, hm.lat, hm.lon from public.world_homes hm where hm.user_id = p_user
     union all select bb.building_id, false, bb.level, bb.lat, bb.lon from public.world_buildings bb where bb.owner = p_user
   loop
-    s := public.w_slope(h.bid); ev := public.w_wxev(h.bid, nid); mw := public.w_zm('walker', s, ev, hh); tr := 1 - 0.06*least(public.w_def(h.bid,'trappole'),3);
+    s := public.w_slope(h.bid); ev := public.w_wxev(h.bid, nid); mw := public.w_zm('walker', s, ev, hh); tr := 1 - 0.06*least(public.w_defe(h.bid,'trappole'),3);
     select coalesce(json_agg(json_build_object('k', t.k, 'base', round(t.base*(1+0.03*wl),4), 'mod', round(public.w_zm(t.k,s,ev,hh),4),
-             'dk', t.dk, 'dl', public.w_def(h.bid,t.dk), 'dk2', t.dk2, 'dl2', public.w_def(h.bid,t.dk2),
-             'p', round(t.base*(1+0.03*wl)*public.w_zm(t.k,s,ev,hh)*(1-0.3*least(public.w_def(h.bid,t.dk),3))*(1-0.15*least(public.w_def(h.bid,t.dk2),3)),1)) order by t.minl), '[]'::json),
-           coalesce(sum(t.base*(1+0.03*wl)*public.w_zm(t.k,s,ev,hh)*(1-0.3*least(public.w_def(h.bid,t.dk),3))*(1-0.15*least(public.w_def(h.bid,t.dk2),3))),0)
+             'dk', t.dk, 'dl', public.w_defe(h.bid,t.dk), 'dk2', t.dk2, 'dl2', public.w_defe(h.bid,t.dk2),
+             'p', round(t.base*(1+0.03*wl)*public.w_zm(t.k,s,ev,hh)*(1-0.3*least(public.w_defe(h.bid,t.dk),3))*(1-0.15*least(public.w_defe(h.bid,t.dk2),3)),1)) order by t.minl), '[]'::json),
+           coalesce(sum(t.base*(1+0.03*wl)*public.w_zm(t.k,s,ev,hh)*(1-0.3*least(public.w_defe(h.bid,t.dk),3))*(1-0.15*least(public.w_defe(h.bid,t.dk2),3))),0)
       into sp, ssum from public.w_ztypes() t where wl >= t.minl;
     pb := public.w_pres_bonus(h.bid, nid); ex := public.w_casa_extra(h.bid, nid);
     dt := 45 + 12*greatest(h.lvl,1) + (case when h.home then 5 + public.w_condo_bonus(p_user) else 0 end) + up + pb + ex;
@@ -2602,7 +2672,9 @@ begin
       'wl', wl, 'slope', round(s,3), 'ev', ev, 'temp', (select x.temp from public.world_wx x where x.building_id = h.bid and x.slot_id = nid), 'hh', hh, 'mw', round(mw,4),
       'std_min', 30+2*wl, 'std_max', 30+2*wl+49, 'specials', sp, 'atk_min', amin, 'atk_max', amax,
       'chance', greatest(0, least(100, round((dt - amin + 1)::numeric / greatest(1, amax - amin + 1) * 100))),
-      'defs', (select coalesce(json_object_agg(kind, level), '{}'::json) from public.world_defs where building_id = h.bid));
+      'defs', (select coalesce(json_object_agg(kind, level), '{}'::json) from public.world_defs where building_id = h.bid),
+      'defe', (select coalesce(json_object_agg(kind, public.w_defe(h.bid, kind)), '{}'::json) from public.world_defs where building_id = h.bid),
+      'danni', (select coalesce(json_object_agg(kind, danno), '{}'::json) from public.world_defs where building_id = h.bid and danno > 0));
   end loop;
   return array_to_json(out);
 end $$;
@@ -4056,12 +4128,13 @@ begin
   perform public.w_cantieri_tick();
   return json_build_object('ok', true, 'ora', now(),
     'case', coalesce((select json_agg(z.x) from (
-      select json_build_object('bid', h.building_id, 'home', true, 'danno', h.danno, 'integrita', 100,
-        'danno_pct', least(100, round(100.0 * h.danno / greatest(1, 50 + 12 * coalesce((select level from public.world_buildings where building_id = h.building_id), 1))))) as x
+      select json_build_object('bid', h.building_id, 'home', true, 'danno', h.danno, 'integrita', 100, 'difese', public.w_difese_stato(h.building_id),
+        'danno_pct', greatest(public.w_difese_pct(h.building_id), least(100, round(100.0 * h.danno / greatest(1, 50 + 12 * coalesce((select level from public.world_buildings where building_id = h.building_id), 1)))))) as x
         from public.world_homes h where h.user_id = me
       union all
       select json_build_object('bid', b.building_id, 'home', false, 'danno', b.danno, 'integrita', b.integrita, 'crollata', b.caduta_at is not null,
-        'danno_pct', least(100, round(100.0 * b.danno / greatest(1, 45 + 12 * b.level)))) from public.world_buildings b where b.owner = me) z), '[]'::json),
+        'difese', public.w_difese_stato(b.building_id),
+        'danno_pct', greatest(public.w_difese_pct(b.building_id), least(100, round(100.0 * b.danno / greatest(1, 45 + 12 * b.level))))) from public.world_buildings b where b.owner = me) z), '[]'::json),
     'orda', (select json_build_object('slot', o.slot_id, 'esito', o.esito, 'loot', o.loot, 'case', o.case_cadute) from public.world_orde_esiti o
              where o.user_id = me order by o.created_at desc limit 1),
     'attacchi', coalesce((select json_agg(json_build_object('bid', a.bid, 'quando', a.impatto, 'da', public.w_nick(a.attaccante), 'esito', (a.esito->>'esito')::int,
@@ -4441,6 +4514,35 @@ CREATE FUNCTION public.world_coresidents() RETURNS TABLE(user_id uuid, nick text
 $$;
 
 --
+-- Name: world_def_restaura(text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_def_restaura(p_bid text, p_kind text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); d public.world_defs; home boolean; v_legno int; mins int; x public.world_cantieri;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  perform public.w_cantieri_tick();
+  home := exists (select 1 from public.world_homes where building_id = p_bid and user_id = me);
+  if not home and not exists (select 1 from public.world_buildings where building_id = p_bid and owner = me) then return json_build_object('ok', false, 'msg', 'Non è una tua casa'); end if;
+  select * into d from public.world_defs where building_id = p_bid and kind = p_kind;
+  if d.building_id is null or d.danno <= 0 then return json_build_object('ok', false, 'msg', 'Questa difesa è intatta'); end if;
+  if exists (select 1 from public.world_cantieri where bid = p_bid and def_kind = p_kind and stato = 'lavori') then
+    return json_build_object('ok', false, 'msg', '🔧 Ci stanno già lavorando'); end if;
+  v_legno := public.w_restauro_legno(d.level, d.danno); mins := public.w_restauro_min(d.level, d.danno);
+  update public.world_wallet w set legno = w.legno - v_legno where w.user_id = me and w.legno >= v_legno;
+  if not found then return json_build_object('ok', false, 'msg', format('Servono 🪵 %s per restaurarla', v_legno)); end if;
+  insert into public.world_cantieri(user_id, bid, home, fine, legno, mattoni, tipo, def_kind, def_level)
+    values (me, p_bid, home, greatest(now(), coalesce((select max(fine) from public.world_cantieri where bid = p_bid and stato = 'lavori'), now())) + make_interval(mins => mins),
+            v_legno, 0, 'restaura', p_kind, d.level) returning * into x;
+  mins := ceil(extract(epoch from x.fine - now()) / 60);
+  return json_build_object('ok', true, 'id', x.id, 'minuti', mins, 'fine', x.fine,
+    'msg', format('🔧 Restauro avviato: pronto fra %s · 🪵 −%s', case when mins >= 60 then (mins / 60) || ' h ' || (mins % 60) || ' min' else mins || ' min' end, v_legno));
+end $$;
+
+--
 -- Name: world_def_upgrade(text, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4454,6 +4556,12 @@ begin
   if p_kind not in ('fossato','barricate','sirena','fondamenta','fari','trappole','grate','recinto','cani','pompa') then return json_build_object('ok',false,'msg','Difesa non valida'); end if;
   home := exists (select 1 from public.world_homes where building_id = p_bid and user_id = me);
   if not home and not exists (select 1 from public.world_buildings where building_id = p_bid and owner = me) then return json_build_object('ok',false,'msg','Non è una tua casa'); end if;
+  -- una difesa rovinata dall'orda va prima restaurata (world_def_restaura)
+  if exists (select 1 from public.world_defs where building_id = p_bid and kind = p_kind and danno > 0) then
+    return json_build_object('ok',false,'restaura',true,'danno',(select danno from public.world_defs where building_id = p_bid and kind = p_kind),
+      'msg','🔧 Questa difesa è rovinata ('||(select danno from public.world_defs where building_id = p_bid and kind = p_kind)||'%): restaurala prima di salire di livello'); end if;
+  if exists (select 1 from public.world_cantieri where bid = p_bid and def_kind = p_kind and tipo = 'restaura' and stato = 'lavori') then
+    return json_build_object('ok',false,'msg','🔧 Restauro in corso: potrai salire di livello quando è finito'); end if;
   -- il livello conta anche i lavori già in coda
   lv := greatest(public.w_def(p_bid, p_kind), coalesce((select max(def_level) from public.world_cantieri where bid = p_bid and def_kind = p_kind and stato = 'lavori'), 0));
   if lv >= 3 then return json_build_object('ok',false,'msg','Già al massimo (o già in lavorazione)'); end if;
@@ -7852,6 +7960,8 @@ CREATE TABLE public.world_defs (
     building_id text NOT NULL,
     kind text NOT NULL,
     level integer DEFAULT 0 NOT NULL,
+    danno integer DEFAULT 0 NOT NULL,
+    CONSTRAINT world_defs_danno_check CHECK (((danno >= 0) AND (danno <= 100))),
     CONSTRAINT world_defs_kind_check CHECK ((kind = ANY (ARRAY['fossato'::text, 'barricate'::text, 'sirena'::text, 'fondamenta'::text, 'fari'::text, 'trappole'::text, 'grate'::text, 'recinto'::text, 'cani'::text, 'pompa'::text])))
 );
 
@@ -11216,6 +11326,24 @@ REVOKE ALL ON FUNCTION public.w_custodita(p_user uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.w_def(p_bid text, p_kind text) FROM PUBLIC;
 
 --
+-- Name: FUNCTION w_defe(p_bid text, p_kind text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_defe(p_bid text, p_kind text) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_difese_pct(p_bid text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_difese_pct(p_bid text) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_difese_stato(p_bid text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_difese_stato(p_bid text) FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_dist_alleanza(p_aid bigint, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
 --
 
@@ -11955,6 +12083,13 @@ GRANT ALL ON FUNCTION public.world_consigli() TO authenticated;
 --
 
 GRANT ALL ON FUNCTION public.world_coresidents() TO authenticated;
+
+--
+-- Name: FUNCTION world_def_restaura(p_bid text, p_kind text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_def_restaura(p_bid text, p_kind text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_def_restaura(p_bid text, p_kind text) TO authenticated;
 
 --
 -- Name: FUNCTION world_def_upgrade(p_bid text, p_kind text); Type: ACL; Schema: public; Owner: -

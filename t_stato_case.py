@@ -1,7 +1,7 @@
 import os;D=os.path.dirname(os.path.abspath(__file__))  # cartella del repository
 # 📊 STATO DELLE CASE (migrazione 036): nella pagina della casa danni in %, integrità, lavori in corso col tempo
 # (riparazione e potenziamenti in coda), ⚡ accelera, 🎬 rivedi l'assalto; in "Le mie case" riga di stato per casa e
-# case perse; dopo "Prepara" si apre "Le mie case".
+# case perse; dopo "Prepara" si apre "Le mie case". Migrazione 040: ogni difesa col suo danno e 🔧 Restaura.
 import asyncio,sys
 sys.path.insert(0,D)
 from playwright.async_api import async_playwright
@@ -25,6 +25,9 @@ async def main():
         await pg.evaluate("()=>SB.rpc('world_prepare')");await pg.wait_for_timeout(2000)
         print('prepara dalla casa resta:',await pg.evaluate("()=>!!document.querySelector('#sheet.open .csbox')"))
         await pg.evaluate("()=>document.querySelector('#sheet.open .csbox [data-pvacc]').click()");await pg.wait_for_timeout(1500)
+        print('difese:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .csdif')].map(x=>x.textContent.replace(/\\s+/g,' ').trim())"))
+        await pg.evaluate("()=>document.querySelector('#sheet.open [data-csres]').click()");await pg.wait_for_timeout(1500)
+        print('restaura:',await pg.evaluate("()=>(window.__RES||{}).p_kind"))
         print('accelera:',await pg.evaluate("()=>(window.__CNA||{}).p_id"))
         print('ERR',E);await b.close()
 asyncio.run(main())

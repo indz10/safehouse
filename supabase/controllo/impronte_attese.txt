@@ -31,7 +31,7 @@ w_atk_pts(uuid, uuid) 2031640ee7
 w_attacchi_integ() d136cc5f67
 w_attacchi_tick() f32dd129a6
 w_attacco_no(uuid, jsonb) 79bcdf48f2
-w_attack3(text, text, integer) 4deba51e53
+w_attack3(text, text, integer) 0a8f8cb0ea
 w_attivita(uuid) 23dc6eab3e
 w_azione(uuid, text, double precision, double precision, text) 91b6665588
 w_bad(text) 2115eb8cd1
@@ -45,7 +45,7 @@ w_boss_tipi() aef051a09a
 w_bottino(uuid, integer) d943f8aaa0
 w_cadute_tick() 79f7834bf4
 w_canon(text, double precision, double precision) a8cd798858
-w_cantieri_tick() 99c4aa603d
+w_cantieri_tick() e447d868b7
 w_casa_extra(text, text) d8d69de76d
 w_casa_manca_tick() 395b46963e
 w_cella(double precision, double precision) 0c5f11f705
@@ -59,6 +59,9 @@ w_condo_key(uuid) 894c2d1dc3
 w_condo_vicini(uuid, uuid) f4443a8150
 w_custodita(uuid) 89ab0439e5
 w_def(text, text) d1aac29e3d
+w_defe(text, text) cb60bb37a4
+w_difese_pct(text) 330b72e8a6
+w_difese_stato(text) 8e392c425b
 w_dist_alleanza(bigint, double precision, double precision) 556484658d
 w_dist_km(uuid, uuid) 4b9f72bf4f
 w_dist_pt(uuid, double precision, double precision) c3d853156b
@@ -71,7 +74,7 @@ w_esito(numeric) 6ab928a75c
 w_eventi_tick() 87a0592b4f
 w_evt_stile(text) 9195bbf1c2
 w_feed_add(text, uuid, uuid, double precision, double precision, text) 1a92b9dc6f
-w_fort(text) bafcee35d6
+w_fort(text) a72f14d8fc
 w_forza_att(uuid, text) 91a5d603fd
 w_forza_dif(uuid, text) efd02b1c26
 w_grado(integer) 54cc85f814
@@ -99,7 +102,7 @@ w_mz_rank(text) 0c32d9db64
 w_mz_speed(text) 54122832f6
 w_next_slot(timestamp with time zone) e7098146fc
 w_nick(uuid) 0f0ebfc0c0
-w_orde_tick() a133602a9c
+w_orde_tick() a54860bd42
 w_partenza(uuid) 0dfadb3001
 w_pay(uuid, integer, text, text) 1a72164541
 w_perche_no(uuid, bigint) 5335d9836d
@@ -123,6 +126,8 @@ w_raduno_no(uuid, bigint) d545e7f5fc
 w_raduno_rimborsa(bigint, boolean) 182a40741a
 w_raid_houses(uuid, timestamp with time zone) 81af815347
 w_res(uuid, integer, integer, integer) 6de01c39a5
+w_restauro_legno(integer, integer) 740efdf466
+w_restauro_min(integer, integer) 7f1bbe27f5
 w_rift(uuid, uuid) 79ca44e7de
 w_rinf_no(uuid, bigint) bf68e91c20
 w_rinf_tot(bigint, timestamp with time zone) 4053ad92fb
@@ -146,7 +151,7 @@ w_sup(uuid) 6e87cf96ab
 w_sup_inviti(uuid) 4b9cce9772
 w_sup_raggio(integer, jsonb) 462872077a
 w_target(text, double precision, double precision) d2b39d5099
-w_threats_of(uuid) c3f1ef3fd3
+w_threats_of(uuid) a7e18af67a
 w_tr_casa_pos() 3ece59115a
 w_tr_dm() af3d1fb89f
 w_tr_feed() e607f3ac80
@@ -215,7 +220,7 @@ world_caccia_inizia() 2f03ec55ac
 world_cantiere_accelera(bigint) 47253035be
 world_cantieri_miei() 0bafe5d417
 world_case_integrita() 206e0a54c5
-world_case_stato() 5747ba4e6b
+world_case_stato() d1a22a0395
 world_cassa_apri(text, double precision, double precision) 3cb92372a4
 world_cassa_manda(text) eeca163d65
 world_chat_list(text, bigint) ffb3c046c7
@@ -229,7 +234,8 @@ world_condo_info() 8911c9ba1c
 world_condo_peace(uuid) 388d9d7b53
 world_consigli() 4d91cb3c39
 world_coresidents() f6b396fcc0
-world_def_upgrade(text, text) 0c49e9d3b1
+world_def_restaura(text, text) 1007b3f4dc
+world_def_upgrade(text, text) 2d24acfd7f
 world_difar_fine(bigint, integer, integer) aabe94000f
 world_difar_inizia(double precision, double precision) 8d47a973dc
 world_difendi(text, double precision, double precision) 243f32d609
@@ -378,7 +384,7 @@ world_condo 7c5e55f9
 world_condo_gifts 17d3c1e4
 world_condo_rifts 16de30cd
 world_curses 203cd63e
-world_defs 9c26ecac
+world_defs edfd7ca0
 world_difar 67ea58b4
 world_dm 42f21988
 world_eventi ca175234
