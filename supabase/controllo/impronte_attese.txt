@@ -92,14 +92,16 @@ w_lvl_of(uuid) 584babf18f
 w_max(integer) 76812ad5cd
 w_median_near(uuid) 1ef0515265
 w_mezzo(uuid) 8e0e3b4af6
-w_mz_atk(text) 4213b8f4f1
-w_mz_carb(text, double precision) b00362aa6b
+w_mz_atk(text) 0be3815eea
+w_mz_cap(text) 75e3fd8802
+w_mz_carb(text, double precision) 780a65e514
 w_mz_eff(uuid, double precision) 404afc87ee
-w_mz_help(text) 3b86cf9951
-w_mz_nome(text) 5be057edda
-w_mz_range(text) 995efd4498
-w_mz_rank(text) 0c32d9db64
-w_mz_speed(text) 54122832f6
+w_mz_en(text, integer) 31f86d31ec
+w_mz_help(text) aae693f499
+w_mz_nome(text) 620cc82e9c
+w_mz_range(text) caeb03f8e7
+w_mz_rank(text) 6a3580a566
+w_mz_speed(text) 5acdc3fe53
 w_next_slot(timestamp with time zone) e7098146fc
 w_nick(uuid) 0f0ebfc0c0
 w_orde_tick() a54860bd42
@@ -118,7 +120,7 @@ w_pres_tick() 8f83c2d423
 w_prev_slot(timestamp with time zone) 304fb96aeb
 w_price(double precision, double precision) 15fba21ed2
 w_price2(uuid, double precision, double precision) c076f18600
-w_pvp_cfg() c4bb73aaa5
+w_pvp_cfg() a3f8f6b9ba
 w_radius(integer) d64febc04f
 w_raduni_tick() 7eb338b9f5
 w_raduno_entra(uuid, bigint) 11591943a9
@@ -214,7 +216,7 @@ world_boss_info() 629f6298cc
 world_boss_inizia() d442e7ddcb
 world_bottega_compra(text) 9c218790d7
 world_buy(text, double precision, double precision) c1440ed06d
-world_buy_mezzo(text) 18d40e73af
+world_buy_mezzo(text) 1b907c13fd
 world_caccia_fine(bigint, integer) 578ccf45de
 world_caccia_inizia() 2f03ec55ac
 world_cantiere_accelera(bigint) 47253035be
@@ -247,6 +249,7 @@ world_dm_send(uuid, text) 8750519757
 world_dm_threads() 3560c66838
 world_earn(text) bf52ce0a77
 world_edificio_info(text, double precision, double precision) 4f6d4fba96
+world_energia_compra(integer) b4c89976d1
 world_eventi_vicini() 0682fa4579
 world_evento_azione(bigint) b284e48cf6
 world_fav_set(uuid, boolean) acc675b82b
@@ -266,9 +269,9 @@ world_house_log(text) 43ff9091a4
 world_integrita(text) 4d7008b122
 world_inviter(text) efefc86acc
 world_loans() ed625fbef7
-world_mezzi_info(numeric) 19a4f79e50
-world_mezzo() 75bdd91ccd
-world_mezzo_scegli(text) 1e53cf6d36
+world_mezzi_info(numeric) 61464db361
+world_mezzo() 9dcb97fcb7
+world_mezzo_scegli(text) 215aa07794
 world_mine() 0376f655ab
 world_mine2() 1abdaf5ab7
 world_my_defense() 376cc40503
@@ -319,8 +322,8 @@ world_sfida_quartiere() 4d02fd8635
 world_shape_get(text, text) 9835883569
 world_shape_put(text, text, jsonb) c184167164
 world_shout(uuid, integer) ab6a2241e6
-world_sped_parti(text, text, double precision, double precision) 7f083d77fb
-world_sped_raccogli(bigint) d1d4a6be0c
+world_sped_parti(text, text, double precision, double precision) 79065144c5
+world_sped_raccogli(bigint) 2436643062
 world_status_extra() b12cc9499a
 world_sup_abilita(text) 6bce682efe
 world_sup_equip(text) d386c01004

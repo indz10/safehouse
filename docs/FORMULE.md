@@ -153,3 +153,15 @@ Accrediti solo dal server (`w_pay`): premi del giorno con limiti (`world_earn`),
 - Orda che sfonda (esito e = 1/2/3, senza scudo): per ogni tipo di zombie presente (livello ≥ `minl` di `w_ztypes`) la difesa principale `dk` perde 10 + 10·e %, la seconda `dk2` 5 + 5·e %; le trappole perdono 5·e % (vaganti). Solo difese con livello > 0, massimo 100%. Se la casa tiene: nessun danno.
 - Restauro (`world_def_restaura`): 🪵 = max(5, ⌈danno × livello × 0,4⌉), minuti = max(5, ⌈danno × livello × 0,3⌉), in coda ai lavori della casa; a fine lavori danno = 0. Con danno > 0 il potenziamento è rifiutato.
 - "Danni alle difese" della casa = il più alto tra i danni della casa e la media dei danni delle difese pesata sul livello (`w_difese_pct`).
+
+## 🚗 Mezzi del superstite (Fase 50, migrazione 041)
+| Mezzo | km/h | Energia a viaggio | ⛽ al km | Bottino × | Portata km | Bottega 🧱 |
+| --- | --- | --- | --- | --- | --- | --- |
+| a piedi | 5 | energia del viaggio (min 1) | 0 | 1 | 2 | — |
+| bici | 15 | energia del viaggio + 1 | 0 | 1,2 | 5 | 100 |
+| moto | 40 | 0 | 1 | 1,4 | 12 | 300 |
+| auto | 60 | 0 | 1,5 | 1,8 | 20 | 600 |
+| fuoristrada | 50 | 0 | 2 | 2,2 | 20 | 1.200 |
+| furgone | 45 | 0 | 2,5 | 3 | 20 | 1.800 |
+
+Tempo = 2 + ⌈km ÷ velocità × 60⌉ minuti (spedizioni: andata e ritorno + 5 di ricerca). Bottino della spedizione = bottino × capienza (`w_mz_cap`, salvata in `calc.cap` alla partenza). 🥫 10 = 🔋 1 (`world_energia_compra`, max 10 al giorno, fino al pieno).

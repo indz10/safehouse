@@ -12,14 +12,14 @@ async function mzInfo(km){const k=Math.round((+km||0)*10)/10;if(MZC.d[k]&&Date.n
   try{const{data,error}=await SB.rpc('world_mezzi_info',{p_km:k});if(!error&&data&&data.ok){MZC.d[k]=data;MZC.t[k]=Date.now();return data;}}catch(e){}return null;}
 const mzOra=m=>m>=60?`${Math.floor(m/60)} h ${m%60} min`:`${m} min`;
 function mzRiga(d,sped){const u=(d.mezzi||[]).find(x=>x.mz===d.usato)||(d.mezzi||[])[0];if(!u)return'';const min=sped?2*u.min+5:u.min,carb=sped?2*u.carb:u.carb;
-  return`🚗 <b>${esc(u.nome)}</b> · ⏱️ ${mzOra(min)}${carb?` · ⛽ ${carb}`:''}${sped?' andata e ritorno':''} <u>cambia</u>`;}
+  return`🚗 <b>${esc(u.nome)}</b> · ⏱️ ${mzOra(min)}${carb?` · ⛽ ${carb}`:''}${!carb&&u.energia?` · 🔋 ${u.energia}`:''}${sped?' andata e ritorno':''} <u>cambia</u>`;}
 async function mzChip(btn){const km=+btn.dataset.km;if(!km&&km!==0)return;const sped=!btn.dataset.viaggio;const d=await mzInfo(km);if(!d||!btn.isConnected)return;
   let c=btn.previousElementSibling;if(!c||!c.classList.contains('mzchip')){btn.insertAdjacentHTML('beforebegin','<button type="button" class="mzchip"></button>');c=btn.previousElementSibling;}
   c.innerHTML=mzRiga(d,sped);c.onclick=e=>{e.preventDefault();e.stopPropagation();mzPick(km,sped,()=>{MZC.d={};mzChip(btn);});};}
 async function mzPick(km,sped,dopo){const d=await mzInfo(km);if(!d){toast('🚗 I mezzi arrivano dopo l’aggiornamento del server (blocco SQL 035)');return;}
   const box=document.createElement('div');box.className='mzpick';
   box.innerHTML=`<b>🚗 Con che mezzo vai? (${String(d.km).replace('.',',')} km)</b><small>Più veloce = più ⛽. Hai ⛽ ${d.carb}.${sped?' Spedizione: andata e ritorno + 5 min.':''}</small>
-    ${(d.mezzi||[]).map(m=>{const min=sped?2*m.min+5:m.min,carb=sped?2*m.carb:m.carb;return`<button type="button" class="mzopt ${m.mz===d.usato?'on':''}" data-mz="${m.mz}"><span>${({piedi:'🚶',bici:'🚲',moto:'🏍️',auto:'🚗',fuori:'🚙'})[m.mz]||'🚶'}</span><b>${esc(m.nome)}</b><small>${m.kmh} km/h · ⏱️ ${mzOra(min)} · ${carb?'⛽ '+carb:'senza carburante'} · forza ×${String(m.forza).replace('.',',')}</small></button>`;}).join('')}
+    ${(d.mezzi||[]).map(m=>{const min=sped?2*m.min+5:m.min,carb=sped?2*m.carb:m.carb;return`<button type="button" class="mzopt ${m.mz===d.usato?'on':''}" data-mz="${m.mz}"><span>${({piedi:'🚶',bici:'🚲',moto:'🏍️',auto:'🚗',fuori:'🚙',furgone:'🚐'})[m.mz]||'🚶'}</span><b>${esc(m.nome)}</b><small>${m.kmh} km/h · ⏱️ ${mzOra(min)} · ${carb?'⛽ '+carb:(m.energia?'🔋 '+m.energia:'senza carburante')}${m.cap?' · 🎒 ×'+String(m.cap).replace('.',','):''} · forza ×${String(m.forza).replace('.',',')}</small></button>`;}).join('')}
     <button type="button" class="mzopt" data-mz="migliore"><span>⚡</span><b>Sempre il più veloce</b><small>se hai il carburante</small></button>`;
   const host=document.querySelector('#sheet.open .mzchip');if(host){const old=host.parentElement.querySelector('.mzpick');if(old){old.remove();return;}host.insertAdjacentElement('afterend',box);}else return;
   box.querySelectorAll('[data-mz]').forEach(b=>b.onclick=async e=>{e.stopPropagation();try{const{data}=await SB.rpc('world_mezzo_scegli',{p_mz:b.dataset.mz});toast(data.msg);}catch(er){toast('Non riuscito');}box.remove();dopo&&dopo();});}
