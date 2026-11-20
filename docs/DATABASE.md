@@ -4,7 +4,7 @@ Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sq
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
 - Tabelle: **79** · viste: **1** · indici: **42** · regole (policy): **42** · trigger: **17** · lavori programmati: **7**
-- Funzioni: **334** (334 nomi); usate (direttamente o tramite altre funzioni): **326**; **non usate: 8**
+- Funzioni: **340** (340 nomi); usate (direttamente o tramite altre funzioni): **332**; **non usate: 8**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -52,7 +52,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_attacchi_integ` |  |  | trigger |  | 1: migr. 031_integrita_case |
 | `w_attacchi_tick` |  |  | cron | world_attacchi_miei | 3: migr. 028_attacchi → migr. 029_rinforzi → migr. 030_attacchi_alleanza |
 | `w_attacco_no` |  |  |  | world_attacco_info, world_attacca, w_raduno_no, world_raduno_crea | 3: migr. 028_attacchi → migr. 030_attacchi_alleanza → migr. 031_integrita_case |
-| `w_attack3` |  |  |  | world_raid_status, world_raid_view, w_home_held, w_assalti_tick, w_orde_tick | 4: mondo_v3 → zombie → zombie_alleati → fortezze |
+| `w_attack3` |  |  |  | world_raid_status, world_raid_view, w_home_held, w_assalti_tick, w_orde_tick | 5: mondo_v3 → zombie → zombie_alleati → fortezze → migr. 040_danni_difese |
 | `w_attivita` |  |  |  | w_votanti, world_alleanza_info, world_alleanza_esci2, world_alleanze_mie | 1: migr. 018_alleanze_gruppi |
 | `w_azione` |  |  |  | world_edificio_info, world_assalta, world_difendi, world_assi, world_consigli | 2: migr. 014_territorio → migr. 017_presidi_fortificazioni |
 | `w_bad` |  |  |  | world_chat_send, world_dm_send, world_alleanza_fonda, world_alleanza_scrivi2 | 1: chat |
@@ -66,7 +66,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_bottino` |  |  |  | w_attacchi_tick, w_orde_tick | 1: migr. 028_attacchi |
 | `w_cadute_tick` |  |  | cron | world_ripara | 2: migr. 031_integrita_case → migr. 035_mezzi_cantieri |
 | `w_canon` |  |  |  | world_claim_home, world_quote, world_buy, w_target | 3: mondo_unico → mondo_unico_agg1 → abitazione |
-| `w_cantieri_tick` |  |  | cron | world_ripara, world_cantiere_accelera, world_cantieri_miei, world_case_stato | 2: migr. 035_mezzi_cantieri → migr. 036_cantieri_case |
+| `w_cantieri_tick` |  |  | cron | world_ripara, world_cantiere_accelera, world_cantieri_miei, world_case_stato, world_def_restaura | 3: migr. 035_mezzi_cantieri → migr. 036_cantieri_case → migr. 040_danni_difese |
 | `w_casa_extra` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of, w_pres_def … | 1: migr. 014_territorio |
 | `w_casa_manca_tick` |  | ✓ |  |  | 1: migr. 021_caccia_condomini |
 | `w_cella` |  |  |  | w_eventi_tick | 1: migr. 022_eventi_sfide |
@@ -79,7 +79,10 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_condo_key` |  |  |  | w_condo_bonus, world_condo_give, world_house_info, w_condo_vicini, world_condo_info | 1: abitazione |
 | `w_condo_vicini` |  |  |  | world_condo_break, world_condo_info | 1: migr. 013_condominio |
 | `w_custodita` |  |  |  | world_raid_status, world_player, w_azione, world_edificio_info, w_attacco_no, w_attacchi_tick … | 1: migr. 014_territorio |
-| `w_def` |  |  |  | w_attack3, world_def_upgrade, w_threats_of, w_atk_pts, w_fort | 2: zombie → zombie_alleati |
+| `w_def` |  |  |  | world_def_upgrade, w_atk_pts | 2: zombie → zombie_alleati |
+| `w_defe` |  |  |  | w_attack3, w_threats_of, w_fort | 1: migr. 040_danni_difese |
+| `w_difese_pct` |  |  |  | world_case_stato | 1: migr. 040_danni_difese |
+| `w_difese_stato` |  |  |  | world_case_stato | 1: migr. 040_danni_difese |
 | `w_dist_alleanza` |  |  |  | world_alleanze_vicine, w_zona_libera, w_ancora, w_perche_no | 1: migr. 019_alleanze_multiple |
 | `w_dist_km` |  |  |  | world_send_help, world_player, world_consigli, world_alleanza_invita, world_alleanza_info, world_alleanze_mie … | 2: migr. 009_mezzi_assalti → migr. 037_casa_partenza |
 | `w_dist_pt` |  |  |  | world_presidio_occupa, w_azione, world_consigli, w_sped_km, world_attacco_info, world_attacca … | 2: migr. 014_territorio → migr. 037_casa_partenza |
@@ -92,7 +95,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_eventi_tick` |  | ✓ |  |  | 2: migr. 022_eventi_sfide → migr. 038_eventi_vari |
 | `w_evt_stile` |  |  |  | w_eventi_tick, world_evento_azione | 1: migr. 038_eventi_vari |
 | `w_feed_add` |  |  |  | w_tr_feed, w_tr_dm, world_house_invite, world_house_answer, w_pres_tick, w_assalti_tick … | 1: social |
-| `w_fort` |  |  |  | world_player, w_atk_b, world_edificio_info, world_consigli | 2: migr. 014_territorio → migr. 017_presidi_fortificazioni |
+| `w_fort` |  |  |  | world_player, w_atk_b, world_edificio_info, world_consigli | 3: migr. 014_territorio → migr. 017_presidi_fortificazioni → migr. 040_danni_difese |
 | `w_forza_att` |  |  |  | world_attacco_info, world_attacca, world_rinforza, w_raduno_entra | 1: migr. 028_attacchi |
 | `w_forza_dif` |  |  |  | world_attacco_info, w_attacchi_tick | 1: migr. 028_attacchi |
 | `w_grado` |  |  |  | w_sup_raggio, world_sup_info, world_sup_abilita, world_sped_raccogli, world_caccia_inizia, world_caccia_fine … | 1: migr. 020_superstite |
@@ -120,7 +123,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_mz_speed` |  |  |  | world_send_help, world_player, world_mezzo, w_azione | 1: migr. 009_mezzi_assalti |
 | `w_next_slot` |  |  |  | world_raid_status, world_prepare, world_ask_help, world_help_list, world_send_help, world_player … | 1: orda_mondo |
 | `w_nick` |  |  |  | world_view, world_quote, world_help_list, w_settle_loans, world_give, world_gifts_in … | 1: mondo_unico |
-| `w_orde_tick` |  | ✓ | cron | world_orde_mie | 1: migr. 032_orde_motore |
+| `w_orde_tick` |  | ✓ | cron | world_orde_mie | 2: migr. 032_orde_motore → migr. 040_danni_difese |
 | `w_partenza` |  |  |  | w_dist_km, w_dist_pt | 1: migr. 037_casa_partenza |
 | `w_pay` |  |  |  | w_cleanup, world_earn, world_claim_home, w_settle, world_sell, world_collect … | 3: mondo_unico → equita → migr. 020_superstite |
 | `w_perche_no` |  |  |  | world_ally_request, w_alleanza_chiudi, world_alleanza_chiedi, world_alleanza_risposta, world_alleanze_vicine, world_alleanza_invita2 … | 1: migr. 019_alleanze_multiple |
@@ -144,6 +147,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_raduno_rimborsa` |  |  |  | world_raduno_annulla, w_raduni_tick | 1: migr. 030_attacchi_alleanza |
 | `w_raid_houses` |  |  |  | world_raid_status, w_orde_tick | 1: orda_mondo |
 | `w_res` |  |  |  | world_earn, world_raid_claim, world_send_help, w_pres_rendita, w_assalti_tick, world_presenza … | 1: migr. 012_risorse_ricompense |
+| `w_restauro_legno` |  |  |  | w_difese_stato, world_def_restaura | 1: migr. 040_danni_difese |
+| `w_restauro_min` |  |  |  | w_difese_stato, world_def_restaura | 1: migr. 040_danni_difese |
 | `w_rift` |  |  |  | w_are_allies, w_allies_of, w_coinq, world_condo_break, world_condo_info | 1: migr. 013_condominio |
 | `w_rinf_no` |  |  |  | world_rinforza | 1: migr. 029_rinforzi |
 | `w_rinf_tot` |  |  |  | w_attacchi_tick, world_attacchi_miei, world_rinforzi_info | 1: migr. 029_rinforzi |
@@ -167,7 +172,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_sup_inviti` |  |  |  | world_sup_info | 1: migr. 020_superstite |
 | `w_sup_raggio` |  |  |  | world_sup_info, world_sped_parti, world_eventi_vicini, world_evento_azione | 2: migr. 020_superstite → migr. 021_caccia_condomini |
 | `w_target` |  |  |  | w_azione, world_edificio_info | 1: migr. 014_territorio |
-| `w_threats_of` |  |  |  | world_threats, world_ally_view, world_allies_status | 7: alleati_sim → zombie_alleati → fortezze → abitazione → migr. 002_formule_uguali → migr. 006_presidi → migr. 014_territorio |
+| `w_threats_of` |  |  |  | world_threats, world_ally_view, world_allies_status | 8: alleati_sim → zombie_alleati → fortezze → abitazione → migr. 002_formule_uguali → migr. 006_presidi → migr. 014_territorio → migr. 040_danni_difese |
 | `w_tr_casa_pos` |  |  | trigger |  | 1: migr. 015_posizione_casa |
 | `w_tr_dm` |  |  | trigger |  | 1: assedio |
 | `w_tr_feed` |  |  | trigger |  | 4: social → aiuto_alleati → dispetti → alleanze2 |
@@ -188,7 +193,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_zm_tipi` |  |  |  | w_zm_qua, world_zombie_lotta, world_zombie_fine, world_zombipedia, w_lente_tick | 1: migr. 025_zombie_mondo |
 | `w_zm_trova` |  |  |  | world_zombie_lotta, world_zombie_fine, world_cassa_apri, world_cassa_manda | 1: migr. 025_zombie_mondo |
 | `w_zona_libera` |  |  |  | w_ancora, world_alleanza_fonda | 1: migr. 019_alleanze_multiple |
-| `w_ztypes` |  |  |  | w_attack3, w_threats_of | 3: zombie → zombie_alleati → fortezze |
+| `w_ztypes` |  |  |  | w_attack3, w_threats_of, w_orde_tick | 3: zombie → zombie_alleati → fortezze |
 | `world_aiuto_lontano` | ✓ |  |  |  | 1: migr. 027_mondo_vero |
 | `world_alleanza_chat` |  |  |  |  | 2: migr. 018_alleanze_gruppi → migr. 019_alleanze_multiple |
 | `world_alleanza_chat2` | ✓ |  |  | world_alleanza_chat | 1: migr. 019_alleanze_multiple |
@@ -236,7 +241,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_cantiere_accelera` | ✓ |  |  |  | 1: migr. 035_mezzi_cantieri |
 | `world_cantieri_miei` | ✓ |  |  |  | 2: migr. 035_mezzi_cantieri → migr. 036_cantieri_case |
 | `world_case_integrita` | ✓ |  |  |  | 1: migr. 031_integrita_case |
-| `world_case_stato` | ✓ |  |  |  | 1: migr. 036_cantieri_case |
+| `world_case_stato` | ✓ |  |  |  | 2: migr. 036_cantieri_case → migr. 040_danni_difese |
 | `world_cassa_apri` | ✓ |  |  |  | 1: migr. 025_zombie_mondo |
 | `world_cassa_manda` | ✓ |  |  |  | 1: migr. 033_cassa_superstite |
 | `world_chat_list` | ✓ |  |  |  | 1: chat |
@@ -250,7 +255,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_condo_peace` | ✓ |  |  |  | 1: migr. 013_condominio |
 | `world_consigli` | ✓ |  |  |  | 1: migr. 016_presidi_guida |
 | `world_coresidents` | ✓ |  |  |  | 1: residenti |
-| `world_def_upgrade` | ✓ |  |  |  | 5: zombie → zombie_alleati → assedio → fortezze → migr. 036_cantieri_case |
+| `world_def_restaura` | ✓ |  |  |  | 1: migr. 040_danni_difese |
+| `world_def_upgrade` | ✓ |  |  |  | 6: zombie → zombie_alleati → assedio → fortezze → migr. 036_cantieri_case → migr. 040_danni_difese |
 | `world_difar_fine` | ✓ |  |  |  | 1: migr. 026_difesa_lente_boss |
 | `world_difar_inizia` | ✓ |  |  |  | 1: migr. 026_difesa_lente_boss |
 | `world_difendi` | ✓ |  |  |  | 1: migr. 014_territorio |
@@ -401,7 +407,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_condo_gifts` | abitazione | 0 | ✓ |
 | `world_condo_rifts` | supabase/migrazioni/013_condominio | 0 | ✓ |
 | `world_curses` | dispetti | 0 | ✓ |
-| `world_defs` | zombie | 2 | ✓ |
+| `world_defs` | zombie | 5 | ✓ |
 | `world_difar` | supabase/migrazioni/026_difesa_lente_boss | 0 | ✓ |
 | `world_dm` | assedio | 0 | ✓ |
 | `world_eventi` | supabase/migrazioni/022_eventi_sfide | 2 | ✓ |
