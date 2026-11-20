@@ -27,12 +27,12 @@ zEvery(()=>{try{if(document.hidden||!S.user)return;document.querySelectorAll('#s
 /* ---------- 🔨 cantieri in Io ---------- */
 const _pvpLoadCn=pvpLoad;pvpLoad=async function(force){const r=await _pvpLoadCn.apply(this,arguments);
   if(force||!PVP.cnT||Date.now()-PVP.cnT>30000){PVP.cnT=Date.now();try{const{data,error}=await SB.rpc('world_cantieri_miei');PVP.cn=!error&&data&&data.ok?(data.cantieri||[]):null;}catch(e){PVP.cn=null;}}return r;};
-const cnRiga=c=>`<span class="pvpok">🔨 In cantiere · finisce fra <i data-pvt="${c.fine}">${pvpLeft(c.fine)}</i></span><button class="btn small" data-pvacc="${c.id}">⚡ Accelera · 🧱 ${c.accelera}</button>`;
+const cnRiga=c=>`<span class="pvpok">🔨 In cantiere · finisce fra <i data-pvt="${c.fine}">${pvpLeft(c.fine)}</i></span><button class="btn small" data-pvacc="${c.id}" data-fine="${c.fine}">⚡ Completa · 💎 ${gemCosto(c.fine)}</button>`;
 const _pvpHTMLCn=pvpHTML;pvpHTML=function(){let h=_pvpHTMLCn.apply(this,arguments);try{(PVP.cn||[]).forEach(c=>{
   if(c.home)h=h.replace('<button class="btn small" data-pvrip>Ripara</button>',cnRiga(c));
   else h=h.replace(new RegExp(`<button class="btn small" data-pvrc="${String(c.bid).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}">[^<]*</button>`),cnRiga(c));});}catch(e){}return h;};
 document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('[data-pvacc]');if(!b)return;e.preventDefault();e.stopPropagation();b.disabled=true;
-  try{const{data,error}=await SB.rpc('world_cantiere_accelera',{p_id:+b.dataset.pvacc});if(error)throw error;toast(data.msg);if(!data.ok)b.disabled=false;}catch(er){toast('Non riuscito');b.disabled=false;}
+  const r=await gemSubito('cantiere',b.dataset.pvacc,b.dataset.fine||new Date().toISOString());if(!r||!r.ok)b.disabled=false;
   RES.t=0;try{resLoad(true);wMine(true);}catch(er){}pvpLoad(true).then(pvpPaint);},true);
 /* ---------- 📊 stato delle case: danni, cantieri, assalto, case perse (migrazione 036) ---------- */
 const CS={d:null,t:0};
@@ -41,7 +41,7 @@ async function csLoad(force){if(!force&&CS.d&&Date.now()-CS.t<20000)return CS.d;
   try{await pvpLoad(true);}catch(e){}return CS.d;}
 const CS_DEF={fossato:'🌊 Fossato',barricate:'🪵 Barricate',sirena:'🚨 Sirena',fondamenta:'🧱 Fondamenta',fari:'💡 Fari',trappole:'🪤 Trappole',grate:'🔩 Grate',recinto:'🚧 Recinto',cani:'🐕 Cani',pompa:'🚿 Pompa'};
 const csCant=bid=>((PVP&&PVP.cn)||[]).filter(c=>c.bid===bid||(c.home&&!bid));
-function csLavori(L){return L.map(c=>`<div class="cslav"><span>${c.tipo==='potenzia'?'🏗️':c.tipo==='restaura'?'🔧':'🔨'}</span><div><b>${c.tipo==='potenzia'?`${CS_DEF[c.def_kind]||c.def_kind} → livello ${c.def_level}`:c.tipo==='restaura'?`Restauro: ${CS_DEF[c.def_kind]||c.def_kind}`:'Riparazione'}</b><small>pronto fra <i data-pvt="${c.fine}">${pvpLeft(c.fine)}</i></small></div><button class="btn small" data-pvacc="${c.id}">⚡ 🧱 ${c.accelera}</button></div>`).join('');}
+function csLavori(L){return L.map(c=>`<div class="cslav"><span>${c.tipo==='potenzia'?'🏗️':c.tipo==='restaura'?'🔧':'🔨'}</span><div><b>${c.tipo==='potenzia'?`${CS_DEF[c.def_kind]||c.def_kind} → livello ${c.def_level}`:c.tipo==='restaura'?`Restauro: ${CS_DEF[c.def_kind]||c.def_kind}`:'Riparazione'}</b><small>pronto fra <i data-pvt="${c.fine}">${pvpLeft(c.fine)}</i></small></div><button class="btn small" data-pvacc="${c.id}" data-fine="${c.fine}">⚡ 💎 ${gemCosto(c.fine)}</button></div>`).join('');}
 function csRiga(h){const d=CS.d;if(!d)return'';const x=(d.case||[]).find(c=>c.bid===h.bid||(h.home&&c.home));const L=csCant(h.bid);const t=[];
   if(x&&(x.danno_pct||x.integrita<100))t.push(`💥 danni ${x.danno_pct}%`+(h.home?'':` · integrità ${x.integrita}%`));if(x&&x.crollata)t.push('🏚️ crollata');
   L.forEach(c=>t.push(`${c.tipo==='potenzia'?'🏗️ '+(CS_DEF[c.def_kind]||c.def_kind)+' '+c.def_level:c.tipo==='restaura'?'🔧 restauro '+(CS_DEF[c.def_kind]||c.def_kind):'🔨 riparazione'} fra ${pvpLeft(c.fine)}`));

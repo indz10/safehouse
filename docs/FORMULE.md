@@ -165,3 +165,12 @@ Accrediti solo dal server (`w_pay`): premi del giorno con limiti (`world_earn`),
 | furgone | 45 | 0 | 2,5 | 3 | 20 | 1.800 |
 
 Tempo = 2 + ⌈km ÷ velocità × 60⌉ minuti (spedizioni: andata e ritorno + 5 di ricerca). Bottino della spedizione = bottino × capienza (`w_mz_cap`, salvata in `calc.cap` alla partenza). 🥫 10 = 🔋 1 (`world_energia_compra`, max 10 al giorno, fino al pieno).
+
+## 💎 Gemme (Fase 51, migrazione 042 — valori PROVVISORI in `w_gem_cfg`)
+| Cosa | Valore |
+| --- | --- |
+| Completa subito | max(1, ⌈minuti che mancano ÷ 6⌉) 💎; attacchi: arrivo spostato a fra 5 minuti, costo sui minuti tolti |
+| Cambio | 1 💎 = 🥫 10 · 🪵 10 · ⛽ 8 · 🧱 15 (max 200 💎 per cambio) |
+| Grado nuovo | 3 + grado 💎 (es. grado 4 → 7) |
+| Traguardi | grado 5: 20 · 10: 50 · 15: 80 · 20: 120 · 30: 200 |
+| Pacchetti | 60 💎 0,99 € · 330 💎 4,99 € · 700 💎 9,99 € · 1.500 💎 19,99 € (pagamenti spenti) |

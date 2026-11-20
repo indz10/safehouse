@@ -1426,6 +1426,106 @@ begin
 end $$;
 
 --
+-- Name: w_gem_cfg(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_gem_cfg() RETURNS jsonb
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select jsonb_build_object(
+    'provvisorio', true,
+    -- completa subito: 1 💎 ogni 'min_per_gemma' minuti che mancano (arrotondato in su), minimo 1
+    'min_per_gemma', 6, 'subito_min', 1,
+    'attacco_min_rimasti', 5,                     -- un attacco accelerato arriva comunque fra almeno 5 minuti
+    -- 1 💎 = …
+    'cambio', jsonb_build_object('cibo', 10, 'legno', 10, 'carb', 8, 'mattoni', 15),
+    'cambio_max', 200,                            -- 💎 massime per singolo cambio
+    -- gemme a ogni livello nuovo del superstite: base + per_livello × livello
+    'livello_base', 3, 'livello_per', 1,
+    'traguardi', jsonb_build_array(
+      jsonb_build_object('id','liv5','liv',5,'gemme',20,'nome','Grado 5: Sopravvissuto vero'),
+      jsonb_build_object('id','liv10','liv',10,'gemme',50,'nome','Grado 10: Veterano'),
+      jsonb_build_object('id','liv15','liv',15,'gemme',80,'nome','Grado 15: Esperto'),
+      jsonb_build_object('id','liv20','liv',20,'gemme',120,'nome','Grado 20: Comandante'),
+      jsonb_build_object('id','liv30','liv',30,'gemme',200,'nome','Grado 30: Leggenda')),
+    'pacchetti', jsonb_build_array(
+      jsonb_build_object('id','p1','gemme',60,'prezzo_cent',99),
+      jsonb_build_object('id','p2','gemme',330,'prezzo_cent',499),
+      jsonb_build_object('id','p3','gemme',700,'prezzo_cent',999),
+      jsonb_build_object('id','p4','gemme',1500,'prezzo_cent',1999)),
+    'pagamenti_attivi', false); $$;
+
+--
+-- Name: w_gemme_add(uuid, integer, text, text, text, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_gemme_add(p_user uuid, p_delta integer, p_motivo text, p_ref text, p_chiave text, p_test boolean DEFAULT false) RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare s int;
+begin
+  if p_user is null or coalesce(p_delta, 0) = 0 then return null; end if;
+  perform public.w_wallet(p_user);
+  if p_chiave is not null and exists (select 1 from public.world_gemme_mov where chiave = p_chiave) then return -1; end if;
+  update public.world_wallet set gemme = gemme + p_delta where user_id = p_user and gemme + p_delta >= 0 returning gemme into s;
+  if s is null then return null; end if;
+  insert into public.world_gemme_mov(user_id, delta, saldo, motivo, ref, chiave, test) values (p_user, p_delta, s, left(p_motivo, 120), p_ref, p_chiave, coalesce(p_test, false));
+  return s;
+exception when unique_violation then
+  raise exception 'gemme_doppione';
+end $$;
+
+--
+-- Name: w_gemme_costo(timestamp with time zone); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_gemme_costo(p_fine timestamp with time zone) RETURNS integer
+    LANGUAGE sql STABLE
+    AS $$
+  select greatest((public.w_gem_cfg()->>'subito_min')::int,
+    ceil(greatest(0, extract(epoch from p_fine - now()) / 60.0) / (public.w_gem_cfg()->>'min_per_gemma')::numeric)::int); $$;
+
+--
+-- Name: w_gemme_livello(uuid, integer, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_gemme_livello(p_user uuid, p_da integer, p_a integer) RETURNS void
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare k jsonb := public.w_gem_cfg(); g int; t jsonb;
+begin
+  if p_a <= p_da then return; end if;
+  for g in (p_da + 1)..p_a loop
+    perform public.w_gemme_add(p_user, (k->>'livello_base')::int + (k->>'livello_per')::int * g, 'Grado ' || g || ' raggiunto', null, 'liv:' || p_user || ':' || g);
+    for t in select * from jsonb_array_elements(k->'traguardi') loop
+      if (t->>'liv')::int = g then
+        perform public.w_gemme_add(p_user, (t->>'gemme')::int, 'Traguardo: ' || (t->>'nome'), t->>'id', 'trg:' || p_user || ':' || (t->>'id'));
+      end if;
+    end loop;
+  end loop;
+end $$;
+
+--
+-- Name: w_gemme_pagato(bigint, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_gemme_pagato(p_ordine bigint, p_rif text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare o public.world_gemme_ordini; s int;
+begin
+  select * into o from public.world_gemme_ordini where id = p_ordine for update;
+  if o.id is null then return json_build_object('ok', false, 'msg', 'ordine?'); end if;
+  if o.stato = 'pagato' then return json_build_object('ok', true, 'gia', true); end if;
+  update public.world_gemme_ordini set stato = 'pagato', rif_pagamento = p_rif, pagato_at = now() where id = o.id;
+  s := public.w_gemme_add(o.user_id, o.gemme, 'Acquisto ' || o.pacchetto, o.id::text, 'ord:' || o.id);
+  return json_build_object('ok', true, 'gemme', s);
+end $$;
+
+--
 -- Name: w_grado(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1960,7 +2060,7 @@ declare r int := greatest(coalesce(p_record,1),1); a int := 40 + least(40, 4 * g
 begin
   if p_user is null then return; end if;
   if p_kind in ('parco','sport') then perform public.w_res(p_user, a, 0, 0);
-  elsif p_kind in ('piazza','centro','chiesa') then perform public.w_res(p_user, 0, a, 0);
+  elsif p_kind in ('piazza','centro','chiesa') then perform public.w_res(p_user, a, 0, 0);   -- (042) legno, non cibo
   elsif p_kind in ('stazione','polizia','pompieri') then perform public.w_res(p_user, 0, 0, a);
   else perform public.w_pay(p_user, 30 + least(30, 2 * r), 'Presidio tenuto'); end if;
 end $$;
@@ -2889,7 +2989,9 @@ CREATE TABLE public.world_wallet (
     last_rent timestamp with time zone DEFAULT now() NOT NULL,
     legno integer DEFAULT 0 NOT NULL,
     cibo integer DEFAULT 0 NOT NULL,
-    carb integer DEFAULT 0 NOT NULL
+    carb integer DEFAULT 0 NOT NULL,
+    gemme integer DEFAULT 0 NOT NULL,
+    CONSTRAINT world_wallet_gemme_check CHECK ((gemme >= 0))
 );
 
 --
@@ -2926,11 +3028,13 @@ CREATE FUNCTION public.w_xp(p_user uuid, p_n integer) RETURNS integer
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-declare x int;
+declare x int; prima int;
 begin
   if p_user is null or coalesce(p_n,0) <= 0 then return 0; end if;
+  select xp into prima from public.world_superstite where user_id = p_user for update;
   insert into public.world_superstite(user_id, xp) values (p_user, p_n)
     on conflict (user_id) do update set xp = public.world_superstite.xp + excluded.xp returning xp into x;
+  perform public.w_gemme_livello(p_user, public.w_grado(coalesce(prima, 0)), public.w_grado(x));
   return x;
 end $$;
 
@@ -4077,23 +4181,9 @@ end $$;
 --
 
 CREATE FUNCTION public.world_cantiere_accelera(p_id bigint) RETURNS json
-    LANGUAGE plpgsql SECURITY DEFINER
+    LANGUAGE sql SECURITY DEFINER
     SET search_path TO 'public'
-    AS $$
-declare me uuid := auth.uid(); x public.world_cantieri; rest int; costo int;
-begin
-  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
-  select * into x from public.world_cantieri where id = p_id and user_id = me and stato = 'lavori' for update;
-  if x.id is null then return json_build_object('ok', false, 'msg', 'Il cantiere è già finito'); end if;
-  rest := greatest(0, ceil(extract(epoch from x.fine - now()) / 60));
-  costo := greatest(5, ceil(rest::numeric / (public.w_pvp_cfg()->>'acc_min')::int));
-  update public.world_wallet set mattoni = mattoni - costo where user_id = me and mattoni >= costo;
-  if not found then return json_build_object('ok', false, 'msg', format('Servono 🧱 %s', costo)); end if;
-  insert into public.world_log(user_id, delta, reason, ref, seen) values (me, -costo, 'Cantiere accelerato', x.bid, true);
-  update public.world_cantieri set fine = now() where id = x.id;
-  perform public.w_cantieri_tick();
-  return json_build_object('ok', true, 'msg', format('⚡ Lavori finiti subito · 🧱 −%s', costo));
-end $$;
+    AS $$ select public.world_completa_subito('cantiere', p_id, null); $$;
 
 --
 -- Name: world_cantieri_miei(); Type: FUNCTION; Schema: public; Owner: -
@@ -4342,6 +4432,53 @@ begin
   perform public.w_pay(me, amt, 'Affitti delle tue case');
   update public.world_log set seen = true where user_id = me and reason = 'Affitti delle tue case' and not seen;
   return json_build_object('ok',true,'got',amt,'rate',rate);
+end $$;
+
+--
+-- Name: world_completa_subito(text, bigint, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_completa_subito(p_tipo text, p_id bigint, p_costo_visto integer) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); fine timestamptz; nuova timestamptz; costo int; s int; c public.world_cantieri; sp public.world_spedizioni;
+  a public.world_attacchi; rf public.world_attacchi_rinforzi; k jsonb := public.w_gem_cfg();
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if p_tipo = 'cantiere' then
+    select * into c from public.world_cantieri where id = p_id and user_id = me for update;
+    if c.id is null or c.stato <> 'lavori' then return json_build_object('ok', false, 'msg', 'Lavori già finiti'); end if;
+    fine := c.fine; nuova := now();
+  elsif p_tipo = 'spedizione' then
+    select * into sp from public.world_spedizioni where id = p_id and user_id = me for update;
+    if sp.id is null or sp.stato <> 'via' or sp.end_at <= now() then return json_build_object('ok', false, 'msg', 'Il superstite è già tornato'); end if;
+    fine := sp.end_at; nuova := now();
+  elsif p_tipo = 'attacco' then
+    select * into a from public.world_attacchi where id = p_id and stato = 'viaggio' and attaccante = me for update;
+    if a.id is null then return json_build_object('ok', false, 'msg', 'Attacco non più in viaggio'); end if;
+    fine := a.impatto; nuova := now() + make_interval(mins => (k->>'attacco_min_rimasti')::int);
+    if nuova >= fine then return json_build_object('ok', false, 'msg', 'Arriva già fra pochi minuti: non si può accelerare oltre'); end if;
+  elsif p_tipo = 'rinforzo' then
+    select * into rf from public.world_attacchi_rinforzi where id = p_id and helper = me for update;
+    if rf.id is null or rf.arrivo <= now() then return json_build_object('ok', false, 'msg', 'I rinforzi sono già arrivati'); end if;
+    fine := rf.arrivo; nuova := now();
+  else return json_build_object('ok', false, 'msg', 'Attività non accelerabile'); end if;
+  costo := greatest((k->>'subito_min')::int, ceil(greatest(0, extract(epoch from fine - nuova) / 60.0) / (k->>'min_per_gemma')::numeric)::int);
+  if p_costo_visto is not null and costo > p_costo_visto then
+    return json_build_object('ok', false, 'costo', costo, 'msg', format('Il costo ora è 💎 %s: conferma di nuovo', costo)); end if;
+  s := public.w_gemme_add(me, -costo, 'Completa subito: ' || p_tipo, p_tipo || ':' || p_id, 'sub:' || p_tipo || ':' || p_id || ':' || to_char(fine, 'YYYYMMDDHH24MISS'));
+  if s = -1 then return json_build_object('ok', true, 'gia', true, 'msg', 'Già completato'); end if;
+  if s is null then return json_build_object('ok', false, 'costo', costo, 'msg', format('Servono 💎 %s', costo)); end if;
+  if p_tipo = 'cantiere' then update public.world_cantieri set fine = nuova where id = p_id; perform public.w_cantieri_tick();
+  elsif p_tipo = 'spedizione' then update public.world_spedizioni set end_at = nuova where id = p_id;
+  elsif p_tipo = 'attacco' then
+    update public.world_attacchi set impatto = nuova where id = p_id;
+    perform public.w_feed_add('pvp_arrivo', me, a.vittima, a.lat, a.lon, a.id || '|' || (k->>'attacco_min_rimasti') || '|accelerato');
+  elsif p_tipo = 'rinforzo' then
+    update public.world_attacchi_rinforzi set arrivo = least(nuova, (select impatto from public.world_attacchi where id = rf.attacco_id)) where id = p_id;
+  end if;
+  return json_build_object('ok', true, 'costo', costo, 'gemme', s, 'msg', format('⚡ Fatto · 💎 −%s · ti restano 💎 %s', costo, s));
 end $$;
 
 --
@@ -4867,7 +5004,7 @@ begin
     update public.world_wallet set caps = jsonb_set(caps, array[k], to_jsonb(n+1)) where user_id = me;
     perform public.w_pay(me, amt, case p_reason when 'notte' then 'Notte vinta' when 'missione' then 'Missione del giorno' else 'Accesso del giorno' end);
     got := amt;
-    if p_reason = 'login' then perform public.w_res(me, 10, 10, 5); end if;
+    -- (042) niente più risorse all'accesso del giorno: il cibo non arriva col tempo
   elsif p_reason = 'verifica' then
     -- valutazione della casa (una volta)
     if coalesce((w.caps->>'valutazione')::int,0) = 0 and exists (select 1 from public.profili_pubblici where user_id = me and indice is not null) then
@@ -5131,6 +5268,87 @@ CREATE FUNCTION public.world_find(p_q text) RETURNS TABLE(user_id uuid, nick tex
   where auth.uid() is not null and p.user_id <> auth.uid() and char_length(btrim(coalesce(p_q,''))) >= 2 and p.nick ilike btrim(p_q) || '%'
   order by p.nick limit 12;
 $$;
+
+--
+-- Name: world_gemme_converti(text, integer, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_gemme_converti(p_ris text, p_gemme integer, p_chiave text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); k jsonb := public.w_gem_cfg(); r int; n int; s int; got json;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if p_ris not in ('cibo','legno','carb','mattoni') then return json_build_object('ok', false, 'msg', 'Risorsa non valida'); end if;
+  n := coalesce(p_gemme, 0);
+  if n < 1 or n > (k->>'cambio_max')::int then return json_build_object('ok', false, 'msg', 'Da 1 a ' || (k->>'cambio_max') || ' 💎 per volta'); end if;
+  r := n * (k->'cambio'->>p_ris)::int;
+  s := public.w_gemme_add(me, -n, 'Cambio in ' || p_ris, p_ris, case when coalesce(p_chiave,'') <> '' then 'cmb:' || me || ':' || p_chiave end);
+  if s = -1 then return json_build_object('ok', true, 'gia', true, 'msg', 'Cambio già fatto'); end if;
+  if s is null then return json_build_object('ok', false, 'msg', 'Gemme insufficienti'); end if;
+  if p_ris = 'mattoni' then perform public.w_pay(me, r, 'Cambio: 💎 ' || n);
+  else update public.world_wallet set legno = legno + case when p_ris = 'legno' then r else 0 end, cibo = cibo + case when p_ris = 'cibo' then r else 0 end,
+         carb = carb + case when p_ris = 'carb' then r else 0 end where user_id = me; end if;
+  return json_build_object('ok', true, 'ricevi', r, 'ris', p_ris, 'gemme', s, 'msg', format('💎 −%s → %s +%s · ti restano 💎 %s', n,
+    case p_ris when 'cibo' then '🥫' when 'legno' then '🪵' when 'carb' then '⛽' else '🧱' end, r, s));
+end $$;
+
+--
+-- Name: world_gemme_info(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_gemme_info() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); k jsonb := public.w_gem_cfg(); g int; xp int;
+begin
+  if me is null then return json_build_object('ok', false); end if;
+  perform public.w_wallet(me);
+  select coalesce(s.xp, 0) into xp from public.world_superstite s where s.user_id = me; xp := coalesce(xp, 0); g := public.w_grado(xp);
+  return json_build_object('ok', true, 'gemme', (select gemme from public.world_wallet where user_id = me), 'cfg', k - 'pagamenti_attivi',
+    'pagamenti', (k->>'pagamenti_attivi')::boolean, 'admin', public.is_admin(), 'grado', g, 'xp', xp,
+    'xp_prossimo', 50 * g * g, 'prossimo_livello', (k->>'livello_base')::int + (k->>'livello_per')::int * (g + 1),
+    'traguardi', (select json_agg(json_build_object('id', t->>'id', 'liv', (t->>'liv')::int, 'gemme', (t->>'gemme')::int, 'nome', t->>'nome',
+        'preso', exists (select 1 from public.world_gemme_mov m where m.chiave = 'trg:' || me || ':' || (t->>'id')))) from jsonb_array_elements(k->'traguardi') t),
+    'movimenti', coalesce((select json_agg(json_build_object('delta', m.delta, 'saldo', m.saldo, 'motivo', m.motivo, 'test', m.test, 'at', m.created_at) order by m.id desc)
+      from (select * from public.world_gemme_mov where user_id = me order by id desc limit 20) m), '[]'::json),
+    'legacy', (select n from public.world_gemme_legacy where user_id = me));
+end $$;
+
+--
+-- Name: world_gemme_legacy_segna(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_gemme_legacy_segna(p_n integer) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid();
+begin
+  if me is null or coalesce(p_n, 0) <= 0 then return json_build_object('ok', false); end if;
+  insert into public.world_gemme_legacy(user_id, n) values (me, least(p_n, 100000)) on conflict (user_id) do nothing;
+  return json_build_object('ok', true);
+end $$;
+
+--
+-- Name: world_gemme_prova(text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_gemme_prova(p_pacchetto text, p_chiave text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); p jsonb; s int;
+begin
+  if me is null or not public.is_admin() then return json_build_object('ok', false, 'msg', 'I pagamenti non sono ancora attivi'); end if;
+  select x into p from jsonb_array_elements(public.w_gem_cfg()->'pacchetti') x where x->>'id' = p_pacchetto;
+  if p is null then return json_build_object('ok', false, 'msg', 'Pacchetto?'); end if;
+  s := public.w_gemme_add(me, (p->>'gemme')::int, 'PROVA acquisto ' || p_pacchetto, null, 'prova:' || me || ':' || coalesce(p_chiave, ''), true);
+  if s = -1 then return json_build_object('ok', true, 'gia', true, 'msg', 'Già fatto'); end if;
+  return json_build_object('ok', true, 'gemme', s, 'msg', format('🧪 PROVA: +💎 %s (solo test, nessun pagamento)', p->>'gemme'));
+end $$;
 
 --
 -- Name: world_gift_claim(bigint); Type: FUNCTION; Schema: public; Owner: -
@@ -8174,6 +8392,83 @@ CREATE SEQUENCE public.world_feed_id_seq
 ALTER SEQUENCE public.world_feed_id_seq OWNED BY public.world_feed.id;
 
 --
+-- Name: world_gemme_legacy; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_gemme_legacy (
+    user_id uuid NOT NULL,
+    n integer NOT NULL,
+    at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
+-- Name: world_gemme_mov; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_gemme_mov (
+    id bigint NOT NULL,
+    user_id uuid NOT NULL,
+    delta integer NOT NULL,
+    saldo integer NOT NULL,
+    motivo text NOT NULL,
+    ref text,
+    chiave text,
+    test boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
+-- Name: world_gemme_mov_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_gemme_mov_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_gemme_mov_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_gemme_mov_id_seq OWNED BY public.world_gemme_mov.id;
+
+--
+-- Name: world_gemme_ordini; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_gemme_ordini (
+    id bigint NOT NULL,
+    user_id uuid NOT NULL,
+    pacchetto text NOT NULL,
+    gemme integer NOT NULL,
+    prezzo_cent integer NOT NULL,
+    stato text DEFAULT 'creato'::text NOT NULL,
+    rif_pagamento text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    pagato_at timestamp with time zone,
+    CONSTRAINT world_gemme_ordini_stato_check CHECK ((stato = ANY (ARRAY['creato'::text, 'pagato'::text, 'annullato'::text])))
+);
+
+--
+-- Name: world_gemme_ordini_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.world_gemme_ordini_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: world_gemme_ordini_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.world_gemme_ordini_id_seq OWNED BY public.world_gemme_ordini.id;
+
+--
 -- Name: world_gifts; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -8793,6 +9088,18 @@ ALTER TABLE ONLY public.world_eventi ALTER COLUMN id SET DEFAULT nextval('public
 ALTER TABLE ONLY public.world_feed ALTER COLUMN id SET DEFAULT nextval('public.world_feed_id_seq'::regclass);
 
 --
+-- Name: world_gemme_mov id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_gemme_mov ALTER COLUMN id SET DEFAULT nextval('public.world_gemme_mov_id_seq'::regclass);
+
+--
+-- Name: world_gemme_ordini id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_gemme_ordini ALTER COLUMN id SET DEFAULT nextval('public.world_gemme_ordini_id_seq'::regclass);
+
+--
 -- Name: world_gifts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -9232,6 +9539,41 @@ ALTER TABLE ONLY public.world_feed
     ADD CONSTRAINT world_feed_pkey PRIMARY KEY (id);
 
 --
+-- Name: world_gemme_legacy world_gemme_legacy_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_gemme_legacy
+    ADD CONSTRAINT world_gemme_legacy_pkey PRIMARY KEY (user_id);
+
+--
+-- Name: world_gemme_mov world_gemme_mov_chiave_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_gemme_mov
+    ADD CONSTRAINT world_gemme_mov_chiave_key UNIQUE (chiave);
+
+--
+-- Name: world_gemme_mov world_gemme_mov_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_gemme_mov
+    ADD CONSTRAINT world_gemme_mov_pkey PRIMARY KEY (id);
+
+--
+-- Name: world_gemme_ordini world_gemme_ordini_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_gemme_ordini
+    ADD CONSTRAINT world_gemme_ordini_pkey PRIMARY KEY (id);
+
+--
+-- Name: world_gemme_ordini world_gemme_ordini_rif_pagamento_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_gemme_ordini
+    ADD CONSTRAINT world_gemme_ordini_rif_pagamento_key UNIQUE (rif_pagamento);
+
+--
 -- Name: world_gifts world_gifts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -9582,6 +9924,12 @@ CREATE INDEX world_feed_t ON public.world_feed USING btree (created_at DESC);
 --
 
 CREATE INDEX world_feed_tg ON public.world_feed USING btree (target, created_at DESC);
+
+--
+-- Name: world_gemme_mov_u; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX world_gemme_mov_u ON public.world_gemme_mov USING btree (user_id, created_at DESC);
 
 --
 -- Name: world_gifts_from; Type: INDEX; Schema: public; Owner: -
@@ -10153,6 +10501,27 @@ ALTER TABLE ONLY public.world_feed
     ADD CONSTRAINT world_feed_target_fkey FOREIGN KEY (target) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 --
+-- Name: world_gemme_legacy world_gemme_legacy_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_gemme_legacy
+    ADD CONSTRAINT world_gemme_legacy_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
+-- Name: world_gemme_mov world_gemme_mov_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_gemme_mov
+    ADD CONSTRAINT world_gemme_mov_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
+-- Name: world_gemme_ordini world_gemme_ordini_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_gemme_ordini
+    ADD CONSTRAINT world_gemme_ordini_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
 -- Name: world_gifts world_gifts_from_u_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -10463,6 +10832,12 @@ ALTER TABLE public.custom_pois ENABLE ROW LEVEL SECURITY;
 --
 
 CREATE POLICY custom_select ON public.custom_pois FOR SELECT USING (true);
+
+--
+-- Name: world_gemme_mov gemme_mov_mie; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY gemme_mov_mie ON public.world_gemme_mov FOR SELECT USING ((user_id = auth.uid()));
 
 --
 -- Name: hidden_pois; Type: ROW SECURITY; Schema: public; Owner: -
@@ -10915,6 +11290,24 @@ ALTER TABLE public.world_favs ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.world_feed ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_gemme_legacy; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_gemme_legacy ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_gemme_mov; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_gemme_mov ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_gemme_ordini; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_gemme_ordini ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: world_gifts; Type: ROW SECURITY; Schema: public; Owner: -
@@ -11419,6 +11812,25 @@ REVOKE ALL ON FUNCTION public.w_feed_add(p_kind text, p_actor uuid, p_target uui
 --
 
 REVOKE ALL ON FUNCTION public.w_forza_dif(p_owner uuid, p_bid text) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_gemme_add(p_user uuid, p_delta integer, p_motivo text, p_ref text, p_chiave text, p_test boolean); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_gemme_add(p_user uuid, p_delta integer, p_motivo text, p_ref text, p_chiave text, p_test boolean) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_gemme_livello(p_user uuid, p_da integer, p_a integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_gemme_livello(p_user uuid, p_da integer, p_a integer) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_gemme_pagato(p_ordine bigint, p_rif text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_gemme_pagato(p_ordine bigint, p_rif text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.w_gemme_pagato(p_ordine bigint, p_rif text) TO service_role;
 
 --
 -- Name: FUNCTION w_home_held(p_user uuid, p_slot text); Type: ACL; Schema: public; Owner: -
@@ -12085,6 +12497,13 @@ GRANT ALL ON FUNCTION public.world_claim_home(p_bid text, p_lat double precision
 GRANT ALL ON FUNCTION public.world_collect() TO authenticated;
 
 --
+-- Name: FUNCTION world_completa_subito(p_tipo text, p_id bigint, p_costo_visto integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_completa_subito(p_tipo text, p_id bigint, p_costo_visto integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_completa_subito(p_tipo text, p_id bigint, p_costo_visto integer) TO authenticated;
+
+--
 -- Name: FUNCTION world_condo_break(p_user uuid); Type: ACL; Schema: public; Owner: -
 --
 
@@ -12257,6 +12676,34 @@ GRANT ALL ON FUNCTION public.world_feed_list(p_scope text) TO authenticated;
 --
 
 GRANT ALL ON FUNCTION public.world_find(p_q text) TO authenticated;
+
+--
+-- Name: FUNCTION world_gemme_converti(p_ris text, p_gemme integer, p_chiave text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_gemme_converti(p_ris text, p_gemme integer, p_chiave text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_gemme_converti(p_ris text, p_gemme integer, p_chiave text) TO authenticated;
+
+--
+-- Name: FUNCTION world_gemme_info(); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_gemme_info() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_gemme_info() TO authenticated;
+
+--
+-- Name: FUNCTION world_gemme_legacy_segna(p_n integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_gemme_legacy_segna(p_n integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_gemme_legacy_segna(p_n integer) TO authenticated;
+
+--
+-- Name: FUNCTION world_gemme_prova(p_pacchetto text, p_chiave text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_gemme_prova(p_pacchetto text, p_chiave text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_gemme_prova(p_pacchetto text, p_chiave text) TO authenticated;
 
 --
 -- Name: FUNCTION world_gift_claim(p_id bigint); Type: ACL; Schema: public; Owner: -
