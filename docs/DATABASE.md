@@ -4,7 +4,7 @@ Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sq
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
 - Tabelle: **79** · viste: **1** · indici: **42** · regole (policy): **42** · trigger: **17** · lavori programmati: **7**
-- Funzioni: **340** (340 nomi); usate (direttamente o tramite altre funzioni): **332**; **non usate: 8**
+- Funzioni: **343** (343 nomi); usate (direttamente o tramite altre funzioni): **335**; **non usate: 8**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -87,7 +87,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_dist_km` |  |  |  | world_send_help, world_player, world_consigli, world_alleanza_invita, world_alleanza_info, world_alleanze_mie … | 2: migr. 009_mezzi_assalti → migr. 037_casa_partenza |
 | `w_dist_pt` |  |  |  | world_presidio_occupa, w_azione, world_consigli, w_sped_km, world_attacco_info, world_attacca … | 2: migr. 014_territorio → migr. 037_casa_partenza |
 | `w_dot` |  |  |  | world_send_help, world_player, world_mezzo, w_azione, world_consigli | 1: migr. 009_mezzi_assalti |
-| `w_en_add` |  |  |  | w_sup_inviti, world_sped_raccogli, world_sup_serie, world_sup_share, world_posto_visita | 1: migr. 020_superstite |
+| `w_en_add` |  |  |  | w_sup_inviti, world_sped_raccogli, world_sup_serie, world_sup_share, world_posto_visita, world_energia_compra | 1: migr. 020_superstite |
 | `w_en_max` |  |  |  | w_sup, w_en_add, world_sup_info, world_sped_parti, world_caccia_inizia, world_evento_azione … | 1: migr. 020_superstite |
 | `w_en_ric` |  |  |  | w_sup, world_sup_info, world_sped_parti, world_caccia_inizia, world_evento_azione, world_difesa_inizia … | 1: migr. 020_superstite |
 | `w_eq` |  |  |  | w_sped_calc, world_sup_info, world_sup_equip, world_sped_parti, world_caccia_inizia, world_evento_azione … | 1: migr. 020_superstite |
@@ -113,14 +113,16 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_max` |  |  |  | world_quote, world_mine, w_assalti_tick, w_cadute_tick | 1: mondo_unico |
 | `w_median_near` |  |  |  | w_boost, world_status_extra | 1: equita |
 | `w_mezzo` |  |  |  | world_send_help, world_player, world_presidio_occupa, w_atk_pts, world_mezzo, world_set_mezzo_vero … | 1: migr. 009_mezzi_assalti |
-| `w_mz_atk` |  |  |  | world_player, w_atk_pts, world_mezzo, w_atk_b, w_forza_att, world_mezzi_info | 1: migr. 009_mezzi_assalti |
-| `w_mz_carb` |  |  |  | world_send_help, world_player, world_presidio_occupa, w_mz_eff, w_azione, world_consigli … | 1: migr. 014_territorio |
+| `w_mz_atk` |  |  |  | world_player, w_atk_pts, world_mezzo, w_atk_b, w_forza_att, world_mezzi_info | 2: migr. 009_mezzi_assalti → migr. 041_mezzi_superstite |
+| `w_mz_cap` |  |  |  | world_sped_parti, world_mezzi_info | 1: migr. 041_mezzi_superstite |
+| `w_mz_carb` |  |  |  | world_send_help, world_player, world_presidio_occupa, w_mz_eff, w_azione, world_consigli … | 2: migr. 014_territorio → migr. 041_mezzi_superstite |
 | `w_mz_eff` |  |  |  | world_send_help, world_player, world_presidio_occupa, w_azione, world_consigli, world_sped_parti … | 2: migr. 014_territorio → migr. 035_mezzi_cantieri |
-| `w_mz_help` |  |  |  | world_send_help, world_player, world_mezzo, w_azione, world_consigli | 1: migr. 009_mezzi_assalti |
-| `w_mz_nome` |  |  |  | world_send_help, world_presidio_occupa, w_azione, world_assalta, world_difendi, world_sped_parti … | 1: migr. 014_territorio |
-| `w_mz_range` |  |  |  | world_send_help, world_player, world_presidio_occupa, world_mezzo, w_azione, world_consigli | 1: migr. 009_mezzi_assalti |
-| `w_mz_rank` |  |  |  | w_mezzo, world_buy_mezzo, w_mz_eff, world_mezzo_scegli, world_mezzi_info | 1: migr. 009_mezzi_assalti |
-| `w_mz_speed` |  |  |  | world_send_help, world_player, world_mezzo, w_azione | 1: migr. 009_mezzi_assalti |
+| `w_mz_en` |  |  |  | world_sped_parti, world_mezzi_info | 1: migr. 041_mezzi_superstite |
+| `w_mz_help` |  |  |  | world_send_help, world_player, world_mezzo, w_azione, world_consigli | 2: migr. 009_mezzi_assalti → migr. 041_mezzi_superstite |
+| `w_mz_nome` |  |  |  | world_send_help, world_presidio_occupa, w_azione, world_assalta, world_difendi, world_sped_parti … | 2: migr. 014_territorio → migr. 041_mezzi_superstite |
+| `w_mz_range` |  |  |  | world_send_help, world_player, world_presidio_occupa, world_mezzo, w_azione, world_consigli | 2: migr. 009_mezzi_assalti → migr. 041_mezzi_superstite |
+| `w_mz_rank` |  |  |  | w_mezzo, world_buy_mezzo, w_mz_eff, world_mezzo_scegli, world_mezzi_info | 2: migr. 009_mezzi_assalti → migr. 041_mezzi_superstite |
+| `w_mz_speed` |  |  |  | world_send_help, world_player, world_mezzo, w_azione | 2: migr. 009_mezzi_assalti → migr. 041_mezzi_superstite |
 | `w_next_slot` |  |  |  | world_raid_status, world_prepare, world_ask_help, world_help_list, world_send_help, world_player … | 1: orda_mondo |
 | `w_nick` |  |  |  | world_view, world_quote, world_help_list, w_settle_loans, world_give, world_gifts_in … | 1: mondo_unico |
 | `w_orde_tick` |  | ✓ | cron | world_orde_mie | 2: migr. 032_orde_motore → migr. 040_danni_difese |
@@ -139,7 +141,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_prev_slot` |  |  |  | world_raid_status, world_raid_view, w_pres_tick, world_presidio_occupa, w_assalti_tick, world_edificio_info … | 1: orda_mondo |
 | `w_price` |  |  |  | world_collect, w_price2, world_edificio_info, world_consigli | 1: mondo_unico |
 | `w_price2` |  |  |  | world_quote | 2: mondo_v3 → equita |
-| `w_pvp_cfg` |  |  |  | world_def_upgrade, world_sped_parti, w_viaggio_min, w_comb_bonus, w_forza_att, w_combat … | 7: migr. 028_attacchi → migr. 029_rinforzi → migr. 030_attacchi_alleanza → migr. 031_integrita_case → migr. 032_orde_motore → migr. 035_mezzi_cantieri → migr. 036_cantieri_case |
+| `w_pvp_cfg` |  |  |  | world_def_upgrade, world_sped_parti, w_viaggio_min, w_comb_bonus, w_forza_att, w_combat … | 8: migr. 028_attacchi → migr. 029_rinforzi → migr. 030_attacchi_alleanza → migr. 031_integrita_case → migr. 032_orde_motore → migr. 035_mezzi_cantieri → migr. 036_cantieri_case → migr. 041_mezzi_superstite |
 | `w_radius` |  |  |  | world_mine | 1: mondo_unico |
 | `w_raduni_tick` |  |  |  | w_attacchi_tick, world_raduno_parti | 1: migr. 030_attacchi_alleanza |
 | `w_raduno_entra` |  |  |  | world_raduno_crea, world_raduno_unisciti | 1: migr. 030_attacchi_alleanza |
@@ -235,7 +237,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_boss_inizia` | ✓ |  |  |  | 1: migr. 026_difesa_lente_boss |
 | `world_bottega_compra` | ✓ |  |  |  | 1: migr. 023_difendi_casa |
 | `world_buy` | ✓ |  |  |  | 4: mondo_unico → mondo_unico_agg1 → casa_abitata → nome_casa |
-| `world_buy_mezzo` | ✓ |  |  |  | 1: migr. 009_mezzi_assalti |
+| `world_buy_mezzo` | ✓ |  |  |  | 2: migr. 009_mezzi_assalti → migr. 041_mezzi_superstite |
 | `world_caccia_fine` | ✓ |  |  |  | 1: migr. 021_caccia_condomini |
 | `world_caccia_inizia` | ✓ |  |  |  | 1: migr. 021_caccia_condomini |
 | `world_cantiere_accelera` | ✓ |  |  |  | 1: migr. 035_mezzi_cantieri |
@@ -268,6 +270,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_dm_threads` | ✓ |  |  |  | 1: assedio |
 | `world_earn` | ✓ |  |  |  | 2: mondo_unico → migr. 012_risorse_ricompense |
 | `world_edificio_info` | ✓ |  |  |  | 2: migr. 014_territorio → migr. 017_presidi_fortificazioni |
+| `world_energia_compra` | ✓ |  |  |  | 1: migr. 041_mezzi_superstite |
 | `world_eventi_vicini` | ✓ |  |  |  | 1: migr. 022_eventi_sfide |
 | `world_evento_azione` | ✓ |  |  |  | 2: migr. 022_eventi_sfide → migr. 038_eventi_vari |
 | `world_fav_set` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
@@ -287,9 +290,9 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_integrita` | ✓ |  |  |  | 1: migr. 031_integrita_case |
 | `world_inviter` | ✓ |  |  |  | 2: benvenuto → migr. 001_funzioni_mancanti |
 | `world_loans` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
-| `world_mezzi_info` | ✓ |  |  |  | 1: migr. 035_mezzi_cantieri |
-| `world_mezzo` | ✓ |  |  |  | 1: migr. 009_mezzi_assalti |
-| `world_mezzo_scegli` | ✓ |  |  |  | 1: migr. 035_mezzi_cantieri |
+| `world_mezzi_info` | ✓ |  |  |  | 2: migr. 035_mezzi_cantieri → migr. 041_mezzi_superstite |
+| `world_mezzo` | ✓ |  |  |  | 2: migr. 009_mezzi_assalti → migr. 041_mezzi_superstite |
+| `world_mezzo_scegli` | ✓ |  |  |  | 2: migr. 035_mezzi_cantieri → migr. 041_mezzi_superstite |
 | `world_mine` | ✓ |  |  | world_mine2 | 1: mondo_unico |
 | `world_mine2` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
 | `world_my_defense` | ✓ |  |  |  | 6: casavera → squadra_fix → migr. 002_formule_uguali → migr. 006_presidi → migr. 009_mezzi_assalti → migr. 014_territorio |
@@ -340,8 +343,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_shape_get` | ✓ |  |  |  | 1: migr. 003_forme_edifici |
 | `world_shape_put` | ✓ |  |  |  | 1: migr. 003_forme_edifici |
 | `world_shout` | ✓ |  |  |  | 1: social |
-| `world_sped_parti` | ✓ |  |  | world_cassa_manda | 4: migr. 020_superstite → migr. 021_caccia_condomini → migr. 027_mondo_vero → migr. 035_mezzi_cantieri |
-| `world_sped_raccogli` | ✓ |  |  |  | 2: migr. 020_superstite → migr. 021_caccia_condomini |
+| `world_sped_parti` | ✓ |  |  | world_cassa_manda | 5: migr. 020_superstite → migr. 021_caccia_condomini → migr. 027_mondo_vero → migr. 035_mezzi_cantieri → migr. 041_mezzi_superstite |
+| `world_sped_raccogli` | ✓ |  |  |  | 3: migr. 020_superstite → migr. 021_caccia_condomini → migr. 041_mezzi_superstite |
 | `world_status_extra` | ✓ |  |  |  | 1: equita |
 | `world_sup_abilita` | ✓ |  |  |  | 2: migr. 020_superstite → migr. 028_attacchi |
 | `world_sup_equip` | ✓ |  |  |  | 1: migr. 020_superstite |

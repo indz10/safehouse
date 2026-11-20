@@ -1613,7 +1613,16 @@ $$;
 CREATE FUNCTION public.w_mz_atk(p text) RETURNS numeric
     LANGUAGE sql IMMUTABLE
     AS $$
-  select case p when 'bici' then 0.9 when 'moto' then 1.0 when 'auto' then 1.2 when 'fuori' then 1.3 else 0.8 end::numeric; $$;
+  select case p when 'bici' then 0.9 when 'moto' then 1.0 when 'auto' then 1.2 when 'fuori' then 1.3 when 'furgone' then 1.1 else 0.8 end::numeric; $$;
+
+--
+-- Name: w_mz_cap(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_mz_cap(p text) RETURNS numeric
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select case p when 'bici' then 1.2 when 'moto' then 1.4 when 'auto' then 1.8 when 'fuori' then 2.2 when 'furgone' then 3.0 else 1.0 end::numeric; $$;
 
 --
 -- Name: w_mz_carb(text, double precision); Type: FUNCTION; Schema: public; Owner: -
@@ -1622,7 +1631,7 @@ CREATE FUNCTION public.w_mz_atk(p text) RETURNS numeric
 CREATE FUNCTION public.w_mz_carb(p_mz text, p_km double precision) RETURNS integer
     LANGUAGE sql IMMUTABLE
     AS $$
-  select ceil(greatest(coalesce(p_km,0),0) * case p_mz when 'moto' then 1 when 'auto' then 1.5 when 'fuori' then 2 else 0 end)::int; $$;
+  select ceil(greatest(coalesce(p_km,0),0) * case p_mz when 'moto' then 1 when 'auto' then 1.5 when 'fuori' then 2 when 'furgone' then 2.5 else 0 end)::int; $$;
 
 --
 -- Name: w_mz_eff(uuid, double precision); Type: FUNCTION; Schema: public; Owner: -
@@ -1639,13 +1648,22 @@ CREATE FUNCTION public.w_mz_eff(p_user uuid, p_km double precision) RETURNS text
   select case when public.w_mz_carb(mz, p_km) <= carb then mz when public.w_mz_rank('bici') <= public.w_mz_rank(mz) and (vero = 'bici' or public.w_mz_rank(best) >= public.w_mz_rank('bici')) then 'bici' else 'piedi' end from c; $$;
 
 --
+-- Name: w_mz_en(text, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_mz_en(p text, p_base integer) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select case p when 'piedi' then greatest(1, coalesce(p_base, 1)) when 'bici' then greatest(1, coalesce(p_base, 1)) + 1 else 0 end; $$;
+
+--
 -- Name: w_mz_help(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION public.w_mz_help(p text) RETURNS integer
     LANGUAGE sql IMMUTABLE
     AS $$
-  select case p when 'bici' then 5 when 'moto' then 6 when 'auto' then 8 when 'fuori' then 10 else 4 end; $$;
+  select case p when 'bici' then 5 when 'moto' then 6 when 'auto' then 8 when 'furgone' then 9 when 'fuori' then 10 else 4 end; $$;
 
 --
 -- Name: w_mz_nome(text); Type: FUNCTION; Schema: public; Owner: -
@@ -1654,7 +1672,7 @@ CREATE FUNCTION public.w_mz_help(p text) RETURNS integer
 CREATE FUNCTION public.w_mz_nome(p_mz text) RETURNS text
     LANGUAGE sql IMMUTABLE
     AS $$
-  select case p_mz when 'bici' then 'in bici' when 'moto' then 'in moto' when 'auto' then 'in auto' when 'fuori' then 'in fuoristrada' else 'a piedi' end; $$;
+  select case p_mz when 'bici' then 'in bici' when 'moto' then 'in moto' when 'auto' then 'in auto' when 'fuori' then 'in fuoristrada' when 'furgone' then 'in furgone' else 'a piedi' end; $$;
 
 --
 -- Name: w_mz_range(text); Type: FUNCTION; Schema: public; Owner: -
@@ -1663,7 +1681,7 @@ CREATE FUNCTION public.w_mz_nome(p_mz text) RETURNS text
 CREATE FUNCTION public.w_mz_range(p text) RETURNS integer
     LANGUAGE sql IMMUTABLE
     AS $$
-  select case p when 'bici' then 5 when 'moto' then 12 when 'auto' then 20 when 'fuori' then 20 else 2 end; $$;
+  select case p when 'bici' then 5 when 'moto' then 12 when 'auto' then 20 when 'fuori' then 20 when 'furgone' then 20 else 2 end; $$;
 
 --
 -- Name: w_mz_rank(text); Type: FUNCTION; Schema: public; Owner: -
@@ -1672,7 +1690,7 @@ CREATE FUNCTION public.w_mz_range(p text) RETURNS integer
 CREATE FUNCTION public.w_mz_rank(p text) RETURNS integer
     LANGUAGE sql IMMUTABLE
     AS $$
-  select case p when 'bici' then 1 when 'moto' then 2 when 'auto' then 3 when 'fuori' then 4 else 0 end; $$;
+  select case p when 'bici' then 1 when 'moto' then 2 when 'auto' then 3 when 'fuori' then 4 when 'furgone' then 5 else 0 end; $$;
 
 --
 -- Name: w_mz_speed(text); Type: FUNCTION; Schema: public; Owner: -
@@ -1681,7 +1699,7 @@ CREATE FUNCTION public.w_mz_rank(p text) RETURNS integer
 CREATE FUNCTION public.w_mz_speed(p text) RETURNS numeric
     LANGUAGE sql IMMUTABLE
     AS $$
-  select case p when 'bici' then 15 when 'moto' then 40 when 'auto' then 50 when 'fuori' then 45 else 5 end::numeric; $$;
+  select case p when 'bici' then 15 when 'moto' then 40 when 'auto' then 50 when 'fuori' then 45 when 'furgone' then 45 else 5 end::numeric; $$;
 
 --
 -- Name: w_next_slot(timestamp with time zone); Type: FUNCTION; Schema: public; Owner: -
@@ -2059,7 +2077,7 @@ CREATE FUNCTION public.w_pvp_cfg() RETURNS jsonb
     -- orde sul motore unico (032)
     'orda_avvisi', jsonb_build_array(60, 15),
     -- mezzi e cantieri (035)
-    'velocita', jsonb_build_object('piedi', 5, 'bici', 15, 'moto', 40, 'auto', 60, 'fuori', 50),   -- km/h
+    'velocita', jsonb_build_object('piedi', 5, 'bici', 15, 'moto', 40, 'auto', 60, 'fuori', 50, 'furgone', 45),   -- km/h
     'viaggio_base', 2,                                                 -- minuti per partire
     'sped_ricerca', 5,                                                 -- minuti di ricerca sul posto (spedizioni)
     'cant_danno', 3, 'cant_integ', 2, 'cant_crollo', 240, 'cant_min', 10,   -- minuti di cantiere
@@ -3974,7 +3992,7 @@ CREATE FUNCTION public.world_buy_mezzo(p_mezzo text) RETURNS json
 declare me uuid := auth.uid(); price int; w public.world_wallet;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
-  price := case p_mezzo when 'moto' then 300 when 'auto' then 600 when 'fuori' then 1200 else null end;
+  price := case p_mezzo when 'bici' then 100 when 'moto' then 300 when 'auto' then 600 when 'fuori' then 1200 when 'furgone' then 1800 else null end;
   if price is null then return json_build_object('ok', false, 'msg', 'Mezzo non in vendita'); end if;
   if public.w_mz_rank(p_mezzo) <= public.w_mz_rank(public.w_mezzo(me)) then return json_build_object('ok', false, 'msg', 'Hai già un mezzo uguale o migliore'); end if;
   w := public.w_wallet(me);
@@ -4911,6 +4929,28 @@ begin
 end $$;
 
 --
+-- Name: world_energia_compra(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_energia_compra(p_n integer) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); s public.world_superstite; n int; fatti int; day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD'); w public.world_wallet;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  s := public.w_sup(me); w := public.w_wallet(me);
+  fatti := coalesce((w.caps->>('energia_cibo:' || day))::int, 0);
+  if fatti >= 10 then return json_build_object('ok', false, 'msg', 'Oggi hai già convertito 10 energia: riprova domani'); end if;
+  if s.energia >= public.w_en_max(s.abil) then return json_build_object('ok', false, 'msg', 'Energia già al massimo'); end if;
+  n := least(greatest(coalesce(p_n, 1), 1), 10 - fatti, public.w_en_max(s.abil) - s.energia, floor(w.cibo / 10)::int);
+  if n < 1 then return json_build_object('ok', false, 'msg', 'Servono 🥫 10 per 🔋 1'); end if;
+  update public.world_wallet set cibo = cibo - 10 * n, caps = jsonb_set(caps, array['energia_cibo:' || day], to_jsonb(fatti + n)) where user_id = me;
+  perform public.w_en_add(me, n);
+  return json_build_object('ok', true, 'n', n, 'msg', format('🔋 +%s energia · 🥫 −%s', n, 10 * n));
+end $$;
+
+--
 -- Name: world_eventi_vicini(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5335,8 +5375,8 @@ CREATE FUNCTION public.world_mezzi_info(p_km numeric) RETURNS json
     'scelto', (select caps->>'mezzo_scelto' from public.world_wallet where user_id = auth.uid()),
     'usato', public.w_mz_eff(auth.uid(), p_km), 'carb', coalesce((select carb from public.world_wallet where user_id = auth.uid()), 0),
     'mezzi', (select json_agg(json_build_object('mz', z, 'nome', public.w_mz_nome(z), 'kmh', (public.w_pvp_cfg()->'velocita'->>z)::int,
-        'min', public.w_viaggio_mz(p_km, z), 'carb', public.w_mz_carb(z, p_km), 'forza', public.w_mz_atk(z)) order by public.w_mz_rank(z))
-      from unnest(array['piedi','bici','moto','auto','fuori']) z where public.w_mz_rank(z) <= public.w_mz_rank(public.w_mezzo(auth.uid())))); $$;
+        'min', public.w_viaggio_mz(p_km, z), 'carb', public.w_mz_carb(z, p_km), 'forza', public.w_mz_atk(z), 'energia', public.w_mz_en(z, 1), 'cap', public.w_mz_cap(z)) order by public.w_mz_rank(z))
+      from unnest(array['piedi','bici','moto','auto','fuori','furgone']) z where public.w_mz_rank(z) <= public.w_mz_rank(public.w_mezzo(auth.uid())))); $$;
 
 --
 -- Name: world_mezzo(); Type: FUNCTION; Schema: public; Owner: -
@@ -5352,7 +5392,7 @@ CREATE FUNCTION public.world_mezzo() RETURNS json
     'range_km', public.w_mz_range(public.w_mezzo(auth.uid())), 'speed', public.w_mz_speed(public.w_mezzo(auth.uid())),
     'help_pts', public.w_mz_help(public.w_mezzo(auth.uid())) + public.w_dot(auth.uid()), 'dotazioni', public.w_dot(auth.uid()),
     'atk_mult', public.w_mz_atk(public.w_mezzo(auth.uid())),
-    'prezzi', json_build_object('moto', 300, 'auto', 600, 'fuori', 1200));
+    'prezzi', json_build_object('bici', 100, 'moto', 300, 'auto', 600, 'fuori', 1200, 'furgone', 1800));
 $$;
 
 --
@@ -5371,7 +5411,7 @@ begin
     update public.world_wallet set caps = caps - 'mezzo_scelto' where user_id = me;
     return json_build_object('ok', true, 'msg', '🚗 Userai sempre il mezzo più veloce che hai');
   end if;
-  if p_mz not in ('piedi','bici','moto','auto','fuori') or public.w_mz_rank(p_mz) > public.w_mz_rank(public.w_mezzo(me)) then
+  if p_mz not in ('piedi','bici','moto','auto','fuori','furgone') or public.w_mz_rank(p_mz) > public.w_mz_rank(public.w_mezzo(me)) then
     return json_build_object('ok', false, 'msg', 'Questo mezzo non ce l’hai: lo trovi in Bottega'); end if;
   update public.world_wallet set caps = jsonb_set(caps, '{mezzo_scelto}', to_jsonb(p_mz)) where user_id = me;
   return json_build_object('ok', true, 'msg', '🚗 Viaggerai ' || public.w_mz_nome(p_mz));
@@ -6602,12 +6642,12 @@ begin
   c := public.w_sped_calc(km, s.abil, s.equip, notte);
   -- tempo e carburante dal mezzo (035): andata e ritorno + ricerca; più veloce = più ⛽
   mz := public.w_mz_eff(me, km * 2);
-  en := (c->>'energia')::int; mins := 2 * public.w_viaggio_mz(km, mz) + (public.w_pvp_cfg()->>'sped_ricerca')::int;
+  en := public.w_mz_en(mz, (c->>'energia')::int); mins := 2 * public.w_viaggio_mz(km, mz) + (public.w_pvp_cfg()->>'sped_ricerca')::int;
   if s.energia < en then
-    return json_build_object('ok', false, 'msg', format('Serve %s energia: ne hai %s (una carica ogni %s min)', en, s.energia, public.w_en_ric(s.abil)));
+    return json_build_object('ok', false, 'energia_poca', true, 'msg', format('Serve %s energia %s: ne hai %s (una carica ogni %s min, o 🥫 10 = 🔋 1 nel superstite → 🚗 Mezzi). Con un mezzo a motore non serve energia', en, public.w_mz_nome(mz), s.energia, public.w_en_ric(s.abil)));
   end if;
   co := public.w_sped_costo(km); cc := (co->>'cibo')::int; ck := public.w_mz_carb(mz, km * 2);
-  co := json_build_object('cibo', cc, 'carb', ck, 'mezzo', mz);
+  co := json_build_object('cibo', cc, 'carb', ck, 'mezzo', mz, 'cap', public.w_mz_cap(mz));
   w := public.w_wallet(me);
   if w.cibo < cc or w.carb < ck then
     return json_build_object('ok', false, 'msg', format('Per il viaggio servono 🥫 %s%s: vai di persona con la Lente (gratis) o prendi scorte', cc, case when ck > 0 then ' e ⛽ ' || ck else '' end));
@@ -6623,7 +6663,7 @@ begin
     insert into public.sponsor_events(sponsor_id, kind) values (spid, 'spedizione');
   end if;
   return json_build_object('ok', true, 'id', nid, 'min', mins, 'energia', en, 'cibo', cc, 'carb', ck, 'end_at', now() + make_interval(mins => mins),
-    'mezzo', mz, 'msg', format('🎒 Partito %s! Torna fra %s min · 🥫 −%s%s', public.w_mz_nome(mz), mins, cc, case when ck > 0 then ' ⛽ −' || ck else '' end));
+    'mezzo', mz, 'cap', public.w_mz_cap(mz), 'msg', format('🎒 Partito %s! Torna fra %s min · 🥫 −%s%s%s · bottino ×%s', public.w_mz_nome(mz), mins, cc, case when ck > 0 then ' ⛽ −' || ck else '' end, case when en > 0 then ' 🔋 −' || en else '' end, replace(public.w_mz_cap(mz)::text, '.', ',')));
 end $$;
 
 --
@@ -6643,7 +6683,7 @@ begin
   if x.end_at > now() then return json_build_object('ok', false, 'msg', 'Non è ancora tornato'); end if;
   s := public.w_sup(me); g0 := public.w_grado(s.xp); c := x.calc;
   ko := random() * 100 < x.rischio;
-  b := (c->>'bottino')::int; if ko then b := b / 2; end if;
+  b := round((c->>'bottino')::int * coalesce((c->>'cap')::numeric, 1)); if ko then b := b / 2; end if;
   case x.kind
     when 'cibo' then f := b;
     when 'legno' then l := b;
@@ -12170,6 +12210,13 @@ GRANT ALL ON FUNCTION public.world_earn(p_reason text) TO authenticated;
 
 REVOKE ALL ON FUNCTION public.world_edificio_info(p_bid text, p_lat double precision, p_lon double precision) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_edificio_info(p_bid text, p_lat double precision, p_lon double precision) TO authenticated;
+
+--
+-- Name: FUNCTION world_energia_compra(p_n integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.world_energia_compra(p_n integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.world_energia_compra(p_n integer) TO authenticated;
 
 --
 -- Name: FUNCTION world_eventi_vicini(); Type: ACL; Schema: public; Owner: -

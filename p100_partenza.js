@@ -7,7 +7,7 @@
    - Le notifiche dei danni (orda, casa crollata o persa, lavori finiti) aprono 🏠 Le mie case (url ?case=1).
    ========================================================= */
 const PART={bid:null,label:'',at:0};
-const PART_SEL='[data-pvgo],[data-pvrad],[data-pvjoin],[data-pvrf],[data-pvs],[data-zmsped],[data-pa="help"],[data-shelp]';
+const PART_SEL='[data-pvgo],[data-pvrad],[data-pvjoin],[data-pvrf],[data-pvs],[data-spgo],[data-mvsped],[data-zmsped],[data-pa="help"],[data-shelp]';
 const partOk=()=>PART.bid!=null&&Date.now()-PART.at<30*60e3;
 function partCase(){try{return myHouses().filter(h=>h.lat!=null&&(h.bid||h.home));}catch(e){return[];}}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest(PART_SEL);if(!b||!S.user)return;
