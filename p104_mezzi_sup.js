@@ -23,10 +23,16 @@ async function supMezzi(box){box.innerHTML='<p><span class="spin"></span></p>';l
       ${ho?(on?'':`<button class="btn small" data-mzuse="${k}">Usa</button>`):`<button class="btn small" data-mzbuy="${k}">🧱 ${wNum(s.pr)}</button>`}</div>`;}).join('')}
     <button class="btn small ghost" data-mzmig style="margin-top:6px">⚡ Usa sempre il più veloce</button>
     <button class="btn wide ghost" data-mzcome style="margin-top:10px">❓ Come si cresce</button>`;
-  box.querySelectorAll('[data-mzuse],[data-mzmig]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const{data}=await SB.rpc('world_mezzo_scegli',{p_mz:b.dataset.mzuse||'migliore'});toast(data.msg);}catch(e){toast('Non riuscito');}MZC.d={};supMezzi(box);});
+  box.querySelectorAll('[data-mzuse],[data-mzmig]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const{data}=await SB.rpc('world_mezzo_scegli',{p_mz:b.dataset.mzuse||'migliore'});toast(data.msg);}catch(e){toast('Non riuscito');}await mzUsoLoad();supMezzi(box);});
   box.querySelectorAll('[data-mzbuy]').forEach(b=>b.onclick=async()=>{const k=b.dataset.mzbuy;if(!confirm(`Comprare ${MZ[k][1]} per ${wNum(MZS[k].pr)} Mattoni?`))return;b.disabled=true;
-    try{const{data}=await SB.rpc('world_buy_mezzo',{p_mezzo:k});toast((data.ok?MZ[k][0]+' ':'')+data.msg);if(data.ok){try{await wMine(true);}catch(e){}}}catch(e){toast('Non riuscito');}MZC.d={};supMezzi(box);});
+    try{const{data}=await SB.rpc('world_buy_mezzo',{p_mezzo:k});toast((data.ok?MZ[k][0]+' ':'')+data.msg);if(data.ok){try{await wMine(true);}catch(e){}}}catch(e){toast('Non riuscito');}await mzUsoLoad();supMezzi(box);});
   box.querySelectorAll('[data-mzen]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const{data}=await SB.rpc('world_energia_compra',{p_n:+b.dataset.mzen});toast(data.msg);}catch(e){toast('Non riuscito');}
     RES.t=0;try{resLoad(true);await supLoad(true);}catch(e){}supMezzi(box);});
   box.querySelector('[data-mzcome]').onclick=()=>supSheet('come');}
+/* la lista delle spedizioni (supCalc) usa il mezzo scelto: a motore niente energia, tempo e bottino del mezzo */
+let MZU=null;const MZV={piedi:5,bici:15,moto:40,auto:60,fuori:50,furgone:45};
+async function mzUsoLoad(){try{MZC.d={};const d=await mzInfo(3);if(d&&d.usato)MZU=d.usato;}catch(e){}return MZU;}
+const _supCalcMz=supCalc;supCalc=function(km){const c=_supCalcMz.apply(this,arguments);try{const mz=MZU;if(!mz)return c;const base=c.energia;
+  c.energia=mz==='piedi'?base:mz==='bici'?base+1:0;c.min=2*(2+Math.ceil(km/(MZV[mz]||5)*60))+5;c.bottino=Math.round(c.bottino*(MZS[mz]?MZS[mz].cap:1));c.mz=mz;}catch(e){}return c;};
+const _supSheetMz=supSheet;supSheet=async function(){await mzUsoLoad();return _supSheetMz.apply(this,arguments);};
 </script>
