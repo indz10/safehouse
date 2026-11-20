@@ -172,3 +172,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 37 | fatta (migrazione 030) | #81 | 🛡️ attacchi d'alleanza (raduno, partecipanti, bottino diviso per contributo) |
 | 38 | fatta (migrazione 031) | #82 | 🏚️ integrità delle case comprate (0–100), caduta, 48 ore per riparare, conquista o recupero |
 | 39 | in revisione (migrazione 032) | — | 🧟 orde sul motore unico: stesse perdite (10/20/30%), danni e integrità, avvisi a 60 e 15 minuti |
+| 40–47 | fatte (migrazioni 033–038) | #84–#91 | casse dal divano, @nomi, mezzi e cantieri, stato delle case, casa di partenza, eventi vari e boss, creator e notifiche all'azione |
+| 48 | in revisione | — | 📬 Bacheca e Per te toccabili (la beta per i tester è pronta in `docs/beta/`, da attivare dopo) |
