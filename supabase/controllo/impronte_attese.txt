@@ -77,6 +77,11 @@ w_feed_add(text, uuid, uuid, double precision, double precision, text) 1a92b9dc6
 w_fort(text) a72f14d8fc
 w_forza_att(uuid, text) 91a5d603fd
 w_forza_dif(uuid, text) efd02b1c26
+w_gem_cfg() 42556810f8
+w_gemme_add(uuid, integer, text, text, text, boolean) 6802d03906
+w_gemme_costo(timestamp with time zone) 018e7d7ac9
+w_gemme_livello(uuid, integer, integer) c330059f24
+w_gemme_pagato(bigint, text) c584e5c9e1
 w_grado(integer) 54cc85f814
 w_grado_xp(integer) 760a3019c4
 w_home_held(uuid, text) 9c9e12578c
@@ -115,7 +120,7 @@ w_pres_bonus(text, text) 001bd9a81c
 w_pres_def(text, text) ecd0d1741e
 w_pres_liv(text, text) 507b89c709
 w_pres_near(uuid, double precision, double precision, double precision) 0b5d5613b0
-w_pres_rendita(uuid, text, integer) 523805b666
+w_pres_rendita(uuid, text, integer) 7ad406162e
 w_pres_tick() 8f83c2d423
 w_prev_slot(timestamp with time zone) 304fb96aeb
 w_price(double precision, double precision) 15fba21ed2
@@ -167,7 +172,7 @@ w_vicino_alleanza(uuid, bigint) 60958d56d7
 w_votanti(bigint) 049241a6d1
 w_wallet(uuid) 27de1a6e90
 w_wxev(text, text) 042a705ec9
-w_xp(uuid, integer) d133cceaa6
+w_xp(uuid, integer) ed3131be0c
 w_zm(text, numeric, text, integer) 94a9eab19e
 w_zm_ora() 380a5e5e72
 w_zm_qua(integer, integer, bigint) da0f1aff96
@@ -219,7 +224,7 @@ world_buy(text, double precision, double precision) c1440ed06d
 world_buy_mezzo(text) 1b907c13fd
 world_caccia_fine(bigint, integer) 578ccf45de
 world_caccia_inizia() 2f03ec55ac
-world_cantiere_accelera(bigint) 47253035be
+world_cantiere_accelera(bigint) 8e164af3ed
 world_cantieri_miei() 0bafe5d417
 world_case_integrita() 206e0a54c5
 world_case_stato() d1a22a0395
@@ -230,6 +235,7 @@ world_chat_report(bigint) 89cee22a5d
 world_chat_send(text, text) 8c7ba570ba
 world_claim_home(text, double precision, double precision) 0feb434a8a
 world_collect() 47b7f286df
+world_completa_subito(text, bigint, integer) 196dbff1d2
 world_condo_break(uuid) d50c77df62
 world_condo_give(text, integer) 4e869d6f22
 world_condo_info() 8911c9ba1c
@@ -247,7 +253,7 @@ world_difesa_inizia(boolean) d9fe26361a
 world_dm_list(uuid) 83e7aeaa85
 world_dm_send(uuid, text) 8750519757
 world_dm_threads() 3560c66838
-world_earn(text) bf52ce0a77
+world_earn(text) 6f25c35070
 world_edificio_info(text, double precision, double precision) 4f6d4fba96
 world_energia_compra(integer) b4c89976d1
 world_eventi_vicini() 0682fa4579
@@ -256,6 +262,10 @@ world_fav_set(uuid, boolean) acc675b82b
 world_favs_list() 0a73e68a58
 world_feed_list(text) 8c091dbd22
 world_find(text) ade7145174
+world_gemme_converti(text, integer, text) 4243c4ef8a
+world_gemme_info() cea0244a1d
+world_gemme_legacy_segna(integer) c6140d4374
+world_gemme_prova(text, text) 4182fb98e9
 world_gift_claim(bigint) 2023464b42
 world_gifts_in() 51ca60df01
 world_give(uuid, text, integer, boolean) 3e93678e5a
@@ -395,6 +405,9 @@ world_eventi_azioni c757a3af
 world_excluded 67a6a429
 world_favs 8f232d3a
 world_feed a78458ad
+world_gemme_legacy 6b6cb9c7
+world_gemme_mov a8749ee9
+world_gemme_ordini d5adaadd
 world_gifts 2ccdb3dc
 world_help 84c102f5
 world_help_given b0775a2b
@@ -419,7 +432,7 @@ world_shouts 38a06241
 world_spedizioni b0030b49
 world_superstite 3b3a0d2c
 world_terrain b6c5b216
-world_wallet 0fde9277
+world_wallet f92cccd7
 world_wx 6b1c15c8
 world_zombie_lotte 0788ba7f
 world_zombie_presi da614ede
@@ -462,6 +475,7 @@ subscriptions sponsor vede il suo abbonamento
 world_buildings wb_sel
 world_excluded we_adm
 world_excluded we_sel
+world_gemme_mov gemme_mov_mie
 world_gifts wg_sel
 world_homes wh_sel
 world_log wl_sel
