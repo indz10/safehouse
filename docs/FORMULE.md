@@ -203,6 +203,6 @@ Abilità (punti come prima, 1 per grado): fascia = 2 × livello dell'abilità (e
 ## 🧟 Arena (Fase 53, migrazione 046 — provvisorio)
 - Livello dello zombie = grado del superstite − 2 (facile), + 0 (equilibrato), + 2 (difficile), minimo 1.
 - Zombie (`w_arena_zstats`): vita = 50 + hp del tipo × 8 + livello × 10; forza = 7 + round(livello × 1,2 + rarità × 2); difesa = 4 + livello + rarità; agilità = 5 + livello/2 (+4 corridore e cane, −2 bruto).
-- Danno di un colpo (`w_arena_danno` = `arnDanno` in p107): max(1, round(forza × 1,5 − difesa × 0,6)), ±10% nell'app; ⭐ speciale ×3 (ricarica 8 s); 🛡️ parata ×0,3.
+- Danno di un colpo (`w_arena_danno` = `arnDanno` in p107): max(1, round(forza × 1,5 − difesa × 0,6)), ±10% nell'app. Mosse (`ARN_MV`): 👊 pugno ×1 (portata 15), 🦵 calcio ×1,3 (20), 🔥 speciale ×3 (19, ricarica 8 s); zombie: graffio ×0,8, morso ×1,45, carica ×1,1, combo di due graffi; parata ×0,25. Tempo 99 s.
 - Di persona: entro 80 m + precisione GPS (max 50 m), 🔋 1. Col superstite: dalla casa di partenza col mezzo (`w_mz_eff`), tempo `w_viaggio_mz`, 🥫 1 + ⌈km⌉, ⛽ `w_mz_carb(mezzo, km)`, 🔋 `w_mz_en(mezzo, 1)`; lo zombie aspetta 30 min dall'arrivo; 💎 come gli altri lavori (1 ogni 6 min, minimo 1).
 - Vittoria valida: colpi ≥ ⌈vita zombie / danno / 3⌉, tempo ≥ colpi necessari / 2,5 s e ≤ 300 s. Premi: XP = round((10 + 3 × livello + 6 × rarità) × 0,7 / 1 / 1,5) + 20 se tipo nuovo; 🪵 🥫 = 3 + livello/2 + rarità × 2, ⛽ la metà; 🧱 10 (raro) o 30 (leggendario).
