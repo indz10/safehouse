@@ -179,4 +179,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 51 | fatta (migrazione 042) | #96 | 💎 gemme sul server, registro, cambio in risorse, completa subito, gemme ai gradi, cibo senza ricariche (piano v2 in docs/piano/GIOCO_V2.md) |
 | 52 | fatta (migrazioni 043–044) | #97 | 🧑 superstite: creazione (nome e aspetto), statistiche, sviluppi a tempo per fasce (statistiche, abilità, attrezzi), 💎 completa subito; usura delle difese anche quando la casa tiene |
 | 53a | fatta (migrazione 045) | #98 | 🔔 notifiche sempre attive: l’app si riscrive da sola se l’iscrizione scade |
-| 53 | in revisione (migrazione 046) | — | 🧟 arena: zombie di persona (80 m + GPS) o col superstite (viaggio, notifica, 💎 solo sul viaggio), difficoltà, arena orizzontale con colpo, parata, schivata, speciale |
+| 53 | fatta (migrazione 046) | #99 | 🧟 arena: zombie di persona (80 m + GPS) o col superstite (viaggio, notifica, 💎 solo sul viaggio), difficoltà, arena orizzontale con colpo, parata, schivata, speciale |
+| 54 | in revisione (migrazione 047) | — | 🧭 5 tasti (Mappa · Lente · Superstite · Casa · Amici), ⏳ missioni in corso con 💎 per finire subito, scudo e dispetti con le gemme del server |

@@ -104,7 +104,7 @@ function renderIo(){const u=S.user;const m=window.W&&W.m;const nick=u?(u.nick||(
     try{if(typeof zIsAdmin==='function'&&await zIsAdmin())h+='<a class="iorow" href="admin.html" target="_blank"><span>🛠️</span><b>Pannello admin INDZ</b><i>›</i></a>';}catch(e){}
     try{const{data}=await SB.from('sponsor_users').select('sponsor_id').eq('user_id',u.id).limit(1);if(data&&data.length)h+='<a class="iorow" href="negozio.html" target="_blank"><span>🏪</span><b>Pannello del mio negozio</b><i>›</i></a>';}catch(e){}
     if(h&&S.tab==='io')box.innerHTML=`<div class="panel iolist">${h}</div>`;}catch(e){}})();
-  try{const d=app.querySelector('[data-dbl]');if(d)d.onclick=()=>{const s=OR.s;if(!s||G.gems<5||window.__dbl===s.prev_id)return;const c=30*(s.held||0)+10*((s.total||0)-(s.held||0));G.gems-=5;G.coins+=c;window.__dbl=s.prev_id;toast(`✨ Premio raddoppiato: +🧱 ${Math.max(1,Math.floor(c/5))}`);renderIo();};}catch(e){}}
+  try{const d=app.querySelector('[data-gemshop]');if(d)d.onclick=()=>gemSheet();}catch(e){}}
 
 /* la barra dell'orda in cima solo in Valuta (in Mappa c'è già quella sulla mappa) */
 try{const _opb=orPutBanner;orPutBanner=function(){if(S.tab!=='valuta')return;return _opb();};}catch(e){}
