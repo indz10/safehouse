@@ -177,4 +177,6 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 49 | fatta (migrazione 040) | #93 | 🛡️ danni alle singole difese secondo gli zombie dell'orda, % collegata, 🔧 restauro prima del potenziamento |
 | 50 | fatta (migrazione 041) | #94 | 🚗 mezzi del superstite: furgone, energia a piedi/bici, ⛽ a motore, bottino per capienza, 🥫 → 🔋, casa di partenza per le spedizioni |
 | 51 | fatta (migrazione 042) | #96 | 💎 gemme sul server, registro, cambio in risorse, completa subito, gemme ai gradi, cibo senza ricariche (piano v2 in docs/piano/GIOCO_V2.md) |
-| 52 | in revisione (migrazione 043) | — | 🧑 superstite: creazione (nome e aspetto), statistiche, sviluppi a tempo per fasce (statistiche, abilità, attrezzi), 💎 completa subito |
+| 52 | fatta (migrazioni 043–044) | #97 | 🧑 superstite: creazione (nome e aspetto), statistiche, sviluppi a tempo per fasce (statistiche, abilità, attrezzi), 💎 completa subito; usura delle difese anche quando la casa tiene |
+| 53a | fatta (migrazione 045) | #98 | 🔔 notifiche sempre attive: l’app si riscrive da sola se l’iscrizione scade |
+| 53 | in revisione (migrazione 046) | — | 🧟 arena: zombie di persona (80 m + GPS) o col superstite (viaggio, notifica, 💎 solo sul viaggio), difficoltà, arena orizzontale con colpo, parata, schivata, speciale |
