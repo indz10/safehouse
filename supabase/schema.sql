@@ -1834,7 +1834,7 @@ CREATE FUNCTION public.w_orde_tick() RETURNS integer
     SET search_path TO 'public'
     AS $$
 declare k jsonb := public.w_pvp_cfg(); pt timestamptz := public.w_prev_slot(now()); pid text := public.w_slot_id(public.w_prev_slot(now()));
-  u uuid; x record; lvl int; bon int; cb int; comb numeric; p int; a int; e int; emax int; cad jsonb; loot jsonb; sc boolean; resta int; n int := 0; zt record; wl int; dd jsonb; dm int; r numeric;
+  u uuid; x record; lvl int; bon int; cb int; comb numeric; p int; a int; e int; emax int; cad jsonb; loot jsonb; sc boolean; resta int; n int := 0; zt record; wl int; dd jsonb; dm int;
 begin
   -- solo le orde arrivate dopo l'installazione, e al massimo 12 ore fa
   if pt <= coalesce((select t from public.world_orde_avvio where id = 1), now()) or pt < now() - interval '12 hours' then return 0; end if;
@@ -1847,18 +1847,8 @@ begin
       p := public.w_power3(x.level, bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id, pid) + public.w_casa_extra(x.building_id, pid), x.home);
       a := public.w_attack3(pid, x.building_id, lvl);
       if p >= a then
-        -- 🛡️ la casa ha tenuto, ma l'orda l'ha consumata: usura secondo quanto è andata vicina (r = attacco / difesa).
-        -- Difesa almeno doppia dell'attacco (r < 0,5) = perfetta, niente danni; altrimenti la principale 2–10,
-        -- la seconda la metà, le trappole 2. Si vede nelle barre dello stato della casa e si restaura.
-        if not sc and a::numeric / greatest(1, p) >= 0.5 then
-          r := a::numeric / greatest(1, p); wl := least(greatest(lvl, 1), 30);
-          update public.world_defs set danno = least(100, danno + 2) where building_id = x.building_id and kind = 'trappole' and level > 0;
-          for zt in select * from public.w_ztypes() z where wl >= z.minl loop
-            dm := ceil(2 + 8 * (r - 0.5) / 0.5)::int;
-            update public.world_defs set danno = least(100, danno + dm) where building_id = x.building_id and kind = zt.dk and level > 0;
-            update public.world_defs set danno = least(100, danno + ceil(dm / 2.0)::int) where building_id = x.building_id and kind = zt.dk2 and level > 0;
-          end loop;
-        end if;
+        -- 🛡️ la casa ha tenuto: ogni difesa si consuma secondo gli zombie che l'hanno colpita (w_usura_difese)
+        if not sc then perform public.w_usura_difese(x.building_id, pid, lvl, a::numeric / greatest(1, p)); end if;
         continue;
       end if;
       e := public.w_esito(round(a::numeric / greatest(1, p * (1 + comb)), 3));
@@ -3068,6 +3058,30 @@ CREATE FUNCTION public.w_upower(p_user uuid, p_slot text) RETURNS integer
        - least(35, least(30, atk) + least(10, 5 * fog) + (case when sab > 0 and prep > 0 then 15 else 0 end))
   from x;
 $$;
+
+--
+-- Name: w_usura_difese(text, text, integer, numeric); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_usura_difese(p_bid text, p_slot text, p_lvl integer, p_r numeric) RETURNS jsonb
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare wl int := least(greatest(p_lvl, 1), 30); s numeric; ev text; hh int; t record; m numeric; d int; out jsonb := '{}'::jsonb;
+begin
+  if p_r < 0.5 then return out; end if;
+  s := public.w_slope(p_bid); ev := public.w_wxev(p_bid, p_slot); hh := coalesce(nullif(right(p_slot, 2), '')::int, 21);
+  for t in select 'walker'::text as k, 'trappole'::text as dk, 8 as w
+           union all select z.k, z.dk, 12 from public.w_ztypes() z where wl >= z.minl
+           union all select z.k, z.dk2, 6 from public.w_ztypes() z where wl >= z.minl loop
+    m := public.w_zm(t.k, s, ev, hh);
+    select floor(t.w * p_r * m / (1 + 0.5 * level))::int into d from public.world_defs where building_id = p_bid and kind = t.dk and level > 0;
+    if d is null or d < 3 then continue; end if;
+    update public.world_defs set danno = least(100, danno + d) where building_id = p_bid and kind = t.dk;
+    out := out || jsonb_build_object(t.dk, coalesce((out->>t.dk)::int, 0) + d);
+  end loop;
+  return out;
+end $$;
 
 --
 -- Name: w_viaggio_min(double precision); Type: FUNCTION; Schema: public; Owner: -
@@ -12392,6 +12406,12 @@ REVOKE ALL ON FUNCTION public.w_tr_pos_casa() FROM PUBLIC;
 --
 
 REVOKE ALL ON FUNCTION public.w_upower(p_user uuid, p_slot text) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_usura_difese(p_bid text, p_slot text, p_lvl integer, p_r numeric); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_usura_difese(p_bid text, p_slot text, p_lvl integer, p_r numeric) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_vicino_alleanza(p_user uuid, p_aid bigint); Type: ACL; Schema: public; Owner: -

@@ -109,7 +109,7 @@ w_mz_rank(text) 6a3580a566
 w_mz_speed(text) 5acdc3fe53
 w_next_slot(timestamp with time zone) e7098146fc
 w_nick(uuid) 0f0ebfc0c0
-w_orde_tick() 2d64b75e25
+w_orde_tick() d699462526
 w_partenza(uuid) 0dfadb3001
 w_pay(uuid, integer, text, text) 1a72164541
 w_perche_no(uuid, bigint) 5335d9836d
@@ -174,6 +174,7 @@ w_tr_feed_push() 17e63bafcd
 w_tr_invite_join() bee6d00589
 w_tr_pos_casa() 59d49e4362
 w_upower(uuid, text) 2974e0963a
+w_usura_difese(text, text, integer, numeric) 0a69ca479a
 w_viaggio_min(double precision) 5f545971e0
 w_viaggio_mz(double precision, text) 89f7b390b2
 w_vicino_alleanza(uuid, bigint) 60958d56d7
