@@ -22,6 +22,10 @@ w_allies_of(uuid) a696d73f51
 w_ally_state(uuid, uuid) cf9a34567a
 w_ancora(uuid, bigint) 1571ce7ead
 w_are_allies(uuid, uuid) d3e2331ab7
+w_arena_cfg() 04186e7195
+w_arena_danno(integer, integer) aa59794c49
+w_arena_viaggio(uuid, double precision, double precision) 1eb915eff8
+w_arena_zstats(text, integer) 4cd9def457
 w_ass(uuid) a33e9a1e43
 w_ass_piano(integer) 287c0882e8
 w_ass_up(jsonb, text) 21f43a52df
@@ -139,6 +143,7 @@ w_rift(uuid, uuid) 79ca44e7de
 w_rinf_no(uuid, bigint) bf68e91c20
 w_rinf_tot(bigint, timestamp with time zone) 4053ad92fb
 w_room(text) ab86838fbb
+w_scontri_tick() 5679200424
 w_score(uuid, boolean) 836191a166
 w_settimana(timestamp with time zone) 18e024a71d
 w_settle(uuid) 59bad382a9
@@ -328,6 +333,12 @@ world_rinforzi_info(bigint) 24a46935f9
 world_ripara(text) b8cd44d9d0
 world_rivals() 9b44911f45
 world_saccheggia(uuid) 15affd0c16
+world_scontri_miei() daf6666082
+world_scontro_fine(bigint, text, integer) 2055322dd0
+world_scontro_info(text) b671cec07a
+world_scontro_inizia(bigint) 80a274741d
+world_scontro_parti(text, text, text, double precision, double precision, double precision) a688287940
+world_scontro_subito(bigint, integer) b102baae8d
 world_score(uuid, text) 1190c1faef
 world_seen() ce2347cdff
 world_sell(text) 75a73e6d6f
@@ -436,6 +447,7 @@ world_presidi_guardie 7b35dd10
 world_presidi_tenute 171e1299
 world_raduni acf79e30
 world_raduni_membri 16be6d60
+world_scontri 603862e5
 world_sfide_fatte a47a40ce
 world_sfide_premi c2ace6eb
 world_shapes 90c99d30
@@ -492,6 +504,7 @@ world_gemme_mov gemme_mov_mie
 world_gifts wg_sel
 world_homes wh_sel
 world_log wl_sel
+world_scontri world_scontri_mie
 world_sup_lavori sup_lavori_miei
 world_wallet ww_sel
 CRON

@@ -46,18 +46,11 @@ async def main():
         print('zombie davanti:',await pg.evaluate("()=>[...document.querySelectorAll('#lente .zmobj')].map(e=>e.textContent)"))
         if os.environ.get('SHOT1'):await pg.screenshot(path=os.environ['SHOT1'])
         print('tasto grande:',await pg.evaluate("()=>(document.querySelector('#lente .zmact')||{}).textContent"))
-        # 🎯 mira e spara: il primo colpo fa partire la lotta, poi si spara col tasto grande
-        await pg.evaluate("()=>document.querySelector('#lente .zmact').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))");await pg.wait_for_timeout(700)
-        print('lotta:',await pg.evaluate("()=>[!!ZM.f,(document.querySelector('#lente .zmhud b')||{}).textContent,(document.querySelector('#lente .zmact')||{}).textContent,!!document.querySelector('#lente .zmobj .zmvita')]"))
+        # 🎯 dalla Fase 53 lo zombie nel mirino si affronta nell'arena: il tasto grande apre la scheda dell'incontro
+        await pg.evaluate("()=>document.querySelector('#lente .zmact').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))");await pg.wait_for_timeout(1200)
+        print('incontro dalla Lente:',await pg.evaluate("()=>[!!document.querySelector('#sheet.open [data-arnp]'),document.querySelectorAll('#sheet.open [data-arnd]').length]"))
         if os.environ.get('SHOT2'):await pg.screenshot(path=os.environ['SHOT2'])
-        await bussola(90);await pg.wait_for_timeout(300)
-        print('fuori mira:',await pg.evaluate("()=>(document.querySelector('#lente .zmact')||{}).textContent"))
-        await bussola(0)
-        for i in range(30):
-            await pg.evaluate("()=>{const b=document.querySelector('#lente .zmact');if(b)b.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))}");await pg.wait_for_timeout(450)
-            if await pg.evaluate("()=>!!document.querySelector('#lente .zmres')"):break
-        print('fine:',await pg.evaluate("()=>[(document.querySelector('#lente .zmres b')||{}).textContent,(window.__ZMF||{}).p_vinto]"))
-        await pg.evaluate("()=>document.querySelector('#lente [data-zmok]').click()");await pg.wait_for_timeout(800)
+        await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(500)
         # cassa a 15 m
         await pg.evaluate("()=>{const c=ZM.L.find(z=>z.k==='cassa');zmTap(c)}");await pg.wait_for_timeout(1200)
         print('cassa aperta:',await pg.evaluate("()=>ZM.L.find(z=>z.k==='cassa').preso"))

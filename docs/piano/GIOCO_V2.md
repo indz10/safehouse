@@ -20,7 +20,7 @@ Lo zombie si combatte in due modi: **📍 di persona** con la Lente (GPS, vicino
 ## Fasi
 1. **Fase 51 — Gemme** (migrazione 042): saldo vero, registro, regole in `w_gem_cfg`, gemme ai gradi e ai traguardi, 💎 → risorse, completa subito (cantieri, restauri, potenziamenti, spedizioni, rinforzi, attacchi), negozio, cibo senza ricariche.
 2. **Fase 52 — Il superstite** (fatta: migrazione 043, `p106_superstite2.js`, tabella delle fasce in `docs/FORMULE.md`): creazione dell'avatar per nuovi ed esistenti, statistiche (vita, forza, difesa, agilità), potenziamenti a tempo con fasce per grado, completa subito in 💎, schermate di potenziamento.
-3. **Fase 53 — Lente e arena**: esplorazione GPS, scheda dello zombie con livello e difficoltà, transizione, arena laterale orizzontale giocabile (movimento, colpo, parata/schivata, speciale con ricarica, IA), statistiche fissate all'inizio, ricompense una sola volta con controlli del server.
+3. **Fase 53 — Lente e arena** (fatta, migrazione 046, `p107_arena.js`): esplorazione GPS, scheda dello zombie con livello e difficoltà, transizione, arena laterale orizzontale giocabile (movimento, colpo, parata/schivata, speciale con ricarica, IA), statistiche fissate all'inizio, ricompense una sola volta con controlli del server.
 4. **Fase 54 — Sezioni e missioni**: Casa · Mappa · Lente · Superstite · Negozio; pannello missioni attive con stato, meta, tempo, ora di fine, 💎 per finire subito.
 
 ## Decisioni ancora da prendere (valori provvisori in `w_gem_cfg`)
