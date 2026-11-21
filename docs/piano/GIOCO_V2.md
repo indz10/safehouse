@@ -21,7 +21,7 @@ Lo zombie si combatte in due modi: **📍 di persona** con la Lente (GPS, vicino
 1. **Fase 51 — Gemme** (migrazione 042): saldo vero, registro, regole in `w_gem_cfg`, gemme ai gradi e ai traguardi, 💎 → risorse, completa subito (cantieri, restauri, potenziamenti, spedizioni, rinforzi, attacchi), negozio, cibo senza ricariche.
 2. **Fase 52 — Il superstite** (fatta: migrazione 043, `p106_superstite2.js`, tabella delle fasce in `docs/FORMULE.md`): creazione dell'avatar per nuovi ed esistenti, statistiche (vita, forza, difesa, agilità), potenziamenti a tempo con fasce per grado, completa subito in 💎, schermate di potenziamento.
 3. **Fase 53 — Lente e arena** (fatta, migrazione 046, `p107_arena.js`): esplorazione GPS, scheda dello zombie con livello e difficoltà, transizione, arena laterale orizzontale giocabile (movimento, colpo, parata/schivata, speciale con ricarica, IA), statistiche fissate all'inizio, ricompense una sola volta con controlli del server.
-4. **Fase 54 — Sezioni e missioni**: Casa · Mappa · Lente · Superstite · Negozio; pannello missioni attive con stato, meta, tempo, ora di fine, 💎 per finire subito.
+4. **Fase 54 — Sezioni e missioni** (fatta, migrazione 047, `p108_sezioni.js`; tasti: Mappa · Lente · Superstite · Casa · Amici, Negozio dentro Superstite): Casa · Mappa · Lente · Superstite · Negozio; pannello missioni attive con stato, meta, tempo, ora di fine, 💎 per finire subito.
 
 ## Decisioni ancora da prendere (valori provvisori in `w_gem_cfg`)
 - Prezzi in euro dei pacchetti e numero di gemme.
@@ -29,5 +29,5 @@ Lo zombie si combatte in due modi: **📍 di persona** con la Lente (GPS, vicino
 - Gemme per grado e traguardi.
 - Affitti delle case comprate e rendite dei presidi: oggi arrivano a ogni orda senza azioni. La richiesta dice che solo l'energia si ricarica col tempo: da decidere se trasformarle in attività da avviare.
 - Le vecchie gemme del telefono (annotate in `world_gemme_legacy`).
-- Funzioni vecchie che spendono le gemme del telefono (scudi agli alleati, raddoppio premio): da spostare sulle gemme del server o togliere (Fase 54).
+- Funzioni vecchie che spendono le gemme del telefono: scudo, nebbia e sabotaggio ora sulle gemme del server, raddoppio premio tolto (Fase 54). Restano solo vecchi premi locali in 💎 (missioni del giorno, scrigno) che il saldo del server non conta.
 - Pagamenti: punto di aggancio pronto (`world_gemme_ordini`, `w_gemme_pagato`), da collegare alla funzione Edge di Stripe.

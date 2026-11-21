@@ -25,8 +25,8 @@ aySheet=function(uid,nick){let kind='mattoni',loan=true;const order=['mattoni','
      try{const{data,error}=await SB.rpc('world_give',{p_to:uid,p_kind:kind,p_amount:n,p_loan:kind==='mattoni'&&loan});if(error)throw error;
        if(data.ok){if(kind!=='mattoni')gAdd(kind,-n);try{saveLocal();}catch(e){}toast('✅ '+data.msg);closeSheet();wMine(true);ayLoad(true);}else{toast(data.msg);btn.disabled=false;}}catch(e){toast(e.message||'Non riuscito');btn.disabled=false;}};});};
 /* scudo per un alleato */
-async function allyShield(uid,nick){if((G.gems||0)<20){toast('Servono 💎 20');shopSheet(0);return;}if(!confirm(`🛡️ Dare uno scudo a @${nick} per la prossima orda? +5 alla sua difesa, costa 💎 20.`))return;
-  try{const{data,error}=await SB.rpc('world_ally_shield',{p_target:uid});if(error)throw error;if(data.ok){G.gems-=20;try{saveLocal();sfx('coin');}catch(e){}TB.t=0;await tbLoad();try{document.querySelectorAll(`[data-ashield="${uid}"]`).forEach(b=>{b.disabled=true;b.textContent='🛡️ ✓';});}catch(e){}}toast((data.ok?'🛡️ ':'')+data.msg);}catch(e){toast(e.message||'Non riuscito');}}
+async function allyShield(uid,nick){if(!confirm(`🛡️ Dare uno scudo a @${nick} per la prossima orda? +5 alla sua difesa, costa 💎 20.`))return;
+  try{const{data,error}=await SB.rpc('world_ally_shield',{p_target:uid});if(error)throw error;if(data.gemme_poche){toast(data.msg);try{gemSheet();}catch(e){}return;}if(data.ok){try{gemLoad();sfx('coin');}catch(e){}TB.t=0;await tbLoad();try{document.querySelectorAll(`[data-ashield="${uid}"]`).forEach(b=>{b.disabled=true;b.textContent='🛡️ ✓';});}catch(e){}}toast((data.ok?'🛡️ ':'')+data.msg);}catch(e){toast(e.message||'Non riuscito');}}
 /* riepilogo della squadra per la prossima orda */
 window.TB={d:null,t:0};
 async function tbLoad(){if(!S.user||typeof SB==='undefined'||!SB)return;if(TB.d&&Date.now()-TB.t<60000)return tbPaint();try{const{data,error}=await SB.rpc('world_team_bonus');if(error)throw error;TB.d=data;TB.t=Date.now();}catch(e){TB.d={err:e.message};}tbPaint();}

@@ -18,7 +18,7 @@ async def main():
         print('nascosti:',await pg.evaluate("()=>['.mwside','.mwmodes','.supme','.mwlente'].map(s=>{const e=document.querySelector(s);return e?getComputedStyle(e).display:'-'})"))
         print('scorte e ADESSO visibili:',await pg.evaluate("()=>[getComputedStyle(document.querySelector('.mwres')).display!=='none',!!document.querySelector('.mwdrawer .mwnow')]"))
         if os.environ.get('SHOT1'):await pg.screenshot(path=os.environ['SHOT1'])
-        for k in ['gioca','io','amici']:
+        for k in ['gioca','sup','amici']:
             await pg.click(f'.sbar [data-sb={k}]');await pg.wait_for_timeout(900)
             print(k,':',await pg.evaluate("()=>[(document.querySelector('#sheet.open .sheet-h, #sheet.open h3')||{}).textContent,[...document.querySelectorAll('#sheet.open .sbtile b')].map(x=>x.textContent)]"))
             if k=='io' and os.environ.get('SHOT2'):await pg.screenshot(path=os.environ['SHOT2'])
@@ -31,7 +31,7 @@ async def main():
         await pg.click('.sbar [data-sb=amici]');await pg.wait_for_timeout(800)
         await pg.evaluate("()=>document.querySelector('#sheet.open [data-sbt=rich]').click()");await pg.wait_for_timeout(1800)
         print('richieste:',await pg.evaluate("()=>document.querySelectorAll('#sheet.open .reqrow').length"))
-        await pg.evaluate("()=>closeSheet()");await pg.click('.sbar [data-sb=gioca]');await pg.wait_for_timeout(800)
+        await pg.evaluate("()=>closeSheet()");await pg.click('.sbar [data-sb=sup]');await pg.wait_for_timeout(800)
         await pg.evaluate("()=>document.querySelector('#sheet.open [data-sbt=ass]').click()");await pg.wait_for_timeout(1500)
         print('assedio:',await pg.evaluate("()=>[!!document.getElementById('assedio'),!document.querySelector('.sbar')]"))
         await pg.evaluate("()=>assClose()");await pg.wait_for_timeout(1500)

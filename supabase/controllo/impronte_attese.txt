@@ -82,6 +82,8 @@ w_fort(text) a72f14d8fc
 w_forza_att(uuid, text) 91a5d603fd
 w_forza_dif(uuid, text) efd02b1c26
 w_gem_cfg() 42556810f8
+w_gem_costo(timestamp with time zone, timestamp with time zone) da00fba1b5
+w_gem_usi() b81c497299
 w_gemme_add(uuid, integer, text, text, text, boolean) 6802d03906
 w_gemme_costo(timestamp with time zone) 018e7d7ac9
 w_gemme_livello(uuid, integer, integer) c330059f24
@@ -216,7 +218,7 @@ world_allies_status() 774a3128fd
 world_ally_answer(uuid, boolean) f0cb9fb4e9
 world_ally_pending() 2075b82e92
 world_ally_request(uuid) cf107bd8ec
-world_ally_shield(uuid) ebd03e1ab8
+world_ally_shield(uuid) 6aebe91a7c
 world_ally_view(uuid) ef33f8ac73
 world_ask_help() eaa8fd1b52
 world_assalta(text, double precision, double precision) bb497debb0
@@ -298,6 +300,7 @@ world_mezzo() 9dcb97fcb7
 world_mezzo_scegli(text) 215aa07794
 world_mine() 0376f655ab
 world_mine2() 1abdaf5ab7
+world_missioni() 2caf0c3f17
 world_my_defense() 376cc40503
 world_my_effects() 7e4bd22f9b
 world_near_survivors(double precision, double precision, double precision) 479ebf94cf
@@ -343,7 +346,7 @@ world_score(uuid, text) 1190c1faef
 world_seen() ce2347cdff
 world_sell(text) 75a73e6d6f
 world_send_attack(uuid) b3d0d027af
-world_send_curse(uuid, text) bbdf70a979
+world_send_curse(uuid, text) c54d409cf2
 world_send_help(uuid) f030546bb1
 world_set_home(text, text) f3eb706e13
 world_set_mezzo_vero(text, integer) a344e73057

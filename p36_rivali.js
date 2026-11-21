@@ -49,10 +49,9 @@ zEvery(()=>{try{const b=document.querySelector('.mfsp');if(!b)return;const n=Obj
 /* ---- 2) 😈 RIVALI ---- */
 const DISP=[['orda','🧟','Manda un’orda','più forte col tuo livello e il tuo mezzo, meno contro le sue barricate · solo entro 20 km · taglia di 35 🧱 e ⛽ 10 se la sua casa cade',30,'mat'],['nebbia','🌫️','Nebbia','−5 alla sua difesa',15,'gem'],['sabotaggio','🔨','Sabotaggio','annulla il suo “Prepara le case” (−15)',25,'gem']];
 async function doDisp(uid,nick,k){const d=DISP.find(x=>x[0]===k);if(!d)return;
-  if(d[5]==='gem'&&((typeof G!=='undefined'&&G.gems)||0)<d[4]){shopSheet(0);toast(`Servono 💎 ${d[4]} gemme`);return;}
   if(!confirm(`${d[1]} ${d[2]} a @${nick}? Costa ${d[5]==='gem'?'💎':'🧱'} ${d[4]}.`))return;
   try{const r=k==='orda'?await socRpc('world_send_attack',{p_target:uid}):await socRpc('world_send_curse',{p_target:uid,p_kind:k});
-    if(r.ok&&d[5]==='gem'){G.gems-=d[4];try{saveLocal();}catch(e){}}toast((r.ok?d[1]+' ':'')+(r.msg||'Fatto'));if(typeof wMine==='function')wMine(true);}catch(e){toast(e.message||'Non riuscito');}}
+    if(r.gemme_poche){toast(r.msg);try{gemSheet();}catch(e){}return;}if(r.ok&&d[5]==='gem'){try{gemLoad();}catch(e){}}toast((r.ok?d[1]+' ':'')+(r.msg||'Fatto'));if(typeof wMine==='function')wMine(true);}catch(e){toast(e.message||'Non riuscito');}}
 SOC.riv=null;
 async function rivLoad(){try{SOC.riv=await socRpc('world_rivals')||[];}catch(e){SOC.riv=[];SOC.err=e.message;}if(S.tab==='social'&&SOC.tab==='rivali')socPaint();}
 /* scheda del giocatore: anche i dispetti */

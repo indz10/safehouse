@@ -4,7 +4,7 @@ Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sq
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
 - Tabelle: **84** · viste: **1** · indici: **47** · regole (policy): **45** · trigger: **17** · lavori programmati: **9**
-- Funzioni: **376** (376 nomi); usate (direttamente o tramite altre funzioni): **365**; **non usate: 11**
+- Funzioni: **379** (379 nomi); usate (direttamente o tramite altre funzioni): **368**; **non usate: 11**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -57,7 +57,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_atk_b` |  |  |  | w_azione | 1: migr. 014_territorio |
 | `w_atk_pts` |  |  |  |  | 1: migr. 009_mezzi_assalti |
 | `w_attacchi_integ` |  |  | trigger |  | 1: migr. 031_integrita_case |
-| `w_attacchi_tick` |  |  | cron | world_attacchi_miei | 3: migr. 028_attacchi → migr. 029_rinforzi → migr. 030_attacchi_alleanza |
+| `w_attacchi_tick` |  |  | cron | world_attacchi_miei, world_missioni | 3: migr. 028_attacchi → migr. 029_rinforzi → migr. 030_attacchi_alleanza |
 | `w_attacco_no` |  |  |  | world_attacco_info, world_attacca, w_raduno_no, world_raduno_crea | 3: migr. 028_attacchi → migr. 030_attacchi_alleanza → migr. 031_integrita_case |
 | `w_attack3` |  |  |  | world_raid_status, world_raid_view, w_home_held, w_assalti_tick, w_orde_tick | 5: mondo_v3 → zombie → zombie_alleati → fortezze → migr. 040_danni_difese |
 | `w_attivita` |  |  |  | w_votanti, world_alleanza_info, world_alleanza_esci2, world_alleanze_mie | 1: migr. 018_alleanze_gruppi |
@@ -73,7 +73,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_bottino` |  |  |  | w_attacchi_tick, w_orde_tick | 1: migr. 028_attacchi |
 | `w_cadute_tick` |  |  | cron | world_ripara | 2: migr. 031_integrita_case → migr. 035_mezzi_cantieri |
 | `w_canon` |  |  |  | world_claim_home, world_quote, world_buy, w_target | 3: mondo_unico → mondo_unico_agg1 → abitazione |
-| `w_cantieri_tick` |  |  | cron | world_ripara, world_cantieri_miei, world_case_stato, world_def_restaura, world_completa_subito | 3: migr. 035_mezzi_cantieri → migr. 036_cantieri_case → migr. 040_danni_difese |
+| `w_cantieri_tick` |  |  | cron | world_ripara, world_cantieri_miei, world_case_stato, world_def_restaura, world_completa_subito, world_missioni | 3: migr. 035_mezzi_cantieri → migr. 036_cantieri_case → migr. 040_danni_difese |
 | `w_casa_extra` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of, w_pres_def … | 1: migr. 014_territorio |
 | `w_casa_manca_tick` |  | ✓ |  |  | 1: migr. 021_caccia_condomini |
 | `w_cella` |  |  |  | w_eventi_tick | 1: migr. 022_eventi_sfide |
@@ -106,7 +106,9 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_forza_att` |  |  |  | world_attacco_info, world_attacca, world_rinforza, w_raduno_entra | 1: migr. 028_attacchi |
 | `w_forza_dif` |  |  |  | world_attacco_info, w_attacchi_tick | 1: migr. 028_attacchi |
 | `w_gem_cfg` |  |  |  | w_gemme_costo, w_gemme_livello, world_gemme_converti, world_completa_subito, world_gemme_info, world_gemme_prova … | 1: migr. 042_gemme |
-| `w_gemme_add` |  |  |  | w_gemme_livello, world_gemme_converti, world_completa_subito, w_gemme_pagato, world_gemme_prova, world_scontro_subito | 1: migr. 042_gemme |
+| `w_gem_costo` |  |  |  | world_missioni | 1: migr. 047_missioni |
+| `w_gem_usi` |  |  |  | world_send_curse, world_ally_shield | 1: migr. 047_missioni |
+| `w_gemme_add` |  |  |  | world_send_curse, world_ally_shield, w_gemme_livello, world_gemme_converti, world_completa_subito, w_gemme_pagato … | 1: migr. 042_gemme |
 | `w_gemme_costo` |  |  |  |  | 1: migr. 042_gemme |
 | `w_gemme_livello` |  |  |  | w_xp | 1: migr. 042_gemme |
 | `w_gemme_pagato` |  |  |  |  | 1: migr. 042_gemme |
@@ -167,7 +169,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_rinf_no` |  |  |  | world_rinforza | 1: migr. 029_rinforzi |
 | `w_rinf_tot` |  |  |  | w_attacchi_tick, world_attacchi_miei, world_rinforzi_info | 1: migr. 029_rinforzi |
 | `w_room` |  |  |  | world_chat_send, world_chat_list | 1: chat |
-| `w_scontri_tick` |  |  | cron | world_scontro_info, world_scontro_subito, world_scontro_inizia, world_scontri_miei | 1: migr. 046_arena |
+| `w_scontri_tick` |  |  | cron | world_scontro_info, world_scontro_subito, world_scontro_inizia, world_scontri_miei, world_missioni | 1: migr. 046_arena |
 | `w_score` |  |  |  | world_rank, world_rank_lega, world_score, world_rank_alleanze | 1: classifica |
 | `w_settimana` |  |  |  | world_sfida_quartiere, w_sfida_premi | 1: migr. 022_eventi_sfide |
 | `w_settle` |  |  |  | world_mine | 1: mondo_unico |
@@ -189,7 +191,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_sup_durata` |  |  |  | w_sup_lavoro_nuovo, world_sup_profilo | 1: migr. 043_superstite |
 | `w_sup_fascia` |  |  |  | w_sup_durata, w_sup_richiesto | 1: migr. 043_superstite |
 | `w_sup_inviti` |  |  |  | world_sup_info | 1: migr. 020_superstite |
-| `w_sup_lavori_tick` |  |  | cron | world_sup_abilita, world_sup_equip, world_completa_subito, world_sup_potenzia, world_sup_profilo | 1: migr. 043_superstite |
+| `w_sup_lavori_tick` |  |  | cron | world_sup_abilita, world_sup_equip, world_completa_subito, world_sup_potenzia, world_sup_profilo, world_missioni | 1: migr. 043_superstite |
 | `w_sup_lavoro_nuovo` |  |  |  | world_sup_abilita, world_sup_equip, world_sup_potenzia | 1: migr. 043_superstite |
 | `w_sup_raggio` |  |  |  | world_sup_info, world_sped_parti, world_eventi_vicini, world_evento_azione, w_arena_viaggio | 2: migr. 020_superstite → migr. 021_caccia_condomini |
 | `w_sup_richiesto` |  |  |  | world_sup_potenzia, world_sup_profilo | 1: migr. 043_superstite |
@@ -240,7 +242,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_ally_answer` | ✓ |  |  |  | 1: social |
 | `world_ally_pending` | ✓ |  |  |  | 1: social |
 | `world_ally_request` | ✓ |  |  |  | 3: social → migr. 018_alleanze_gruppi → migr. 019_alleanze_multiple |
-| `world_ally_shield` | ✓ |  |  |  | 1: alleanze2 |
+| `world_ally_shield` | ✓ |  |  |  | 2: alleanze2 → migr. 047_missioni |
 | `world_ally_view` | ✓ |  |  |  | 2: alleati_sim → zombie_alleati |
 | `world_ask_help` | ✓ |  |  |  | 1: mondo_v3 |
 | `world_assalta` | ✓ |  |  |  | 2: migr. 014_territorio → migr. 028_attacchi |
@@ -322,6 +324,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_mezzo_scegli` | ✓ |  |  |  | 2: migr. 035_mezzi_cantieri → migr. 041_mezzi_superstite |
 | `world_mine` | ✓ |  |  | world_mine2 | 1: mondo_unico |
 | `world_mine2` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
+| `world_missioni` | ✓ |  |  |  | 1: migr. 047_missioni |
 | `world_my_defense` | ✓ |  |  |  | 6: casavera → squadra_fix → migr. 002_formule_uguali → migr. 006_presidi → migr. 009_mezzi_assalti → migr. 014_territorio |
 | `world_my_effects` | ✓ |  |  |  | 3: assedio → casa_abitata → nome_casa |
 | `world_near_survivors` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
@@ -367,7 +370,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_seen` | ✓ |  |  |  | 1: mondo_unico |
 | `world_sell` | ✓ |  |  |  | 1: mondo_unico |
 | `world_send_attack` | ✓ |  |  |  | 6: mondo_v3 → equita → alleanze2 → migr. 009_mezzi_assalti → migr. 014_territorio → migr. 028_attacchi |
-| `world_send_curse` | ✓ |  |  |  | 2: dispetti → equita |
+| `world_send_curse` | ✓ |  |  |  | 3: dispetti → equita → migr. 047_missioni |
 | `world_send_help` | ✓ |  |  |  | 7: mondo_v3 → alleati_sim → zombie_alleati → migr. 009_mezzi_assalti → migr. 012_risorse_ricompense → migr. 014_territorio → migr. 027_mondo_vero |
 | `world_set_home` | ✓ |  |  |  | 1: abitazione |
 | `world_set_mezzo_vero` | ✓ |  |  |  | 1: migr. 009_mezzi_assalti |

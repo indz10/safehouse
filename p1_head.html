@@ -1223,6 +1223,11 @@ body[data-tab=orda] #accFab{display:none!important}
 
 /* pagina di benvenuto (invito) */
 .pkav{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:9100;display:flex;align-items:center;gap:8px;background:var(--paper,#fff8e7);border:3px solid #111;border-radius:12px;padding:8px 10px;box-shadow:4px 4px 0 #111}.pkav span{flex:1;font-weight:700}
+/* ⏳ Missioni (Fase 54, p108) */
+.mislist{display:flex;flex-direction:column;gap:8px}.misrow{display:flex;gap:9px;align-items:center;border:3px solid #111;border-radius:12px;padding:8px;background:#fff}
+.misrow.ok{background:#e7f8e7}.misrow.warn{background:#ffe9e4}.misic{font-size:28px;flex:none}.misb{flex:1;min-width:0}.misb b{display:block;font-size:14px}.misb small{display:block;font-size:12px;opacity:.8}
+.misbar{height:7px;border:2px solid #111;border-radius:5px;overflow:hidden;margin:4px 0 2px;background:#eee}.misbar i{display:block;height:100%;background:#ffd23f}.misrow.ok .misbar i{background:#4cd964}
+.misact{flex:none;max-width:42%;text-align:right}.misact .btn{white-space:normal}.misok{font-size:13px}
 /* 🧟 Arena (Fase 53, p107) */
 .arncard .arnzc{display:flex;gap:10px;align-items:center;margin:4px 0 8px}.arnzic{font-size:44px;line-height:1}.arnzc small{display:block;opacity:.75}
 .arnst{display:inline-block;margin:2px 6px 0 0;font-size:13px;font-weight:700}
@@ -1697,9 +1702,9 @@ body.mwopen .supme,body.inbattle .supme{display:none!important}
 .asstray .assvia{background:#2bb673;color:#fff;font-size:17px;justify-content:center}.asstray .assbomb{background:var(--blood);color:#fff;justify-content:center;font-size:16px}
 .asshelp span,.assup .assuprow{text-align:left}.assuprow{display:flex;gap:8px;align-items:center;border-bottom:2px dashed #ccc;padding:6px 0}.assuprow>span{font-size:24px}.assuprow>div{flex:1}.assuprow small{display:block;font-size:12px}
 /* 📱 schermata semplice: 4 tasti in basso (p89) */
-.sbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:520px;z-index:60;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--ink);border-top:3px solid var(--moon);padding:6px 6px calc(env(safe-area-inset-bottom) + 6px)}
+.sbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:520px;z-index:60;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;background:var(--ink);border-top:3px solid var(--moon);padding:6px 6px calc(env(safe-area-inset-bottom) + 6px)}
 .sbar button{position:relative;background:none;border:0;color:#fff;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0;border-radius:10px}
-.sbar button span{font-size:25px;line-height:1.1}.sbar button b{font-size:12.5px;font-weight:800}.sbar button.on{background:#ffffff1f;color:var(--moon)}
+.sbar button span{font-size:24px;line-height:1.1}.sbar button b{font-size:11.5px;font-weight:800;white-space:nowrap}.sbar button.on{background:#ffffff1f;color:var(--moon)}
 .sbar button i{position:absolute;top:0;right:18%;min-width:19px;height:19px;padding:0 4px;border-radius:10px;background:var(--blood);color:#fff;font-style:normal;font-size:11.5px;font-weight:900;line-height:19px;border:2px solid var(--ink)}
 body.nonav.semplice{--nav-h:66px}
 body.semplice .mwmodes,body.semplice .mwside,body.semplice .supme,body.semplice .mwlente,body.semplice .mwscorte .mwguida,body.semplice #mwdock{display:none!important}
