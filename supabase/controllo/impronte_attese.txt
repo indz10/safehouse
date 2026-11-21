@@ -8,7 +8,7 @@ is_admin() ed60925f39
 miei_invitati() 6741a6f44c
 my_sponsor(uuid) cb7138eae0
 push_piazza(text, text) 9f299afc88
-push_subscribe(text, text, text) 1ddb9629ed
+push_subscribe(text, text, text) d669f158f1
 push_unsubscribe(text) d8c7f31d16
 redeem_coupon(text, numeric) 2ae032ec11
 sponsor_pagato(uuid, text, text, numeric) 3cc3708899

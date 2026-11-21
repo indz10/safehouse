@@ -161,11 +161,13 @@ CREATE FUNCTION public.push_subscribe(p_endpoint text, p_p256dh text, p_auth tex
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
+declare c boolean;
 begin
   if auth.uid() is null then return json_build_object('ok',false,'msg','Accedi'); end if;
+  c := exists (select 1 from public.push_subs where endpoint = p_endpoint);
   insert into public.push_subs(endpoint, user_id, p256dh, auth) values (p_endpoint, auth.uid(), p_p256dh, p_auth)
     on conflict (endpoint) do update set user_id = auth.uid(), p256dh = excluded.p256dh, auth = excluded.auth;
-  return json_build_object('ok',true);
+  return json_build_object('ok', true, 'nuovo', not c);
 end $$;
 
 --

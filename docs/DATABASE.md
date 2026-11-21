@@ -32,7 +32,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `miei_invitati` | ✓ |  |  |  | 1: aggiornamento_ottobre |
 | `my_sponsor` |  |  | regole | redeem_coupon | 1: ZombieSafeHouse_backend_sponsor |
 | `push_piazza` | ✓ |  |  |  | 1: migr. 007_notifiche_piazza |
-| `push_subscribe` | ✓ |  |  |  | 1: push |
+| `push_subscribe` | ✓ |  |  |  | 2: push → migr. 045_notifiche_sempre |
 | `push_unsubscribe` | ✓ |  |  |  | 1: push |
 | `redeem_coupon` | ✓ |  |  |  | 1: ZombieSafeHouse_backend_sponsor |
 | `sponsor_pagato` |  | ✓ |  |  | 1: migr. 005_sponsor_pagamenti |
