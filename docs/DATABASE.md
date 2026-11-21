@@ -169,7 +169,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_rinf_no` |  |  |  | world_rinforza | 1: migr. 029_rinforzi |
 | `w_rinf_tot` |  |  |  | w_attacchi_tick, world_attacchi_miei, world_rinforzi_info | 1: migr. 029_rinforzi |
 | `w_room` |  |  |  | world_chat_send, world_chat_list | 1: chat |
-| `w_scontri_tick` |  |  | cron | world_scontro_info, world_scontro_subito, world_scontro_inizia, world_scontri_miei, world_missioni | 1: migr. 046_arena |
+| `w_scontri_tick` |  |  | cron | world_scontro_info, world_scontro_inizia, world_scontri_miei, world_missioni | 1: migr. 046_arena |
 | `w_score` |  |  |  | world_rank, world_rank_lega, world_score, world_rank_alleanze | 1: classifica |
 | `w_settimana` |  |  |  | world_sfida_quartiere, w_sfida_premi | 1: migr. 022_eventi_sfide |
 | `w_settle` |  |  |  | world_mine | 1: mondo_unico |
@@ -324,7 +324,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_mezzo_scegli` | ✓ |  |  |  | 2: migr. 035_mezzi_cantieri → migr. 041_mezzi_superstite |
 | `world_mine` | ✓ |  |  | world_mine2 | 1: mondo_unico |
 | `world_mine2` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
-| `world_missioni` | ✓ |  |  |  | 1: migr. 047_missioni |
+| `world_missioni` | ✓ |  |  |  | 2: migr. 047_missioni → migr. 048_gioco |
 | `world_my_defense` | ✓ |  |  |  | 6: casavera → squadra_fix → migr. 002_formule_uguali → migr. 006_presidi → migr. 009_mezzi_assalti → migr. 014_territorio |
 | `world_my_effects` | ✓ |  |  |  | 3: assedio → casa_abitata → nome_casa |
 | `world_near_survivors` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
@@ -363,9 +363,9 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_scontri_miei` | ✓ |  |  |  | 1: migr. 046_arena |
 | `world_scontro_fine` | ✓ |  |  |  | 1: migr. 046_arena |
 | `world_scontro_info` | ✓ |  |  |  | 1: migr. 046_arena |
-| `world_scontro_inizia` | ✓ |  |  |  | 1: migr. 046_arena |
+| `world_scontro_inizia` | ✓ |  |  |  | 2: migr. 046_arena → migr. 048_gioco |
 | `world_scontro_parti` | ✓ |  |  |  | 1: migr. 046_arena |
-| `world_scontro_subito` | ✓ |  |  |  | 1: migr. 046_arena |
+| `world_scontro_subito` | ✓ |  |  |  | 2: migr. 046_arena → migr. 048_gioco |
 | `world_score` | ✓ |  |  |  | 1: classifica |
 | `world_seen` | ✓ |  |  |  | 1: mondo_unico |
 | `world_sell` | ✓ |  |  |  | 1: mondo_unico |

@@ -22,8 +22,8 @@ async def main():
             await pg.wait_for_timeout(300)
         # tessere in Gioca
         await pg.evaluate("()=>document.querySelector('.sbar [data-sb=gioca]').click()");await pg.wait_for_timeout(800)
-        print('gioca:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .sbtile b')].map(x=>x.textContent).filter(t=>/Difendi casa|Boss/.test(t))"))
-        await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(400)
+        print('gioco:',await pg.evaluate("()=>[...document.querySelectorAll('#gmap .gmside small')].map(x=>x.textContent).filter(t=>/Difendi|Boss/.test(t))"))
+        await pg.evaluate("()=>{closeSheet();gmClose();}");await pg.wait_for_timeout(400)
         # 🛡️ difesa nella Lente
         await pg.evaluate("()=>lenteOpen()");await pg.wait_for_timeout(2500);await bussola(0)
         print('pulsante:',await pg.evaluate("()=>(document.querySelector('#lente [data-dfago]')||{}).textContent"))

@@ -5955,13 +5955,13 @@ begin
       'meta', '🧑 Il tuo superstite', 'inizio', l.inizio, 'fine', l.fine, 'secondi', greatest(0, extract(epoch from l.fine - now()))::int, 'gemme', public.w_gem_costo(l.fine, now())))
     from public.world_sup_lavori l where l.user_id = me and l.stato = 'lavori'), '[]'::jsonb);
   -- 🎒 spedizioni (tornate = da raccogliere)
-  L := L || coalesce((select jsonb_agg(jsonb_build_object('tipo','spedizione','id',p.id,'ic','🎒','titolo','Spedizione', 'meta', coalesce(p.nome,'') || ' · ' || p.km || ' km',
+  L := L || coalesce((select jsonb_agg(jsonb_build_object('tipo','spedizione','id',p.id,'ic','🎒','titolo','Spedizione', 'meta', coalesce(p.nome,'') || ' · ' || p.km || ' km', 'lat', p.lat, 'lon', p.lon,
       'inizio', p.start_at, 'fine', p.end_at, 'secondi', greatest(0, extract(epoch from p.end_at - now()))::int, 'pronto', p.end_at <= now(),
       'gemme', case when p.end_at > now() then public.w_gem_costo(p.end_at, now()) end))
     from public.world_spedizioni p where p.user_id = me and p.stato = 'via'), '[]'::jsonb);
   -- 🧟 superstite verso lo zombie (arrivato = pronto per l'arena)
   L := L || coalesce((select jsonb_agg(jsonb_build_object('tipo','scontro','id',s.id,'ic',t.ic,'titolo','Verso ' || t.nome || ' · Lv ' || s.livello,
-      'meta', '🎒 Superstite · ' || coalesce(s.km::text,'') || ' km', 'inizio', s.creato, 'fine', s.arrivo, 'scade', s.scade,
+      'meta', '🎒 Superstite · ' || coalesce(s.km::text,'') || ' km', 'lat', s.zlat, 'lon', s.zlon, 'zid', s.zid, 'tipo_z', s.tipo, 'inizio', s.creato, 'fine', s.arrivo, 'scade', s.scade,
       'secondi', greatest(0, extract(epoch from s.arrivo - now()))::int, 'pronto', s.stato = 'pronto',
       'gemme', case when s.stato = 'viaggio' then public.w_gem_costo(s.arrivo, now()) end))
     from public.world_scontri s join public.w_zm_tipi() t on t.k = s.tipo where s.user_id = me and s.modo = 'superstite' and s.stato in ('viaggio','pronto')), '[]'::jsonb);
@@ -6964,7 +6964,7 @@ begin
   select * into sc from public.world_scontri where id = p_id and user_id = me for update;
   if sc.id is null then return json_build_object('ok', false, 'msg', 'Scontro non trovato'); end if;
   if sc.stato = 'viaggio' then return json_build_object('ok', false, 'msg', 'Il superstite è ancora in viaggio'); end if;
-  if sc.stato <> 'pronto' then return json_build_object('ok', false, 'msg', 'Questo scontro è già finito'); end if;
+  if sc.stato <> 'pronto' then return json_build_object('ok', false, 'gia', true, 'stato', sc.stato, 'msg', case sc.stato when 'vinto' then '✅ Questo zombie l’hai già battuto' when 'scaduto' then '⌛ Lo zombie non ti ha aspettato: è andato via' when 'lotta' then 'Lo scontro è già aperto' else 'Questo scontro è già finito' end); end if;
   st := public.w_sup_stats(me); zs := public.w_arena_zstats(sc.tipo, sc.livello);
   update public.world_scontri set stato = 'lotta', inizio = now(), stats = st, zstats = zs where id = p_id;
   return json_build_object('ok', true, 'id', p_id, 'diff', sc.diff, 'modo', sc.modo, 'io', st, 'zombie', zs,
@@ -7040,8 +7040,8 @@ begin
   if p_costo_visto is distinct from costo then return json_build_object('ok', false, 'cambiato', true, 'costo', costo, 'msg', 'Il costo è cambiato: ' || costo || ' 💎'); end if;
   r := public.w_gemme_add(me, -costo, 'Arrivo subito allo zombie', p_id::text, 'subito:scontro:' || p_id, false);
   if r is null then return json_build_object('ok', false, 'msg', 'Non hai abbastanza 💎'); end if;
-  update public.world_scontri set arrivo = now(), scade = now() + make_interval(mins => (public.w_arena_cfg()->>'attesa_min')::int) where id = p_id;
-  perform public.w_scontri_tick();
+  -- arrivato subito: pronto senza notifica (prima arrivava anche "Il superstite è arrivato" e sembrava doppio)
+  update public.world_scontri set arrivo = now(), stato = 'pronto', scade = now() + make_interval(mins => (public.w_arena_cfg()->>'attesa_min')::int) where id = p_id;
   return json_build_object('ok', true, 'gemme', r, 'msg', '💎 Il superstite è arrivato!');
 end $$;
 

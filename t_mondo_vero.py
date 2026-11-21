@@ -19,9 +19,9 @@ async def main():
         await pg.wait_for_timeout(5000)
         # 🎮 Gioca a sezioni + spiegazione
         await pg.evaluate("()=>document.querySelector('.sbar [data-sb=gioca]').click()");await pg.wait_for_timeout(800)
-        print('gioca:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .sbsec')].map(x=>x.textContent)"))
+        print('gioco:',await pg.evaluate("()=>[...document.querySelectorAll('#gmap .gmside small')].map(x=>x.textContent)"))
         if os.environ.get('SHOT1'):await pg.screenshot(path=os.environ['SHOT1'])
-        await pg.evaluate("()=>document.querySelector('#sheet.open [data-sbt=mv]').click()");await pg.wait_for_timeout(900)
+        await pg.evaluate("()=>document.querySelector('#gmap [data-gmb=mv]').click()");await pg.wait_for_timeout(900)
         print('spiegazione:',await pg.evaluate("()=>[(document.querySelector('#sheet.open h2,#sheet.open .sh-t')||{}).textContent,[...document.querySelectorAll('#sheet.open .mvcard b')].map(x=>x.textContent.slice(0,30))]"))
         if os.environ.get('SHOT2'):await pg.screenshot(path=os.environ['SHOT2'],full_page=False)
         await pg.evaluate("()=>closeSheet()");await pg.wait_for_timeout(400)

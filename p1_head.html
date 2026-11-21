@@ -1228,6 +1228,13 @@ body[data-tab=orda] #accFab{display:none!important}
 .misrow.ok{background:#e7f8e7}.misrow.warn{background:#ffe9e4}.misic{font-size:28px;flex:none}.misb{flex:1;min-width:0}.misb b{display:block;font-size:14px}.misb small{display:block;font-size:12px;opacity:.8}
 .misbar{height:7px;border:2px solid #111;border-radius:5px;overflow:hidden;margin:4px 0 2px;background:#eee}.misbar i{display:block;height:100%;background:#ffd23f}.misrow.ok .misbar i{background:#4cd964}
 .misact{flex:none;max-width:42%;text-align:right}.misact .btn{white-space:normal}.misok{font-size:13px}
+/* 🎮 Mappa del gioco stile Pokémon (Fase 55, p109) */
+#gmap{position:fixed;left:0;right:0;top:calc(var(--tb-h,56px) + env(safe-area-inset-top,0px));bottom:calc(66px + env(safe-area-inset-bottom,0px));z-index:59;background:#78c850;overflow:hidden;touch-action:none}#gmap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.gmtop{position:absolute;left:10px;right:10px;top:8px;display:flex;align-items:center;gap:8px;background:#fff8e7;border:3px solid #111;border-radius:12px;padding:6px 8px;box-shadow:3px 3px 0 #111;font-family:ui-monospace,Menlo,monospace}
+.gmtop b{font-size:15px;white-space:nowrap}.gmtop span{flex:1;font-size:12.5px;font-weight:700;line-height:1.2}.gmx{border:2px solid #111;background:#c01818;color:#fff;border-radius:50%;width:30px;height:30px;font-weight:900;flex:none}
+.gmside{position:absolute;right:8px;top:62px;bottom:8px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}.gmside button{width:52px;border:3px solid #111;border-radius:12px;background:#fff8e7;box-shadow:2px 2px 0 #111;padding:3px 0;display:flex;flex-direction:column;align-items:center}
+.gmside button span{font-size:20px;line-height:1.1}.gmside button small{font-size:9px;font-weight:800}
+.gmzoom{position:absolute;left:8px;bottom:10px;display:flex;flex-direction:column;gap:6px}.gmzoom button{width:40px;height:40px;border:3px solid #111;border-radius:10px;background:#fff8e7;font-size:20px;font-weight:900;box-shadow:2px 2px 0 #111}
 /* 🧟 Arena (Fase 53, p107) */
 .arncard .arnzc{display:flex;gap:10px;align-items:center;margin:4px 0 8px}.arnzic{font-size:44px;line-height:1}.arnzc small{display:block;opacity:.75}
 .arnst{display:inline-block;margin:2px 6px 0 0;font-size:13px;font-weight:700}
@@ -1244,8 +1251,10 @@ body[data-tab=orda] #accFab{display:none!important}
 .arnann{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font:900 64px/1 ui-monospace,Menlo,monospace;color:#ffe66d;letter-spacing:4px;text-shadow:4px 4px 0 #c01818,-2px -2px 0 #000,0 0 18px #ff3df2;pointer-events:none}
 .arnann.on{display:flex;animation:arnin .35s ease-out}.arnann.ko{color:#ff3d3d;text-shadow:5px 5px 0 #000,0 0 22px #ff9f1c;font-size:84px}@keyframes arnin{from{transform:scale(2.4);opacity:0}to{transform:scale(1);opacity:1}}#arena.rid .arnann.on{animation:none}
 .arnpad button.big.k{background:rgba(47,109,179,.8)}
+.arnrd{color:#ffe66d;letter-spacing:2px}.arnsup{position:relative;display:block;height:7px;margin-top:3px;border:2px solid #3df2ff;background:#0a1a2a;max-width:60%}.arnsup span{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#3df2ff,#ff3df2)}.arnsup b{position:absolute;right:-46px;top:-5px;font-size:9px;color:#3df2ff}
+.arntime small{font-size:10px;color:#ffe66d;letter-spacing:1px;font-family:ui-monospace,Menlo,monospace}.arnpad button.pieno{box-shadow:0 0 14px 4px #ff9f1c;background:rgba(255,120,0,.75)}
 .arnx{border:2px solid #fff;background:#c01818;color:#fff;border-radius:50%;width:28px;height:28px;font-size:13px;font-weight:900;flex:none;padding:0}
-.arnfield{position:relative;flex:1;min-height:120px;overflow:hidden}.arnfield canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+.arnfield{position:relative;flex:1;min-height:120px;overflow:hidden}.arnfield canvas{position:absolute;inset:0;display:block;width:100%;height:100%;image-rendering:pixelated}
 .arnctl{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;padding:8px calc(env(safe-area-inset-right,0px) + 12px) calc(env(safe-area-inset-bottom,0px) + 10px) calc(env(safe-area-inset-left,0px) + 12px);pointer-events:none;z-index:2}.arnctl button{pointer-events:auto}.arnpad{display:flex;gap:10px}.arnpad.dx{flex-wrap:wrap;justify-content:flex-end;max-width:62%}
 .arnpad button{position:relative;width:64px;height:64px;border-radius:50%;border:3px solid #fff;background:rgba(20,8,40,.45);color:#fff;font-size:26px;line-height:1;touch-action:none}
 .arnpad button small{display:block;font-size:9.5px;font-weight:800;margin-top:2px}.arnpad button.big{width:80px;height:80px;background:rgba(192,24,24,.8);font-size:32px}.arnpad button.pr{background:rgba(255,210,63,.5)}
