@@ -155,8 +155,16 @@ w_sped_km(uuid, double precision, double precision) 09e2d3c995
 w_sped_tick() 7608d6b7b3
 w_squadra(bigint, uuid) c32a64d193
 w_sup(uuid) 6e87cf96ab
+w_sup_cfg() f847f3e1f1
+w_sup_costo_stat(integer) eb75c051d0
+w_sup_durata(integer) c66d69e3ff
+w_sup_fascia(integer) b634a98195
 w_sup_inviti(uuid) 4b9cce9772
+w_sup_lavori_tick() d383587a7d
+w_sup_lavoro_nuovo(uuid, text, text, integer, integer, jsonb) 0150ed0057
 w_sup_raggio(integer, jsonb) 462872077a
+w_sup_richiesto(integer) 6ce7e5c82c
+w_sup_stats(uuid) 5f1bead73e
 w_target(text, double precision, double precision) d2b39d5099
 w_threats_of(uuid) a7e18af67a
 w_tr_casa_pos() 3ece59115a
@@ -235,7 +243,7 @@ world_chat_report(bigint) 89cee22a5d
 world_chat_send(text, text) 8c7ba570ba
 world_claim_home(text, double precision, double precision) 0feb434a8a
 world_collect() 47b7f286df
-world_completa_subito(text, bigint, integer) 196dbff1d2
+world_completa_subito(text, bigint, integer) 677fab45b8
 world_condo_break(uuid) d50c77df62
 world_condo_give(text, integer) 4e869d6f22
 world_condo_info() 8911c9ba1c
@@ -335,10 +343,13 @@ world_shout(uuid, integer) ab6a2241e6
 world_sped_parti(text, text, double precision, double precision) 79065144c5
 world_sped_raccogli(bigint) 2436643062
 world_status_extra() b12cc9499a
-world_sup_abilita(text) 6bce682efe
-world_sup_equip(text) d386c01004
+world_sup_abilita(text) b0fb01f2e0
+world_sup_crea(text, jsonb) 0e048b36af
+world_sup_equip(text) 74fca9ad78
 world_sup_extra() a9fc9d8d31
 world_sup_info() c031b79efe
+world_sup_potenzia(text) 93fb843419
+world_sup_profilo() f98da7a4c2
 world_sup_serie() a2c797e540
 world_sup_share(text) a63a45dd52
 world_team_bonus() 902e1c195a
@@ -430,7 +441,8 @@ world_shapes 90c99d30
 world_shields 39ed43a6
 world_shouts 38a06241
 world_spedizioni b0030b49
-world_superstite 3b3a0d2c
+world_sup_lavori c59ff93d
+world_superstite 6cd258d0
 world_terrain b6c5b216
 world_wallet f92cccd7
 world_wx 6b1c15c8
@@ -479,6 +491,7 @@ world_gemme_mov gemme_mov_mie
 world_gifts wg_sel
 world_homes wh_sel
 world_log wl_sel
+world_sup_lavori sup_lavori_miei
 world_wallet ww_sel
 CRON
 zsh-presidi 3 * * * *

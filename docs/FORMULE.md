@@ -174,3 +174,27 @@ Tempo = 2 + ⌈km ÷ velocità × 60⌉ minuti (spedizioni: andata e ritorno + 5
 | Grado nuovo | 3 + grado 💎 (es. grado 4 → 7) |
 | Traguardi | grado 5: 20 · 10: 50 · 15: 80 · 20: 120 · 30: 200 |
 | Pacchetti | 60 💎 0,99 € · 330 💎 4,99 € · 700 💎 9,99 € · 1.500 💎 19,99 € (pagamenti spenti) |
+
+## 🧑 Superstite: statistiche e sviluppi a tempo (Fase 52, migrazione 043 — PROVVISORI in `w_sup_cfg`)
+Statistiche = base + crescita col grado + gradi di sviluppo: ❤️ vita 100 + 8·(grado−1) + 10·g · 💪 forza 10 + (grado−1) + 2·g · 🛡️ difesa 8 + (grado−1) + 2·g · 💨 agilità 8 + (grado−1) + 2·g.
+Salire di grado con l'XP è immediato; gli sviluppi hanno un tempo fissato alla partenza (non cambia se sali di grado). Massimo 2 sviluppi insieme.
+
+| Grado sviluppo (statistica) | Fascia | Grado del superstite richiesto | Durata | 🪵 | 🧱 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Introduzione | 1 | 30 s | 8 | 0 |
+| 2 | Introduzione | 1 | 1 min | 26 | 0 |
+| 3 | Primi | 2 | 5 min | 52 | 36 |
+| 4 | Primi | 3 | 10 min | 84 | 61 |
+| 5 | Primi | 4 | 15 min | 123 | 91 |
+| 6 | Intermedi | 5 | 30 min | 168 | 126 |
+| 7 | Intermedi | 6 | 1 h | 219 | 166 |
+| 8 | Intermedi | 8 | 2 h | 274 | 211 |
+| 9 | Avanzati | 10 | 4 h | 335 | 261 |
+| 10 | Avanzati | 12 | 6 h | 401 | 315 |
+| 11 | Avanzati | 14 | 8 h | 471 | 375 |
+| 12 | Alto livello | 16 | 12 h | 547 | 438 |
+| 13 | Alto livello | 18 | 16 h | 626 | 506 |
+| 14 | Alto livello | 20 | 20 h | 710 | 578 |
+| 15 | Alto livello | 22 | 24 h | 799 | 655 |
+
+Abilità (punti come prima, 1 per grado): fascia = 2 × livello dell'abilità (es. Combattente 3 → fascia 6, 30 min), 🪵 10 × livello. Attrezzi livello 1/2/3: fascia 4/7/10 (10 min / 1 h / 6 h), grado richiesto 1/5/10, 🪵 30·lv + 🧱 50·lv (come prima). 💎 completa subito con la formula delle gemme.

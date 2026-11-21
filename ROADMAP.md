@@ -176,4 +176,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 48 | fatta | #92 | 📬 Bacheca e Per te toccabili (la beta per i tester è pronta in `docs/beta/`, da attivare dopo) |
 | 49 | fatta (migrazione 040) | #93 | 🛡️ danni alle singole difese secondo gli zombie dell'orda, % collegata, 🔧 restauro prima del potenziamento |
 | 50 | fatta (migrazione 041) | #94 | 🚗 mezzi del superstite: furgone, energia a piedi/bici, ⛽ a motore, bottino per capienza, 🥫 → 🔋, casa di partenza per le spedizioni |
-| 51 | in revisione (migrazione 042) | — | 💎 gemme sul server, registro, cambio in risorse, completa subito, gemme ai gradi, cibo senza ricariche (piano v2 in docs/piano/GIOCO_V2.md) |
+| 51 | fatta (migrazione 042) | #96 | 💎 gemme sul server, registro, cambio in risorse, completa subito, gemme ai gradi, cibo senza ricariche (piano v2 in docs/piano/GIOCO_V2.md) |
+| 52 | in revisione (migrazione 043) | — | 🧑 superstite: creazione (nome e aspetto), statistiche, sviluppi a tempo per fasce (statistiche, abilità, attrezzi), 💎 completa subito |
