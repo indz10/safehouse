@@ -300,7 +300,7 @@ world_mezzo() 9dcb97fcb7
 world_mezzo_scegli(text) 215aa07794
 world_mine() 0376f655ab
 world_mine2() 1abdaf5ab7
-world_missioni() 2caf0c3f17
+world_missioni() e277365ca7
 world_my_defense() 376cc40503
 world_my_effects() 7e4bd22f9b
 world_near_survivors(double precision, double precision, double precision) 479ebf94cf
@@ -339,9 +339,9 @@ world_saccheggia(uuid) 15affd0c16
 world_scontri_miei() daf6666082
 world_scontro_fine(bigint, text, integer) 2055322dd0
 world_scontro_info(text) b671cec07a
-world_scontro_inizia(bigint) 80a274741d
+world_scontro_inizia(bigint) 2328604761
 world_scontro_parti(text, text, text, double precision, double precision, double precision) a688287940
-world_scontro_subito(bigint, integer) b102baae8d
+world_scontro_subito(bigint, integer) 2d150ddbc6
 world_score(uuid, text) 1190c1faef
 world_seen() ce2347cdff
 world_sell(text) 75a73e6d6f

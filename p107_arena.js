@@ -62,17 +62,17 @@ function arnF(x,dir,hp){return{x,dir,hp,hp0:hp,hpv:hp,act:null,stun:0,inv:0,blk:
 function arnApri(d){try{if(typeof LENTE!=='undefined'&&LENTE.on)lenteClose();}catch(e){}
   const io=d.io,zz=d.zombie,av=d.avatar||{};const zl=ARN_ZL[zz.tipo]||{s:1,pelle:'#8fbf6a',maglia:'#6b5a8a'};
   const g=ARN.g={d,id:d.id,diff:d.diff,p:arnF(24,1,io.vita),z:arnF(76,-1,zz.vita),colpi:0,t0:0,last:performance.now(),k:{l:0,r:0,blk:0},spCd:0,dodCd:0,fine:false,raf:0,via:false,
-    shake:0,flash:0,fx:[],txt:null,tempo:99,slow:1,rid:arnRidotti(),zl,col:SV_C[av.c||0]||'#ffd23f',pelle:['#f1c27d','#e0ac69','#c68642','#8d5524','#f1c27d','#ffdbac','#e0ac69','#c68642'][av.v||0],
+    shake:0,flash:0,fx:[],txt:null,tempo:60,round:1,vinti:{p:0,z:0},combo:{n:0,t:0},super:0,furia:false,slow:1,rid:arnRidotti(),zl,col:SV_C[av.c||0]||'#ffd23f',pelle:['#f1c27d','#e0ac69','#c68642','#8d5524','#f1c27d','#ffdbac','#e0ac69','#c68642'][av.v||0],
     vel:30+io.agilita*1.3,zvel:9+zz.agilita*1.2,wind:{facile:1.3,equilibrato:1,difficile:.8}[d.diff]||1,
     punisci:{facile:.3,equilibrato:.55,difficile:.8}[d.diff]||.55,para:{facile:.06,equilibrato:.16,difficile:.3}[d.diff]||.16,nome:((SV.d&&SV.d.nome)||S.user.nick||'Tu').toUpperCase(),znome:String(zz.nome||'Zombie').toUpperCase()};
   document.body.insertAdjacentHTML('beforeend',`<div id="arena" class="${g.rid?'rid':''}" role="dialog" aria-label="Arena">
-    <div class="arntop"><div class="arnhp me"><b>${esc(g.nome)}</b><i><s data-arnhv="me"></s><u data-arnhp="me"></u></i><small>GRADO ${io.grado} · ❤️ <span data-arnhpt="me">${io.vita}</span></small></div>
-      <div class="arntime"><b data-arntime>99</b><button class="arnx" data-arnx aria-label="Scappa">✕</button></div>
-      <div class="arnhp z"><b>${esc(g.znome)}</b><i><s data-arnhv="z"></s><u data-arnhp="z"></u></i><small>LV ${zz.livello} · ${({facile:'FACILE',equilibrato:'EQUILIBRATO',difficile:'DIFFICILE'})[d.diff]||''} · ❤️ <span data-arnhpt="z">${zz.vita}</span></small></div></div>
+    <div class="arntop"><div class="arnhp me"><b>${esc(g.nome)}</b><i><s data-arnhv="me"></s><u data-arnhp="me"></u></i><small>GRADO ${io.grado} · ❤️ <span data-arnhpt="me">${io.vita}</span> · <span class="arnrd" data-arnrd="p">○○</span></small><em class="arnsup"><span data-arnsup></span><b>SUPER</b></em></div>
+      <div class="arntime"><b data-arntime>60</b><small data-arnround>ROUND 1</small><button class="arnx" data-arnx aria-label="Scappa">✕</button></div>
+      <div class="arnhp z"><b>${esc(g.znome)}</b><i><s data-arnhv="z"></s><u data-arnhp="z"></u></i><small>LV ${zz.livello} · ${({facile:'FACILE',equilibrato:'EQUILIBRATO',difficile:'DIFFICILE'})[d.diff]||''} · ❤️ <span data-arnhpt="z">${zz.vita}</span> · <span class="arnrd" data-arnrd="z">○○</span></small></div></div>
     <div class="arnfield"><canvas></canvas><div class="arnann" data-arnann></div></div>
     <div class="arnctl"><div class="arnpad"><button data-arnk="l" aria-label="Sinistra">◀</button><button data-arnk="r" aria-label="Destra">▶</button></div>
       <div class="arnpad dx"><button data-arnk="blk" aria-label="Para">🛡️<small>Para</small></button><button data-arnk="dod" aria-label="Schiva">💨<small>Schiva</small></button>
-        <button class="big" data-arnk="atk" aria-label="Pugno">👊<small>Pugno</small></button><button class="big k" data-arnk="kick" aria-label="Calcio">🦵<small>Calcio</small></button><button data-arnk="sp" aria-label="Mossa speciale">🔥<small>Speciale</small><span class="cd" data-arncd></span></button></div></div>
+        <button class="big" data-arnk="atk" aria-label="Pugno">👊<small>Pugno</small></button><button class="big k" data-arnk="kick" aria-label="Calcio">🦵<small>Calcio</small></button><button data-arnk="sp" aria-label="Mossa speciale">🔥<small>Super</small><span class="cd" data-arncd></span></button></div></div>
     <div class="arnrot" data-arnrot><b>📱↻</b><p>Gira il telefono in orizzontale per combattere meglio</p><button class="btn small ghost" data-arnrotok>Gioca così</button></div></div>`);
   const A=document.getElementById('arena');g.A=A;g.cv=A.querySelector('canvas');g.ctx=g.cv.getContext('2d');
   g.off=document.createElement('canvas');g.off.width=ALW;g.off.height=ALH;g.o=g.off.getContext('2d');g.bg=arnSfondo();
@@ -100,18 +100,28 @@ const arnPX=x=>24+x*3.36;
 function arnLibero(F){return!F.act&&F.stun<=0&&!F.ko&&F.dash<=0;}
 function arnAzione(k){const g=ARN.g;if(!g||g.fine||!g.via)return;const p=g.p;if(!arnLibero(p)||g.k.blk)return;
   if(k==='atk')p.act={k:'pugno',t:0,hit:false};else if(k==='kick')p.act={k:'calcio',t:0,hit:false};
-  else if(k==='sp'){if(g.spCd>0)return;g.spCd=8;p.act={k:'speciale',t:0,hit:false};}
+  else if(k==='sp'){if(g.super<100){g.txt={t:'SUPER '+Math.floor(g.super)+'%',l:.6};return;}g.super=0;p.act={k:'speciale',t:0,hit:false};g.txt={t:'🔥 SUPER!',l:.8};}
   else if(k==='dod'){if(g.dodCd>0)return;g.dodCd=Math.max(.7,1.3-g.d.io.agilita*.02);p.inv=.4;p.dash=.22;p.dashv=-p.dir*95;return;}
   // lo zombie a volte para quando vede arrivare il colpo
   const z=g.z;if(arnLibero(z)&&Math.abs(z.x-p.x)<22&&Math.random()<g.para)z.blk=.5;}
-function arnColpisci(a,b,mv,io){const g=ARN.g;const dir=a.dir;let dn=Math.round((io?g.d.danno_io:g.d.danno_z)*mv.m*(.9+Math.random()*.2));
+function arnColpisci(a,b,mv,io){const g=ARN.g;const dir=a.dir;let dn=Math.round((io?g.d.danno_io:g.d.danno_z)*mv.m*(.9+Math.random()*.2)*(!io&&g.furia?1.15:1));
+  const now=performance.now()/1000;if(io&&!(b.blk>0)){g.combo.n=now-g.combo.t<.8?g.combo.n+1:1;g.combo.t=now;if(g.combo.n>=3){dn=Math.round(dn*1.5);g.txt={t:'COMBO ×'+g.combo.n,l:.7};}}
+  g.super=Math.min(100,g.super+(io?(b.blk>0?4:12):6));
   if(b.blk>0||(!io&&g.k.blk&&arnLibero(b))){dn=Math.max(1,Math.round(dn*.25));b.stun=.12;b.kb=dir*35;arnSpark(b.x,'blk');arnNum(b.x,'−'+dn,'blk');
     if(io&&Math.random()<g.punisci){b.blk=0;b.act={k:'graffio',t:ARN_MV.graffio.st*g.wind*.5,hit:false};}}
   else{const counter=b.act&&b.act.t<(ARN_MV[b.act.k].st*(io?g.wind:1));b.act=null;b.blk=0;b.stun=mv.kd?.7:.3;b.kb=dir*(mv.kd?95:55);
     arnSpark(b.x,io?'goo':'hit');arnNum(b.x,'−'+dn,io?(mv.m>1.5?'sp':''):'me');if(counter)g.txt={t:'COUNTER!',l:.8};if(!g.rid){g.shake=mv.kd?.3:.14;g.flash=.08;}
     if(io&&Math.random()<g.punisci*.5)b.q='graffio';}
   b.hp=Math.max(0,b.hp-dn);if(io)g.colpi++;try{sfx&&sfx(mv.m>1.5?'boom':'tap');}catch(e){}arnBarre();
-  if(b.hp<=0){b.ko=true;b.stun=9;g.slow=.25;arnAnn('K.O.',window.__arnVeloce?80:1300,()=>arnFine(io?'vinto':'perso'),'ko');g.via=false;}}
+  if(!g.furia&&g.z.hp>0&&g.z.hp/g.z.hp0<.35){g.furia=true;g.zvel*=1.3;g.txt={t:'😡 FURIA!',l:1};}
+  if(b.hp<=0)arnFineRound(io?'p':'z');}
+// fine di un round: al meglio di 3 (2 round vinti)
+function arnFineRound(chi){const g=ARN.g;if(!g.via)return;g.via=false;const p=g.p,z=g.z;(chi==='p'?z:p).ko=true;(chi==='p'?z:p).stun=9;g.slow=.25;g.vinti[chi]++;
+  const set=k=>{const el=g.A.querySelector(`[data-arnrd="${k}"]`);if(el)el.textContent='●'.repeat(g.vinti[k])+'○'.repeat(2-g.vinti[k]);};set('p');set('z');
+  const v=window.__arnVeloce;if(g.vinti[chi]>=2){arnAnn('K.O.',v?80:1300,()=>arnFine(chi==='p'?'vinto':'perso'),'ko');return;}
+  arnAnn(g.tempo<=0?'TEMPO!':'K.O.',v?60:1200,()=>{g.round++;g.slow=1;Object.assign(p,arnF(24,1,p.hp0));Object.assign(z,arnF(76,-1,z.hp0));g.furia=false;g.zvel=9+g.d.zombie.agilita*1.2;g.tempo=60;g.combo.n=0;arnBarre();
+    const r=g.A.querySelector('[data-arnround]');if(r)r.textContent='ROUND '+g.round;
+    arnAnn(g.round===3?'ROUND FINALE':'ROUND '+g.round,v?60:900,()=>arnAnn('FIGHT!',v?60:650,()=>{g.via=true;g.t0=performance.now();}));},'ko');}
 function arnSpark(x,k){const g=ARN.g;for(let i=0;i<(k==='blk'?6:10);i++)g.fx.push({x:arnPX(x)+(Math.random()-.5)*10,y:AGY-48+(Math.random()-.5)*14,vx:(Math.random()-.5)*120,vy:-Math.random()*90,t:.4,k});}
 function arnNum(x,t,cl){const g=ARN.g;g.fx.push({x:arnPX(x),y:AGY-80,vx:0,vy:-40,t:.8,k:'num',s:t,cl});}
 function arnBarre(){const g=ARN.g;if(!g)return;const A=g.A;const set=(k,F)=>{const u=A.querySelector(`[data-arnhp="${k}"]`);if(u)u.style.width=Math.max(0,F.hp/F.hp0*100)+'%';const t=A.querySelector(`[data-arnhpt="${k}"]`);if(t)t.textContent=Math.max(0,Math.round(F.hp));};
@@ -130,13 +140,13 @@ function arnAI(dt){const g=ARN.g,z=g.z,p=g.p;if(!arnLibero(z)||z.blk>0)return;co
   if(dist>28&&Math.random()<dt*1.2){z.act={k:'carica',t:0,hit:false};z.cd=1.2;return;}
   if(dist>13){z.x+=z.dir*g.zvel*dt;z.walk+=dt;return;}
   const r=Math.random();if(r<.25)z.act={k:'morso',t:0,hit:false};else if(r<.65)z.act={k:'graffio',t:0,hit:false};else{z.act={k:'graffio',t:0,hit:false};z.q='graffio';}
-  z.cd=({facile:1.3,equilibrato:.95,difficile:.65}[g.diff]||1)*(.7+Math.random()*.6);}
+  z.cd=({facile:1.3,equilibrato:.95,difficile:.65}[g.diff]||1)*(.7+Math.random()*.6)*(g.furia?.7:1);}
 function arnLoop(now){const g=ARN.g;if(!g)return;let dt=Math.min(.05,(now-g.last)/1000);g.last=now;dt*=g.slow;const p=g.p,z=g.z;
   if(g.via){const fermo=!arnLibero(p)||g.k.blk;if(!fermo){if(g.k.l){p.x-=g.vel*dt;p.walk+=dt;}if(g.k.r){p.x+=g.vel*dt;p.walk+=dt;}}
     ['spCd','dodCd'].forEach(k=>{if(g[k]>0)g[k]=Math.max(0,g[k]-dt);});arnAI(dt);
-    g.tempo=Math.max(0,99-(now-g.t0)/1000);const tl=g.A.querySelector('[data-arntime]');if(tl)tl.textContent=Math.ceil(g.tempo);
-    if(g.tempo<=0){g.via=false;arnAnn('TEMPO!',1200,()=>arnFine('perso'),'ko');}
-    const c=g.A.querySelector('[data-arncd]');if(c)c.textContent=g.spCd>0?Math.ceil(g.spCd):'';}
+    g.tempo=Math.max(0,60-(now-g.t0)/1000);const tl=g.A.querySelector('[data-arntime]');if(tl)tl.textContent=Math.ceil(g.tempo);
+    if(g.tempo<=0)arnFineRound(p.hp/p.hp0>z.hp/z.hp0?'p':'z');
+    const c=g.A.querySelector('[data-arncd]');if(c)c.textContent=g.super<100?Math.floor(g.super)+'%':'';const sb=g.A.querySelector('[data-arnsup]');if(sb)sb.style.width=g.super+'%';const kb=g.A.querySelector('[data-arnk="sp"]');if(kb)kb.classList.toggle('pieno',g.super>=100);}
   if(!g.fine){arnStep(p,z,dt,true);arnStep(z,p,dt,false);
     if(Math.abs(z.x-p.x)<8){const m=(8-Math.abs(z.x-p.x))/2,s=p.x<z.x?-1:1;p.x+=s*m;z.x-=s*m;}
     if(!p.act&&!p.ko)p.dir=p.x<z.x?1:-1;if(!z.act&&!z.ko)z.dir=z.x<p.x?1:-1;}
@@ -168,6 +178,7 @@ function arnPosa(F,zom,T){const a=F.act,mv=a?ARN_MV[a.k]:null;const ARN_G=ARN.g;
   const sw=Math.sin(F.walk*10),bob=Math.sin(T*(zom?3:5))*1;
   let P=zom?{lean:.28+Math.sin(T*2)*.04,t1:.25+sw*.4,s1:.1+sw*.3,t2:-.2-sw*.4,s2:-.05-sw*.2,u1:1.45+Math.sin(T*3)*.1,f1:1.6,u2:1.3+Math.sin(T*3+1)*.1,f2:1.5,dy:bob,hd:0,bocca:0}
     :{lean:.08,t1:.3+sw*.45,s1:-.05+sw*.3,t2:-.3-sw*.45,s2:.05-sw*.3,u1:.8,f1:2.3,u2:.6,f2:2.2,dy:bob,hd:0,bocca:0};
+  if(zom&&ARN_G.furia)P.rosso=Math.floor(T*4)%2;
   if(F.ko)return{...P,ko:1};
   if(F.stun>0&&!F.act)return{...P,lean:-.4,u1:-.4,f1:-.2,u2:-.6,f2:-.3,hd:-.3};
   if(F.blk>0||(!zom&&ARN_G.k.blk&&!F.act))return{...P,lean:zom?.1:.05,u1:.5,f1:2.7,u2:.75,f2:2.6,dy:2};

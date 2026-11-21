@@ -41,7 +41,7 @@ async def main():
         await pg.keyboard.down('s');await pg.wait_for_timeout(300);blk=await pg.evaluate("()=>ARN.g.k.blk");await pg.keyboard.up('s')
         await pg.keyboard.press('l');await pg.wait_for_timeout(100)
         print('para e schiva:',blk,await pg.evaluate("()=>ARN.g.p.inv>0||ARN.g.dodCd>0"))
-        await pg.evaluate("()=>{ARN.g.z.hp=1;ARN.g.z.act=null;ARN.g.z.blk=0;ARN.g.z.stun=1;ARN.g.p.act=null;ARN.g.p.stun=0;ARN.g.p.dash=0;ARN.g.p.x=ARN.g.z.x-10;}");await pg.keyboard.press('j');await pg.wait_for_timeout(1200)
+        await pg.evaluate("()=>{ARN.g.vinti.p=1;ARN.g.z.hp=1;ARN.g.z.act=null;ARN.g.z.blk=0;ARN.g.z.stun=1;ARN.g.p.act=null;ARN.g.p.stun=0;ARN.g.p.dash=0;ARN.g.p.x=ARN.g.z.x-10;}");await pg.keyboard.press('j');await pg.wait_for_timeout(1200)
         print('vittoria:',await pg.evaluate("()=>[(document.querySelector('#arena .arnrc .disp')||{}).textContent,document.querySelectorAll('#arena .arnpremi span').length,window.__ARNF&&window.__ARNF.p_esito]"))
         await pg.evaluate("()=>document.querySelector('#arena [data-arnchiudi]').click()");await pg.wait_for_timeout(300)
         await pg.set_viewport_size({'width':390,'height':844})

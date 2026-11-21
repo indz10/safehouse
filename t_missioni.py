@@ -17,7 +17,7 @@ async def main():
         await pg.wait_for_timeout(4000)
         print('tasti:',await pg.evaluate("()=>[...document.querySelectorAll('.sbar [data-sb] b')].map(x=>x.textContent)"))
         await pg.click('.sbar [data-sb=gioca]');await pg.wait_for_timeout(800)
-        print('lente:',await pg.evaluate("()=>[(document.querySelector('#sheet.open .sheet-h h3, #sheet.open h3')||{}).textContent,[...document.querySelectorAll('#sheet.open .sbtile b')].map(x=>x.textContent)]"))
+        print('gioco:',await pg.evaluate("()=>[!!document.getElementById('gmap'),[...document.querySelectorAll('#gmap .gmside small')].map(x=>x.textContent)]"))
         await pg.evaluate("()=>closeSheet()");await pg.click('.sbar [data-sb=sup]');await pg.wait_for_timeout(800)
         print('superstite:',await pg.evaluate("()=>[...document.querySelectorAll('#sheet.open .sbtile b')].map(x=>x.textContent)"))
         await pg.evaluate("()=>document.querySelector('#sheet.open [data-sbt=mis]').click()");await pg.wait_for_timeout(1500)
