@@ -46,14 +46,32 @@ const isIOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent);
 const b64u=s=>{const p='='.repeat((4-s.length%4)%4);const r=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)));};
 async function pushState(){try{if(!pushOk())return isIOS()&&!isStandalone()?'home':'nosupport';if(Notification.permission==='denied')return'denied';
   const reg=await navigator.serviceWorker.getRegistration();const sub=reg&&await reg.pushManager.getSubscription();return sub&&Notification.permission==='granted'?'on':(isIOS()&&!isStandalone()?'home':'off');}catch(e){return'off';}}
-async function pushEnable(){if(!S.user){loginSheet();return;}const st=await pushState();if(st==='home'||st==='nosupport'){pushSheet();return;}
+async function pushEnable(){if(!S.user){loginSheet();return;}try{localStorage.removeItem('zsh_push_off');}catch(e){}const st=await pushState();if(st==='home'||st==='nosupport'){pushSheet();return;}
   try{const perm=await Notification.requestPermission();if(perm!=='granted'){toast('Notifiche non permesse: puoi attivarle da Impostazioni › Notifiche › ZombieSafeHouse');pushRow();return;}
     const{data,error}=await SB.functions.invoke('zsh-push',{body:{task:'key'}});if(error||!data||!data.publicKey)throw new Error('servizio notifiche non attivo (manca la funzione zsh-push)');
     const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(data.publicKey)});
     const j=sub.toJSON();const r=await SB.rpc('push_subscribe',{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth});if(r.error)throw r.error;
     try{await SB.functions.invoke('zsh-push',{body:{task:'test',endpoint:j.endpoint}});}catch(e){}toast('🔔 Notifiche attive: tra poco arriva una notifica di prova');}
   catch(e){toast('Notifiche non attivate: '+(e.message||e));}pushRow();}
-async function pushOff(){try{const reg=await navigator.serviceWorker.getRegistration();const sub=reg&&await reg.pushManager.getSubscription();if(sub){try{await SB.rpc('push_unsubscribe',{p_endpoint:sub.endpoint});}catch(e){}await sub.unsubscribe();}toast('Notifiche spente');}catch(e){}pushRow();}
+async function pushOff(){try{try{localStorage.setItem('zsh_push_off','1');}catch(e){}const reg=await navigator.serviceWorker.getRegistration();const sub=reg&&await reg.pushManager.getSubscription();if(sub){try{await SB.rpc('push_unsubscribe',{p_endpoint:sub.endpoint});}catch(e){}await sub.unsubscribe();}toast('Notifiche spente');}catch(e){}pushRow();}
+// 🔔 Notifiche sempre attive (migrazione 045): a ogni apertura l'app si riscrive sul server; se il server l'aveva tolta
+// (iscrizione scaduta per Apple/Google) chiede al telefono un'iscrizione nuova. Si spengono solo con "Spegni" (zsh_push_off).
+const PK={t:0,busy:false};
+async function pushKeep(forza){try{if(PK.busy||typeof S==='undefined'||!S||!S.user||typeof SB==='undefined'||!SB||!pushOk())return;
+  if(Notification.permission!=='granted'||localStorage.getItem('zsh_push_off')==='1')return;if(!forza&&Date.now()-PK.t<20*60000)return;
+  PK.busy=true;PK.t=Date.now();const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();
+  const salva=async x=>{const j=x.toJSON();const r=await SB.rpc('push_subscribe',{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth});return r&&r.data;};
+  const nuova=async()=>{let k=localStorage.getItem('zsh_pushkey');if(!k){const{data}=await SB.functions.invoke('zsh-push',{body:{task:'key'}});k=data&&data.publicKey;if(k)localStorage.setItem('zsh_pushkey',k);}
+    if(!k)return null;return reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(k)});};
+  if(sub){const d=await salva(sub);if(d&&d.nuovo){try{await sub.unsubscribe();}catch(e){}sub=await nuova();if(sub)await salva(sub);}}
+  else{sub=await nuova();if(sub)await salva(sub);}
+}catch(e){pushKeepAvviso();}finally{PK.busy=false;}}
+// se il telefono non accetta l'iscrizione senza un tocco: un avviso con un pulsante (una volta al giorno)
+function pushKeepAvviso(){try{const oggi=new Date().toISOString().slice(0,10);if(localStorage.getItem('zsh_pkav')===oggi)return;localStorage.setItem('zsh_pkav',oggi);
+  document.body.insertAdjacentHTML('beforeend','<div id="pkav" class="pkav"><span>🔔 Le notifiche si erano fermate</span><button class="btn small" data-pkon>Riattiva</button><button class="btn ghost small" data-pkx>✕</button></div>');
+  const el=document.getElementById('pkav');el.querySelector('[data-pkon]').onclick=()=>{el.remove();pushEnable();};el.querySelector('[data-pkx]').onclick=()=>el.remove();}catch(e){}}
+setTimeout(()=>pushKeep(true),6000);zEvery(()=>pushKeep(false),60000,'notifiche-sempre');
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-PK.t>120000)pushKeep(true);});
 async function pushRow(){const el=document.getElementById('pushRow');if(!el)return;const st=await pushState();
   el.innerHTML=st==='on'?'<div class="pushon">🔔 Notifiche attive: ti avvisiamo un’ora e 15 minuti prima di ogni orda <button class="btn ghost small" data-poff>Spegni</button></div>'
     :`<button class="btn wide ${st==='denied'?'ghost':''}" data-pon>🔔 Avvisami prima di ogni orda</button>${st==='home'?'<small class="muted">Su iPhone funziona solo con l’app aggiunta alla schermata Home.</small>':st==='denied'?'<small class="muted">Hai bloccato le notifiche: riattivale da Impostazioni › Notifiche.</small>':''}`;
