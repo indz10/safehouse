@@ -1834,7 +1834,7 @@ CREATE FUNCTION public.w_orde_tick() RETURNS integer
     SET search_path TO 'public'
     AS $$
 declare k jsonb := public.w_pvp_cfg(); pt timestamptz := public.w_prev_slot(now()); pid text := public.w_slot_id(public.w_prev_slot(now()));
-  u uuid; x record; lvl int; bon int; cb int; comb numeric; p int; a int; e int; emax int; cad jsonb; loot jsonb; sc boolean; resta int; n int := 0; zt record; wl int; dd jsonb; dm int;
+  u uuid; x record; lvl int; bon int; cb int; comb numeric; p int; a int; e int; emax int; cad jsonb; loot jsonb; sc boolean; resta int; n int := 0; zt record; wl int; dd jsonb; dm int; r numeric;
 begin
   -- solo le orde arrivate dopo l'installazione, e al massimo 12 ore fa
   if pt <= coalesce((select t from public.world_orde_avvio where id = 1), now()) or pt < now() - interval '12 hours' then return 0; end if;
@@ -1846,7 +1846,21 @@ begin
     for x in select * from public.w_raid_houses(u, pt) loop
       p := public.w_power3(x.level, bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id, pid) + public.w_casa_extra(x.building_id, pid), x.home);
       a := public.w_attack3(pid, x.building_id, lvl);
-      if p >= a then continue; end if;
+      if p >= a then
+        -- 🛡️ la casa ha tenuto, ma l'orda l'ha consumata: usura secondo quanto è andata vicina (r = attacco / difesa).
+        -- Difesa almeno doppia dell'attacco (r < 0,5) = perfetta, niente danni; altrimenti la principale 2–10,
+        -- la seconda la metà, le trappole 2. Si vede nelle barre dello stato della casa e si restaura.
+        if not sc and a::numeric / greatest(1, p) >= 0.5 then
+          r := a::numeric / greatest(1, p); wl := least(greatest(lvl, 1), 30);
+          update public.world_defs set danno = least(100, danno + 2) where building_id = x.building_id and kind = 'trappole' and level > 0;
+          for zt in select * from public.w_ztypes() z where wl >= z.minl loop
+            dm := ceil(2 + 8 * (r - 0.5) / 0.5)::int;
+            update public.world_defs set danno = least(100, danno + dm) where building_id = x.building_id and kind = zt.dk and level > 0;
+            update public.world_defs set danno = least(100, danno + ceil(dm / 2.0)::int) where building_id = x.building_id and kind = zt.dk2 and level > 0;
+          end loop;
+        end if;
+        continue;
+      end if;
       e := public.w_esito(round(a::numeric / greatest(1, p * (1 + comb)), 3));
       dd := '{}'::jsonb;
       if not sc and e > 0 then

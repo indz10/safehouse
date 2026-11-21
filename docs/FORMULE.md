@@ -152,6 +152,7 @@ Accrediti solo dal server (`w_pay`): premi del giorno con limiti (`world_earn`),
 - Livello effettivo di una difesa = livello × (100 − danno) / 100 (`w_defe`), con 2 decimali. È quello che entra nell'attacco dell'orda (`w_attack3`), nella % di tenere (`w_threats_of` → `defe`, usato da `thrCalc` in p47 al posto di `defs`) e nella forza negli attacchi (`w_fort` = arrotondamento di barricate + recinto + fossato effettivi).
 - Orda che sfonda (esito e = 1/2/3, senza scudo): per ogni tipo di zombie presente (livello ≥ `minl` di `w_ztypes`) la difesa principale `dk` perde 10 + 10·e %, la seconda `dk2` 5 + 5·e %; le trappole perdono 5·e % (vaganti). Solo difese con livello > 0, massimo 100%. Se la casa tiene: nessun danno.
 - Restauro (`world_def_restaura`): 🪵 = max(5, ⌈danno × livello × 0,4⌉), minuti = max(5, ⌈danno × livello × 0,3⌉), in coda ai lavori della casa; a fine lavori danno = 0. Con danno > 0 il potenziamento è rifiutato.
+- Usura quando la casa **tiene** (migrazione 043, `w_orde_tick`): r = attacco / difesa; se r < 0,5 nessun danno (difesa perfetta), altrimenti principale +⌈2 + 8 × (r − 0,5) / 0,5⌉ (2–10), seconda la metà arrotondata in su, trappole +2. Con lo scudo niente.
 - "Danni alle difese" della casa = il più alto tra i danni della casa e la media dei danni delle difese pesata sul livello (`w_difese_pct`).
 
 ## 🚗 Mezzi del superstite (Fase 50, migrazione 041)

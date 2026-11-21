@@ -109,7 +109,7 @@ w_mz_rank(text) 6a3580a566
 w_mz_speed(text) 5acdc3fe53
 w_next_slot(timestamp with time zone) e7098146fc
 w_nick(uuid) 0f0ebfc0c0
-w_orde_tick() a54860bd42
+w_orde_tick() 2d64b75e25
 w_partenza(uuid) 0dfadb3001
 w_pay(uuid, integer, text, text) 1a72164541
 w_perche_no(uuid, bigint) 5335d9836d

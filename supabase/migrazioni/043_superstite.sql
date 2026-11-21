@@ -255,5 +255,89 @@ do $$ begin
   end if;
 end $$;
 
+
+
+-- =====================================================================
+-- 🛡️ USURA DELLE DIFESE ANCHE QUANDO LA CASA TIENE (richiesta del 21/11)
+-- Se l'orda arriva vicina (attacco ≥ metà della difesa) le difese si consumano un po' anche se la casa regge:
+-- principale 2–10, seconda la metà, trappole 2. Difesa almeno doppia = perfetta, nessun danno. Scudo: niente.
+-- =====================================================================
+create or replace function public.w_orde_tick() RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare k jsonb := public.w_pvp_cfg(); pt timestamptz := public.w_prev_slot(now()); pid text := public.w_slot_id(public.w_prev_slot(now()));
+  u uuid; x record; lvl int; bon int; cb int; comb numeric; p int; a int; e int; emax int; cad jsonb; loot jsonb; sc boolean; resta int; n int := 0; zt record; wl int; dd jsonb; dm int; r numeric;
+begin
+  -- solo le orde arrivate dopo l'installazione, e al massimo 12 ore fa
+  if pt <= coalesce((select t from public.world_orde_avvio where id = 1), now()) or pt < now() - interval '12 hours' then return 0; end if;
+  for u in select z.uid from (select h.user_id as uid from public.world_homes h where h.first_at <= pt
+                              union select b.owner from public.world_buildings b where b.owner is not null and b.bought_at <= pt) z
+           where not exists (select 1 from public.world_orde_esiti o where o.slot_id = pid and o.user_id = z.uid) limit 300 loop
+    lvl := public.w_lvl_of(u); bon := public.w_upower(u, pid); cb := public.w_condo_bonus(u); comb := public.w_comb_bonus(u);
+    emax := 0; cad := '[]'::jsonb; sc := public.w_shielded(u);
+    for x in select * from public.w_raid_houses(u, pt) loop
+      p := public.w_power3(x.level, bon + (case when x.home then cb else 0 end) + public.w_pres_bonus(x.building_id, pid) + public.w_casa_extra(x.building_id, pid), x.home);
+      a := public.w_attack3(pid, x.building_id, lvl);
+      if p >= a then
+        -- 🛡️ la casa ha tenuto, ma l'orda l'ha consumata: usura secondo quanto è andata vicina (r = attacco / difesa).
+        -- Difesa almeno doppia dell'attacco (r < 0,5) = perfetta, niente danni; altrimenti la principale 2–10,
+        -- la seconda la metà, le trappole 2. Si vede nelle barre dello stato della casa e si restaura.
+        if not sc and a::numeric / greatest(1, p) >= 0.5 then
+          r := a::numeric / greatest(1, p); wl := least(greatest(lvl, 1), 30);
+          update public.world_defs set danno = least(100, danno + 2) where building_id = x.building_id and kind = 'trappole' and level > 0;
+          for zt in select * from public.w_ztypes() z where wl >= z.minl loop
+            dm := ceil(2 + 8 * (r - 0.5) / 0.5)::int;
+            update public.world_defs set danno = least(100, danno + dm) where building_id = x.building_id and kind = zt.dk and level > 0;
+            update public.world_defs set danno = least(100, danno + ceil(dm / 2.0)::int) where building_id = x.building_id and kind = zt.dk2 and level > 0;
+          end loop;
+        end if;
+        continue;
+      end if;
+      e := public.w_esito(round(a::numeric / greatest(1, p * (1 + comb)), 3));
+      dd := '{}'::jsonb;
+      if not sc and e > 0 then
+        -- ogni tipo di zombie dell'orda rovina le difese che lo fermano: la principale 10 + 10 × esito, la seconda la metà;
+        -- i vaganti consumano le trappole (5 × esito). Una difesa rovinata va restaurata prima di salire di livello.
+        wl := least(greatest(lvl, 1), 30);
+        dm := 5 * e;
+        update public.world_defs set danno = least(100, danno + dm) where building_id = x.building_id and kind = 'trappole' and level > 0;
+        if found then dd := dd || jsonb_build_object('trappole', dm); end if;
+        for zt in select * from public.w_ztypes() z where wl >= z.minl loop
+          dm := 10 + 10 * e;
+          update public.world_defs set danno = least(100, danno + dm) where building_id = x.building_id and kind = zt.dk and level > 0;
+          if found then dd := dd || jsonb_build_object(zt.dk, coalesce((dd->>zt.dk)::int, 0) + dm); end if;
+          dm := 5 + 5 * e;
+          update public.world_defs set danno = least(100, danno + dm) where building_id = x.building_id and kind = zt.dk2 and level > 0;
+          if found then dd := dd || jsonb_build_object(zt.dk2, coalesce((dd->>zt.dk2)::int, 0) + dm); end if;
+        end loop;
+      end if;
+      cad := cad || jsonb_build_object('bid', x.building_id, 'home', x.home, 'attacco', a, 'difesa', p, 'esito', e, 'difese', dd);
+      if sc or e <= 0 then continue; end if;
+      emax := greatest(emax, e);
+      if x.home then
+        update public.world_homes set danno = least((k->>'danni_max')::int, danno + (k->'danni'->>e)::int) where user_id = u;
+      else
+        update public.world_buildings set danno = least((k->>'danni_max')::int, danno + (k->'danni'->>e)::int),
+          integrita = greatest(0, integrita - (k->'integ'->>e)::int),
+          caduta_at = case when caduta_at is null and integrita - (k->'integ'->>e)::int <= 0 then now() else caduta_at end
+          where building_id = x.building_id and owner = u and caduta_at is null returning integrita into resta;
+        if resta is not null and resta <= 0 then
+          perform public.w_feed_add('casa_crollata', u, u, x.lat, x.lon, x.building_id || '|' || (k->>'caduta_ore') || '|orda');
+        end if;
+        resta := null;
+      end if;
+    end loop;
+    loot := public.w_bottino(u, emax);   -- le scorte perse con l'orda spariscono
+    insert into public.world_orde_esiti(slot_id, user_id, esito, scudo, loot, case_cadute) values (pid, u, emax, sc, loot, cad) on conflict do nothing;
+    if emax > 0 then
+      perform public.w_feed_add('orda_perdite', u, u, null, null,
+        pid || '|' || emax || '|' || (loot->>'legno') || ',' || (loot->>'cibo') || ',' || (loot->>'carb') || ',' || (loot->>'mattoni'));
+    end if;
+    n := n + 1;
+  end loop;
+  return n;
+end $$;
+
 -- controllo: deve dire "superstite pronto"
 select case when exists (select 1 from pg_proc where proname = 'world_sup_profilo') then 'superstite pronto' else 'qualcosa manca' end as esito;
