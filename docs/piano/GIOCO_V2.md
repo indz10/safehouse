@@ -14,9 +14,12 @@
 | Superstite | grado da XP, abilità ed attrezzi istantanei | Fase 52: creazione (nome, aspetto), statistiche, potenziamenti a tempo per fasce |
 | Negozio | Bottega in 🧱 | Fase 51: negozio 💎 (pacchetti, cambio in risorse); pagamenti spenti finché non c'è Stripe |
 
+## Regola aggiunta il 20/11 (Alessandro)
+Lo zombie si combatte in due modi: **📍 di persona** con la Lente (GPS, vicino davvero) oppure **🎒 mandando il superstite** dal divano o da una casa lontana (casa di partenza, mezzo, viaggio a tempo con le risorse come le spedizioni). Quando il superstite arriva (notifica) si apre la stessa arena. Le gemme possono far arrivare subito il superstite, mai vincere o cambiare lo scontro.
+
 ## Fasi
 1. **Fase 51 — Gemme** (migrazione 042): saldo vero, registro, regole in `w_gem_cfg`, gemme ai gradi e ai traguardi, 💎 → risorse, completa subito (cantieri, restauri, potenziamenti, spedizioni, rinforzi, attacchi), negozio, cibo senza ricariche.
-2. **Fase 52 — Il superstite**: creazione dell'avatar per nuovi ed esistenti, statistiche (vita, forza, difesa, agilità), potenziamenti a tempo con fasce per grado, completa subito in 💎, schermate di potenziamento.
+2. **Fase 52 — Il superstite** (fatta: migrazione 043, `p106_superstite2.js`, tabella delle fasce in `docs/FORMULE.md`): creazione dell'avatar per nuovi ed esistenti, statistiche (vita, forza, difesa, agilità), potenziamenti a tempo con fasce per grado, completa subito in 💎, schermate di potenziamento.
 3. **Fase 53 — Lente e arena**: esplorazione GPS, scheda dello zombie con livello e difficoltà, transizione, arena laterale orizzontale giocabile (movimento, colpo, parata/schivata, speciale con ricarica, IA), statistiche fissate all'inizio, ricompense una sola volta con controlli del server.
 4. **Fase 54 — Sezioni e missioni**: Casa · Mappa · Lente · Superstite · Negozio; pannello missioni attive con stato, meta, tempo, ora di fine, 💎 per finire subito.
 

@@ -152,6 +152,7 @@ Accrediti solo dal server (`w_pay`): premi del giorno con limiti (`world_earn`),
 - Livello effettivo di una difesa = livello × (100 − danno) / 100 (`w_defe`), con 2 decimali. È quello che entra nell'attacco dell'orda (`w_attack3`), nella % di tenere (`w_threats_of` → `defe`, usato da `thrCalc` in p47 al posto di `defs`) e nella forza negli attacchi (`w_fort` = arrotondamento di barricate + recinto + fossato effettivi).
 - Orda che sfonda (esito e = 1/2/3, senza scudo): per ogni tipo di zombie presente (livello ≥ `minl` di `w_ztypes`) la difesa principale `dk` perde 10 + 10·e %, la seconda `dk2` 5 + 5·e %; le trappole perdono 5·e % (vaganti). Solo difese con livello > 0, massimo 100%. Se la casa tiene: nessun danno.
 - Restauro (`world_def_restaura`): 🪵 = max(5, ⌈danno × livello × 0,4⌉), minuti = max(5, ⌈danno × livello × 0,3⌉), in coda ai lavori della casa; a fine lavori danno = 0. Con danno > 0 il potenziamento è rifiutato.
+- Usura quando la casa **tiene** (migrazione 044, `w_usura_difese` chiamata da `w_orde_tick`): r = attacco / difesa (sotto 0,5 niente usura); per ogni tipo di zombie dell'orda m = `w_zm` (pendenza, meteo, ora; 0,3–1,8); difesa principale del tipo ⌊12 × r × m / (1 + 0,5 × livello)⌋, secondaria ⌊6 × …⌋, trappole (vaganti) ⌊8 × …⌋; sotto 3 nessun danno. Si sommano i tipi che colpiscono la stessa difesa (es. barricate: caschi, bruti, boss). Con lo scudo niente.
 - "Danni alle difese" della casa = il più alto tra i danni della casa e la media dei danni delle difese pesata sul livello (`w_difese_pct`).
 
 ## 🚗 Mezzi del superstite (Fase 50, migrazione 041)
@@ -174,3 +175,27 @@ Tempo = 2 + ⌈km ÷ velocità × 60⌉ minuti (spedizioni: andata e ritorno + 5
 | Grado nuovo | 3 + grado 💎 (es. grado 4 → 7) |
 | Traguardi | grado 5: 20 · 10: 50 · 15: 80 · 20: 120 · 30: 200 |
 | Pacchetti | 60 💎 0,99 € · 330 💎 4,99 € · 700 💎 9,99 € · 1.500 💎 19,99 € (pagamenti spenti) |
+
+## 🧑 Superstite: statistiche e sviluppi a tempo (Fase 52, migrazione 043 — PROVVISORI in `w_sup_cfg`)
+Statistiche = base + crescita col grado + gradi di sviluppo: ❤️ vita 100 + 8·(grado−1) + 10·g · 💪 forza 10 + (grado−1) + 2·g · 🛡️ difesa 8 + (grado−1) + 2·g · 💨 agilità 8 + (grado−1) + 2·g.
+Salire di grado con l'XP è immediato; gli sviluppi hanno un tempo fissato alla partenza (non cambia se sali di grado). Massimo 2 sviluppi insieme.
+
+| Grado sviluppo (statistica) | Fascia | Grado del superstite richiesto | Durata | 🪵 | 🧱 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Introduzione | 1 | 30 s | 8 | 0 |
+| 2 | Introduzione | 1 | 1 min | 26 | 0 |
+| 3 | Primi | 2 | 5 min | 52 | 36 |
+| 4 | Primi | 3 | 10 min | 84 | 61 |
+| 5 | Primi | 4 | 15 min | 123 | 91 |
+| 6 | Intermedi | 5 | 30 min | 168 | 126 |
+| 7 | Intermedi | 6 | 1 h | 219 | 166 |
+| 8 | Intermedi | 8 | 2 h | 274 | 211 |
+| 9 | Avanzati | 10 | 4 h | 335 | 261 |
+| 10 | Avanzati | 12 | 6 h | 401 | 315 |
+| 11 | Avanzati | 14 | 8 h | 471 | 375 |
+| 12 | Alto livello | 16 | 12 h | 547 | 438 |
+| 13 | Alto livello | 18 | 16 h | 626 | 506 |
+| 14 | Alto livello | 20 | 20 h | 710 | 578 |
+| 15 | Alto livello | 22 | 24 h | 799 | 655 |
+
+Abilità (punti come prima, 1 per grado): fascia = 2 × livello dell'abilità (es. Combattente 3 → fascia 6, 30 min), 🪵 10 × livello. Attrezzi livello 1/2/3: fascia 4/7/10 (10 min / 1 h / 6 h), grado richiesto 1/5/10, 🪵 30·lv + 🧱 50·lv (come prima). 💎 completa subito con la formula delle gemme.
