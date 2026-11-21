@@ -54,7 +54,7 @@ async function zmCassa(z){const p=LENTE.pos;let r=null;try{const{data,error}=awa
 const ZM_MIRA=12,ZM_CD=400;
 function zmAct(mira,vic){const L=LENTE;let b=L.root&&L.root.querySelector('.zmact');if(!b)return;const F=ZM.f;let t,cl='',dis=false,go=null;
   if(F&&!F.fine){const in_=mira&&mira.id===F.z.id;t=in_?'🔫 SPARA!':'🎯 Rimetti lo zombie nel mirino';cl=in_?'fuoco':'';go=in_?()=>zmSpara(F.z):null;}
-  else if(mira&&mira.k==='zombie'){if(mira.d<=80){t=`🔫 SPARA a ${ZM_N[mira.tipo]||'zombie'}`;cl='fuoco';go=()=>zmSpara(mira);}else{t=`🚶 Avvicinati: ${Math.round(mira.d)} m (serve 80)`;dis=true;}}
+  else if(mira&&mira.k==='zombie'){if(mira.d<=80){t=`⚔️ AFFRONTA ${ZM_N[mira.tipo]||'lo zombie'}`;cl='fuoco';go=()=>zmSpara(mira);}else{t=`🚶 Avvicinati: ${Math.round(mira.d)} m (serve 80)`;dis=true;}}
   else if(mira&&mira.k==='cassa'){if(mira.d<=40){t='📦 APRI LA CASSA';cl='apri';go=()=>zmCassa(mira);}else{t=`🚶 Avvicinati: ${Math.round(mira.d)} m (serve 40)`;dis=true;}}
   else if(vic){const r=vic.rel;const fr=r==null?'':r<0?'⬅️ girati a sinistra':'➡️ girati a destra';t=`🎯 ${vic.k==='cassa'?'📦 Cassa':'🧟 '+(ZM_N[vic.tipo]||'Zombie')} a ${Math.round(vic.d)} m · ${fr}`;dis=true;}
   else{t=ZM.L.length?'🧟 Tutti presi qui: torna fra un’ora':'🧟 Cerco zombie…';dis=true;}
