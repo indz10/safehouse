@@ -74,7 +74,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_cadute_tick` |  |  | cron | world_ripara | 2: migr. 031_integrita_case → migr. 035_mezzi_cantieri |
 | `w_canon` |  |  |  | world_claim_home, world_quote, world_buy, w_target | 3: mondo_unico → mondo_unico_agg1 → abitazione |
 | `w_cantieri_tick` |  |  | cron | world_ripara, world_cantieri_miei, world_case_stato, world_def_restaura, world_completa_subito, world_missioni | 3: migr. 035_mezzi_cantieri → migr. 036_cantieri_case → migr. 040_danni_difese |
-| `w_casa_extra` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of, w_pres_def … | 1: migr. 014_territorio |
+| `w_casa_extra` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of, w_pres_def … | 2: migr. 014_territorio → migr. 050_mondo_gioco |
 | `w_casa_manca_tick` |  | ✓ |  |  | 1: migr. 021_caccia_condomini |
 | `w_casa_vicina_km` |  |  |  | world_esplora_muovi | 1: migr. 049_esplora |
 | `w_cella` |  |  |  | w_eventi_tick | 1: migr. 022_eventi_sfide |
@@ -364,9 +364,9 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_rivals` | ✓ |  |  |  | 3: mondo_v3 → equita → alleanze2 |
 | `world_saccheggia` | ✓ |  |  |  | 2: migr. 014_territorio → migr. 028_attacchi |
 | `world_scontri_miei` | ✓ |  |  |  | 1: migr. 046_arena |
-| `world_scontro_fine` | ✓ |  |  |  | 1: migr. 046_arena |
+| `world_scontro_fine` | ✓ |  |  |  | 2: migr. 046_arena → migr. 050_mondo_gioco |
 | `world_scontro_info` | ✓ |  |  |  | 1: migr. 046_arena |
-| `world_scontro_inizia` | ✓ |  |  |  | 2: migr. 046_arena → migr. 048_gioco |
+| `world_scontro_inizia` | ✓ |  |  |  | 3: migr. 046_arena → migr. 048_gioco → migr. 050_mondo_gioco |
 | `world_scontro_parti` | ✓ |  |  |  | 2: migr. 046_arena → migr. 049_esplora |
 | `world_scontro_subito` | ✓ |  |  |  | 2: migr. 046_arena → migr. 048_gioco |
 | `world_score` | ✓ |  |  |  | 1: classifica |
@@ -432,7 +432,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_alleanze_domande` | supabase/migrazioni/018_alleanze_gruppi | 0 | ✓ |
 | `world_alleanze_membri` | supabase/migrazioni/018_alleanze_gruppi | 4 | ✓ |
 | `world_allies` | social | 0 | ✓ |
-| `world_assalti` | supabase/migrazioni/014_territorio | 0 | ✓ |
+| `world_assalti` | supabase/migrazioni/014_territorio | 2 | ✓ |
 | `world_assalti_esiti` | supabase/migrazioni/014_territorio | 0 | ✓ |
 | `world_assedio` | supabase/migrazioni/024_assedio | 0 | ✓ |
 | `world_assedio_partite` | supabase/migrazioni/024_assedio | 0 | ✓ |

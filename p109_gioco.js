@@ -125,7 +125,7 @@ const GM_VEL=10;
 async function gmAvInit(h){GM.av=null;let d=null;try{const r=await SB.rpc('world_esplora_dove');d=r&&r.data;}catch(e){}
   const raggio=((typeof SUP!=='undefined'&&SUP.d&&SUP.d.raggio_km)||3)*1000;const H=(typeof myHouses==='function'?myHouses():[]).filter(x=>x.lat!=null);
   if(d&&d.lat!=null&&H.some(x=>trM(d.lat,d.lon,x.lat,x.lon)<raggio)){GM.av={lat:d.lat,lon:d.lon,a:0};}else{await gmAvCasa(h,true);}
-  try{GM.map.jumpTo({center:[GM.av.lon,GM.av.lat]});}catch(e){}GM.zmAt={lat:GM.av.lat,lon:GM.av.lon};try{zmLoad(true);}catch(e){}}
+  try{GM.map.jumpTo({center:[GM.av.lon,GM.av.lat]});}catch(e){}GM.zmAt={lat:GM.av.lat,lon:GM.av.lon};try{zmLoad(true);}catch(e){}GM.mdAt=null;gmMondoLoad();}
 async function gmAvCasa(h,zitto){GM.av={lat:h.lat,lon:h.lon,a:0};GM.zmAt=null;try{const{data}=await SB.rpc('world_esplora_muovi',{p_lat:h.lat,p_lon:h.lon,p_casa:true});if(data&&!data.ok&&!zitto)toast(data.msg);}catch(e){}GM.sent={t:Date.now(),lat:h.lat,lon:h.lon};}
 function gmCammina(lat,lon){if(!GM.av)return;const a=gmXY(GM.av.lat,GM.av.lon),b=gmXY(lat,lon);if(Math.hypot(a[0]-b[0],a[1]-b[1])<4)return;
   const P=GM.d?gmRoute(a,b):[a,b];GM.av.P=P;GM.av.i=0;GM.av.f=0;GM.follow=true;try{sfx&&sfx('tap');}catch(e){}}
@@ -163,4 +163,26 @@ const _zmRadar55=zmRadarSheet;zmRadarSheet=function(){const r=_zmRadar55.apply(t
   const box=(typeof LENTE!=='undefined'&&LENTE.on&&LENTE.root)?LENTE.root.querySelector('.zmlist'):document.querySelector('#sheet.open .zmlistsheet');
   if(box)box.querySelectorAll('.zmrow').forEach((row,i)=>{const z=L[i];if(!z)return;row.classList.add('zmtap');row.setAttribute('role','button');row.insertAdjacentHTML('beforeend','<i>›</i>');
     row.onclick=e=>{e.stopPropagation();const lx=box.closest('.zmlist');if(lx)lx.remove();if(z.k==='cassa')zmVicino();else arnCard(z);};});}catch(e){}return r;};
+// 🔗 il Mondo nel Gioco (Fase 59): presidi 🚩 e case degli alleati 🤝 sulla mappa del gioco; tocco → loro scheda
+async function gmMondoLoad(){if(!GM.on||!S.user||typeof SB==='undefined'||!SB)return;const c=GM.av||GM.c0;if(!c)return;
+  if(GM.mdAt&&trM(GM.mdAt.lat,GM.mdAt.lon,c.lat,c.lon)<800&&Date.now()-GM.mdAt.t<300000)return;GM.mdAt={lat:c.lat,lon:c.lon,t:Date.now()};
+  try{const{data}=await SB.rpc('world_presidi_list',{p_minlat:c.lat-.02,p_minlon:c.lon-.03,p_maxlat:c.lat+.02,p_maxlon:c.lon+.03});
+    GM.pres=(data&&data.presidi)||[];if(typeof PRES!=='undefined')GM.pres.forEach(p=>{if(!PRES.L.some(x=>x.id===p.id))PRES.L.push(p);});}catch(e){}
+  try{const A=(typeof ALS!=='undefined'&&ALS.L)||(typeof alsLoad==='function'?await alsLoad(true):null)||[];
+    const V=await Promise.all(A.slice(0,8).map(a=>SB.rpc('world_ally_view',{p_user:a.user_id}).then(r=>r.data).catch(()=>null)));
+    GM.ally=[];V.filter(v=>v&&v.ok).forEach(d=>(d.houses||[]).forEach(T=>{if(T.lat!=null&&T.lon!=null)GM.ally.push({u:d.user_id,nick:d.nick,lat:T.lat,lon:T.lon});}));}catch(e){}}
+function gmMondoPts(){const P=[];if(!GM.map)return P;
+  (GM.pres||[]).forEach(p=>P.push({k:'pres',id:p.id,lat:p.lat,lon:p.lon,ic:(typeof PRES_K!=='undefined'&&PRES_K[p.kind]||['🚩'])[0],mio:p.stato==='mio',lb:p.name||'Presidio'}));
+  (GM.ally||[]).forEach(a=>P.push({k:'ally',u:a.u,lat:a.lat,lon:a.lon,ic:'🤝',lb:'@'+(a.nick||'alleato')}));
+  P.forEach(p=>{const q=gmXY(p.lat,p.lon);const r=gmScr(q[0],q[1]);p.x=r[0];p.y=r[1];});return P;}
+const _gmDrawM=gmDraw;
+gmDraw=function(s){_gmDrawM(s);try{const x=GM.ctx;if(!x||!GM.map)return;const dp=GM.dp||1;x.setTransform(dp,0,0,dp,0,0);
+  gmMondoPts().forEach(p=>{x.fillStyle=p.k==='ally'?'#2f6db3':p.mio?'#2e9e4f':'#c0392b';x.strokeStyle='#111';x.lineWidth=2;x.beginPath();x.arc(p.x,p.y-12,13,0,7);x.fill();x.stroke();
+    gmEmoji(x,p.ic,p.x,p.y-12,15);x.font='bold 10px system-ui';x.textAlign='center';x.fillStyle='#000';x.fillText(p.lb.slice(0,16),p.x+1,p.y+11);x.fillStyle='#fff';x.fillText(p.lb.slice(0,16),p.x,p.y+10);});}catch(e){}};
+const _gmTapM=gmTap;
+gmTap=function(X,Y,ll){try{const zv=(ZM.L||[]).some(z=>{const q=gmXY(z.lat,z.lon),r=gmScr(q[0],q[1]);return Math.hypot(r[0]-X,r[1]-Y)<26;});
+    if(!zv){const h=gmMondoPts().map(p=>({p,d:Math.hypot(p.x-X,p.y-12-Y)})).filter(o=>o.d<22).sort((a,b)=>a.d-b.d)[0];
+      if(h){if(h.p.k==='pres'&&typeof presSheet==='function')presSheet(h.p.id);else if(h.p.k==='ally'&&typeof allySheet==='function')allySheet(h.p.u);return;}}}catch(e){}
+  return _gmTapM(X,Y,ll);};
+zEvery(()=>{if(GM.on)gmMondoLoad();},20000,'gioco-mondo');
 </script>

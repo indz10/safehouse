@@ -184,4 +184,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 55 | fatta (migrazione 048) | #101 | 🎮 Gioco: mappa stile Pokémon col superstite che cammina per le strade; arena a round, combo, SUPER, furia; arena non più tagliata; niente notifica doppia con le 💎 |
 | 56 | fatta | #102 | 🎮 Gioco sulla mappa vera in stile Pokémon, 🏠 Case, arena con telecamera
 | 57 | fatta #103 (migrazione 049) | — | 🧭 guidi tu il superstite sulla mappa del Gioco (tocco, strade, server che controlla velocità e raggio), mappa toccabile, arena in orizzontale |
-| 58 | in revisione (nessun SQL) | — | 🕹️ croce direzionale sulla mappa del Gioco; arena: salto, abbassati, colpi alti/bassi, TRIPLA e calcio rotante, a terra e rialzo, suoni sintetizzati, POW, ogni tipo di zombie con aspetto e mosse sue |
+| 58 | fatta #104 (nessun SQL) | — | 🕹️ croce direzionale sulla mappa del Gioco; arena: salto, abbassati, colpi alti/bassi, TRIPLA e calcio rotante, a terra e rialzo, suoni sintetizzati, POW, ogni tipo di zombie con aspetto e mosse sue |
+| 59 | in revisione (migrazione 050) | — | 🔗 Mondo e Gioco insieme: zombie battuti entro 1 km da casa → +2 difesa per l'orda (max +10), arena vicino a casa con bonus delle fortificazioni, presidi e case degli alleati sulla mappa del Gioco |

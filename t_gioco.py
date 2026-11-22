@@ -32,6 +32,12 @@ async def main():
         print('tocco sul superstite:',await pg.evaluate("()=>!!document.querySelector('#sheet.open .mislist, #sheet.open .misrow')"))
         # 🧭 guidi il superstite: tocco sulla mappa → cammina (posizione al server), vicino allo zombie → combatti col superstite
         print('superstite guidato:',await pg.evaluate("()=>!!GM.av"))
+        # 🔗 il Mondo nel Gioco: presidi e case degli alleati sulla mappa, tocco → loro scheda
+        await pg.evaluate("()=>{window.__PRES=[];GM.mdAt=null;return gmMondoLoad()}");await pg.wait_for_timeout(500)
+        print('mondo nel gioco:',await pg.evaluate("()=>[(GM.pres||[]).length>0,(GM.ally||[]).length>0]"))
+        await pg.evaluate("()=>{const p=gmMondoPts().find(p=>p.k==='pres');gmTap(p.x,p.y-12,null);}");await pg.wait_for_timeout(800)
+        print('tocco sul presidio:',await pg.evaluate("()=>document.querySelector('#sheet.open')!==null"))
+        await pg.evaluate("()=>closeSheet()")
         await pg.evaluate("()=>{closeSheet();const z=ZM.L.find(z=>z.tipo==='bruto'&&!z.preso);gmTap(-999,-999,{lat:z.lat-0.0002,lng:z.lon});}");await pg.wait_for_timeout(4500)
         print('cammina verso lo zombie:',await pg.evaluate("()=>{const z=ZM.L.find(z=>z.tipo==='bruto');return [Math.round(trM(GM.av.lat,GM.av.lon,z.lat,z.lon))<=50,(window.__EXPN||0)>=2]}"))
         # 🕹️ croce direzionale: tieni premuto ▶ → il superstite va a est

@@ -55,6 +55,7 @@ async def main():
         await pg.wait_for_timeout(900)
         print('mosse zombie:',await pg.evaluate("()=>[ARN_ZM.cane[0].includes('balzo'),ARN_ZM.sputatore[1].includes('sputo'),ARN_MV.schianto.ub===1,typeof arnSnd]"))
         await pg.evaluate("()=>{ARN.g.vinti.p=1;ARN.g.z.hp=1;ARN.g.z.down=0;ARN.g.p.down=0;ARN.g.k.dn=0;ARN.g.z.act=null;ARN.g.z.blk=0;ARN.g.z.stun=1;ARN.g.p.act=null;ARN.g.p.stun=0;ARN.g.p.dash=0;ARN.g.p.x=ARN.g.z.x-10;}");await pg.keyboard.press('j');await pg.wait_for_timeout(1200)
+        print('casa vicina:',await pg.evaluate("()=>[!!document.querySelector('#arena [data-arncasa]'),(document.querySelector('#arena .arncasa')||{}).textContent]"))
         print('vittoria:',await pg.evaluate("()=>[(document.querySelector('#arena .arnrc .disp')||{}).textContent,document.querySelectorAll('#arena .arnpremi span').length,window.__ARNF&&window.__ARNF.p_esito]"))
         await pg.evaluate("()=>document.querySelector('#arena [data-arnchiudi]').click()");await pg.wait_for_timeout(300)
         await pg.set_viewport_size({'width':390,'height':844})
