@@ -14,13 +14,13 @@ function g3Load(){if(window.THREE&&THREE.WebGLRenderer)return Promise.resolve(TH
   G3.P=t('three.min.js').catch(()=>t('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js')).catch(()=>{G3.P=null;return null;});return G3.P;}
 // 🪟 finestre sui palazzi (di sera accese); il tetto chiaro (bld-tetto) copre la faccia di sopra
 const G3_MURI=['#8a5a9c','#4f7fa0','#a06a4f','#4f9a7a','#a0904f','#7a6aa8'];
-function g3Finestre(m){if(!m||!m.addImage||!m.setPaintProperty)return;const h=new Date().getHours(),notte=h>=18||h<7;
+function g3Finestre(m,lid){lid=lid||'bld';if(!m||!m.addImage||!m.setPaintProperty)return;const h=new Date().getHours(),notte=h>=18||h<7;
   G3_MURI.forEach((c,k)=>{const W=32,H=32,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');x.fillStyle=c;x.fillRect(0,0,W,H);
     x.fillStyle='rgba(0,0,0,.22)';x.fillRect(0,H-3,W,3);x.fillStyle='rgba(255,255,255,.08)';x.fillRect(0,0,2,H);
     for(let i=0;i<2;i++)for(let j=0;j<2;j++){const acc=((k*7+i*3+j*5)%5)<(notte?3:1);x.fillStyle='#14101c';x.fillRect(3+i*16,4+j*14,10,10);x.fillStyle=acc?'#ffd86b':'#33456a';x.fillRect(4+i*16,5+j*14,8,8);
       x.fillStyle='rgba(255,255,255,.28)';x.fillRect(4+i*16,5+j*14,8,2);x.fillStyle='rgba(0,0,0,.35)';x.fillRect(8+i*16,5+j*14,1,8);}
     try{if(!(m.hasImage&&m.hasImage('fin'+k)))m.addImage('fin'+k,x.getImageData(0,0,W,H),{pixelRatio:2});}catch(e){}});
-  try{m.setPaintProperty('bld','fill-extrusion-pattern',['concat','fin',['to-string',['%',['to-number',['id'],0],6]]]);}catch(e){}}
+  try{m.setPaintProperty(lid,'fill-extrusion-pattern',['concat','fin',['to-string',['%',['to-number',['id'],0],6]]]);}catch(e){}}
 // ── pezzi dei modelli
 function g3Mat(c,em){return new THREE.MeshLambertMaterial({color:c,emissive:em||0x000000});}
 function g3Box(w,h,d,c,x,y,z,em){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),g3Mat(c,em));m.position.set(x,y,z);return m;}

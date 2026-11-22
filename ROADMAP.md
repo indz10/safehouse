@@ -189,5 +189,6 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 60 | fatta #106 (nessun SQL) | — | mappa del Gioco in 3D con nomi delle vie, in viaggio si muove il mezzo, un solo tasto per mandare il superstite, percorsi sempre per le strade, arena in orizzontale misurata sullo schermo vero |
 | 61 | fatta #107 (nessun SQL) | — | percorsi che seguono davvero le strade (pezzi di strada uniti), mappa 3D più dettagliata (negozi e posti coi nomi, numeri civici, ferrovie, palazzi per altezza), arena senza zoom del doppio tocco |
 | 62 | fatta #108 (migrazione 051) | — | round da 90 s con le combo a schermo ed effetti nuovi; mappa più bella (palazzi colorati con tetti, mezzi grandi e dettagliati, visuale vicina che segue il viaggio) |
-| 63 | in revisione (nessun SQL) | — | 🏙️ mappa del Gioco in 3D: mezzi, superstite, zombie e casse come modelli 3D che si muovono, palazzi con le finestre accese di sera (il Mondo non cambia) |
-| 64 | in revisione insieme alla 63 (nessun SQL) | — | ⌨️ arena: sequenze di tasti per difendersi dagli attacchi speciali degli zombie e per la super combo |
+| 63 | fatta #109 (nessun SQL) | — | 🏙️ mappa del Gioco in 3D: mezzi, superstite, zombie e casse come modelli 3D che si muovono, palazzi con le finestre accese di sera (il Mondo non cambia) |
+| 64 | fatta #109 (nessun SQL) | — | ⌨️ arena: sequenze di tasti per difendersi dagli attacchi speciali degli zombie e per la super combo |
+| 65 | in revisione (nessun SQL) | — | 🏙️ Mondo con il tasto 3D curato come il Gioco (finestre, tetti, posti, civici) e arena con più effetti (pioggia, lampi, stelle d'urto, scie, fuoco del SUPER, macchie, bordo rosso) |
