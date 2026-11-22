@@ -46,7 +46,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_ally_state` |  |  |  | world_favs_list, world_near_survivors | 1: migr. 010_trova_preferiti |
 | `w_ancora` |  |  |  | w_vicino_alleanza, w_alleanza_chiudi | 1: migr. 019_alleanze_multiple |
 | `w_are_allies` |  |  |  | world_quote, world_send_help, world_give, world_feed_list, world_player, world_send_curse … | 5: mondo_v4 → social → alleanze2 → migr. 013_condominio → migr. 018_alleanze_gruppi |
-| `w_arena_cfg` |  |  |  | world_scontro_info, world_scontro_parti, world_scontro_subito, world_scontro_fine, world_esplora_muovi | 3: migr. 046_arena → migr. 049_esplora → migr. 050_mondo_gioco |
+| `w_arena_cfg` |  |  |  | world_scontro_info, world_scontro_parti, world_scontro_subito, world_scontro_fine, world_esplora_muovi | 4: migr. 046_arena → migr. 049_esplora → migr. 050_mondo_gioco → migr. 051_round_lunghi |
 | `w_arena_danno` |  |  |  | world_scontro_inizia, world_scontro_fine | 1: migr. 046_arena |
 | `w_arena_viaggio` |  |  |  | world_scontro_info, world_scontro_parti | 1: migr. 046_arena |
 | `w_arena_zstats` |  |  |  | world_scontro_info, world_scontro_inizia | 1: migr. 046_arena |
