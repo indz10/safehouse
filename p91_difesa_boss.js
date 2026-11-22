@@ -125,7 +125,7 @@ function bossColpito(){const F=BOSS.f;F.colpi=Math.max(0,F.colpi-3);try{navigato
 async function bossEnd(){const F=BOSS.f;if(!F||F.fine)return;F.fine=true;cancelAnimationFrame(F.raf);let r=null;
   try{const{data,error}=await SB.rpc('world_boss_fine',{p_id:F.id,p_colpi:F.colpi});if(error)throw error;r=data;}catch(e){}
   BOSS.t=0;try{supLoad(true);RES.t=0;resLoad(true);}catch(e){}const b=document.getElementById('bossf');if(!b){BOSS.f=null;return;}
-  b.innerHTML=`<div class="difres"><b>${r&&r.caduto?'💀 L’avete abbattuto!':`💥 Danno ${r&&r.ok?r.danno:0}`}</b>${r&&r.ok?`<span>${F.colpi} colpi${r.caduto?' · premi a tutti quelli che l’hanno colpito!':` · vita del boss ${r.hp}/${r.hp0}`}</span>`:'<span>Non riesco a parlare col server: riprova</span>'}
+  b.innerHTML=`<div class="difres"><b>${r&&r.caduto?'💀 L’avete abbattuto!':`💥 Danno ${r&&r.ok?r.danno:0}`}</b>${r&&r.ok?`<span>${F.colpi} colpi${r.caduto?' · premi a tutti quelli che l’hanno colpito!':` · vita del boss ${r.hp}/${r.hp0}`}${r.gemme?` · 💎 +${r.gemme} per il colpo finale`:''} · 🎖️ +${r.caduto?23:3}</span>`:'<span>Non riesco a parlare col server: riprova</span>'}
     <div><button class="btn small" data-bossok>👍 Continua</button></div></div>`;try{sfx&&sfx(r&&r.caduto?'win':'click');}catch(e){}
   b.querySelector('[data-bossok]').onclick=()=>{b.remove();BOSS.f=null;bossSheet();};}
 /* 🧭 guida e ADESSO */

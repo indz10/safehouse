@@ -70,7 +70,7 @@ function gmSup(){const L=(MIS.L||[]).filter(m=>(m.tipo==='scontro'||m.tipo==='sp
   return{x:pos[0],y:pos[1],a:pos[2],fermo:f>=1,txt,m,R,f,ar};}
 async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}closeSheet();
   document.body.insertAdjacentHTML('beforeend',`<div id="gmap"><div class="gmmap"></div><canvas class="gmfx"></canvas><div class="gmtop"><b>🎮 Gioco</b><span data-gmtxt>Carico la mappa…</span><button class="gmx" data-gmx aria-label="Chiudi">✕</button></div>
-    <div class="gmside">${[['lente','📷','Lente'],['vicini','🧟','Vicini'],['mis','⏳','Missioni'],['pedia','📖','Zombipedia'],['dfa','🛡️','Difendi'],['boss','👹','Boss'],['evt','🚨','Eventi'],['case','🏠','Case'],['mv','❓','Come']].map(b=>`<button data-gmb="${b[0]}"><span>${b[1]}</span><small>${b[2]}</small></button>`).join('')}</div>
+    <div class="gmside">${[['lente','📷','Lente'],['vicini','🧟','Vicini'],['mis','⏳','Missioni'],['pedia','📖','Zombipedia'],['dfa','🛡️','Difendi'],['boss','👹','Boss'],['evt','🚨','Eventi'],['case','🏠','Case'],['pista','🎖️','Pista'],['mv','❓','Come']].map(b=>`<button data-gmb="${b[0]}"><span>${b[1]}</span><small>${b[2]}</small></button>`).join('')}</div>
     <div class="gmzoom"><button data-gmz="1">＋</button><button data-gmz="-1">－</button><button data-gmz="0" class="gmme" aria-label="Centra sul superstite">📍<small>Tu</small></button></div></div>`);
   const el=document.getElementById('gmap');GM.el=el;GM.cv=el.querySelector('canvas.gmfx');GM.ctx=GM.cv.getContext('2d');
   el.querySelector('[data-gmx]').onclick=gmClose;
@@ -83,7 +83,7 @@ async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}clos
   GM.ku=e=>{const k=GK[(e.key||'').toLowerCase()];if(k&&GM.dir[k]){GM.dir[k]=0;gmAvSync(true);}};
 
   el.querySelectorAll('[data-gmz]').forEach(b=>b.onclick=()=>{const k=+b.dataset.gmz;const m=GM.map;if(!m)return;if(!k){GM.follow=true;GM.lastFollow=0;return;}m.easeTo({zoom:Math.max(13,Math.min(19,m.getZoom()+k)),duration:250});});
-  const A={case:()=>gmCase(),lente:()=>{gmClose();lenteOpen();},vicini:()=>zmRadarSheet(),mis:()=>misSheet(),pedia:()=>zmPedia(),dfa:()=>dfaGo(),boss:()=>bossSheet(),mv:()=>mvSheet(),
+  const A={pista:()=>pistaSheet(),case:()=>gmCase(),lente:()=>{gmClose();lenteOpen();},vicini:()=>zmRadarSheet(),mis:()=>misSheet(),pedia:()=>zmPedia(),dfa:()=>dfaGo(),boss:()=>bossSheet(),mv:()=>mvSheet(),
     evt:()=>{const ev=typeof EVT!=='undefined'?evtAperti().filter(e=>e.km!=null&&e.km<=e.raggio):[];if(ev.length)evtSheet(ev[0].id);else toast('🚨 Nessun evento qui vicino adesso: ti arriva la notifica quando compare');}};
   el.querySelectorAll('[data-gmb]').forEach(b=>b.onclick=()=>{const f=A[b.dataset.gmb];if(f)f();});
   const hs=(typeof myHouses==='function'?myHouses():[]);const h=hs[0]||(S.geo&&S.geo.lat!=null?{lat:S.geo.lat,lon:S.geo.lon}:null);

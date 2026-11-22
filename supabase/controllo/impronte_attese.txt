@@ -89,6 +89,9 @@ w_gemme_add(uuid, integer, text, text, text, boolean) 6802d03906
 w_gemme_costo(timestamp with time zone) 018e7d7ac9
 w_gemme_livello(uuid, integer, integer) c330059f24
 w_gemme_pagato(bigint, text) c584e5c9e1
+w_gioco_cfg() 4e18a79962
+w_gioco_gemme(uuid, integer, text, text, text) eb6900db3b
+w_gioco_oggi(uuid) 975e12d030
 w_grado(integer) 54cc85f814
 w_grado_xp(integer) 760a3019c4
 w_home_held(uuid, text) 9c9e12578c
@@ -120,6 +123,7 @@ w_orde_tick() d699462526
 w_partenza(uuid) 0dfadb3001
 w_pay(uuid, integer, text, text) 1a72164541
 w_perche_no(uuid, bigint) 5335d9836d
+w_piastrine(uuid, integer) ed55b3e28e
 w_piazza_nuovi(uuid, timestamp with time zone, text) 11b8e1d2c2
 w_power3(integer, integer, boolean) 1514872532
 w_pres_attack(text, text) 5c1cf84d42
@@ -148,6 +152,7 @@ w_rinf_tot(bigint, timestamp with time zone) 4053ad92fb
 w_room(text) ab86838fbb
 w_scontri_tick() 5679200424
 w_score(uuid, boolean) 836191a166
+w_settimana() 9011fb2212
 w_settimana(timestamp with time zone) 18e024a71d
 w_settle(uuid) 59bad382a9
 w_settle_loans(uuid) 6cc226f820
@@ -233,7 +238,7 @@ world_attacca(uuid, text) 655895cbce
 world_attacchi_miei() 32d85903bc
 world_attacco_info(uuid, text) 21da642bd3
 world_block(uuid, boolean) d5c18b09f9
-world_boss_fine(bigint, integer) 44f64bc338
+world_boss_fine(bigint, integer) fca7f71f8d
 world_boss_info() 629f6298cc
 world_boss_inizia() d442e7ddcb
 world_bottega_compra(text) 9c218790d7
@@ -287,6 +292,7 @@ world_gemme_legacy_segna(integer) c6140d4374
 world_gemme_prova(text, text) 4182fb98e9
 world_gift_claim(bigint) 2023464b42
 world_gifts_in() 51ca60df01
+world_gioco_sequenza(bigint) babea32c8f
 world_give(uuid, text, integer, boolean) 3e93678e5a
 world_help_list() 451ff8492c
 world_home_vis(text) d2691098a9
@@ -309,6 +315,8 @@ world_my_effects() 7e4bd22f9b
 world_near_survivors(double precision, double precision, double precision) 479ebf94cf
 world_orde_mie() 26cd5c2bc8
 world_partenza_set(text) 6699f09caf
+world_pista_info() 37bb0a2d21
+world_pista_riscatta() 164bd37f5d
 world_player(uuid) d549da37b6
 world_player_extra(uuid) 4c0c27cac5
 world_posto_visita(text, text, double precision, double precision, double precision, double precision) 87fb22391c
@@ -340,7 +348,7 @@ world_ripara(text) b8cd44d9d0
 world_rivals() 9b44911f45
 world_saccheggia(uuid) 15affd0c16
 world_scontri_miei() daf6666082
-world_scontro_fine(bigint, text, integer) 770b9b4afa
+world_scontro_fine(bigint, text, integer) 37c08582ed
 world_scontro_info(text) b671cec07a
 world_scontro_inizia(bigint) 70584378f0
 world_scontro_parti(text, text, text, double precision, double precision, double precision) 1071dbf6c3
@@ -447,6 +455,7 @@ world_log a7c8214e
 world_orde_avvio 9ab1c358
 world_orde_esiti 11d15a0d
 world_partite 49661f40
+world_pista e1e5ce5c
 world_posti_visite e5cb7b24
 world_pres_defs 8a272827
 world_presidi f2b03cfd
@@ -512,6 +521,7 @@ world_gemme_mov gemme_mov_mie
 world_gifts wg_sel
 world_homes wh_sel
 world_log wl_sel
+world_pista world_pista_mia
 world_scontri world_scontri_mie
 world_sup_lavori sup_lavori_miei
 world_wallet ww_sel
