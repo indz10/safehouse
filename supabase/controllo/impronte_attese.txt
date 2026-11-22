@@ -22,7 +22,7 @@ w_allies_of(uuid) a696d73f51
 w_ally_state(uuid, uuid) cf9a34567a
 w_ancora(uuid, bigint) 1571ce7ead
 w_are_allies(uuid, uuid) d3e2331ab7
-w_arena_cfg() 63c001dabb
+w_arena_cfg() fa74ab5045
 w_arena_danno(integer, integer) aa59794c49
 w_arena_viaggio(uuid, double precision, double precision) 1eb915eff8
 w_arena_zstats(text, integer) 4cd9def457
@@ -50,7 +50,7 @@ w_bottino(uuid, integer) d943f8aaa0
 w_cadute_tick() 79f7834bf4
 w_canon(text, double precision, double precision) a8cd798858
 w_cantieri_tick() e447d868b7
-w_casa_extra(text, text) d8d69de76d
+w_casa_extra(text, text) 1f047544fb
 w_casa_manca_tick() 395b46963e
 w_casa_vicina_km(uuid, double precision, double precision) 7f2effcf89
 w_cella(double precision, double precision) 0c5f11f705
@@ -340,9 +340,9 @@ world_ripara(text) b8cd44d9d0
 world_rivals() 9b44911f45
 world_saccheggia(uuid) 15affd0c16
 world_scontri_miei() daf6666082
-world_scontro_fine(bigint, text, integer) 2055322dd0
+world_scontro_fine(bigint, text, integer) 770b9b4afa
 world_scontro_info(text) b671cec07a
-world_scontro_inizia(bigint) 2328604761
+world_scontro_inizia(bigint) 70584378f0
 world_scontro_parti(text, text, text, double precision, double precision, double precision) 1071dbf6c3
 world_scontro_subito(bigint, integer) 2d150ddbc6
 world_score(uuid, text) 1190c1faef

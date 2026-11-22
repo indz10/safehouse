@@ -415,7 +415,7 @@ CREATE FUNCTION public.w_arena_cfg() RETURNS jsonb
     'diff', jsonb_build_object('facile', -2, 'equilibrato', 0, 'difficile', 2),
     'xp_molt', jsonb_build_object('facile', 0.7, 'equilibrato', 1.0, 'difficile', 1.5),
     'durata_max_s', 300, 'colpi_s', 2.5,
-    'esplora_m', 50, 'esplora_vel_ms', 12, 'esplora_toll_m', 30, 'esplora_casa_m', 150);
+    'esplora_m', 50, 'esplora_vel_ms', 20, 'esplora_toll_m', 30, 'esplora_casa_m', 150);
 $$;
 
 --
@@ -1079,7 +1079,7 @@ CREATE FUNCTION public.w_casa_extra(p_bid text, p_slot text) RETURNS integer
     LANGUAGE sql STABLE SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-  select (least(18, coalesce(sum(pts) filter (where kind = 'assi'), 0)) + least(24, coalesce(sum(pts) filter (where kind = 'aiuto'), 0))
+  select (least(18, coalesce(sum(pts) filter (where kind = 'assi'), 0)) + least(24, coalesce(sum(pts) filter (where kind = 'aiuto'), 0)) + least(10, coalesce(sum(pts) filter (where kind = 'gioco'), 0))
         - least(40, coalesce(sum(pts) filter (where kind = 'atk'), 0)))::int
   from public.world_assalti where bid = p_bid and slot_id = p_slot; $$;
 
@@ -6942,6 +6942,7 @@ CREATE FUNCTION public.world_scontro_fine(p_id bigint, p_esito text, p_colpi int
     AS $$
 declare me uuid := auth.uid(); sc public.world_scontri; c jsonb := public.w_arena_cfg(); el numeric; serve int; tmin numeric; v boolean;
   xp int := 0; q int; got json; nuovo boolean := false; g0 int; s public.world_superstite; rar int; mt int := 0;
+  h record; nid text := public.w_slot_id(public.w_next_slot(now())); cg int := 0;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
   if p_esito not in ('vinto','perso','abbandonato') then return json_build_object('ok', false, 'msg', 'Esito non valido'); end if;
@@ -6965,11 +6966,20 @@ begin
   q := 3 + sc.livello / 2 + rar * 2;
   got := public.w_res(me, q, q, q / 2); perform public.w_xp(me, xp);
   if rar >= 3 then mt := case rar when 3 then 10 else 30 end; perform public.w_pay(me, mt, 'Arena: ' || (sc.zstats->>'nome') || ' abbattuto'); end if;
+  -- 🏠 zombie battuto entro 1 km da una tua casa: +2 alla difesa di quella casa per la prossima orda (max +10 a casa)
+  for h in select x.building_id as bid from (select building_id, lat, lon from public.world_homes where user_id = me
+      union select building_id, lat, lon from public.world_buildings where owner = me) x
+      where sc.zlat is not null and public.w_km(x.lat, x.lon, sc.zlat, sc.zlon) <= 1 loop
+    insert into public.world_assalti(bid, user_id, slot_id, kind, pts) values (h.bid, me, nid, 'gioco', 2)
+      on conflict (bid, user_id, slot_id, kind) do update set pts = public.world_assalti.pts + 2;
+    cg := cg + 1;
+  end loop;
   s := public.w_sup(me);
   update public.world_scontri set stato = 'vinto', fine = now(),
-    premi = jsonb_build_object('xp', xp, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int, 'mattoni', mt, 'nuovo', nuovo) where id = p_id;
+    premi = jsonb_build_object('xp', xp, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int, 'mattoni', mt, 'nuovo', nuovo, 'case', cg) where id = p_id;
   return json_build_object('ok', true, 'vinto', true, 'esito', 'vinto', 'xp', xp, 'nuovo', nuovo, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int,
-    'carb', (got->>'carb')::int, 'mattoni', mt, 'salito', public.w_grado(s.xp) > g0, 'grado', public.w_grado(s.xp), 'nome', sc.zstats->>'nome', 'ic', sc.zstats->>'ic');
+    'carb', (got->>'carb')::int, 'mattoni', mt, 'salito', public.w_grado(s.xp) > g0, 'grado', public.w_grado(s.xp), 'nome', sc.zstats->>'nome', 'ic', sc.zstats->>'ic',
+    'case_difese', cg, 'orda', right(nid, 2));
 end $$;
 
 --
@@ -7007,7 +7017,7 @@ CREATE FUNCTION public.world_scontro_inizia(p_id bigint) RETURNS json
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-declare me uuid := auth.uid(); sc public.world_scontri; st jsonb; zs jsonb;
+declare me uuid := auth.uid(); sc public.world_scontri; st jsonb; zs jsonb; lv int;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
   perform public.w_scontri_tick();
@@ -7016,6 +7026,11 @@ begin
   if sc.stato = 'viaggio' then return json_build_object('ok', false, 'msg', 'Il superstite è ancora in viaggio'); end if;
   if sc.stato <> 'pronto' then return json_build_object('ok', false, 'gia', true, 'stato', sc.stato, 'msg', case sc.stato when 'vinto' then '✅ Questo zombie l’hai già battuto' when 'scaduto' then '⌛ Lo zombie non ti ha aspettato: è andato via' when 'lotta' then 'Lo scontro è già aperto' else 'Questo scontro è già finito' end); end if;
   st := public.w_sup_stats(me); zs := public.w_arena_zstats(sc.tipo, sc.livello);
+  -- 🏰 vicino a casa (entro 300 m da una tua casa) le fortificazioni aiutano: ❤️ +5 e 🛡️ +1 per livello della casa (max 5)
+  select max(least(5, greatest(1, coalesce(b.level, 1)))) into lv from (select building_id, lat, lon from public.world_homes where user_id = me
+      union select building_id, lat, lon from public.world_buildings where owner = me) x left join public.world_buildings b on b.building_id = x.building_id
+    where sc.zlat is not null and public.w_km(x.lat, x.lon, sc.zlat, sc.zlon) <= 0.3;
+  if lv is not null then st := st || jsonb_build_object('vita', (st->>'vita')::int + 5 * lv, 'difesa', (st->>'difesa')::int + lv, 'casa', lv); end if;
   update public.world_scontri set stato = 'lotta', inizio = now(), stats = st, zstats = zs where id = p_id;
   return json_build_object('ok', true, 'id', p_id, 'diff', sc.diff, 'modo', sc.modo, 'io', st, 'zombie', zs,
     'danno_io', public.w_arena_danno((st->>'forza')::int, (zs->>'difesa')::int),
@@ -8401,7 +8416,7 @@ CREATE TABLE public.world_assalti (
     pts integer NOT NULL,
     vittima uuid,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT world_assalti_kind_check CHECK ((kind = ANY (ARRAY['atk'::text, 'aiuto'::text, 'assi'::text])))
+    CONSTRAINT world_assalti_kind_check CHECK ((kind = ANY (ARRAY['atk'::text, 'aiuto'::text, 'assi'::text, 'gioco'::text])))
 );
 
 --

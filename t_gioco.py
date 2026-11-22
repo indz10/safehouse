@@ -32,14 +32,22 @@ async def main():
         print('tocco sul superstite:',await pg.evaluate("()=>!!document.querySelector('#sheet.open .mislist, #sheet.open .misrow')"))
         # 🧭 guidi il superstite: tocco sulla mappa → cammina (posizione al server), vicino allo zombie → combatti col superstite
         print('superstite guidato:',await pg.evaluate("()=>!!GM.av"))
+        # 🔗 il Mondo nel Gioco: presidi e case degli alleati sulla mappa, tocco → loro scheda
+        await pg.evaluate("()=>{window.__PRES=[];GM.mdAt=null;return gmMondoLoad()}");await pg.wait_for_timeout(500)
+        print('mondo nel gioco:',await pg.evaluate("()=>[(GM.pres||[]).length>0,(GM.ally||[]).length>0]"))
+        await pg.evaluate("()=>{const p=gmMondoPts().find(p=>p.k==='pres');gmTap(p.x,p.y-12,null);}");await pg.wait_for_timeout(800)
+        print('tocco sul presidio:',await pg.evaluate("()=>document.querySelector('#sheet.open')!==null"))
+        await pg.evaluate("()=>closeSheet()")
         await pg.evaluate("()=>{closeSheet();const z=ZM.L.find(z=>z.tipo==='bruto'&&!z.preso);gmTap(-999,-999,{lat:z.lat-0.0002,lng:z.lon});}");await pg.wait_for_timeout(4500)
         print('cammina verso lo zombie:',await pg.evaluate("()=>{const z=ZM.L.find(z=>z.tipo==='bruto');return [Math.round(trM(GM.av.lat,GM.av.lon,z.lat,z.lon))<=50,(window.__EXPN||0)>=2]}"))
-        # 🕹️ croce direzionale: tieni premuto ▶ → il superstite va a est
-        x0=await pg.evaluate("()=>GM.av.lon")
-        await pg.evaluate("()=>document.querySelector('#gmap [data-gmd=r]').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))");await pg.wait_for_timeout(1200)
-        await pg.evaluate("()=>document.querySelector('#gmap [data-gmd=r]').dispatchEvent(new PointerEvent('pointerup',{bubbles:true}))");await pg.wait_for_timeout(200)
-        print('croce:',await pg.evaluate("x0=>[document.querySelectorAll('#gmap [data-gmd]').length,GM.av.lon>x0,!GM.av.pad]",x0))
-        await pg.keyboard.down('ArrowUp');await pg.wait_for_timeout(600);await pg.keyboard.up('ArrowUp')
+        # 🚗 spostamento automatico: scheda dello zombie → "Vai lì per le strade" → il superstite in auto ci va da solo → arena
+        await pg.evaluate("()=>{MZU='auto';const z=ZM.L.find(z=>z.k==='zombie'&&z.tipo!=='bruto'&&!z.preso);window.__zA=z;GM.av.lat=z.lat-0.0012;GM.av.lon=z.lon;GM.av.P=null;arnCard(z);}");await pg.wait_for_timeout(1200)
+        print('vai automatico:',await pg.evaluate("()=>[!!document.querySelector('#sheet.open [data-arnauto]'),(document.querySelector('#sheet.open [data-arnauto]')||{}).textContent]"))
+        await pg.evaluate("()=>document.querySelector('#sheet.open [data-arnauto]').click()");await pg.wait_for_timeout(1500)
+        print('in viaggio in auto:',await pg.evaluate("()=>[!!GM.av.P,gmMz(),gmVel()]"))
+        await pg.wait_for_timeout(9000)
+        print('arrivato e combatte:',await pg.evaluate("()=>[!GM.av.P,window.__ARNP&&window.__ARNP.p_modo,!!document.getElementById('arena')]"))
+        await pg.evaluate("()=>{try{arnChiudi();}catch(e){}MZU=null;}");await pg.wait_for_timeout(500)
         await pg.evaluate("()=>{const z=ZM.L.find(z=>z.tipo==='bruto');GM.av.lat=z.lat-0.0002;GM.av.lon=z.lon;}")
         await pg.evaluate("()=>{const z=ZM.L.find(z=>z.tipo==='bruto');arnCard(z);}");await pg.wait_for_timeout(1200)
         print('combatti col superstite:',await pg.evaluate("()=>!!document.querySelector('#sheet.open [data-arne]')"))

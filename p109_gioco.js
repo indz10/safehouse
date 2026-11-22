@@ -12,19 +12,21 @@ const gmLL=(x,y)=>[GM.c0.lon+x/(111320*Math.cos(GM.c0.lat*Math.PI/180)),GM.c0.la
 function gmStyle(){const R=['interpolate',['exponential',1.6],['zoom']];const MJ=['motorway','trunk','primary'],SC=['secondary','tertiary'];
   const ROADS=['in',['get','class'],['literal',['motorway','trunk','primary','secondary','tertiary','minor','service']]];
   return{version:8,glyphs:'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',sources:{omt:{type:'vector',url:'https://tiles.openfreemap.org/planet'}},layers:[
-   {id:'bg',type:'background',paint:{'background-color':'#78c850'}},
-   {id:'res',type:'fill',source:'omt','source-layer':'landuse',filter:['in',['get','class'],['literal',['residential','suburb','neighbourhood','commercial','retail','industrial']]],paint:{'fill-color':'#84cc5a'}},
-   {id:'farm',type:'fill',source:'omt','source-layer':'landcover',filter:['in',['get','class'],['literal',['farmland','grass']]],paint:{'fill-color':'#98d868'}},
-   {id:'wood',type:'fill',source:'omt','source-layer':'landcover',filter:['==',['get','class'],'wood'],paint:{'fill-color':'#2f8a3a','fill-outline-color':'#1f5a28'}},
-   {id:'park',type:'fill',source:'omt','source-layer':'park',paint:{'fill-color':'#48a848','fill-outline-color':'#2f7a2f'}},
-   {id:'water',type:'fill',source:'omt','source-layer':'water',paint:{'fill-color':'#4aa0f0','fill-outline-color':'#2a70c0'}},
-   {id:'waterway',type:'line',source:'omt','source-layer':'waterway',paint:{'line-color':'#4aa0f0','line-width':['interpolate',['linear'],['zoom'],12,1.5,17,8]}},
-   {id:'path',type:'line',source:'omt','source-layer':'transportation',filter:['in',['get','class'],['literal',['path','track']]],paint:{'line-color':'#d8c088','line-width':[...R,14,1,18,6]}},
-   {id:'road-cas',type:'line',source:'omt','source-layer':'transportation',filter:ROADS,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#8a6a3a','line-width':[...R,12,['match',['get','class'],MJ,4,SC,3,2],18,['match',['get','class'],MJ,34,SC,28,['service'],12,22]]}},
-   {id:'road',type:'line',source:'omt','source-layer':'transportation',filter:ROADS,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['match',['get','class'],MJ,'#f8e8b8','#f0dca8'],'line-width':[...R,12,['match',['get','class'],MJ,2.6,SC,2,1.2],18,['match',['get','class'],MJ,28,SC,23,['service'],8,17]]}},
-   {id:'bld',type:'fill',source:'omt','source-layer':'building',minzoom:14,paint:{'fill-color':['match',['%',['to-number',['id'],0],5],0,'#d05848',1,'#5878c8',2,'#c89048',3,'#9868b8','#d8784a'],'fill-outline-color':'#2a1810'}},
-   {id:'bld-line',type:'line',source:'omt','source-layer':'building',minzoom:15,paint:{'line-color':'#2a1810','line-width':1.6}},
-   {id:'nomi',type:'symbol',source:'omt','source-layer':'transportation_name',minzoom:16,layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':['Noto Sans Bold'],'text-size':11},paint:{'text-color':'#3a2a10','text-halo-color':'#f8ecc8','text-halo-width':2}}]};}
+   {id:'bg',type:'background',paint:{'background-color':'#4a4552'}},
+   {id:'res',type:'fill',source:'omt','source-layer':'landuse',filter:['in',['get','class'],['literal',['residential','suburb','neighbourhood','commercial','retail','industrial']]],paint:{'fill-color':'#504a5a'}},
+   {id:'farm',type:'fill',source:'omt','source-layer':'landcover',filter:['in',['get','class'],['literal',['farmland','grass']]],paint:{'fill-color':'#3d5a34'}},
+   {id:'wood',type:'fill',source:'omt','source-layer':'landcover',filter:['==',['get','class'],'wood'],paint:{'fill-color':'#2a4426','fill-outline-color':'#18301a'}},
+   {id:'park',type:'fill',source:'omt','source-layer':'park',paint:{'fill-color':'#356b35','fill-outline-color':'#1f3f1f'}},
+   {id:'water',type:'fill',source:'omt','source-layer':'water',paint:{'fill-color':'#1e3a6e','fill-outline-color':'#12264a'}},
+   {id:'waterway',type:'line',source:'omt','source-layer':'waterway',paint:{'line-color':'#1e3a6e','line-width':['interpolate',['linear'],['zoom'],12,1.5,17,8]}},
+   {id:'path',type:'line',source:'omt','source-layer':'transportation',filter:['in',['get','class'],['literal',['path','track']]],paint:{'line-color':'#7a6f60','line-width':[...R,14,1,18,6]}},
+   {id:'road-cas',type:'line',source:'omt','source-layer':'transportation',filter:ROADS,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#8c8494','line-width':[...R,12,['match',['get','class'],MJ,4,SC,3,2],18,['match',['get','class'],MJ,34,SC,28,['service'],12,22]]}},
+   {id:'road',type:'line',source:'omt','source-layer':'transportation',filter:ROADS,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['match',['get','class'],MJ,'#232228','#2b2a30'],'line-width':[...R,12,['match',['get','class'],MJ,2.6,SC,2,1.2],18,['match',['get','class'],MJ,28,SC,23,['service'],8,17]]}},
+   {id:'road-mid',type:'line',source:'omt','source-layer':'transportation',minzoom:15,filter:['in',['get','class'],['literal',['motorway','trunk','primary','secondary','tertiary','minor']]],paint:{'line-color':'#e8d36a','line-width':[...R,15,.8,18,2.2],'line-dasharray':[3,3]}},
+   {id:'bld',type:'fill',source:'omt','source-layer':'building',minzoom:14,paint:{'fill-color':['match',['%',['to-number',['id'],0],5],0,'#6b5a7a',1,'#5a6470',2,'#7a5a4a',3,'#4a5a4a','#6a6a72'],'fill-outline-color':'#120c18'}},
+   {id:'bld-line',type:'line',source:'omt','source-layer':'building',minzoom:15,paint:{'line-color':'#120c18','line-width':2}},
+   {id:'bld-hi',type:'line',source:'omt','source-layer':'building',minzoom:16,paint:{'line-color':'#ffffff26','line-width':1.5,'line-offset':3}},
+   {id:'nomi',type:'symbol',source:'omt','source-layer':'transportation_name',minzoom:16,layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':['Noto Sans Bold'],'text-size':11},paint:{'text-color':'#e8e0f0','text-halo-color':'#1a1420','text-halo-width':2}}]};}
 // strade della mappa (le mattonelle caricate) → grafo per il percorso più breve; nodi su una griglia di 2 m così i pezzi si uniscono
 function gmGraph(){const m=GM.map;if(!m||!GM.c0)return;let F=[];try{F=m.querySourceFeatures('omt',{sourceLayer:'transportation'})||[];}catch(e){}
   const nodes=new Map(),N=[],adj=[];const id=(ll)=>{const p=gmXY(ll[1],ll[0]);const k=Math.round(p[0]/2)+','+Math.round(p[1]/2);let i=nodes.get(k);if(i==null){i=N.length;nodes.set(k,i);N.push(p);adj.push([]);}return i;};
@@ -54,8 +56,7 @@ function gmSup(){const L=(MIS.L||[]).filter(m=>(m.tipo==='scontro'||m.tipo==='sp
 async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}closeSheet();
   document.body.insertAdjacentHTML('beforeend',`<div id="gmap"><div class="gmmap"></div><canvas class="gmfx"></canvas><div class="gmtop"><b>🎮 Gioco</b><span data-gmtxt>Carico la mappa…</span><button class="gmx" data-gmx aria-label="Chiudi">✕</button></div>
     <div class="gmside">${[['lente','📷','Lente'],['vicini','🧟','Vicini'],['mis','⏳','Missioni'],['pedia','📖','Zombipedia'],['dfa','🛡️','Difendi'],['boss','👹','Boss'],['evt','🚨','Eventi'],['case','🏠','Case'],['mv','❓','Come']].map(b=>`<button data-gmb="${b[0]}"><span>${b[1]}</span><small>${b[2]}</small></button>`).join('')}</div>
-    <div class="gmzoom"><button data-gmz="1">＋</button><button data-gmz="-1">－</button><button data-gmz="0" class="gmme" aria-label="Centra sul superstite">📍<small>Tu</small></button></div>
-    <div class="gmpad" aria-label="Muovi il superstite"><button data-gmd="u" aria-label="Su">▲</button><button data-gmd="l" aria-label="Sinistra">◀</button><button data-gmd="r" aria-label="Destra">▶</button><button data-gmd="d" aria-label="Giù">▼</button></div></div>`);
+    <div class="gmzoom"><button data-gmz="1">＋</button><button data-gmz="-1">－</button><button data-gmz="0" class="gmme" aria-label="Centra sul superstite">📍<small>Tu</small></button></div></div>`);
   const el=document.getElementById('gmap');GM.el=el;GM.cv=el.querySelector('canvas.gmfx');GM.ctx=GM.cv.getContext('2d');
   el.querySelector('[data-gmx]').onclick=gmClose;
   // 🕹️ croce direzionale: tieni premuto per camminare (come nei giochi), anche con le frecce o W A S D
@@ -65,7 +66,7 @@ async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}clos
   const GK={arrowup:'u',w:'u',arrowdown:'d',s:'d',arrowleft:'l',a:'l',arrowright:'r',d:'r'};
   GM.kd=e=>{const k=GK[(e.key||'').toLowerCase()];if(!k||document.getElementById('arena')||/INPUT|TEXTAREA/.test((e.target||{}).tagName||''))return;e.preventDefault();GM.dir[k]=1;GM.follow=true;};
   GM.ku=e=>{const k=GK[(e.key||'').toLowerCase()];if(k&&GM.dir[k]){GM.dir[k]=0;gmAvSync(true);}};
-  addEventListener('keydown',GM.kd);addEventListener('keyup',GM.ku);
+
   el.querySelectorAll('[data-gmz]').forEach(b=>b.onclick=()=>{const k=+b.dataset.gmz;const m=GM.map;if(!m)return;if(!k){GM.follow=true;GM.lastFollow=0;return;}m.easeTo({zoom:Math.max(13,Math.min(19,m.getZoom()+k)),duration:250});});
   const A={case:()=>gmCase(),lente:()=>{gmClose();lenteOpen();},vicini:()=>zmRadarSheet(),mis:()=>misSheet(),pedia:()=>zmPedia(),dfa:()=>dfaGo(),boss:()=>bossSheet(),mv:()=>mvSheet(),
     evt:()=>{const ev=typeof EVT!=='undefined'?evtAperti().filter(e=>e.km!=null&&e.km<=e.raggio):[];if(ev.length)evtSheet(ev[0].id);else toast('🚨 Nessun evento qui vicino adesso: ti arriva la notifica quando compare');}};
@@ -74,6 +75,7 @@ async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}clos
   if(!h){el.querySelector('[data-gmtxt]').textContent='Ti serve una casa nel mondo per vedere la mappa del gioco';return;}
   GM.c0={lat:h.lat,lon:h.lon};GM.d=null;GM.rt.clear();GM.follow=true;GM.lastFollow=0;
   try{zmLoad(true);}catch(e){}misLoad(true);
+  try{if(typeof mzUsoLoad==='function'&&!MZU)mzUsoLoad();}catch(e){}
   try{await loadML();}catch(e){el.querySelector('[data-gmtxt]').textContent='Mappa non disponibile: controlla la connessione';return;}if(!GM.on)return;
   const m=GM.map=new maplibregl.Map({container:el.querySelector('.gmmap'),style:gmStyle(),center:[h.lon,h.lat],zoom:17,minZoom:13,maxZoom:19,dragRotate:false,pitchWithRotate:false,attributionControl:false});
   try{m.touchZoomRotate.disableRotation();}catch(e){}
@@ -119,24 +121,24 @@ function gmDraw(s){const c=GM.cv,x=GM.ctx,dp=GM.dp||1;if(!c.width)return;x.setTr
       const e=GM.av.P[GM.av.P.length-1],r=gmScr(e[0],e[1]);x.strokeStyle='#fff';x.lineWidth=2;x.beginPath();x.arc(r[0],r[1],6+Math.sin(T*6)*2,0,7);x.stroke();}
     (ZM.L||[]).filter(zz=>!zz.preso&&zz.k==='zombie'&&trM(GM.av.lat,GM.av.lon,zz.lat,zz.lon)<=50).forEach(zz=>{const zp=gmXY(zz.lat,zz.lon),zq=gmScr(zp[0],zp[1]);
       x.strokeStyle='#3df24a';x.lineWidth=3;x.beginPath();x.arc(zq[0],zq[1]-8,20+Math.sin(T*8)*2,0,7);x.stroke();x.font='bold 12px monospace';x.textAlign='center';x.fillStyle='#000';x.fillText('⚔️ TOCCA',zq[0]+1,zq[1]-33);x.fillStyle='#fff';x.fillText('⚔️ TOCCA',zq[0],zq[1]-34);});
-    gmOmino(x,q[0],q[1],GM.av.a||0,GM.av.P||GM.av.pad?T:0,!!(GM.av.P||GM.av.pad));}}
+    if(gmMz()!=='piedi')gmVeicolo(x,q[0],q[1],GM.av.a||0,gmMz(),!!GM.av.P,T);else gmOmino(x,q[0],q[1],GM.av.a||0,GM.av.P?T:0,!!GM.av.P);}}
 // 🧭 il superstite guidato col tocco: cammina per le strade a 10 m/s; il server controlla velocità e raggio (world_esplora_muovi)
 const GM_VEL=10;
 async function gmAvInit(h){GM.av=null;let d=null;try{const r=await SB.rpc('world_esplora_dove');d=r&&r.data;}catch(e){}
   const raggio=((typeof SUP!=='undefined'&&SUP.d&&SUP.d.raggio_km)||3)*1000;const H=(typeof myHouses==='function'?myHouses():[]).filter(x=>x.lat!=null);
   if(d&&d.lat!=null&&H.some(x=>trM(d.lat,d.lon,x.lat,x.lon)<raggio)){GM.av={lat:d.lat,lon:d.lon,a:0};}else{await gmAvCasa(h,true);}
-  try{GM.map.jumpTo({center:[GM.av.lon,GM.av.lat]});}catch(e){}GM.zmAt={lat:GM.av.lat,lon:GM.av.lon};try{zmLoad(true);}catch(e){}}
+  try{GM.map.jumpTo({center:[GM.av.lon,GM.av.lat]});}catch(e){}GM.zmAt={lat:GM.av.lat,lon:GM.av.lon};try{zmLoad(true);}catch(e){}GM.mdAt=null;gmMondoLoad();}
 async function gmAvCasa(h,zitto){GM.av={lat:h.lat,lon:h.lon,a:0};GM.zmAt=null;try{const{data}=await SB.rpc('world_esplora_muovi',{p_lat:h.lat,p_lon:h.lon,p_casa:true});if(data&&!data.ok&&!zitto)toast(data.msg);}catch(e){}GM.sent={t:Date.now(),lat:h.lat,lon:h.lon};}
 function gmCammina(lat,lon){if(!GM.av)return;const a=gmXY(GM.av.lat,GM.av.lon),b=gmXY(lat,lon);if(Math.hypot(a[0]-b[0],a[1]-b[1])<4)return;
   const P=GM.d?gmRoute(a,b):[a,b];GM.av.P=P;GM.av.i=0;GM.av.f=0;GM.follow=true;try{sfx&&sfx('tap');}catch(e){}}
 function gmAvStep(dt){const v=GM.av;if(!v)return;const D=GM.dir||{};const dx=(D.r?1:0)-(D.l?1:0),dy=(D.d?1:0)-(D.u?1:0);v.pad=!!(dx||dy);
   if(v.pad){v.P=null;const n=Math.hypot(dx,dy),a=gmXY(v.lat,v.lon);const x=a[0]+dx/n*GM_VEL*dt,y=a[1]+dy/n*GM_VEL*dt;v.a=Math.atan2(dy,dx);const ll=gmLL(x,y);v.lon=ll[0];v.lat=ll[1];gmAvSync(false);
     if(GM.zmAt&&trM(GM.zmAt.lat,GM.zmAt.lon,v.lat,v.lon)>120){GM.zmAt={lat:v.lat,lon:v.lon};try{zmLoad(true);}catch(e){}}return;}
-  if(!v.P)return;let left=GM_VEL*dt;
+  if(!v.P)return;let left=gmVel()*dt;
   while(left>0&&v.i<v.P.length-1){const a=v.P[v.i],b=v.P[v.i+1];const L=Math.hypot(b[0]-a[0],b[1]-a[1])||.001;const rem=L*(1-v.f);
     if(left>=rem){left-=rem;v.i++;v.f=0;}else{v.f+=left/L;left=0;}v.a=Math.atan2(b[1]-a[1],b[0]-a[0]);}
   const a=v.P[v.i],b=v.P[Math.min(v.i+1,v.P.length-1)];const x=a[0]+(b[0]-a[0])*v.f,y=a[1]+(b[1]-a[1])*v.f;const ll=gmLL(x,y);v.lon=ll[0];v.lat=ll[1];
-  if(v.i>=v.P.length-1){v.P=null;gmAvSync(true);}else gmAvSync(false);
+  if(v.i>=v.P.length-1){v.P=null;gmArrivato();}else gmAvSync(false);
   if(GM.zmAt&&trM(GM.zmAt.lat,GM.zmAt.lon,v.lat,v.lon)>120){GM.zmAt={lat:v.lat,lon:v.lon};try{zmLoad(true);}catch(e){}}}
 async function gmAvSync(subito){const v=GM.av;if(!v||GM.syncing)return;if(!subito&&GM.sent&&Date.now()-GM.sent.t<1500)return;GM.syncing=true;
   try{const{data}=await SB.rpc('world_esplora_muovi',{p_lat:v.lat,p_lon:v.lon,p_casa:false});
@@ -163,4 +165,46 @@ const _zmRadar55=zmRadarSheet;zmRadarSheet=function(){const r=_zmRadar55.apply(t
   const box=(typeof LENTE!=='undefined'&&LENTE.on&&LENTE.root)?LENTE.root.querySelector('.zmlist'):document.querySelector('#sheet.open .zmlistsheet');
   if(box)box.querySelectorAll('.zmrow').forEach((row,i)=>{const z=L[i];if(!z)return;row.classList.add('zmtap');row.setAttribute('role','button');row.insertAdjacentHTML('beforeend','<i>›</i>');
     row.onclick=e=>{e.stopPropagation();const lx=box.closest('.zmlist');if(lx)lx.remove();if(z.k==='cassa')zmVicino();else arnCard(z);};});}catch(e){}return r;};
+// 🔗 il Mondo nel Gioco (Fase 59): presidi 🚩 e case degli alleati 🤝 sulla mappa del gioco; tocco → loro scheda
+async function gmMondoLoad(){if(!GM.on||!S.user||typeof SB==='undefined'||!SB)return;const c=GM.av||GM.c0;if(!c)return;
+  if(GM.mdAt&&trM(GM.mdAt.lat,GM.mdAt.lon,c.lat,c.lon)<800&&Date.now()-GM.mdAt.t<300000)return;GM.mdAt={lat:c.lat,lon:c.lon,t:Date.now()};
+  try{const{data}=await SB.rpc('world_presidi_list',{p_minlat:c.lat-.02,p_minlon:c.lon-.03,p_maxlat:c.lat+.02,p_maxlon:c.lon+.03});
+    GM.pres=(data&&data.presidi)||[];if(typeof PRES!=='undefined')GM.pres.forEach(p=>{if(!PRES.L.some(x=>x.id===p.id))PRES.L.push(p);});}catch(e){}
+  try{const A=(typeof ALS!=='undefined'&&ALS.L)||(typeof alsLoad==='function'?await alsLoad(true):null)||[];
+    const V=await Promise.all(A.slice(0,8).map(a=>SB.rpc('world_ally_view',{p_user:a.user_id}).then(r=>r.data).catch(()=>null)));
+    GM.ally=[];V.filter(v=>v&&v.ok).forEach(d=>(d.houses||[]).forEach(T=>{if(T.lat!=null&&T.lon!=null)GM.ally.push({u:d.user_id,nick:d.nick,lat:T.lat,lon:T.lon});}));}catch(e){}}
+function gmMondoPts(){const P=[];if(!GM.map)return P;
+  (GM.pres||[]).forEach(p=>P.push({k:'pres',id:p.id,lat:p.lat,lon:p.lon,ic:(typeof PRES_K!=='undefined'&&PRES_K[p.kind]||['🚩'])[0],mio:p.stato==='mio',lb:p.name||'Presidio'}));
+  (GM.ally||[]).forEach(a=>P.push({k:'ally',u:a.u,lat:a.lat,lon:a.lon,ic:'🤝',lb:'@'+(a.nick||'alleato')}));
+  P.forEach(p=>{const q=gmXY(p.lat,p.lon);const r=gmScr(q[0],q[1]);p.x=r[0];p.y=r[1];});return P;}
+const _gmDrawM=gmDraw;
+gmDraw=function(s){_gmDrawM(s);try{const x=GM.ctx;if(!x||!GM.map)return;const dp=GM.dp||1;x.setTransform(dp,0,0,dp,0,0);
+  gmMondoPts().forEach(p=>{x.fillStyle=p.k==='ally'?'#2f6db3':p.mio?'#2e9e4f':'#c0392b';x.strokeStyle='#111';x.lineWidth=2;x.beginPath();x.arc(p.x,p.y-12,13,0,7);x.fill();x.stroke();
+    gmEmoji(x,p.ic,p.x,p.y-12,15);x.font='bold 10px system-ui';x.textAlign='center';x.fillStyle='#000';x.fillText(p.lb.slice(0,16),p.x+1,p.y+11);x.fillStyle='#fff';x.fillText(p.lb.slice(0,16),p.x,p.y+10);});}catch(e){}};
+const _gmTapM=gmTap;
+gmTap=function(X,Y,ll){try{const zv=(ZM.L||[]).some(z=>{const q=gmXY(z.lat,z.lon),r=gmScr(q[0],q[1]);return Math.hypot(r[0]-X,r[1]-Y)<26;});
+    if(!zv){const h=gmMondoPts().map(p=>({p,d:Math.hypot(p.x-X,p.y-12-Y)})).filter(o=>o.d<22).sort((a,b)=>a.d-b.d)[0];
+      if(h){if(h.p.k==='pres'&&typeof presSheet==='function')presSheet(h.p.id);else if(h.p.k==='ally'&&typeof allySheet==='function')allySheet(h.p.u);return;}}}catch(e){}
+  return _gmTapM(X,Y,ll);};
+zEvery(()=>{if(GM.on)gmMondoLoad();},20000,'gioco-mondo');
+// 🚗 spostamenti automatici (Fase 59): il superstite va per le strade col mezzo che usi, lo guardi muoversi; arrivato vicino allo zombie si combatte
+const GM_MZV={piedi:6,bici:9,moto:14,auto:18,fuori:16,furgone:15};
+function gmMz(){const m=(typeof MZU!=='undefined'&&MZU)||'piedi';return GM_MZV[m]?m:'piedi';}
+function gmVel(){return GM_MZV[gmMz()];}
+function gmMzIc(){return(typeof MZ!=='undefined'&&MZ[gmMz()]&&MZ[gmMz()][0])||'🚶';}
+function gmVaiZombie(z,diff){if(!GM.av)return;GM.goal={z,diff};gmCammina(z.lat,z.lon);if(!GM.av.P){gmArrivato();return;}toast(gmMzIc()+' In viaggio verso lo zombie: guardalo sulla mappa');}
+async function gmArrivato(){await gmAvSync(true);const g=GM.goal;if(!g||!GM.av)return;GM.goal=null;
+  if(trM(GM.av.lat,GM.av.lon,g.z.lat,g.z.lon)>50){toast('Non sono arrivato abbastanza vicino: tocca di nuovo lo zombie');return;}
+  try{sfx&&sfx('boom');}catch(e){}arnParti(g.z,'esplora',g.diff||'equilibrato',document.createElement('button'));}
+// mezzo visto dall'alto, stile anni '90: carrozzeria, vetri, ruote, fari
+function gmVeicolo(x,cx,cy,a,mz,va,T){const L={bici:[14,4],moto:[16,6],auto:[24,12],fuori:[26,14],furgone:[30,14]}[mz]||[24,12];const col={bici:'#3df2ff',moto:'#ff3df2',auto:'#e8212e',fuori:'#4b5d2e',furgone:'#e8e8e8'}[mz]||'#e8212e';
+  x.save();x.translate(cx,cy);x.rotate(a);const l=L[0],w=L[1];x.fillStyle='#00000066';x.fillRect(-l/2+2,-w/2+3,l,w);
+  if(mz==='bici'||mz==='moto'){x.fillStyle='#111';x.fillRect(-l/2,-1.5,4,3);x.fillRect(l/2-4,-1.5,4,3);x.fillStyle=col;x.fillRect(-l/2+3,-w/2,l-6,w);x.fillStyle='#f1c27d';x.beginPath();x.arc(-1,0,3,0,7);x.fill();x.fillStyle='#e8212e';x.fillRect(-2,-3,2,6);}
+  else{x.fillStyle='#111';[[-l/2+3,-w/2-1.5],[l/2-8,-w/2-1.5],[-l/2+3,w/2-1.5],[l/2-8,w/2-1.5]].forEach(p=>x.fillRect(p[0],p[1],5,3));
+    x.fillStyle='#0a0612';x.fillRect(-l/2-1,-w/2-1,l+2,w+2);x.fillStyle=col;x.fillRect(-l/2,-w/2,l,w);x.fillStyle='#ffffff44';x.fillRect(-l/2,-w/2,l,2);
+    x.fillStyle='#9fd3ff';x.fillRect(l/2-9,-w/2+2,4,w-4);x.fillStyle='#6aa0c8';x.fillRect(-l/2+3,-w/2+2,3,w-4);x.fillStyle='#00000033';x.fillRect(-l/2+7,-w/2+2,l-17,w-4);
+    if(mz==='furgone'){x.fillStyle='#c0c0c0';x.fillRect(-l/2+1,-w/2+1,l-12,w-2);}
+    x.fillStyle=va&&Math.floor(T*4)%2?'#ffe66d':'#fff8c0';x.fillRect(l/2-1,-w/2+1,2,3);x.fillRect(l/2-1,w/2-4,2,3);
+    if(va){x.fillStyle='#ffe66d22';x.beginPath();x.moveTo(l/2,-w/2);x.lineTo(l/2+30,-w);x.lineTo(l/2+30,w);x.lineTo(l/2,w/2);x.fill();}}
+  x.restore();x.font='bold 9px monospace';x.textAlign='center';const n=((typeof SV!=='undefined'&&SV.d&&SV.d.nome)||(S.user&&S.user.nick)||'Tu');x.fillStyle='#000';x.fillText(n,cx+1,cy-17);x.fillStyle='#fff';x.fillText(n,cx,cy-18);}
 </script>
