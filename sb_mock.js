@@ -70,6 +70,8 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
       {tipo:'spedizione',id:4,ic:'🎒',titolo:'Spedizione',meta:'Super · 1,2 km',inizio:new Date(Date.now()-900e3).toISOString(),fine:new Date(Date.now()-5e3).toISOString(),secondi:0,pronto:true,gemme:null},
       {tipo:'arrivo',id:5,ic:'🚨',titolo:'Attacco in arrivo da @bruno',meta:'❤️ Casa tua',inizio:new Date(Date.now()-60e3).toISOString(),fine:new Date(Date.now()+600e3).toISOString(),secondi:600}];
     return{data:{ok:true,cfg:{min_per_gemma:6,subito_min:1},missioni:M},error:null};}
+  case'world_esplora_dove':return{data:window.__EXP?{ok:true,...window.__EXP}:{ok:true},error:null};
+  case'world_esplora_muovi':{window.__EXPN=(window.__EXPN||0)+1;window.__EXP={lat:a.p_lat,lon:a.p_lon};return{data:{ok:true,lat:a.p_lat,lon:a.p_lon},error:null};}
   case'world_scontro_info':{const A=window.__ARN=window.__ARN||{sc:{},id:0};const zs=l=>({livello:l,tipo:'bruto',nome:'Bruto',ic:'💪',rar:2,vita:90+l*10,forza:9+l,difesa:5+l,agilita:4+l});const s=A.sc[a.p_zid];
     return{data:{ok:true,zid:a.p_zid,tipo:'bruto',io:{grado:3,vita:116,forza:12,difesa:10,agilita:10},cfg:{dist_m:80,acc_max_m:50,attesa_min:30},viaggio:{ok:true,km:0.8,raggio:6,mezzo:'piedi',mezzo_nome:'a piedi',min:10,cibo:2,carb:0,energia:1},
       scontro:s?{id:s.id,stato:s.stato,modo:s.modo,diff:s.diff,arrivo:s.arrivo,scade:new Date(Date.now()+30*60e3).toISOString(),secondi:Math.max(0,Math.round((new Date(s.arrivo)-Date.now())/1000))}:null,

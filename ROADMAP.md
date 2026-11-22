@@ -181,4 +181,6 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 53a | fatta (migrazione 045) | #98 | 🔔 notifiche sempre attive: l’app si riscrive da sola se l’iscrizione scade |
 | 53 | fatta (migrazione 046) | #99 | 🧟 arena: zombie di persona (80 m + GPS) o col superstite (viaggio, notifica, 💎 solo sul viaggio), difficoltà, arena orizzontale con colpo, parata, schivata, speciale |
 | 54 | fatta (migrazione 047) | #100 | 🧭 5 tasti (Mappa · Lente · Superstite · Casa · Amici), ⏳ missioni in corso con 💎 per finire subito, scudo e dispetti con le gemme del server |
-| 55 | in revisione (migrazione 048) | — | 🎮 Gioco: mappa stile Pokémon col superstite che cammina per le strade; arena a round, combo, SUPER, furia; arena non più tagliata; niente notifica doppia con le 💎 |
+| 55 | fatta (migrazione 048) | #101 | 🎮 Gioco: mappa stile Pokémon col superstite che cammina per le strade; arena a round, combo, SUPER, furia; arena non più tagliata; niente notifica doppia con le 💎 |
+| 56 | fatta | #102 | 🎮 Gioco sulla mappa vera in stile Pokémon, 🏠 Case, arena con telecamera
+| 57 | in revisione (migrazione 049) | — | 🧭 guidi tu il superstite sulla mappa del Gioco (tocco, strade, server che controlla velocità e raggio), mappa toccabile, arena in orizzontale |

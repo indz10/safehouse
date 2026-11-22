@@ -23,13 +23,14 @@ async function arnCard(z){if(!S.user){toast('Accedi per combattere');return;}let
     return`<div class="arnzc"><b class="arnzic">${zs.ic}</b><div><b>${esc(zs.nome)} · Lv ${zs.livello}</b><small>${ZM_RAR[zs.rar]||''}</small><div>${arnStatRiga(zs)}</div></div></div>
     <div class="arndiff">${Object.keys(ARN_DIFF).map(k=>`<button class="${k===diff?'on':''}" data-arnd="${k}">${ARN_DIFF[k]}<small>Lv ${d.livelli[k].livello}</small></button>`).join('')}</div>
     <div class="arnio">${svAvatar((SV.d&&SV.d.avatar)||{},false)}<div><b>Tu · grado ${d.io.grado}</b><div>${arnStatRiga(d.io)}</div></div></div>
+    ${typeof GM!=='undefined'&&GM.on&&GM.av&&trM(GM.av.lat,GM.av.lon,z.lat,z.lon)<=50?`<h4 style="margin:12px 0 4px">🧭 Il tuo superstite è qui</h4><button class="btn wide" data-arne>⚔️ Combatti col superstite · 🔋 1</button>`:''}
     <h4 style="margin:12px 0 4px">📍 Di persona</h4>${dist!=null&&dist<=lim?`<button class="btn wide" data-arnp>⚔️ Combatti qui · 🔋 1</button>`
       :`<p class="muted" style="margin:2px 0 6px">Sei a ${dist!=null?dist+' m':'?'}: serve meno di ${Math.round(lim)} m (80 m + precisione del GPS). Gratis a parte 🔋 1.</p>${typeof LENTE!=='undefined'&&LENTE.on?'':'<button class="btn wide ghost" data-arnlente>📷 Apri la Lente e avvicinati</button>'}`}
     <h4 style="margin:12px 0 4px">🎒 Manda il superstite</h4>${v.km!=null?`<p class="arnvia">📏 ${String(v.km).replace('.',',')} km dalla tua casa · 🥫 ${v.cibo} per il viaggio · solo andata. Tocca il mezzo qui sotto per cambiarlo: tempo e carburante cambiano.</p>`:''}
     ${v.ok?`<button class="btn wide ghost" data-arns data-km="${v.km}" data-viaggio="1">🎒 Manda il superstite</button><p class="muted" style="font-size:12px">All’arrivo ti avviso e lo zombie ti aspetta 30 minuti; poi combatti tu nell’arena.</p>`:`<p class="muted">${esc(v.msg||(v.km!=null?`È a ${v.km} km: il raggio del superstite è ${v.raggio} km`:'Non raggiungibile'))}</p>`}`;};
   const bind=cc=>{const r=()=>{cc.querySelector('.arncard').innerHTML=body();bind(cc);};
     cc.querySelectorAll('[data-arnd]').forEach(b=>b.onclick=()=>{diff=b.dataset.arnd;try{localStorage.setItem('zsh_arn_diff',diff);}catch(e){}r();});
-    const P=cc.querySelector('[data-arnp]');if(P)P.onclick=()=>arnParti(z,'persona',diff,P);
+    const P=cc.querySelector('[data-arnp]');if(P)P.onclick=()=>arnParti(z,'persona',diff,P);const E=cc.querySelector('[data-arne]');if(E)E.onclick=()=>arnParti(z,'esplora',diff,E);
     const M=cc.querySelector('[data-arns]');if(M)M.onclick=()=>arnParti(z,'superstite',diff,M);
     const Ln=cc.querySelector('[data-arnlente]');if(Ln)Ln.onclick=()=>{closeSheet();lenteOpen();};
     const V=cc.querySelector('[data-arnvai]');if(V)V.onclick=()=>{closeSheet();arnVai(+V.dataset.arnvai,L0.ic);};
@@ -39,7 +40,7 @@ async function arnCard(z){if(!S.user){toast('Accedi per combattere');return;}let
 async function arnParti(z,modo,diff,btn){btn.disabled=true;const p=arnGps();const acc=(typeof LENTE!=='undefined'&&LENTE.on&&LENTE.acc)||(p&&p.acc)||0;let r=null;
   try{const{data,error}=await SB.rpc('world_scontro_parti',{p_zid:z.id,p_modo:modo,p_diff:diff,p_lat:p?p.lat:null,p_lon:p?p.lon:null,p_acc:acc});if(error)throw error;r=data;}catch(e){toast('Non riuscito: riprova');}
   btn.disabled=false;if(!r)return;if(!r.ok){toast(r.msg);return;}
-  if(modo==='persona'){closeSheet();arnVai(r.id,(ZM_T[z.tipo]||['🧟'])[0]);}else{toast(r.msg);closeSheet();arnMiei(true);}}
+  if(modo!=='superstite'){closeSheet();arnVai(r.id,(ZM_T[z.tipo]||['🧟'])[0]);}else{toast(r.msg);closeSheet();arnMiei(true);}}
 async function arnSubito(id,arrivo){await gemLoad();const costo=gemCosto(arrivo);const s=(GEM.d&&GEM.d.gemme)||0;
   if(s<costo){if(confirm(`Servono 💎 ${costo}, ne hai ${s}. Aprire il negozio delle gemme?`))gemSheet();return;}
   if(!confirm(`Far arrivare subito il superstite per 💎 ${costo}?\nTi resteranno 💎 ${s-costo}.\nLo scontro lo combatti tu.`))return;
@@ -243,9 +244,10 @@ function arnDraw(T){const g=ARN.g,c=g.cv,M=g.ctx,x=g.o;if(!c.width)return;
   // ingrandimento a pixel, con le bande nere
   M.imageSmoothingEnabled=false;const sky=M.createLinearGradient(0,0,0,c.height);sky.addColorStop(0,'#12062a');sky.addColorStop(.7,'#4a1250');sky.addColorStop(1,'#160a24');M.fillStyle=sky;M.fillRect(0,0,c.width,c.height);
   const a=arnPX(g.p.x),b=arnPX(g.z.x),mid=(a+b)/2,dist=Math.abs(a-b);
-  const sT=Math.min(c.height/(ALH*.7),c.width/(dist+150));g.cs=g.cs?g.cs+(sT-g.cs)*.08:sT;const s=g.cs,w=ALW*s,h=ALH*s;
+  const lh=c.width>c.height?c.height*.78:c.height;const sT=Math.min(lh/(ALH*.62),c.width/(dist+150));g.cs=g.cs?g.cs+(sT-g.cs)*.08:sT;const s=g.cs,w=ALW*s,h=ALH*s;
   let ox=c.width/2-mid*s;if(w>c.width)ox=Math.min(0,Math.max(c.width-w,ox));else ox=(c.width-w)/2;
-  if(g.shake>0)ox+=(Math.random()-.5)*10;const oy=(c.height-h)+(g.shake>0?(Math.random()-.5)*6:0);M.drawImage(g.off,ox,oy,w,h);
+  if(g.shake>0)ox+=(Math.random()-.5)*10;const lift=c.width>c.height?Math.min(c.height*.22,70*(devicePixelRatio>1?2:1)):0;const oy=(c.height-h)-lift+(g.shake>0?(Math.random()-.5)*6:0);M.drawImage(g.off,ox,oy,w,h);
+  if(lift){M.fillStyle='#160a24';M.fillRect(0,oy+h,c.width,c.height-oy-h);}
   if(w<c.width){M.fillStyle='#160a24';M.fillRect(0,oy+(AGY-14)*s,ox,c.height);M.fillRect(ox+w,oy+(AGY-14)*s,c.width-ox-w,c.height);}}
 async function arnFine(esito){const g=ARN.g;if(!g||g.fine)return;g.fine=true;cancelAnimationFrame(g.raf);let r=null;
   try{const{data,error}=await SB.rpc('world_scontro_fine',{p_id:g.id,p_esito:esito,p_colpi:g.colpi});if(error)throw error;r=data;}catch(e){r={ok:false,msg:'Collegamento perso: lo scontro non è stato salvato'};}

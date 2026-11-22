@@ -411,13 +411,11 @@ CREATE FUNCTION public.w_arena_cfg() RETURNS jsonb
     LANGUAGE sql IMMUTABLE
     AS $$
   select jsonb_build_object(
-    'dist_m', 80, 'acc_max_m', 50,              -- di persona: 80 m + precisione GPS (al massimo 50)
-    'attesa_min', 30,                           -- dopo l'arrivo del superstite lo zombie aspetta 30 minuti
-    'max_giorno', 30,                           -- scontri al giorno
+    'dist_m', 80, 'acc_max_m', 50, 'attesa_min', 30, 'max_giorno', 30,
     'diff', jsonb_build_object('facile', -2, 'equilibrato', 0, 'difficile', 2),
     'xp_molt', jsonb_build_object('facile', 0.7, 'equilibrato', 1.0, 'difficile', 1.5),
-    'durata_max_s', 300,
-    'colpi_s', 2.5);                            -- colpi al secondo al massimo (per il controllo dei tempi)
+    'durata_max_s', 300, 'colpi_s', 2.5,
+    'esplora_m', 50, 'esplora_vel_ms', 12, 'esplora_toll_m', 30, 'esplora_casa_m', 150);
 $$;
 
 --
@@ -1104,6 +1102,18 @@ begin
   get diagnostics n = row_count;
   return n;
 end $$;
+
+--
+-- Name: w_casa_vicina_km(uuid, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_casa_vicina_km(p_user uuid, p_lat double precision, p_lon double precision) RETURNS numeric
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select min(public.w_km(p_lat, p_lon, x.lat, x.lon))::numeric from (
+    select h.lat, h.lon from public.world_homes h where h.user_id = p_user and h.lat is not null
+    union all select b.lat, b.lon from public.world_buildings b where b.owner = p_user and b.lat is not null) x; $$;
 
 --
 -- Name: w_cella(double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
@@ -5346,6 +5356,46 @@ begin
 end $$;
 
 --
+-- Name: world_esplora_dove(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_esplora_dove() RETURNS json
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select coalesce((select json_build_object('ok', true, 'lat', lat, 'lon', lon, 'at', at) from public.world_esplora where user_id = auth.uid()), json_build_object('ok', true)); $$;
+
+--
+-- Name: world_esplora_muovi(double precision, double precision, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_esplora_muovi(p_lat double precision, p_lon double precision, p_casa boolean DEFAULT false) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); c jsonb := public.w_arena_cfg(); ex public.world_esplora; d numeric; max_m numeric; kc numeric; s public.world_superstite; r numeric;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if p_lat is null or p_lon is null then return json_build_object('ok', false, 'msg', 'Posizione mancante'); end if;
+  kc := public.w_casa_vicina_km(me, p_lat, p_lon);
+  if kc is null then return json_build_object('ok', false, 'msg', 'Ti serve una casa nel mondo'); end if;
+  select * into ex from public.world_esplora where user_id = me for update;
+  if p_casa or ex.user_id is null then
+    if kc * 1000 > (c->>'esplora_casa_m')::int then return json_build_object('ok', false, 'msg', 'Il superstite parte da una delle tue case'); end if;
+    insert into public.world_esplora(user_id, lat, lon, at) values (me, p_lat, p_lon, now())
+      on conflict (user_id) do update set lat = excluded.lat, lon = excluded.lon, at = now();
+    return json_build_object('ok', true, 'lat', p_lat, 'lon', p_lon);
+  end if;
+  s := public.w_sup(me); r := public.w_sup_raggio(s.xp, s.abil);
+  if kc > r then return json_build_object('ok', false, 'lat', ex.lat, 'lon', ex.lon, 'msg', format('Più in là no: il superstite si allontana al massimo %s km dalle tue case', r)); end if;
+  d := public.w_km(ex.lat, ex.lon, p_lat, p_lon) * 1000;
+  max_m := least(600, extract(epoch from now() - ex.at) * (c->>'esplora_vel_ms')::numeric) + (c->>'esplora_toll_m')::numeric;
+  if d > max_m then return json_build_object('ok', false, 'lat', ex.lat, 'lon', ex.lon, 'msg', 'Troppo veloce: il superstite cammina, non vola'); end if;
+  update public.world_esplora set lat = p_lat, lon = p_lon, at = now() where user_id = me;
+  return json_build_object('ok', true, 'lat', p_lat, 'lon', p_lon);
+end $$;
+
+--
 -- Name: world_eventi_vicini(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6982,10 +7032,10 @@ CREATE FUNCTION public.world_scontro_parti(p_zid text, p_modo text, p_diff text,
     SET search_path TO 'public'
     AS $$
 declare me uuid := auth.uid(); z json; c jsonb := public.w_arena_cfg(); s public.world_superstite; g int; liv int; w public.world_wallet;
-  day text := to_char(now() at time zone 'Europe/Rome', 'YYYY-MM-DD'); n int; v jsonb; d numeric; nid bigint; en int; cc int; ck int;
+  day text := to_char(now() at time zone 'Europe/Rome', 'YYYY-MM-DD'); n int; v jsonb; d numeric; nid bigint; en int; cc int; ck int; ex public.world_esplora;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
-  if p_modo not in ('persona','superstite') or p_diff not in ('facile','equilibrato','difficile') then return json_build_object('ok', false, 'msg', 'Scelta non valida'); end if;
+  if p_modo not in ('persona','superstite','esplora') or p_diff not in ('facile','equilibrato','difficile') then return json_build_object('ok', false, 'msg', 'Scelta non valida'); end if;
   z := public.w_zm_trova(p_zid);
   if z is null or z->>'k' <> 'zombie' then return json_build_object('ok', false, 'msg', 'Questo zombie è sparito'); end if;
   if exists (select 1 from public.world_zombie_presi where user_id = me and zid = p_zid) then return json_build_object('ok', false, 'msg', 'L’hai già abbattuto'); end if;
@@ -6995,7 +7045,17 @@ begin
   w := public.w_wallet(me); n := coalesce((w.caps->>('arena:' || day))::int, 0);
   if n >= (c->>'max_giorno')::int then return json_build_object('ok', false, 'msg', 'Oggi hai già fatto ' || n || ' scontri: riposati'); end if;
   s := public.w_sup(me); g := public.w_grado(s.xp); liv := greatest(1, g + (c->'diff'->>p_diff)::int);
-  if p_modo = 'persona' then
+  if p_modo = 'esplora' then
+    -- 🧭 il superstite guidato sulla mappa del gioco: deve essere lì (posizione controllata dal server, aggiornata da poco)
+    select * into ex from public.world_esplora where user_id = me;
+    if ex.user_id is null or ex.at < now() - interval '3 minutes' then return json_build_object('ok', false, 'msg', 'Porta il superstite vicino allo zombie sulla mappa del gioco'); end if;
+    d := public.w_km(ex.lat, ex.lon, (z->>'lat')::float, (z->>'lon')::float) * 1000;
+    if d > (c->>'esplora_m')::int then return json_build_object('ok', false, 'msg', format('Il superstite è a %s m: avvicinalo a meno di %s m', round(d), (c->>'esplora_m')::int)); end if;
+    if s.energia < 1 then return json_build_object('ok', false, 'msg', format('Serve 1 energia: si ricarica da sola (1 ogni %s min)', public.w_en_ric(s.abil))); end if;
+    update public.world_superstite set energia = energia - 1, energia_at = case when energia >= public.w_en_max(abil) then now() else energia_at end where user_id = me;
+    insert into public.world_scontri(user_id, zid, tipo, modo, diff, livello, zlat, zlon, costo, stato, scade)
+      values (me, p_zid, z->>'tipo', 'esplora', p_diff, liv, (z->>'lat')::float, (z->>'lon')::float, '{"energia":1}', 'pronto', now() + interval '15 minutes') returning id into nid;
+  elsif p_modo = 'persona' then
     d := public.w_km(p_lat, p_lon, (z->>'lat')::float, (z->>'lon')::float) * 1000;
     if p_lat is null or d > (c->>'dist_m')::int + least(greatest(coalesce(p_acc, 0), 0), (c->>'acc_max_m')::int) then
       return json_build_object('ok', false, 'msg', format('Avvicinati: sei a %s m, serve meno di %s m', round(coalesce(d, 9999)), (c->>'dist_m')::int + least(greatest(coalesce(p_acc, 0), 0), (c->>'acc_max_m')::int)::int)); end if;
@@ -7018,9 +7078,9 @@ begin
               now() + make_interval(mins => (v->>'min')::int), now() + make_interval(mins => (v->>'min')::int + (c->>'attesa_min')::int)) returning id into nid;
   end if;
   update public.world_wallet set caps = jsonb_set(caps, array['arena:' || day], to_jsonb(n + 1)) where user_id = me;
-  return json_build_object('ok', true, 'id', nid, 'stato', case when p_modo = 'persona' then 'pronto' else 'viaggio' end,
-    'min', case when p_modo = 'persona' then 0 else (v->>'min')::int end,
-    'msg', case when p_modo = 'persona' then '🧟 Allo scontro!' else format('🎒 Il superstite parte %s: arriva fra %s min. Ti avviso io', v->>'mezzo_nome', v->>'min') end);
+  return json_build_object('ok', true, 'id', nid, 'stato', case when p_modo = 'superstite' then 'viaggio' else 'pronto' end,
+    'min', case when p_modo = 'superstite' then (v->>'min')::int else 0 end,
+    'msg', case when p_modo <> 'superstite' then '🧟 Allo scontro!' else format('🎒 Il superstite parte %s: arriva fra %s min. Ti avviso io', v->>'mezzo_nome', v->>'min') end);
 end $$;
 
 --
@@ -8849,6 +8909,17 @@ CREATE SEQUENCE public.world_dm_id_seq
 ALTER SEQUENCE public.world_dm_id_seq OWNED BY public.world_dm.id;
 
 --
+-- Name: world_esplora; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_esplora (
+    user_id uuid NOT NULL,
+    lat double precision NOT NULL,
+    lon double precision NOT NULL,
+    at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
 -- Name: world_eventi; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -9390,7 +9461,7 @@ CREATE TABLE public.world_scontri (
     zstats jsonb,
     premi jsonb,
     CONSTRAINT world_scontri_diff_check CHECK ((diff = ANY (ARRAY['facile'::text, 'equilibrato'::text, 'difficile'::text]))),
-    CONSTRAINT world_scontri_modo_check CHECK ((modo = ANY (ARRAY['persona'::text, 'superstite'::text]))),
+    CONSTRAINT world_scontri_modo_check CHECK ((modo = ANY (ARRAY['persona'::text, 'superstite'::text, 'esplora'::text]))),
     CONSTRAINT world_scontri_stato_check CHECK ((stato = ANY (ARRAY['viaggio'::text, 'pronto'::text, 'lotta'::text, 'vinto'::text, 'perso'::text, 'abbandonato'::text, 'scaduto'::text])))
 );
 
@@ -10157,6 +10228,13 @@ ALTER TABLE ONLY public.world_difar
 
 ALTER TABLE ONLY public.world_dm
     ADD CONSTRAINT world_dm_pkey PRIMARY KEY (id);
+
+--
+-- Name: world_esplora world_esplora_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_esplora
+    ADD CONSTRAINT world_esplora_pkey PRIMARY KEY (user_id);
 
 --
 -- Name: world_eventi_azioni world_eventi_azioni_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -11166,6 +11244,13 @@ ALTER TABLE ONLY public.world_dm
     ADD CONSTRAINT world_dm_to_u_fkey FOREIGN KEY (to_u) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 --
+-- Name: world_esplora world_esplora_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_esplora
+    ADD CONSTRAINT world_esplora_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
 -- Name: world_eventi_azioni world_eventi_azioni_evento_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -11975,6 +12060,18 @@ ALTER TABLE public.world_difar ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.world_dm ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: world_esplora; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_esplora ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_esplora world_esplora_mia; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY world_esplora_mia ON public.world_esplora FOR SELECT USING ((user_id = auth.uid()));
+
+--
 -- Name: world_eventi; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -12446,6 +12543,12 @@ REVOKE ALL ON FUNCTION public.w_casa_extra(p_bid text, p_slot text) FROM PUBLIC;
 
 REVOKE ALL ON FUNCTION public.w_casa_manca_tick() FROM PUBLIC;
 GRANT ALL ON FUNCTION public.w_casa_manca_tick() TO service_role;
+
+--
+-- Name: FUNCTION w_casa_vicina_km(p_user uuid, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_casa_vicina_km(p_user uuid, p_lat double precision, p_lon double precision) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_cleanup(); Type: ACL; Schema: public; Owner: -
@@ -13404,6 +13507,18 @@ GRANT ALL ON FUNCTION public.world_edificio_info(p_bid text, p_lat double precis
 
 REVOKE ALL ON FUNCTION public.world_energia_compra(p_n integer) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_energia_compra(p_n integer) TO authenticated;
+
+--
+-- Name: FUNCTION world_esplora_dove(); Type: ACL; Schema: public; Owner: -
+--
+
+GRANT ALL ON FUNCTION public.world_esplora_dove() TO authenticated;
+
+--
+-- Name: FUNCTION world_esplora_muovi(p_lat double precision, p_lon double precision, p_casa boolean); Type: ACL; Schema: public; Owner: -
+--
+
+GRANT ALL ON FUNCTION public.world_esplora_muovi(p_lat double precision, p_lon double precision, p_casa boolean) TO authenticated;
 
 --
 -- Name: FUNCTION world_eventi_vicini(); Type: ACL; Schema: public; Owner: -
