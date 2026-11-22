@@ -88,6 +88,9 @@ function arnApri(d){try{if(typeof LENTE!=='undefined'&&LENTE.on)lenteClose();}ca
   const A=document.getElementById('arena');g.A=A;g.cv=A.querySelector('canvas');g.ctx=g.cv.getContext('2d');
   g.off=document.createElement('canvas');g.off.width=ALW;g.off.height=ALH;g.o=g.off.getContext('2d');g.bg=arnSfondo();
   try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{});}catch(e){}
+  // niente zoom dell'iPhone col doppio tocco o con due dita dentro l'arena (spostava la scena)
+  let tLast=0;A.addEventListener('touchend',e=>{const t=Date.now();if(t-tLast<400&&e.cancelable)e.preventDefault();tLast=t;},{passive:false});
+  ['gesturestart','gesturechange'].forEach(k=>A.addEventListener(k,e=>e.preventDefault()));A.addEventListener('dblclick',e=>e.preventDefault());
   const rot=()=>{const r=A.querySelector('[data-arnrot]');if(r)r.classList.toggle('on',innerHeight>innerWidth&&!g.rotOk);arnSize();};g.rot=rot;addEventListener('resize',rot);rot();
   A.querySelector('[data-arnrotok]').onclick=()=>{g.rotOk=1;rot();};
   A.querySelector('[data-arnx]').onclick=()=>{if(g.fine)return;if(confirm('Scappare? Lo scontro conta come perso e non ricevi premi.'))arnFine('abbandonato');};
@@ -312,7 +315,7 @@ function arnDraw(T){const g=ARN.g,c=g.cv,M=g.ctx,x=g.o;if(!c.width)return;
   M.imageSmoothingEnabled=false;const sky=M.createLinearGradient(0,0,0,c.height);sky.addColorStop(0,'#12062a');sky.addColorStop(.7,'#4a1250');sky.addColorStop(1,'#160a24');M.fillStyle=sky;M.fillRect(0,0,c.width,c.height);
   const a=arnPX(g.p.x),b=arnPX(g.z.x),mid=(a+b)/2,dist=Math.abs(a-b);
   // orizzontale: i lottatori interi nella parte alta (terreno al 62% dell'altezza), i tasti sotto non li coprono
-  const rr=c.getBoundingClientRect(),kd=c.width/Math.max(1,rr.width),vh=(window.visualViewport?visualViewport.height:innerHeight);const Hv=Math.max(60,Math.min(rr.height,vh-Math.max(0,rr.top)))*kd;
+  const rr=c.getBoundingClientRect(),kd=c.width/Math.max(1,rr.width),vh=document.documentElement.clientHeight||innerHeight;const Hv=Math.max(60,Math.min(rr.height,vh-Math.max(0,rr.top)))*kd;
   const oriz=c.width>Hv;const sT=oriz?Math.min(Hv*.6/112,c.width/(dist+190)):Math.min(c.height/(ALH*.62),c.width/(dist+150));g.cs=g.cs?g.cs+(sT-g.cs)*.08:sT;const s=g.cs,w=ALW*s,h=ALH*s;
   let ox=c.width/2-mid*s;if(w>c.width)ox=Math.min(0,Math.max(c.width-w,ox));else ox=(c.width-w)/2;
   if(g.shake>0)ox+=(Math.random()-.5)*10;const oy=(oriz?Hv*.62-AGY*s:c.height-h)+(g.shake>0?(Math.random()-.5)*6:0);M.drawImage(g.off,ox,oy,w,h);
