@@ -23,14 +23,14 @@ async function arnCard(z){if(!S.user){toast('Accedi per combattere');return;}let
     return`<div class="arnzc"><b class="arnzic">${zs.ic}</b><div><b>${esc(zs.nome)} · Lv ${zs.livello}</b><small>${ZM_RAR[zs.rar]||''}</small><div>${arnStatRiga(zs)}</div></div></div>
     <div class="arndiff">${Object.keys(ARN_DIFF).map(k=>`<button class="${k===diff?'on':''}" data-arnd="${k}">${ARN_DIFF[k]}<small>Lv ${d.livelli[k].livello}</small></button>`).join('')}</div>
     <div class="arnio">${svAvatar((SV.d&&SV.d.avatar)||{},false)}<div><b>Tu · grado ${d.io.grado}</b><div>${arnStatRiga(d.io)}</div></div></div>
-    ${typeof GM!=='undefined'&&GM.on&&GM.av&&trM(GM.av.lat,GM.av.lon,z.lat,z.lon)<=50?`<h4 style="margin:12px 0 4px">🧭 Il tuo superstite è qui</h4><button class="btn wide" data-arne>⚔️ Combatti col superstite · 🔋 1</button>`:typeof GM!=='undefined'&&GM.on&&GM.av?`<h4 style="margin:12px 0 4px">🧭 Vai col superstite</h4><button class="btn wide" data-arnauto>${(typeof gmMzIc==='function'?gmMzIc():'🚶')} Vai lì per le strade · ${Math.round(trM(GM.av.lat,GM.av.lon,z.lat,z.lon))} m</button><p class="muted" style="font-size:12px;margin:4px 0 0">Lo guardi muoversi sulla mappa: arrivato, si combatte.</p>`:''}
+    ${typeof GM!=='undefined'&&GM.on&&GM.av&&trM(GM.av.lat,GM.av.lon,z.lat,z.lon)<=50?`<h4 style="margin:12px 0 4px">🧭 Il tuo superstite è qui</h4><button class="btn wide" data-arne>⚔️ Combatti col superstite · 🔋 1</button>`:''}
     <h4 style="margin:12px 0 4px">📍 Di persona</h4>${dist!=null&&dist<=lim?`<button class="btn wide" data-arnp>⚔️ Combatti qui · 🔋 1</button>`
       :`<p class="muted" style="margin:2px 0 6px">Sei a ${dist!=null?dist+' m':'?'}: serve meno di ${Math.round(lim)} m (80 m + precisione del GPS). Gratis a parte 🔋 1.</p>${typeof LENTE!=='undefined'&&LENTE.on?'':'<button class="btn wide ghost" data-arnlente>📷 Apri la Lente e avvicinati</button>'}`}
     <h4 style="margin:12px 0 4px">🎒 Manda il superstite</h4>${v.km!=null?`<p class="arnvia">📏 ${String(v.km).replace('.',',')} km dalla tua casa · 🥫 ${v.cibo} per il viaggio · solo andata. Tocca il mezzo qui sotto per cambiarlo: tempo e carburante cambiano.</p>`:''}
     ${v.ok?`<button class="btn wide ghost" data-arns data-km="${v.km}" data-viaggio="1">🎒 Manda il superstite</button><p class="muted" style="font-size:12px">All’arrivo ti avviso e lo zombie ti aspetta 30 minuti; poi combatti tu nell’arena.</p>`:`<p class="muted">${esc(v.msg||(v.km!=null?`È a ${v.km} km: il raggio del superstite è ${v.raggio} km`:'Non raggiungibile'))}</p>`}`;};
   const bind=cc=>{const r=()=>{cc.querySelector('.arncard').innerHTML=body();bind(cc);};
     cc.querySelectorAll('[data-arnd]').forEach(b=>b.onclick=()=>{diff=b.dataset.arnd;try{localStorage.setItem('zsh_arn_diff',diff);}catch(e){}r();});
-    const P=cc.querySelector('[data-arnp]');if(P)P.onclick=()=>arnParti(z,'persona',diff,P);const E=cc.querySelector('[data-arne]');if(E)E.onclick=()=>arnParti(z,'esplora',diff,E);const AU=cc.querySelector('[data-arnauto]');if(AU)AU.onclick=()=>{closeSheet();gmVaiZombie(z,diff);};
+    const P=cc.querySelector('[data-arnp]');if(P)P.onclick=()=>arnParti(z,'persona',diff,P);const E=cc.querySelector('[data-arne]');if(E)E.onclick=()=>arnParti(z,'esplora',diff,E);
     const M=cc.querySelector('[data-arns]');if(M)M.onclick=()=>arnParti(z,'superstite',diff,M);
     const Ln=cc.querySelector('[data-arnlente]');if(Ln)Ln.onclick=()=>{closeSheet();lenteOpen();};
     const V=cc.querySelector('[data-arnvai]');if(V)V.onclick=()=>{closeSheet();arnVai(+V.dataset.arnvai,L0.ic);};
@@ -104,7 +104,7 @@ function arnApri(d){try{if(typeof LENTE!=='undefined'&&LENTE.on)lenteClose();}ca
   g.raf=requestAnimationFrame(arnLoop);}
 function arnAnn(t,ms,dopo,cl){const g=ARN.g;if(!g)return;const el=g.A.querySelector('[data-arnann]');el.className='arnann on '+(cl||'');el.textContent=t;try{sfx&&sfx('boom');}catch(e){}
   clearTimeout(g.annT);g.annT=setTimeout(()=>{el.className='arnann';dopo&&dopo();},ms);}
-function arnSize(){const g=ARN.g;if(!g)return;const c=g.cv,r=c.parentNode.getBoundingClientRect(),dp=Math.min(2,devicePixelRatio||1);c.width=Math.max(1,r.width*dp);c.height=Math.max(1,r.height*dp);c.style.width=r.width+'px';c.style.height=r.height+'px';}
+function arnSize(){const g=ARN.g;if(!g)return;const c=g.cv,r=c.parentNode.getBoundingClientRect(),dp=Math.min(2,devicePixelRatio||1);c.width=Math.max(1,r.width*dp);c.height=Math.max(1,r.height*dp);c.style.width='100%';c.style.height='100%';g.sz=r.width+'x'+r.height;}
 // danno di un colpo come sul server (w_arena_danno): forza × 1,5 − difesa × 0,6, almeno 1
 function arnDanno(f,d){return Math.max(1,Math.round(f*1.5-d*.6));}
 const arnPX=x=>24+x*3.36;
@@ -294,6 +294,7 @@ function arnFighter(x,F,zom,T){const g=ARN.g;const P=arnPosa(F,zom,T);const sc=z
   if(P.fuoco){for(let i=0;i<8;i++){x.fillStyle=['#ffe66d','#ff9f1c','#ff3d00'][i%3];const r=3+((i*7+Math.floor(T*30))%5);x.fillRect(h1[0]-r/2+Math.sin(i+T*20)*3,h1[1]-i*3-r,r,r);}}
   x.restore();}
 function arnDraw(T){const g=ARN.g,c=g.cv,M=g.ctx,x=g.o;if(!c.width)return;
+  {const r=c.parentNode.getBoundingClientRect();if(r.width+'x'+r.height!==g.sz)arnSize();} // il telefono girato: rimisura sempre (su iPhone il resize arriva prima della nuova misura)
   x.imageSmoothingEnabled=false;x.drawImage(g.bg,0,0);
   // insegna al neon che lampeggia e fuoco del bidone
   const on=g.rid||Math.floor(T*3)%7!==0;x.fillStyle=on?'#ff3df2':'#5a1a5a';x.font='bold 11px monospace';x.textAlign='left';x.fillText('ZOMBIE BAR',40,AGY-96);
@@ -311,9 +312,10 @@ function arnDraw(T){const g=ARN.g,c=g.cv,M=g.ctx,x=g.o;if(!c.width)return;
   M.imageSmoothingEnabled=false;const sky=M.createLinearGradient(0,0,0,c.height);sky.addColorStop(0,'#12062a');sky.addColorStop(.7,'#4a1250');sky.addColorStop(1,'#160a24');M.fillStyle=sky;M.fillRect(0,0,c.width,c.height);
   const a=arnPX(g.p.x),b=arnPX(g.z.x),mid=(a+b)/2,dist=Math.abs(a-b);
   // orizzontale: i lottatori interi nella parte alta (terreno al 62% dell'altezza), i tasti sotto non li coprono
-  const oriz=c.width>c.height;const sT=oriz?Math.min(c.height*.6/112,c.width/(dist+190)):Math.min(c.height/(ALH*.62),c.width/(dist+150));g.cs=g.cs?g.cs+(sT-g.cs)*.08:sT;const s=g.cs,w=ALW*s,h=ALH*s;
+  const rr=c.getBoundingClientRect(),kd=c.width/Math.max(1,rr.width),vh=(window.visualViewport?visualViewport.height:innerHeight);const Hv=Math.max(60,Math.min(rr.height,vh-Math.max(0,rr.top)))*kd;
+  const oriz=c.width>Hv;const sT=oriz?Math.min(Hv*.6/112,c.width/(dist+190)):Math.min(c.height/(ALH*.62),c.width/(dist+150));g.cs=g.cs?g.cs+(sT-g.cs)*.08:sT;const s=g.cs,w=ALW*s,h=ALH*s;
   let ox=c.width/2-mid*s;if(w>c.width)ox=Math.min(0,Math.max(c.width-w,ox));else ox=(c.width-w)/2;
-  if(g.shake>0)ox+=(Math.random()-.5)*10;const oy=(oriz?c.height*.62-AGY*s:c.height-h)+(g.shake>0?(Math.random()-.5)*6:0);M.drawImage(g.off,ox,oy,w,h);
+  if(g.shake>0)ox+=(Math.random()-.5)*10;const oy=(oriz?Hv*.62-AGY*s:c.height-h)+(g.shake>0?(Math.random()-.5)*6:0);M.drawImage(g.off,ox,oy,w,h);
   if(oy+h<c.height){M.fillStyle='#160a24';M.fillRect(0,oy+h,c.width,c.height-oy-h);}
   if(w<c.width){M.fillStyle='#160a24';M.fillRect(0,oy+(AGY-14)*s,ox,c.height);M.fillRect(ox+w,oy+(AGY-14)*s,c.width-ox-w,c.height);}}
 async function arnFine(esito){const g=ARN.g;if(!g||g.fine)return;g.fine=true;cancelAnimationFrame(g.raf);let r=null;
