@@ -67,5 +67,11 @@ async def main():
         print('arena girata:',await pg.evaluate("()=>{const f=document.querySelector('.arnfield').getBoundingClientRect(),c=ARN.g.cv.getBoundingClientRect();return[Math.round(f.height),Math.round(c.height),ARN.g.round]}"))
         await pg.evaluate("()=>{ARN.g.z.hp=1;ARN.g.p.x=ARN.g.z.x-10;ARN.g.z.act=null;ARN.g.z.blk=0;ARN.g.z.stun=1;ARN.g.p.act=null;ARN.g.p.stun=0;}");await pg.keyboard.press('j');await pg.wait_for_timeout(1500)
         print('round 2:',await pg.evaluate("()=>[ARN.g.round,ARN.g.vinti.p,(document.querySelector('[data-arnrd=p]')||{}).textContent,ARN.g.z.hp===ARN.g.z.hp0]"))
+        # 🎖️ pista della settimana (Fase 66): tasto sulla mappa del Gioco → scheda con tappe → riscatta
+        await pg.evaluate("()=>{closeSheet();gmOpen()}");await pg.wait_for_timeout(2500)
+        await pg.evaluate("()=>document.querySelector('#gmap [data-gmb=pista]').click()");await pg.wait_for_timeout(1000)
+        print('pista:',await pg.evaluate("()=>[document.querySelectorAll('#sheet.open .pst').length,document.querySelectorAll('#sheet.open .pst.ok').length,!!document.querySelector('#sheet.open [data-pstr]')]"))
+        await pg.evaluate("()=>document.querySelector('#sheet.open [data-pstr]').click()");await pg.wait_for_timeout(1200)
+        print('riscattata:',await pg.evaluate("()=>[window.__PISTA.presi,document.querySelectorAll('#sheet.open .pst.preso').length]"))
         print('ERR',E);await b.close()
 asyncio.run(main())

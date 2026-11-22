@@ -61,7 +61,7 @@ async def main():
         KB={'l':'ArrowLeft','r':'ArrowRight','up':'ArrowUp','dn':'ArrowDown','atk':'j','kick':'k'}
         for k in keys: await pg.keyboard.press(KB[k]);await pg.wait_for_timeout(40)
         await pg.wait_for_timeout(400)
-        print('parato:',await pg.evaluate("()=>[!ARN.g.qte,(ARN.g.txt&&ARN.g.txt.t)||'',ARN.g.z.act===null||ARN.g.z.act.k!=='schianto']"))
+        print('parato:',await pg.evaluate("()=>[!ARN.g.qte,(ARN.g.txt&&ARN.g.txt.t)||'',ARN.g.z.act===null||ARN.g.z.act.k!=='schianto',(window.__QTE||0)>=1]"))
         await pg.wait_for_timeout(1500)
         c1=await pg.evaluate("()=>{const g=ARN.g;g.super=100;g.p.act=null;g.p.stun=0;g.p.down=0;g.p.dash=0;g.z.stun=3;g.z.act=null;g.z.down=0;g.z.x=g.p.x+14;arnAzione('sp');return g.colpi}")
         print('sequenza super:',await pg.evaluate("()=>[!!ARN.g.qte&&ARN.g.qte.tipo,ARN.g.qte&&ARN.g.qte.seq.length]"))
@@ -72,6 +72,7 @@ async def main():
         print('mosse zombie:',await pg.evaluate("()=>[ARN_ZM.cane[0].includes('balzo'),ARN_ZM.sputatore[1].includes('sputo'),ARN_MV.schianto.ub===1,typeof arnSnd]"))
         await pg.evaluate("()=>{ARN.g.qte=null;ARN.g.z.cd=99;ARN.g.vinti.p=1;ARN.g.z.hp=1;ARN.g.z.down=0;ARN.g.p.down=0;ARN.g.k.dn=0;ARN.g.z.act=null;ARN.g.z.blk=0;ARN.g.z.stun=1;ARN.g.p.act=null;ARN.g.p.stun=0;ARN.g.p.dash=0;ARN.g.p.x=ARN.g.z.x-10;}");await pg.keyboard.press('j');await pg.wait_for_timeout(1200)
         print('casa vicina:',await pg.evaluate("()=>[!!document.querySelector('#arena [data-arncasa]'),(document.querySelector('#arena .arncasa')||{}).textContent]"))
+        print('gemme del gioco:',await pg.evaluate("()=>[(document.querySelector('#arena .arnpremi')||{}).textContent.includes('💎 +7'),!!document.querySelector('#arena [data-arnpista]')]"))
         print('vittoria:',await pg.evaluate("()=>[(document.querySelector('#arena .arnrc .disp')||{}).textContent,document.querySelectorAll('#arena .arnpremi span').length,window.__ARNF&&window.__ARNF.p_esito]"))
         await pg.evaluate("()=>document.querySelector('#arena [data-arnchiudi]').click()");await pg.wait_for_timeout(300)
         await pg.set_viewport_size({'width':390,'height':844})

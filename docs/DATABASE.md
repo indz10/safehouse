@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **85** · viste: **1** · indici: **47** · regole (policy): **46** · trigger: **17** · lavori programmati: **9**
-- Funzioni: **382** (382 nomi); usate (direttamente o tramite altre funzioni): **371**; **non usate: 11**
+- Tabelle: **86** · viste: **1** · indici: **47** · regole (policy): **47** · trigger: **17** · lavori programmati: **9**
+- Funzioni: **390** (389 nomi); usate (direttamente o tramite altre funzioni): **378**; **non usate: 11**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -113,6 +113,9 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_gemme_costo` |  |  |  |  | 1: migr. 042_gemme |
 | `w_gemme_livello` |  |  |  | w_xp | 1: migr. 042_gemme |
 | `w_gemme_pagato` |  |  |  |  | 1: migr. 042_gemme |
+| `w_gioco_cfg` |  |  |  | world_boss_fine, world_scontro_fine, w_gioco_gemme, world_pista_info, world_pista_riscatta, world_gioco_sequenza | 1: migr. 052_gemme_gioco |
+| `w_gioco_gemme` |  |  |  | world_boss_fine, world_scontro_fine, world_gioco_sequenza | 1: migr. 052_gemme_gioco |
+| `w_gioco_oggi` |  |  |  | world_scontro_fine, w_gioco_gemme, world_pista_info | 1: migr. 052_gemme_gioco |
 | `w_grado` |  |  |  | w_sup_raggio, w_xp, world_sup_info, world_sup_abilita, world_sup_equip, world_sped_raccogli … | 1: migr. 020_superstite |
 | `w_grado_xp` |  |  |  | world_sup_info | 1: migr. 020_superstite |
 | `w_home_held` |  |  |  | world_raid_status, w_score, w_assalti_tick | 4: mondo_v3 → abitazione → migr. 006_presidi → migr. 014_territorio |
@@ -144,6 +147,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_partenza` |  |  |  | w_dist_km, w_dist_pt | 1: migr. 037_casa_partenza |
 | `w_pay` |  |  |  | w_cleanup, world_earn, world_claim_home, w_settle, world_sell, world_collect … | 3: mondo_unico → equita → migr. 020_superstite |
 | `w_perche_no` |  |  |  | world_ally_request, w_alleanza_chiudi, world_alleanza_chiedi, world_alleanza_risposta, world_alleanze_vicine, world_alleanza_invita2 … | 1: migr. 019_alleanze_multiple |
+| `w_piastrine` |  |  |  | world_boss_fine, world_scontro_fine, world_gioco_sequenza | 1: migr. 052_gemme_gioco |
 | `w_piazza_nuovi` |  | ✓ |  |  | 1: migr. 007_notifiche_piazza |
 | `w_power3` |  |  |  | world_raid_status, world_raid_view, w_home_held, w_assalti_tick, w_orde_tick | 1: mondo_v3 |
 | `w_pres_attack` |  |  |  | w_pres_tick | 1: migr. 006_presidi |
@@ -172,7 +176,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_room` |  |  |  | world_chat_send, world_chat_list | 1: chat |
 | `w_scontri_tick` |  |  | cron | world_scontro_info, world_scontro_inizia, world_scontri_miei, world_missioni | 1: migr. 046_arena |
 | `w_score` |  |  |  | world_rank, world_rank_lega, world_score, world_rank_alleanze | 1: classifica |
-| `w_settimana` |  |  |  | world_sfida_quartiere, w_sfida_premi | 1: migr. 022_eventi_sfide |
+| `w_settimana` |  |  |  | world_sfida_quartiere, w_sfida_premi, w_piastrine, world_pista_info, world_pista_riscatta | 2: migr. 022_eventi_sfide → migr. 052_gemme_gioco |
 | `w_settle` |  |  |  | world_mine | 1: mondo_unico |
 | `w_settle_loans` |  |  |  | world_mine2 | 2: mondo_v4 → migr. 001_funzioni_mancanti |
 | `w_sfida_premi` |  | ✓ |  |  | 1: migr. 022_eventi_sfide |
@@ -257,7 +261,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_attacchi_miei` | ✓ |  |  |  | 3: migr. 028_attacchi → migr. 029_rinforzi → migr. 030_attacchi_alleanza |
 | `world_attacco_info` | ✓ |  |  |  | 2: migr. 028_attacchi → migr. 030_attacchi_alleanza |
 | `world_block` | ✓ |  |  |  | 1: chat |
-| `world_boss_fine` | ✓ |  |  |  | 1: migr. 026_difesa_lente_boss |
+| `world_boss_fine` | ✓ |  |  |  | 2: migr. 026_difesa_lente_boss → migr. 052_gemme_gioco |
 | `world_boss_info` | ✓ |  |  |  | 1: migr. 026_difesa_lente_boss |
 | `world_boss_inizia` | ✓ |  |  |  | 1: migr. 026_difesa_lente_boss |
 | `world_bottega_compra` | ✓ |  |  |  | 1: migr. 023_difendi_casa |
@@ -311,6 +315,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_gemme_prova` | ✓ |  |  |  | 1: migr. 042_gemme |
 | `world_gift_claim` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
 | `world_gifts_in` | ✓ |  |  |  | 2: mondo_v4 → migr. 001_funzioni_mancanti |
+| `world_gioco_sequenza` | ✓ |  |  |  | 1: migr. 052_gemme_gioco |
 | `world_give` | ✓ |  |  |  | 2: mondo_v4 → alleanze2 |
 | `world_help_list` | ✓ |  |  |  | 1: mondo_v3 |
 | `world_home_vis` | ✓ |  |  |  | 1: nome_casa |
@@ -333,6 +338,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_near_survivors` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
 | `world_orde_mie` | ✓ |  |  |  | 1: migr. 032_orde_motore |
 | `world_partenza_set` | ✓ |  |  |  | 1: migr. 037_casa_partenza |
+| `world_pista_info` | ✓ |  |  |  | 1: migr. 052_gemme_gioco |
+| `world_pista_riscatta` | ✓ |  |  |  | 1: migr. 052_gemme_gioco |
 | `world_player` | ✓ |  |  |  | 3: social → migr. 009_mezzi_assalti → migr. 014_territorio |
 | `world_player_extra` | ✓ |  |  |  | 1: migr. 034_scheda_giocatore |
 | `world_posto_visita` | ✓ |  |  |  | 1: migr. 027_mondo_vero |
@@ -364,7 +371,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_rivals` | ✓ |  |  |  | 3: mondo_v3 → equita → alleanze2 |
 | `world_saccheggia` | ✓ |  |  |  | 2: migr. 014_territorio → migr. 028_attacchi |
 | `world_scontri_miei` | ✓ |  |  |  | 1: migr. 046_arena |
-| `world_scontro_fine` | ✓ |  |  |  | 2: migr. 046_arena → migr. 050_mondo_gioco |
+| `world_scontro_fine` | ✓ |  |  |  | 3: migr. 046_arena → migr. 050_mondo_gioco → migr. 052_gemme_gioco |
 | `world_scontro_info` | ✓ |  |  |  | 1: migr. 046_arena |
 | `world_scontro_inizia` | ✓ |  |  |  | 3: migr. 046_arena → migr. 048_gioco → migr. 050_mondo_gioco |
 | `world_scontro_parti` | ✓ |  |  |  | 2: migr. 046_arena → migr. 049_esplora |
@@ -473,6 +480,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_orde_avvio` | supabase/migrazioni/032_orde_motore | 0 | ✓ |
 | `world_orde_esiti` | supabase/migrazioni/032_orde_motore | 0 | ✓ |
 | `world_partite` | supabase/migrazioni/023_difendi_casa | 0 | ✓ |
+| `world_pista` | supabase/migrazioni/052_gemme_gioco | 0 | ✓ |
 | `world_posti_visite` | supabase/migrazioni/027_mondo_vero | 0 | ✓ |
 | `world_pres_defs` | supabase/migrazioni/017_presidi_fortificazioni | 0 | ✓ |
 | `world_presidi` | supabase/migrazioni/006_presidi | 0 | ✓ |

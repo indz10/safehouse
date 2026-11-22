@@ -1616,6 +1616,54 @@ begin
 end $$;
 
 --
+-- Name: w_gioco_cfg(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_gioco_cfg() RETURNS jsonb
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select jsonb_build_object('max_giorno', 10, 'boss_finale', 5, 'qte', 1,
+    'tappe', jsonb_build_array(
+      jsonb_build_object('p', 50,  'cibo', 20, 'legno', 20),
+      jsonb_build_object('p', 120, 'gemme', 2),
+      jsonb_build_object('p', 200, 'energia', 3),
+      jsonb_build_object('p', 300, 'mattoni', 80),
+      jsonb_build_object('p', 420, 'gemme', 3),
+      jsonb_build_object('p', 560, 'cibo', 40, 'legno', 40, 'carb', 40),
+      jsonb_build_object('p', 720, 'energia', 5),
+      jsonb_build_object('p', 900, 'mattoni', 200, 'gemme', 5))); $$;
+
+--
+-- Name: w_gioco_gemme(uuid, integer, text, text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_gioco_gemme(p_user uuid, p_n integer, p_motivo text, p_ref text, p_chiave text) RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare dar int;
+begin
+  if p_user is null or coalesce(p_n, 0) <= 0 then return 0; end if;
+  dar := least(p_n, greatest(0, (public.w_gioco_cfg()->>'max_giorno')::int - public.w_gioco_oggi(p_user)));
+  if dar <= 0 then return 0; end if;
+  if public.w_gemme_add(p_user, dar, p_motivo, p_ref, p_chiave) is null then return 0; end if;
+  return dar;
+exception when others then return 0;
+end $$;
+
+--
+-- Name: w_gioco_oggi(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_gioco_oggi(p_user uuid) RETURNS integer
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select coalesce(sum(delta), 0)::int from public.world_gemme_mov
+  where user_id = p_user and delta > 0 and motivo like 'Gioco:%'
+    and (created_at at time zone 'Europe/Rome')::date = (now() at time zone 'Europe/Rome')::date; $$;
+
+--
 -- Name: w_grado(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2052,6 +2100,22 @@ CREATE FUNCTION public.w_perche_no(p_user uuid, p_aid bigint) RETURNS text
                      where coalesce(public.w_dist_alleanza(p_aid, c.lat, c.lon), 999) <= 50) then 'Serve una casa entro 50 km dalla casa di un membro'
     when not public.w_vicino_alleanza(p_user, p_aid) then 'In quella zona c''è già un''altra sua alleanza: le alleanze devono stare a più di 50 km l''una dall''altra'
     end; $$;
+
+--
+-- Name: w_piastrine(uuid, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_piastrine(p_user uuid, p_n integer) RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare t int;
+begin
+  if p_user is null or coalesce(p_n, 0) <= 0 then return null; end if;
+  insert into public.world_pista(user_id, sett, piastrine) values (p_user, public.w_settimana(), p_n)
+    on conflict (user_id, sett) do update set piastrine = public.world_pista.piastrine + p_n returning piastrine into t;
+  return t;
+end $$;
 
 --
 -- Name: w_piazza_nuovi(uuid, timestamp with time zone, text); Type: FUNCTION; Schema: public; Owner: -
@@ -2565,6 +2629,15 @@ begin
     'dif', s_dif, 'forte', s_for, 'casa', s_casa, 'squadra', s_sq, 'costanza', s_cos, 'crescita', s_cre,
     'held', held, 'orde', tot, 'fort', fort, 'lvup', lvup, 'indice', ind, 'helps', helps, 'alleati', al, 'giorni', act, 'giorni_max', days, 'mattoni', earn);
 end $$;
+
+--
+-- Name: w_settimana(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_settimana() RETURNS text
+    LANGUAGE sql STABLE
+    AS $$
+  select to_char(now() at time zone 'Europe/Rome', 'IYYY-"W"IW'); $$;
 
 --
 -- Name: w_settimana(timestamp with time zone); Type: FUNCTION; Schema: public; Owner: -
@@ -4198,7 +4271,7 @@ CREATE FUNCTION public.world_boss_fine(p_id bigint, p_colpi integer) RETURNS jso
     SET search_path TO 'public'
     AS $$
 declare me uuid := auth.uid(); c public.world_boss_colpi; b public.world_boss; el numeric; k int; dn int; s public.world_superstite;
-  caduto boolean := false; u record; pos int := 0; got json;
+  caduto boolean := false; u record; pos int := 0; got json; gm int := 0;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
   select * into c from public.world_boss_colpi where id = p_id and user_id = me for update;
@@ -4212,10 +4285,11 @@ begin
   dn := least(dn, b.hp);
   update public.world_boss_colpi set fine_at = now(), colpi = k, danno = dn where id = p_id;
   update public.world_boss set hp = hp - dn where id = b.id returning * into b;
-  if dn > 0 then perform public.w_xp(me, 5 + k / 3); end if;
+  if dn > 0 then perform public.w_xp(me, 5 + k / 3); perform public.w_piastrine(me, 3); end if;
   if b.hp <= 0 and b.caduto_at is null then
     update public.world_boss set caduto_at = now() where id = b.id;
     caduto := true;
+    gm := public.w_gioco_gemme(me, (public.w_gioco_cfg()->>'boss_finale')::int, 'Gioco: colpo finale al Boss', 'boss:' || b.id, 'gioco:boss:' || b.id); perform public.w_piastrine(me, 20);
     for u in select user_id, sum(danno)::int d from public.world_boss_colpi where boss_id = b.id and danno > 0 group by user_id order by 2 desc loop
       pos := pos + 1;
       perform public.w_res(u.user_id, 25 + least(75, u.d / 8), 25 + least(75, u.d / 8), 10 + least(40, u.d / 16));
@@ -4225,7 +4299,7 @@ begin
     end loop;
   end if;
   s := public.w_sup(me);
-  return json_build_object('ok', true, 'colpi', k, 'danno', dn, 'hp', greatest(0, b.hp), 'hp0', b.hp0, 'caduto', caduto, 'grado', public.w_grado(s.xp));
+  return json_build_object('ok', true, 'colpi', k, 'danno', dn, 'hp', greatest(0, b.hp), 'hp0', b.hp0, 'caduto', caduto, 'grado', public.w_grado(s.xp), 'gemme', gm);
 end $$;
 
 --
@@ -5686,6 +5760,25 @@ CREATE FUNCTION public.world_gifts_in() RETURNS TABLE(id bigint, kind text, amou
 $$;
 
 --
+-- Name: world_gioco_sequenza(bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_gioco_sequenza(p_id bigint) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); sc public.world_scontri; gm int;
+begin
+  if me is null then return json_build_object('ok', false); end if;
+  select * into sc from public.world_scontri where id = p_id and user_id = me;
+  if sc.id is null or sc.stato <> 'lotta' then return json_build_object('ok', false); end if;
+  if exists (select 1 from public.world_gemme_mov where chiave = 'gioco:qte:' || p_id) then return json_build_object('ok', true, 'gemme', 0, 'piastrine', 0); end if;
+  gm := public.w_gioco_gemme(me, (public.w_gioco_cfg()->>'qte')::int, 'Gioco: Difenditi perfetto', 'scontro:' || p_id, 'gioco:qte:' || p_id);
+  perform public.w_piastrine(me, 3);
+  return json_build_object('ok', true, 'gemme', gm, 'piastrine', 3);
+end $$;
+
+--
 -- Name: world_give(uuid, text, integer, boolean); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6159,6 +6252,55 @@ begin
     return json_build_object('ok', false, 'msg', 'Non è una tua casa'); end if;
   update public.world_wallet set caps = jsonb_set(caps, '{partenza}', jsonb_build_object('bid', p_bid, 'at', now())) where user_id = me;
   return json_build_object('ok', true, 'msg', '🏠 Parti da questa casa');
+end $$;
+
+--
+-- Name: world_pista_info(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_pista_info() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); r public.world_pista; c jsonb := public.w_gioco_cfg();
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  select * into r from public.world_pista where user_id = me and sett = public.w_settimana();
+  return json_build_object('ok', true, 'sett', public.w_settimana(), 'piastrine', coalesce(r.piastrine, 0), 'presi', coalesce(r.presi, 0),
+    'tappe', c->'tappe', 'gemme_oggi', public.w_gioco_oggi(me), 'gemme_max', (c->>'max_giorno')::int,
+    'fine', (date_trunc('week', now() at time zone 'Europe/Rome') + interval '7 days') at time zone 'Europe/Rome');
+end $$;
+
+--
+-- Name: world_pista_riscatta(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_pista_riscatta() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); r public.world_pista; c jsonb := public.w_gioco_cfg(); t jsonb; i int; n int := 0;
+  gm int := 0; ci int := 0; le int := 0; ca int := 0; en int := 0; mt int := 0;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  select * into r from public.world_pista where user_id = me and sett = public.w_settimana() for update;
+  if r.user_id is null then return json_build_object('ok', false, 'msg', 'Gioca nel 🎮 Gioco per guadagnare piastrine'); end if;
+  for i in r.presi .. jsonb_array_length(c->'tappe') - 1 loop
+    t := c->'tappe'->i;
+    exit when r.piastrine < (t->>'p')::int;
+    n := n + 1;
+    ci := ci + coalesce((t->>'cibo')::int, 0); le := le + coalesce((t->>'legno')::int, 0); ca := ca + coalesce((t->>'carb')::int, 0);
+    en := en + coalesce((t->>'energia')::int, 0); mt := mt + coalesce((t->>'mattoni')::int, 0);
+    if coalesce((t->>'gemme')::int, 0) > 0 then
+      if public.w_gemme_add(me, (t->>'gemme')::int, 'Pista della settimana', r.sett, 'pista:' || me || ':' || r.sett || ':' || i) is not null then gm := gm + (t->>'gemme')::int; end if;
+    end if;
+  end loop;
+  if n = 0 then return json_build_object('ok', false, 'msg', 'Nessuna tappa nuova: continua a giocare'); end if;
+  update public.world_pista set presi = presi + n where user_id = me and sett = r.sett;
+  if ci + le + ca > 0 then perform public.w_res(me, le, ci, ca); end if;
+  if mt > 0 then perform public.w_pay(me, mt, 'Pista della settimana', 'pista:' || r.sett || ':' || r.presi); end if;
+  if en > 0 then perform public.w_sup(me); update public.world_superstite set energia = energia + en where user_id = me; end if;
+  return json_build_object('ok', true, 'tappe', n, 'gemme', gm, 'cibo', ci, 'legno', le, 'carb', ca, 'energia', en, 'mattoni', mt);
 end $$;
 
 --
@@ -6942,7 +7084,7 @@ CREATE FUNCTION public.world_scontro_fine(p_id bigint, p_esito text, p_colpi int
     AS $$
 declare me uuid := auth.uid(); sc public.world_scontri; c jsonb := public.w_arena_cfg(); el numeric; serve int; tmin numeric; v boolean;
   xp int := 0; q int; got json; nuovo boolean := false; g0 int; s public.world_superstite; rar int; mt int := 0;
-  h record; nid text := public.w_slot_id(public.w_next_slot(now())); cg int := 0;
+  h record; gm int := 0; pz int := 0; gq int; nid text := public.w_slot_id(public.w_next_slot(now())); cg int := 0;
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
   if p_esito not in ('vinto','perso','abbandonato') then return json_build_object('ok', false, 'msg', 'Esito non valido'); end if;
@@ -6974,12 +7116,20 @@ begin
       on conflict (bid, user_id, slot_id, kind) do update set pts = public.world_assalti.pts + 2;
     cg := cg + 1;
   end loop;
+  -- 💎 gemme dal Gioco (tetto giornaliero) e 🎖️ piastrine per la pista settimanale
+  gq := case when sc.diff = 'difficile' then 2 else 1 end
+    + case when not exists (select 1 from public.world_scontri x where x.user_id = me and x.stato = 'vinto' and x.id <> sc.id
+        and (x.fine at time zone 'Europe/Rome')::date = (now() at time zone 'Europe/Rome')::date) then 2 else 0 end
+    + case when nuovo then 3 else 0 end;
+  gm := public.w_gioco_gemme(me, gq, 'Gioco: vittoria in arena', 'scontro:' || sc.id, 'gioco:scontro:' || sc.id);
+  pz := case sc.diff when 'difficile' then 15 when 'facile' then 6 else 10 end;
+  perform public.w_piastrine(me, pz);
   s := public.w_sup(me);
   update public.world_scontri set stato = 'vinto', fine = now(),
-    premi = jsonb_build_object('xp', xp, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int, 'mattoni', mt, 'nuovo', nuovo, 'case', cg) where id = p_id;
+    premi = jsonb_build_object('xp', xp, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int, 'carb', (got->>'carb')::int, 'mattoni', mt, 'nuovo', nuovo, 'case', cg, 'gemme', gm, 'piastrine', pz) where id = p_id;
   return json_build_object('ok', true, 'vinto', true, 'esito', 'vinto', 'xp', xp, 'nuovo', nuovo, 'legno', (got->>'legno')::int, 'cibo', (got->>'cibo')::int,
     'carb', (got->>'carb')::int, 'mattoni', mt, 'salito', public.w_grado(s.xp) > g0, 'grado', public.w_grado(s.xp), 'nome', sc.zstats->>'nome', 'ic', sc.zstats->>'ic',
-    'case_difese', cg, 'orda', right(nid, 2));
+    'case_difese', cg, 'orda', right(nid, 2), 'gemme', gm, 'piastrine', pz, 'gemme_oggi', public.w_gioco_oggi(me), 'gemme_max', (public.w_gioco_cfg()->>'max_giorno')::int);
 end $$;
 
 --
@@ -9296,6 +9446,17 @@ CREATE SEQUENCE public.world_partite_id_seq
 ALTER SEQUENCE public.world_partite_id_seq OWNED BY public.world_partite.id;
 
 --
+-- Name: world_pista; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.world_pista (
+    user_id uuid NOT NULL,
+    sett text NOT NULL,
+    piastrine integer DEFAULT 0 NOT NULL,
+    presi integer DEFAULT 0 NOT NULL
+);
+
+--
 -- Name: world_posti_visite; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -10385,6 +10546,13 @@ ALTER TABLE ONLY public.world_partite
     ADD CONSTRAINT world_partite_pkey PRIMARY KEY (id);
 
 --
+-- Name: world_pista world_pista_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_pista
+    ADD CONSTRAINT world_pista_pkey PRIMARY KEY (user_id, sett);
+
+--
 -- Name: world_posti_visite world_posti_visite_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -11392,6 +11560,13 @@ ALTER TABLE ONLY public.world_partite
     ADD CONSTRAINT world_partite_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 --
+-- Name: world_pista world_pista_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.world_pista
+    ADD CONSTRAINT world_pista_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+--
 -- Name: world_posti_visite world_posti_visite_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -12189,6 +12364,18 @@ ALTER TABLE public.world_orde_esiti ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.world_partite ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: world_pista; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.world_pista ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: world_pista world_pista_mia; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY world_pista_mia ON public.world_pista FOR SELECT USING ((user_id = auth.uid()));
+
+--
 -- Name: world_posti_visite; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -12688,6 +12875,18 @@ REVOKE ALL ON FUNCTION public.w_gemme_pagato(p_ordine bigint, p_rif text) FROM P
 GRANT ALL ON FUNCTION public.w_gemme_pagato(p_ordine bigint, p_rif text) TO service_role;
 
 --
+-- Name: FUNCTION w_gioco_gemme(p_user uuid, p_n integer, p_motivo text, p_ref text, p_chiave text); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_gioco_gemme(p_user uuid, p_n integer, p_motivo text, p_ref text, p_chiave text) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_gioco_oggi(p_user uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_gioco_oggi(p_user uuid) FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_home_held(p_user uuid, p_slot text); Type: ACL; Schema: public; Owner: -
 --
 
@@ -12755,6 +12954,12 @@ REVOKE ALL ON FUNCTION public.w_pay(p_user uuid, p_delta integer, p_reason text,
 --
 
 REVOKE ALL ON FUNCTION public.w_perche_no(p_user uuid, p_aid bigint) FROM PUBLIC;
+
+--
+-- Name: FUNCTION w_piastrine(p_user uuid, p_n integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_piastrine(p_user uuid, p_n integer) FROM PUBLIC;
 
 --
 -- Name: FUNCTION w_piazza_nuovi(p_user uuid, p_since timestamp with time zone, p_mode text); Type: ACL; Schema: public; Owner: -
@@ -13616,6 +13821,12 @@ GRANT ALL ON FUNCTION public.world_gift_claim(p_id bigint) TO authenticated;
 GRANT ALL ON FUNCTION public.world_gifts_in() TO authenticated;
 
 --
+-- Name: FUNCTION world_gioco_sequenza(p_id bigint); Type: ACL; Schema: public; Owner: -
+--
+
+GRANT ALL ON FUNCTION public.world_gioco_sequenza(p_id bigint) TO authenticated;
+
+--
 -- Name: FUNCTION world_give(p_to uuid, p_kind text, p_amount integer, p_loan boolean); Type: ACL; Schema: public; Owner: -
 --
 
@@ -13754,6 +13965,18 @@ GRANT ALL ON FUNCTION public.world_orde_mie() TO authenticated;
 
 REVOKE ALL ON FUNCTION public.world_partenza_set(p_bid text) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_partenza_set(p_bid text) TO authenticated;
+
+--
+-- Name: FUNCTION world_pista_info(); Type: ACL; Schema: public; Owner: -
+--
+
+GRANT ALL ON FUNCTION public.world_pista_info() TO authenticated;
+
+--
+-- Name: FUNCTION world_pista_riscatta(); Type: ACL; Schema: public; Owner: -
+--
+
+GRANT ALL ON FUNCTION public.world_pista_riscatta() TO authenticated;
 
 --
 -- Name: FUNCTION world_player(p_user uuid); Type: ACL; Schema: public; Owner: -

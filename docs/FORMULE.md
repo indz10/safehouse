@@ -210,3 +210,17 @@ Abilità (punti come prima, 1 per grado): fascia = 2 × livello dell'abilità (e
 **Casa vicina** (migrazione 050, `world_scontro_inizia`): se lo zombie è entro 300 m da una tua casa, alle statistiche fissate si aggiungono ❤️ +5 × L e 🛡️ +L, con L = livello della casa più alta lì vicino (1–5). Vittoria entro 1 km da una tua casa: +2 alla difesa di quella casa per la prossima orda (max +10, `world_assalti.kind = 'gioco'`).
 **Round** (migrazione 051): 3 round da 90 s; il server accetta la vittoria fino a 450 s dall'inizio (`durata_max_s`).
 
+
+## 💎 Gemme dal Gioco e 🎖️ pista della settimana (Fase 66, migrazione 052)
+
+Regole in `w_gioco_cfg()`. Gemme (sempre da `w_gemme_add` con chiave unica, motivo "Gioco: …"), **massimo 10 al giorno** (ora italiana, `w_gioco_oggi`, `w_gioco_gemme`):
+
+| Cosa | 💎 | 🎖️ |
+|---|---|---|
+| Vittoria in arena (facile / equilibrato / difficile) | 1 / 1 / 2 | 6 / 10 / 15 |
+| Prima vittoria del giorno | +2 | — |
+| Zombie nuovo nella Zombipedia | +3 | — |
+| "Difenditi" senza errori (una volta per scontro, `world_gioco_sequenza`) | +1 | 3 |
+| Attacco al Boss / colpo finale | — / +5 | 3 / +20 |
+
+Pista della settimana (`world_pista`, settimana ISO, `world_pista_riscatta`): 50 🎖️ 🥫 20 🪵 20 · 120 💎 2 · 200 🔋 3 · 300 🧱 80 · 420 💎 3 · 560 🥫 🪵 ⛽ 40 · 720 🔋 5 · 900 🧱 200 + 💎 5.
