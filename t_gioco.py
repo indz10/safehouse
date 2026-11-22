@@ -25,6 +25,9 @@ async def main():
         # 🛣️ strade a pezzi (mattonelle): due vie con un buco di 6 m e una che finisce a metà di un'altra → si uniscono, il percorso segue le strade
         print('strade cucite:',await pg.evaluate("""()=>{const N=[[0,0],[100,0],[106,0],[200,0],[150,-60],[150,-4]];const adj=N.map(()=>[]);const e=(a,b)=>{const L=Math.hypot(N[a][0]-N[b][0],N[a][1]-N[b][1]);adj[a].push([b,L]);adj[b].push([a,L]);};
           e(0,1);e(2,3);e(4,5);gmCuci(N,adj);const old=GM.d;GM.d={N,adj};const R=gmRoute([0,5],[150,-60]);GM.d=old;return [R.length>=4,R.some(p=>p[0]===100||p[0]===106)]}"""))
+        # 🏙️ modelli 3D (Fase 63): ogni mezzo, gli zombie di ogni tipo e le casse si costruiscono senza errori
+        await pg.add_script_tag(path=D+'/pwa/three.min.js')
+        print('modelli 3d:',await pg.evaluate("()=>{const M=['piedi','bici','moto','auto','fuori','furgone'].map(m=>g3Mezzo(m).children.length>3);const Z=['vagante','bruto','cane','re','strega','clown','soldato'].map(t=>g3Zombie({tipo:t,k:'zombie'}).children.length>3);return [M.every(Boolean),Z.every(Boolean),g3Zombie({k:'cassa'}).userData.cassa===1]}"))
         print('superstite in viaggio:',await pg.evaluate("()=>{const s=gmSup();return[!s.fermo,s.R.length>=3,/Verso/.test(s.txt),Math.round(s.f*100)]}"))
 
         # tocco su uno zombie → scheda dell'incontro

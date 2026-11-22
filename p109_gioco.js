@@ -129,15 +129,16 @@ function gmDraw(s){const c=GM.cv,x=GM.ctx,dp=GM.dp||1;if(!c.width)return;x.setTr
   (typeof myHouses==='function'?myHouses():[]).forEach(h=>{const p=gmXY(h.lat,h.lon);const q=gmScr(p[0],p[1]);gmEmoji(x,h.home?'🏠':'🏚️',q[0],q[1]-10,30*z);
     if(h.home){x.font='bold 10px monospace';x.textAlign='center';x.fillStyle='#000';x.fillText('CASA',q[0]+1,q[1]+14);x.fillStyle='#fff';x.fillText('CASA',q[0],q[1]+13);}});
   (ZM.L||[]).filter(zz=>!zz.preso).forEach((zz,i)=>{const p=gmXY(zz.lat,zz.lon);const q=gmScr(p[0],p[1]);if(q[0]<-30||q[1]<-30||q[0]>W+30||q[1]>H+30)return;const bob=Math.sin(T*3+i)*2;
+    if(GM.no2d)return; // in 3D gli zombie e le casse sono modelli (p110)
     x.fillStyle='#00000040';x.beginPath();x.ellipse(q[0],q[1]+4,10*z,3*z,0,0,7);x.fill();gmEmoji(x,zz.k==='cassa'?'📦':(ZM_T[zz.tipo]||['🧟'])[0],q[0],q[1]-8+bob,28*z);
     if(zz.k!=='cassa'&&(ZM_T[zz.tipo]||[0,1])[1]>=3){x.strokeStyle='#ffd23f';x.lineWidth=2;x.beginPath();x.arc(q[0],q[1]-8+bob,17*z,0,7);x.stroke();}});
-  if(s.m){const q=gmScr(s.x,s.y);const a=s.a||0;if(gmMz()!=='piedi')gmVeicolo(x,q[0],q[1],a,gmMz(),!s.fermo,T);else gmOmino(x,q[0],q[1],a,s.fermo?0:T,!s.fermo);if(s.fermo&&s.ar){x.font='bold 18px sans-serif';x.textAlign='center';x.fillText('❗',q[0],q[1]-30+Math.sin(T*6)*2);}}
+  if(s.m){const q=gmScr(s.x,s.y);const a=s.a||0;if(GM.no2d)gmNome(x,q[0],q[1]);else if(gmMz()!=='piedi')gmVeicolo(x,q[0],q[1],a,gmMz(),!s.fermo,T);else gmOmino(x,q[0],q[1],a,s.fermo?0:T,!s.fermo);if(s.fermo&&s.ar){x.font='bold 18px sans-serif';x.textAlign='center';x.fillText('❗',q[0],q[1]-30+Math.sin(T*6)*2);}}
   if(GM.av&&!(s.m&&!s.fermo)){const p=gmXY(GM.av.lat,GM.av.lon),q=gmScr(p[0],p[1]);
     if(GM.av.P){x.setLineDash([3,5]);x.strokeStyle='#ffffffcc';x.lineWidth=3;x.beginPath();x.moveTo(q[0],q[1]);GM.av.P.slice(GM.av.i+1).forEach(pt=>{const r=gmScr(pt[0],pt[1]);x.lineTo(r[0],r[1]);});x.stroke();x.setLineDash([]);
       const e=GM.av.P[GM.av.P.length-1],r=gmScr(e[0],e[1]);x.strokeStyle='#fff';x.lineWidth=2;x.beginPath();x.arc(r[0],r[1],6+Math.sin(T*6)*2,0,7);x.stroke();}
     (ZM.L||[]).filter(zz=>!zz.preso&&zz.k==='zombie'&&trM(GM.av.lat,GM.av.lon,zz.lat,zz.lon)<=50).forEach(zz=>{const zp=gmXY(zz.lat,zz.lon),zq=gmScr(zp[0],zp[1]);
       x.strokeStyle='#3df24a';x.lineWidth=3;x.beginPath();x.arc(zq[0],zq[1]-8,20+Math.sin(T*8)*2,0,7);x.stroke();x.font='bold 12px monospace';x.textAlign='center';x.fillStyle='#000';x.fillText('⚔️ TOCCA',zq[0]+1,zq[1]-33);x.fillStyle='#fff';x.fillText('⚔️ TOCCA',zq[0],zq[1]-34);});
-    if(gmMz()!=='piedi')gmVeicolo(x,q[0],q[1],GM.av.a||0,gmMz(),!!GM.av.P,T);else gmOmino(x,q[0],q[1],GM.av.a||0,GM.av.P?T:0,!!GM.av.P);}}
+    if(GM.no2d)gmNome(x,q[0],q[1]);else if(gmMz()!=='piedi')gmVeicolo(x,q[0],q[1],GM.av.a||0,gmMz(),!!GM.av.P,T);else gmOmino(x,q[0],q[1],GM.av.a||0,GM.av.P?T:0,!!GM.av.P);}}
 // 🧭 il superstite guidato col tocco: cammina per le strade a 10 m/s; il server controlla velocità e raggio (world_esplora_muovi)
 const GM_VEL=10;
 async function gmAvInit(h){GM.av=null;let d=null;try{const r=await SB.rpc('world_esplora_dove');d=r&&r.data;}catch(e){}
