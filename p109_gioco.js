@@ -23,7 +23,8 @@ function gmStyle(){const R=['interpolate',['exponential',1.6],['zoom']];const MJ
    {id:'road-cas',type:'line',source:'omt','source-layer':'transportation',filter:ROADS,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#8c8494','line-width':[...R,12,['match',['get','class'],MJ,4,SC,3,2],18,['match',['get','class'],MJ,34,SC,28,['service'],12,22]]}},
    {id:'road',type:'line',source:'omt','source-layer':'transportation',filter:ROADS,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['match',['get','class'],MJ,'#232228','#2b2a30'],'line-width':[...R,12,['match',['get','class'],MJ,2.6,SC,2,1.2],18,['match',['get','class'],MJ,28,SC,23,['service'],8,17]]}},
    {id:'road-mid',type:'line',source:'omt','source-layer':'transportation',minzoom:15,filter:['in',['get','class'],['literal',['motorway','trunk','primary','secondary','tertiary','minor']]],paint:{'line-color':'#e8d36a','line-width':[...R,15,.8,18,2.2],'line-dasharray':[3,3]}},
-   {id:'bld',type:'fill-extrusion',source:'omt','source-layer':'building',minzoom:14,paint:{'fill-extrusion-color':['interpolate',['linear'],['coalesce',['get','render_height'],8],0,['match',['%',['to-number',['id'],0],4],0,'#6b5a7a',1,'#5a6470',2,'#7a5a4a','#56606a'],14,'#7a6a92',30,'#9486b4',60,'#b4a8d4'],'fill-extrusion-height':['coalesce',['get','render_height'],8],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':.95,'fill-extrusion-vertical-gradient':true}},
+   {id:'bld',type:'fill-extrusion',source:'omt','source-layer':'building',minzoom:14,paint:{'fill-extrusion-color':['match',['%',['to-number',['id'],0],6],0,'#8a5a9c',1,'#4f7fa0',2,'#a06a4f',3,'#4f9a7a',4,'#a0904f','#7a6aa8'],'fill-extrusion-height':['coalesce',['get','render_height'],['+',6,['*',3,['%',['to-number',['id'],0],4]]]],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':1,'fill-extrusion-vertical-gradient':true}},
+   {id:'bld-tetto',type:'fill-extrusion',source:'omt','source-layer':'building',minzoom:15,paint:{'fill-extrusion-color':['match',['%',['to-number',['id'],0],6],0,'#c69ad8',1,'#9cc6e0',2,'#e0aa8c',3,'#9ce0c0',4,'#e8d890','#c0b0ec'],'fill-extrusion-height':['+',['coalesce',['get','render_height'],['+',6,['*',3,['%',['to-number',['id'],0],4]]]],.6],'fill-extrusion-base':['coalesce',['get','render_height'],['+',6,['*',3,['%',['to-number',['id'],0],4]]]],'fill-extrusion-opacity':1}},
    {id:'ferrovia',type:'line',source:'omt','source-layer':'transportation',filter:['==',['get','class'],'rail'],paint:{'line-color':'#8a8296','line-width':[...R,14,1,18,4],'line-dasharray':[2,2]}},
    {id:'civici',type:'symbol',source:'omt','source-layer':'housenumber',minzoom:17.5,layout:{'text-field':['get','housenumber'],'text-font':['Noto Sans Regular'],'text-size':10},paint:{'text-color':'#c8c0d8','text-halo-color':'#1a1420','text-halo-width':1}},
    {id:'posti',type:'symbol',source:'omt','source-layer':'poi',minzoom:15.5,filter:['has','name'],layout:{'text-field':['get','name'],'text-font':['Noto Sans Bold'],'text-size':12,'text-anchor':'top','text-offset':[0,.4],'text-max-width':8},paint:{'text-color':['match',['get','class'],['shop','grocery','pharmacy','hospital','fuel'],'#ffe66d',['park','playground'],'#9be27a','#ff9fe8'],'text-halo-color':'#1a1420','text-halo-width':2}},
@@ -91,7 +92,7 @@ async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}clos
   try{zmLoad(true);}catch(e){}misLoad(true);
   try{if(typeof mzUsoLoad==='function'&&!MZU)mzUsoLoad();}catch(e){}
   try{await loadML();}catch(e){el.querySelector('[data-gmtxt]').textContent='Mappa non disponibile: controlla la connessione';return;}if(!GM.on)return;
-  const m=GM.map=new maplibregl.Map({container:el.querySelector('.gmmap'),style:gmStyle(),center:[h.lon,h.lat],zoom:17,pitch:50,minZoom:13,maxZoom:19,dragRotate:false,pitchWithRotate:false,attributionControl:false});
+  const m=GM.map=new maplibregl.Map({container:el.querySelector('.gmmap'),style:gmStyle(),center:[h.lon,h.lat],zoom:18,pitch:55,minZoom:13,maxZoom:19,dragRotate:false,pitchWithRotate:false,attributionControl:false});
   try{m.touchZoomRotate.disableRotation();}catch(e){}
   m.on('idle',gmGraph);m.on('dragstart',()=>{GM.follow=false;});m.on('click',e=>gmTap(e.point.x,e.point.y,e.lngLat));
   gmAvInit(h);
@@ -109,7 +110,8 @@ function gmTap(X,Y,ll){if(!GM.map)return;let hit=null,bd=30;
   if(hit.k==='zombie')arnCard(hit.z);else if(hit.k==='cassa')zmVicino();else if(hit.k==='casa')casasSheet();
   else if(hit.k==='sup'){const m=hit.s.m;if(m&&m.tipo==='scontro'&&hit.s.fermo)arnVai(m.id,m.ic);else if(m&&m.tipo==='spedizione'&&hit.s.fermo)supSheet('sped');else misSheet();}}
 function gmLoop(now){if(!GM.on)return;const dt=Math.min(.05,(now-(GM.lastT||now))/1000);GM.lastT=now;GM.t=now/1000;if(GM.map){const s=gmSup();gmAvStep(dt);
-    if(GM.follow&&GM.av&&now-(GM.lastFollow||0)>(GM.av.pad?120:GM.av.P?500:1500)){GM.lastFollow=now;try{GM.map.easeTo({center:[GM.av.lon,GM.av.lat],duration:GM.av.pad?120:GM.av.P?500:800});}catch(e){}}
+    if(GM.follow&&s.m&&!s.fermo&&now-(GM.lastFollow||0)>500){GM.lastFollow=now;try{GM.map.easeTo({center:gmLL(s.x,s.y),duration:500});}catch(e){}}
+    else if(GM.follow&&GM.av&&now-(GM.lastFollow||0)>(GM.av.pad?120:GM.av.P?500:1500)){GM.lastFollow=now;try{GM.map.easeTo({center:[GM.av.lon,GM.av.lat],duration:GM.av.pad?120:GM.av.P?500:800});}catch(e){}}
     const txt=gmAvTxt(s);const tx=GM.el.querySelector('[data-gmtxt]');if(tx&&tx.textContent!==txt)tx.textContent=txt;gmDraw(s);}
   GM.raf=requestAnimationFrame(gmLoop);}
 // 🏠 Case: sposta il gioco su una delle tue case (anche lontanissima): zombie di quella zona, il superstite parte da lì
@@ -158,8 +160,8 @@ async function gmAvSync(subito){const v=GM.av;if(!v||GM.syncing)return;if(!subit
   try{const{data}=await SB.rpc('world_esplora_muovi',{p_lat:v.lat,p_lon:v.lon,p_casa:false});
     if(data&&data.ok)GM.sent={t:Date.now(),lat:v.lat,lon:v.lon};else if(data&&data.lat!=null){v.lat=data.lat;v.lon=data.lon;v.P=null;if(data.msg&&Date.now()-(GM.msgT||0)>4000){GM.msgT=Date.now();toast(data.msg);}}}catch(e){}GM.syncing=false;}
 function gmAvTxt(s){const v=GM.av;if(!v)return s.txt;const z=(ZM.L||[]).filter(zz=>!zz.preso&&zz.k==='zombie').map(zz=>({zz,d:trM(v.lat,v.lon,zz.lat,zz.lon)})).sort((a,b)=>a.d-b.d)[0];
-  if(z&&z.d<=50)return`⚔️ ${(ZM_N[z.zz.tipo]||'Zombie')} qui! Toccalo per combattere`;if(v.pad)return'🕹️ In cammino…';if(v.P)return'🚶 In cammino… tocca un altro punto per cambiare strada';
-  return z?`🕹️ Usa la croce o tocca la mappa · zombie più vicino ${Math.round(z.d)} m`:'🕹️ Usa la croce o tocca la mappa per camminare';}
+  if(z&&z.d<=50)return`⚔️ ${(ZM_N[z.zz.tipo]||'Zombie')} qui! Toccalo per combattere`;if(v.P)return'🚶 In cammino… tocca un altro punto per cambiare strada';
+  return z?`🧭 Tocca uno zombie · il più vicino è a ${Math.round(z.d)} m`:'🧭 Tocca uno zombie o un punto della mappa';}
 function gmEmoji(x,e,cx,cy,sz){x.fillStyle='#000';x.font=`${sz}px system-ui, "Apple Color Emoji", sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(e,cx,cy);x.textBaseline='alphabetic';}
 function gmOmino(x,cx,cy,a,T,cammina){const av=(typeof SV!=='undefined'&&SV.d&&SV.d.avatar)||{};const col=SV_C[av.c||0]||'#ffd23f';const pelle='#f1c27d';const u=2.2;
   const passo=cammina?Math.sin(T*10):0;const lato=Math.cos(a)<0?-1:1;
@@ -211,13 +213,19 @@ async function gmArrivato(){await gmAvSync(true);const g=GM.goal;if(!g||!GM.av)r
   try{sfx&&sfx('boom');}catch(e){}arnParti(g.z,'esplora',g.diff||'equilibrato',document.createElement('button'));}
 // mezzo visto dall'alto, stile anni '90: carrozzeria, vetri, ruote, fari
 function gmVeicolo(x,cx,cy,a,mz,va,T){const L={bici:[14,4],moto:[16,6],auto:[24,12],fuori:[26,14],furgone:[30,14]}[mz]||[24,12];const col={bici:'#3df2ff',moto:'#ff3df2',auto:'#e8212e',fuori:'#4b5d2e',furgone:'#e8e8e8'}[mz]||'#e8212e';
-  x.save();x.translate(cx,cy);x.rotate(a);const l=L[0],w=L[1];x.fillStyle='#00000066';x.fillRect(-l/2+2,-w/2+3,l,w);
+  const zz=Math.max(.9,Math.min(3,Math.pow(2,((GM.map&&GM.map.getZoom&&GM.map.getZoom())||17)-17)));
+  x.save();x.translate(cx,cy);x.scale(1.7*zz,1.7*zz);x.rotate(a);const l=L[0],w=L[1];x.fillStyle='#00000066';x.fillRect(-l/2+2,-w/2+3,l,w);
   if(mz==='bici'||mz==='moto'){x.fillStyle='#111';x.fillRect(-l/2,-1.5,4,3);x.fillRect(l/2-4,-1.5,4,3);x.fillStyle=col;x.fillRect(-l/2+3,-w/2,l-6,w);x.fillStyle='#f1c27d';x.beginPath();x.arc(-1,0,3,0,7);x.fill();x.fillStyle='#e8212e';x.fillRect(-2,-3,2,6);}
   else{x.fillStyle='#111';[[-l/2+3,-w/2-1.5],[l/2-8,-w/2-1.5],[-l/2+3,w/2-1.5],[l/2-8,w/2-1.5]].forEach(p=>x.fillRect(p[0],p[1],5,3));
     x.fillStyle='#0a0612';x.fillRect(-l/2-1,-w/2-1,l+2,w+2);x.fillStyle=col;x.fillRect(-l/2,-w/2,l,w);x.fillStyle='#ffffff44';x.fillRect(-l/2,-w/2,l,2);
     x.fillStyle='#9fd3ff';x.fillRect(l/2-9,-w/2+2,4,w-4);x.fillStyle='#6aa0c8';x.fillRect(-l/2+3,-w/2+2,3,w-4);x.fillStyle='#00000033';x.fillRect(-l/2+7,-w/2+2,l-17,w-4);
-    if(mz==='furgone'){x.fillStyle='#c0c0c0';x.fillRect(-l/2+1,-w/2+1,l-12,w-2);}
+    if(mz==='furgone'){x.fillStyle='#c0c0c0';x.fillRect(-l/2+1,-w/2+1,l-12,w-2);x.fillStyle='#e8212e';x.fillRect(-l/2+3,-1,l-16,2);}
+    else{x.fillStyle='#0a0612';x.fillRect(-l/2+7,-w/2+1,l-17,1);x.fillRect(-l/2+7,w/2-2,l-17,1);x.fillStyle='#ffffff55';x.fillRect(-l/2+8,-1,l-19,2);}
+    x.fillStyle='#ff3d3d';x.fillRect(-l/2-1,-w/2+1,2,2);x.fillRect(-l/2-1,w/2-3,2,2);
+    if(mz==='fuori'){x.fillStyle='#222';x.fillRect(-l/2+8,-w/2-1,l-16,1);x.fillRect(-l/2+8,w/2,l-16,1);}
     x.fillStyle=va&&Math.floor(T*4)%2?'#ffe66d':'#fff8c0';x.fillRect(l/2-1,-w/2+1,2,3);x.fillRect(l/2-1,w/2-4,2,3);
     if(va){x.fillStyle='#ffe66d22';x.beginPath();x.moveTo(l/2,-w/2);x.lineTo(l/2+30,-w);x.lineTo(l/2+30,w);x.lineTo(l/2,w/2);x.fill();}}
-  x.restore();x.font='bold 9px monospace';x.textAlign='center';const n=((typeof SV!=='undefined'&&SV.d&&SV.d.nome)||(S.user&&S.user.nick)||'Tu');x.fillStyle='#000';x.fillText(n,cx+1,cy-17);x.fillStyle='#fff';x.fillText(n,cx,cy-18);}
+  x.restore();x.font='bold 11px monospace';x.textAlign='center';const n=((typeof SV!=='undefined'&&SV.d&&SV.d.nome)||(S.user&&S.user.nick)||'Tu');const ny=cy-14-14*zz;x.fillStyle='#000';x.fillText(n,cx+1,ny+1);x.fillStyle='#fff';x.fillText(n,cx,ny);}
+// finito lo scontro la mappa torna sul superstite
+const _arnChiudi59=arnChiudi;arnChiudi=function(){const r=_arnChiudi59.apply(this,arguments);if(GM.on){GM.follow=true;GM.lastFollow=0;}return r;};
 </script>

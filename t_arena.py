@@ -51,6 +51,7 @@ async def main():
         await pg.evaluate("()=>{const g=ARN.g,p=g.p,z=g.z;z.act=null;z.stun=3;z.blk=0;z.down=0;z.cd=9;p.act=null;p.stun=0;p.down=0;p.hit=0;p.dash=0;p.x=z.x-14;g.seq=[];}")
         for k in ['j','j','k']:
             await pg.evaluate("()=>{ARN.g.p.act=null;}");await pg.keyboard.press(k);await pg.wait_for_timeout(60)
+        print('combo a schermo:',await pg.evaluate("()=>[document.querySelectorAll('#arena .arncombo div').length,(()=>{const t=performance.now()/1000;ARN.g.seq=[['atk',t],['atk',t]];arnCombo();const r=document.querySelector('#arena .arncombo div.va');ARN.g.seq=[];return r&&r.textContent})(),ARN_ROUND]"))
         print('combo tripla:',await pg.evaluate("()=>(ARN.g.p.act&&ARN.g.p.act.k)||(ARN.g.txt&&ARN.g.txt.t)"))
         await pg.wait_for_timeout(900)
         print('mosse zombie:',await pg.evaluate("()=>[ARN_ZM.cane[0].includes('balzo'),ARN_ZM.sputatore[1].includes('sputo'),ARN_MV.schianto.ub===1,typeof arnSnd]"))

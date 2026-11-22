@@ -208,3 +208,5 @@ Abilità (punti come prima, 1 per grado): fascia = 2 × livello dell'abilità (e
 - Vittoria valida: colpi ≥ ⌈vita zombie / danno / 3⌉, tempo ≥ colpi necessari / 2,5 s e ≤ 300 s. Premi: XP = round((10 + 3 × livello + 6 × rarità) × 0,7 / 1 / 1,5) + 20 se tipo nuovo; 🪵 🥫 = 3 + livello/2 + rarità × 2, ⛽ la metà; 🧱 10 (raro) o 30 (leggendario).
 
 **Casa vicina** (migrazione 050, `world_scontro_inizia`): se lo zombie è entro 300 m da una tua casa, alle statistiche fissate si aggiungono ❤️ +5 × L e 🛡️ +L, con L = livello della casa più alta lì vicino (1–5). Vittoria entro 1 km da una tua casa: +2 alla difesa di quella casa per la prossima orda (max +10, `world_assalti.kind = 'gioco'`).
+**Round** (migrazione 051): 3 round da 90 s; il server accetta la vittoria fino a 450 s dall'inizio (`durata_max_s`).
+

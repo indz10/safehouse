@@ -414,7 +414,7 @@ CREATE FUNCTION public.w_arena_cfg() RETURNS jsonb
     'dist_m', 80, 'acc_max_m', 50, 'attesa_min', 30, 'max_giorno', 30,
     'diff', jsonb_build_object('facile', -2, 'equilibrato', 0, 'difficile', 2),
     'xp_molt', jsonb_build_object('facile', 0.7, 'equilibrato', 1.0, 'difficile', 1.5),
-    'durata_max_s', 300, 'colpi_s', 2.5,
+    'durata_max_s', 450, 'colpi_s', 2.5,
     'esplora_m', 50, 'esplora_vel_ms', 20, 'esplora_toll_m', 30, 'esplora_casa_m', 150);
 $$;
 
