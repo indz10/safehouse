@@ -54,9 +54,18 @@ function gmSup(){const L=(MIS.L||[]).filter(m=>(m.tipo==='scontro'||m.tipo==='sp
 async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}closeSheet();
   document.body.insertAdjacentHTML('beforeend',`<div id="gmap"><div class="gmmap"></div><canvas class="gmfx"></canvas><div class="gmtop"><b>🎮 Gioco</b><span data-gmtxt>Carico la mappa…</span><button class="gmx" data-gmx aria-label="Chiudi">✕</button></div>
     <div class="gmside">${[['lente','📷','Lente'],['vicini','🧟','Vicini'],['mis','⏳','Missioni'],['pedia','📖','Zombipedia'],['dfa','🛡️','Difendi'],['boss','👹','Boss'],['evt','🚨','Eventi'],['case','🏠','Case'],['mv','❓','Come']].map(b=>`<button data-gmb="${b[0]}"><span>${b[1]}</span><small>${b[2]}</small></button>`).join('')}</div>
-    <div class="gmzoom"><button data-gmz="1">＋</button><button data-gmz="-1">－</button><button data-gmz="0" class="gmme" aria-label="Centra sul superstite">📍<small>Tu</small></button></div></div>`);
+    <div class="gmzoom"><button data-gmz="1">＋</button><button data-gmz="-1">－</button><button data-gmz="0" class="gmme" aria-label="Centra sul superstite">📍<small>Tu</small></button></div>
+    <div class="gmpad" aria-label="Muovi il superstite"><button data-gmd="u" aria-label="Su">▲</button><button data-gmd="l" aria-label="Sinistra">◀</button><button data-gmd="r" aria-label="Destra">▶</button><button data-gmd="d" aria-label="Giù">▼</button></div></div>`);
   const el=document.getElementById('gmap');GM.el=el;GM.cv=el.querySelector('canvas.gmfx');GM.ctx=GM.cv.getContext('2d');
   el.querySelector('[data-gmx]').onclick=gmClose;
+  // 🕹️ croce direzionale: tieni premuto per camminare (come nei giochi), anche con le frecce o W A S D
+  GM.dir={u:0,d:0,l:0,r:0};
+  el.querySelectorAll('[data-gmd]').forEach(b=>{const k=b.dataset.gmd;const giu=e=>{e.preventDefault();GM.dir[k]=1;GM.follow=true;b.classList.add('pr');};const su=e=>{e.preventDefault();if(GM.dir[k]){GM.dir[k]=0;gmAvSync(true);}b.classList.remove('pr');};
+    b.addEventListener('pointerdown',giu);['pointerup','pointercancel','pointerleave'].forEach(t=>b.addEventListener(t,su));b.oncontextmenu=e=>e.preventDefault();});
+  const GK={arrowup:'u',w:'u',arrowdown:'d',s:'d',arrowleft:'l',a:'l',arrowright:'r',d:'r'};
+  GM.kd=e=>{const k=GK[(e.key||'').toLowerCase()];if(!k||document.getElementById('arena')||/INPUT|TEXTAREA/.test((e.target||{}).tagName||''))return;e.preventDefault();GM.dir[k]=1;GM.follow=true;};
+  GM.ku=e=>{const k=GK[(e.key||'').toLowerCase()];if(k&&GM.dir[k]){GM.dir[k]=0;gmAvSync(true);}};
+  addEventListener('keydown',GM.kd);addEventListener('keyup',GM.ku);
   el.querySelectorAll('[data-gmz]').forEach(b=>b.onclick=()=>{const k=+b.dataset.gmz;const m=GM.map;if(!m)return;if(!k){GM.follow=true;GM.lastFollow=0;return;}m.easeTo({zoom:Math.max(13,Math.min(19,m.getZoom()+k)),duration:250});});
   const A={case:()=>gmCase(),lente:()=>{gmClose();lenteOpen();},vicini:()=>zmRadarSheet(),mis:()=>misSheet(),pedia:()=>zmPedia(),dfa:()=>dfaGo(),boss:()=>bossSheet(),mv:()=>mvSheet(),
     evt:()=>{const ev=typeof EVT!=='undefined'?evtAperti().filter(e=>e.km!=null&&e.km<=e.raggio):[];if(ev.length)evtSheet(ev[0].id);else toast('🚨 Nessun evento qui vicino adesso: ti arriva la notifica quando compare');}};
@@ -71,7 +80,7 @@ async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}clos
   m.on('idle',gmGraph);m.on('dragstart',()=>{GM.follow=false;});m.on('click',e=>gmTap(e.point.x,e.point.y,e.lngLat));
   gmAvInit(h);
   gmSize();addEventListener('resize',gmSize);GM.raf=requestAnimationFrame(gmLoop);}
-function gmClose(){GM.on=false;if(GM.base){GM.base=null;try{zmLoad(true);}catch(e){}}cancelAnimationFrame(GM.raf);removeEventListener('resize',gmSize);try{GM.map&&GM.map.remove&&GM.map.remove();}catch(e){}GM.map=null;const el=document.getElementById('gmap');if(el)el.remove();}
+function gmClose(){GM.on=false;if(GM.kd){removeEventListener('keydown',GM.kd);removeEventListener('keyup',GM.ku);GM.kd=null;}GM.dir={u:0,d:0,l:0,r:0};if(GM.base){GM.base=null;try{zmLoad(true);}catch(e){}}cancelAnimationFrame(GM.raf);removeEventListener('resize',gmSize);try{GM.map&&GM.map.remove&&GM.map.remove();}catch(e){}GM.map=null;const el=document.getElementById('gmap');if(el)el.remove();}
 function gmSize(){const c=GM.cv;if(!c)return;const r=c.getBoundingClientRect(),dp=Math.min(2,devicePixelRatio||1);c.width=Math.max(1,r.width*dp);c.height=Math.max(1,r.height*dp);GM.dp=dp;try{GM.map&&GM.map.resize();}catch(e){}}
 // da metri (attorno a casa) a punto sullo schermo della mappa
 function gmScr(x,y){const p=GM.map.project(gmLL(x,y));return[p.x,p.y];}
@@ -84,7 +93,7 @@ function gmTap(X,Y,ll){if(!GM.map)return;let hit=null,bd=30;
   if(hit.k==='zombie')arnCard(hit.z);else if(hit.k==='cassa')zmVicino();else if(hit.k==='casa')casasSheet();
   else if(hit.k==='sup'){const m=hit.s.m;if(m&&m.tipo==='scontro'&&hit.s.fermo)arnVai(m.id,m.ic);else if(m&&m.tipo==='spedizione'&&hit.s.fermo)supSheet('sped');else misSheet();}}
 function gmLoop(now){if(!GM.on)return;const dt=Math.min(.05,(now-(GM.lastT||now))/1000);GM.lastT=now;GM.t=now/1000;if(GM.map){const s=gmSup();gmAvStep(dt);
-    if(GM.follow&&GM.av&&now-(GM.lastFollow||0)>(GM.av.P?500:1500)){GM.lastFollow=now;try{GM.map.easeTo({center:[GM.av.lon,GM.av.lat],duration:GM.av.P?500:800});}catch(e){}}
+    if(GM.follow&&GM.av&&now-(GM.lastFollow||0)>(GM.av.pad?120:GM.av.P?500:1500)){GM.lastFollow=now;try{GM.map.easeTo({center:[GM.av.lon,GM.av.lat],duration:GM.av.pad?120:GM.av.P?500:800});}catch(e){}}
     const txt=gmAvTxt(s);const tx=GM.el.querySelector('[data-gmtxt]');if(tx&&tx.textContent!==txt)tx.textContent=txt;gmDraw(s);}
   GM.raf=requestAnimationFrame(gmLoop);}
 // 🏠 Case: sposta il gioco su una delle tue case (anche lontanissima): zombie di quella zona, il superstite parte da lì
@@ -110,7 +119,7 @@ function gmDraw(s){const c=GM.cv,x=GM.ctx,dp=GM.dp||1;if(!c.width)return;x.setTr
       const e=GM.av.P[GM.av.P.length-1],r=gmScr(e[0],e[1]);x.strokeStyle='#fff';x.lineWidth=2;x.beginPath();x.arc(r[0],r[1],6+Math.sin(T*6)*2,0,7);x.stroke();}
     (ZM.L||[]).filter(zz=>!zz.preso&&zz.k==='zombie'&&trM(GM.av.lat,GM.av.lon,zz.lat,zz.lon)<=50).forEach(zz=>{const zp=gmXY(zz.lat,zz.lon),zq=gmScr(zp[0],zp[1]);
       x.strokeStyle='#3df24a';x.lineWidth=3;x.beginPath();x.arc(zq[0],zq[1]-8,20+Math.sin(T*8)*2,0,7);x.stroke();x.font='bold 12px monospace';x.textAlign='center';x.fillStyle='#000';x.fillText('⚔️ TOCCA',zq[0]+1,zq[1]-33);x.fillStyle='#fff';x.fillText('⚔️ TOCCA',zq[0],zq[1]-34);});
-    gmOmino(x,q[0],q[1],GM.av.a||0,GM.av.P?T:0,!!GM.av.P);}}
+    gmOmino(x,q[0],q[1],GM.av.a||0,GM.av.P||GM.av.pad?T:0,!!(GM.av.P||GM.av.pad));}}
 // 🧭 il superstite guidato col tocco: cammina per le strade a 10 m/s; il server controlla velocità e raggio (world_esplora_muovi)
 const GM_VEL=10;
 async function gmAvInit(h){GM.av=null;let d=null;try{const r=await SB.rpc('world_esplora_dove');d=r&&r.data;}catch(e){}
@@ -120,7 +129,10 @@ async function gmAvInit(h){GM.av=null;let d=null;try{const r=await SB.rpc('world
 async function gmAvCasa(h,zitto){GM.av={lat:h.lat,lon:h.lon,a:0};GM.zmAt=null;try{const{data}=await SB.rpc('world_esplora_muovi',{p_lat:h.lat,p_lon:h.lon,p_casa:true});if(data&&!data.ok&&!zitto)toast(data.msg);}catch(e){}GM.sent={t:Date.now(),lat:h.lat,lon:h.lon};}
 function gmCammina(lat,lon){if(!GM.av)return;const a=gmXY(GM.av.lat,GM.av.lon),b=gmXY(lat,lon);if(Math.hypot(a[0]-b[0],a[1]-b[1])<4)return;
   const P=GM.d?gmRoute(a,b):[a,b];GM.av.P=P;GM.av.i=0;GM.av.f=0;GM.follow=true;try{sfx&&sfx('tap');}catch(e){}}
-function gmAvStep(dt){const v=GM.av;if(!v||!v.P)return;let left=GM_VEL*dt;
+function gmAvStep(dt){const v=GM.av;if(!v)return;const D=GM.dir||{};const dx=(D.r?1:0)-(D.l?1:0),dy=(D.d?1:0)-(D.u?1:0);v.pad=!!(dx||dy);
+  if(v.pad){v.P=null;const n=Math.hypot(dx,dy),a=gmXY(v.lat,v.lon);const x=a[0]+dx/n*GM_VEL*dt,y=a[1]+dy/n*GM_VEL*dt;v.a=Math.atan2(dy,dx);const ll=gmLL(x,y);v.lon=ll[0];v.lat=ll[1];gmAvSync(false);
+    if(GM.zmAt&&trM(GM.zmAt.lat,GM.zmAt.lon,v.lat,v.lon)>120){GM.zmAt={lat:v.lat,lon:v.lon};try{zmLoad(true);}catch(e){}}return;}
+  if(!v.P)return;let left=GM_VEL*dt;
   while(left>0&&v.i<v.P.length-1){const a=v.P[v.i],b=v.P[v.i+1];const L=Math.hypot(b[0]-a[0],b[1]-a[1])||.001;const rem=L*(1-v.f);
     if(left>=rem){left-=rem;v.i++;v.f=0;}else{v.f+=left/L;left=0;}v.a=Math.atan2(b[1]-a[1],b[0]-a[0]);}
   const a=v.P[v.i],b=v.P[Math.min(v.i+1,v.P.length-1)];const x=a[0]+(b[0]-a[0])*v.f,y=a[1]+(b[1]-a[1])*v.f;const ll=gmLL(x,y);v.lon=ll[0];v.lat=ll[1];
@@ -130,8 +142,8 @@ async function gmAvSync(subito){const v=GM.av;if(!v||GM.syncing)return;if(!subit
   try{const{data}=await SB.rpc('world_esplora_muovi',{p_lat:v.lat,p_lon:v.lon,p_casa:false});
     if(data&&data.ok)GM.sent={t:Date.now(),lat:v.lat,lon:v.lon};else if(data&&data.lat!=null){v.lat=data.lat;v.lon=data.lon;v.P=null;if(data.msg&&Date.now()-(GM.msgT||0)>4000){GM.msgT=Date.now();toast(data.msg);}}}catch(e){}GM.syncing=false;}
 function gmAvTxt(s){const v=GM.av;if(!v)return s.txt;const z=(ZM.L||[]).filter(zz=>!zz.preso&&zz.k==='zombie').map(zz=>({zz,d:trM(v.lat,v.lon,zz.lat,zz.lon)})).sort((a,b)=>a.d-b.d)[0];
-  if(z&&z.d<=50)return`⚔️ ${(ZM_N[z.zz.tipo]||'Zombie')} qui! Toccalo per combattere`;if(v.P)return'🚶 In cammino… tocca un altro punto per cambiare strada';
-  return z?`🧭 Tocca la mappa per camminare · zombie più vicino ${Math.round(z.d)} m`:'🧭 Tocca la mappa per camminare';}
+  if(z&&z.d<=50)return`⚔️ ${(ZM_N[z.zz.tipo]||'Zombie')} qui! Toccalo per combattere`;if(v.pad)return'🕹️ In cammino…';if(v.P)return'🚶 In cammino… tocca un altro punto per cambiare strada';
+  return z?`🕹️ Usa la croce o tocca la mappa · zombie più vicino ${Math.round(z.d)} m`:'🕹️ Usa la croce o tocca la mappa per camminare';}
 function gmEmoji(x,e,cx,cy,sz){x.fillStyle='#000';x.font=`${sz}px system-ui, "Apple Color Emoji", sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(e,cx,cy);x.textBaseline='alphabetic';}
 function gmOmino(x,cx,cy,a,T,cammina){const av=(typeof SV!=='undefined'&&SV.d&&SV.d.avatar)||{};const col=SV_C[av.c||0]||'#ffd23f';const pelle='#f1c27d';const u=2.2;
   const passo=cammina?Math.sin(T*10):0;const lato=Math.cos(a)<0?-1:1;
