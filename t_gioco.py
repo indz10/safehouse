@@ -34,6 +34,13 @@ async def main():
         print('superstite guidato:',await pg.evaluate("()=>!!GM.av"))
         await pg.evaluate("()=>{closeSheet();const z=ZM.L.find(z=>z.tipo==='bruto'&&!z.preso);gmTap(-999,-999,{lat:z.lat-0.0002,lng:z.lon});}");await pg.wait_for_timeout(4500)
         print('cammina verso lo zombie:',await pg.evaluate("()=>{const z=ZM.L.find(z=>z.tipo==='bruto');return [Math.round(trM(GM.av.lat,GM.av.lon,z.lat,z.lon))<=50,(window.__EXPN||0)>=2]}"))
+        # 🕹️ croce direzionale: tieni premuto ▶ → il superstite va a est
+        x0=await pg.evaluate("()=>GM.av.lon")
+        await pg.evaluate("()=>document.querySelector('#gmap [data-gmd=r]').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))");await pg.wait_for_timeout(1200)
+        await pg.evaluate("()=>document.querySelector('#gmap [data-gmd=r]').dispatchEvent(new PointerEvent('pointerup',{bubbles:true}))");await pg.wait_for_timeout(200)
+        print('croce:',await pg.evaluate("x0=>[document.querySelectorAll('#gmap [data-gmd]').length,GM.av.lon>x0,!GM.av.pad]",x0))
+        await pg.keyboard.down('ArrowUp');await pg.wait_for_timeout(600);await pg.keyboard.up('ArrowUp')
+        await pg.evaluate("()=>{const z=ZM.L.find(z=>z.tipo==='bruto');GM.av.lat=z.lat-0.0002;GM.av.lon=z.lon;}")
         await pg.evaluate("()=>{const z=ZM.L.find(z=>z.tipo==='bruto');arnCard(z);}");await pg.wait_for_timeout(1200)
         print('combatti col superstite:',await pg.evaluate("()=>!!document.querySelector('#sheet.open [data-arne]')"))
         await pg.evaluate("()=>document.querySelector('#sheet.open [data-arne]').click()");await pg.wait_for_timeout(1500)
