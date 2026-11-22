@@ -46,19 +46,19 @@ function gmAlong(P,f){let L=0;const seg=[];for(let i=1;i<P.length;i++){const l=M
 // dove si trova il superstite adesso: in viaggio verso lo zombie (solo andata) o in spedizione (andata e ritorno)
 function gmSup(){const L=(MIS.L||[]).filter(m=>(m.tipo==='scontro'||m.tipo==='spedizione')&&m.lat!=null);const home=gmXY(GM.c0.lat,GM.c0.lon);
   if(!L.length)return{x:home[0],y:home[1],a:0,fermo:true,txt:'🏠 A casa · tocca uno zombie per affrontarlo'};
-  const m=L[0];const key=m.tipo+m.id;let R=GM.rt.get(key);const meta=gmXY(m.lat,m.lon);if(!R){if(GM.d){R=gmRoute(home,meta);GM.rt.set(key,R);}else R=[home,meta];}
+  const m=L[0];const key=m.tipo+m.id;let R=GM.rt.get(key);const meta=gmXY(m.lat,m.lon);{const H=(typeof myHouses==='function'?myHouses():[]).filter(h=>h.lat!=null);if(H.length){const hb=H.slice().sort((a,b)=>trM(a.lat,a.lon,m.lat,m.lon)-trM(b.lat,b.lon,m.lat,m.lon))[0];const hp=gmXY(hb.lat,hb.lon);home[0]=hp[0];home[1]=hp[1];}}if(!R){if(GM.d){R=gmRoute(home,meta);GM.rt.set(key,R);}else R=[home,meta];}
   const t0=new Date(m.inizio).getTime(),t1=m.fineMs||new Date(m.fine).getTime();let f=t1>t0?(Date.now()-t0)/(t1-t0):1;f=Math.max(0,Math.min(1,f));
   const ar=m.tipo==='scontro';const pos=ar?gmAlong(R,f):(f<.5?gmAlong(R,f*2):gmAlong(R.slice().reverse(),(f-.5)*2));const left=Math.max(0,(t1-Date.now())/1000);
   const txt=ar?(f>=1?`🧟 Arrivato da ${m.titolo.replace(/^Verso /,'')} · ⚔️ tocca per combattere`:`🎒 Verso ${m.titolo.replace(/^Verso /,'')} · ${misT(left)}`):(f>=1?'📦 Spedizione tornata: raccogli':`🎒 Spedizione · ${f<.5?'andata':'ritorno'} · ${misT(left)}`);
   return{x:pos[0],y:pos[1],a:pos[2],fermo:f>=1,txt,m,R,f,ar};}
 async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}closeSheet();
   document.body.insertAdjacentHTML('beforeend',`<div id="gmap"><div class="gmmap"></div><canvas></canvas><div class="gmtop"><b>🎮 Gioco</b><span data-gmtxt>Carico la mappa…</span><button class="gmx" data-gmx aria-label="Chiudi">✕</button></div>
-    <div class="gmside">${[['lente','📷','Lente'],['vicini','🧟','Vicini'],['mis','⏳','Missioni'],['pedia','📖','Zombipedia'],['dfa','🛡️','Difendi'],['boss','👹','Boss'],['evt','🚨','Eventi'],['mv','❓','Come']].map(b=>`<button data-gmb="${b[0]}"><span>${b[1]}</span><small>${b[2]}</small></button>`).join('')}</div>
+    <div class="gmside">${[['lente','📷','Lente'],['vicini','🧟','Vicini'],['mis','⏳','Missioni'],['pedia','📖','Zombipedia'],['dfa','🛡️','Difendi'],['boss','👹','Boss'],['evt','🚨','Eventi'],['case','🏠','Case'],['mv','❓','Come']].map(b=>`<button data-gmb="${b[0]}"><span>${b[1]}</span><small>${b[2]}</small></button>`).join('')}</div>
     <div class="gmzoom"><button data-gmz="1">＋</button><button data-gmz="-1">－</button><button data-gmz="0" aria-label="Segui il superstite">🎯</button></div></div>`);
   const el=document.getElementById('gmap');GM.el=el;GM.cv=el.querySelector('canvas');GM.ctx=GM.cv.getContext('2d');
   el.querySelector('[data-gmx]').onclick=gmClose;
   el.querySelectorAll('[data-gmz]').forEach(b=>b.onclick=()=>{const k=+b.dataset.gmz;const m=GM.map;if(!m)return;if(!k){GM.follow=true;GM.lastFollow=0;return;}m.easeTo({zoom:Math.max(13,Math.min(19,m.getZoom()+k)),duration:250});});
-  const A={lente:()=>{gmClose();lenteOpen();},vicini:()=>zmRadarSheet(),mis:()=>misSheet(),pedia:()=>zmPedia(),dfa:()=>dfaGo(),boss:()=>bossSheet(),mv:()=>mvSheet(),
+  const A={case:()=>gmCase(),lente:()=>{gmClose();lenteOpen();},vicini:()=>zmRadarSheet(),mis:()=>misSheet(),pedia:()=>zmPedia(),dfa:()=>dfaGo(),boss:()=>bossSheet(),mv:()=>mvSheet(),
     evt:()=>{const ev=typeof EVT!=='undefined'?evtAperti().filter(e=>e.km!=null&&e.km<=e.raggio):[];if(ev.length)evtSheet(ev[0].id);else toast('🚨 Nessun evento qui vicino adesso: ti arriva la notifica quando compare');}};
   el.querySelectorAll('[data-gmb]').forEach(b=>b.onclick=()=>{const f=A[b.dataset.gmb];if(f)f();});
   const hs=(typeof myHouses==='function'?myHouses():[]);const h=hs[0]||(S.geo&&S.geo.lat!=null?{lat:S.geo.lat,lon:S.geo.lon}:null);
@@ -70,7 +70,7 @@ async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}clos
   try{m.touchZoomRotate.disableRotation();}catch(e){}
   m.on('idle',gmGraph);m.on('dragstart',()=>{GM.follow=false;});m.on('click',e=>gmTap(e.point.x,e.point.y));
   gmSize();addEventListener('resize',gmSize);GM.raf=requestAnimationFrame(gmLoop);}
-function gmClose(){GM.on=false;cancelAnimationFrame(GM.raf);removeEventListener('resize',gmSize);try{GM.map&&GM.map.remove&&GM.map.remove();}catch(e){}GM.map=null;const el=document.getElementById('gmap');if(el)el.remove();}
+function gmClose(){GM.on=false;if(GM.base){GM.base=null;try{zmLoad(true);}catch(e){}}cancelAnimationFrame(GM.raf);removeEventListener('resize',gmSize);try{GM.map&&GM.map.remove&&GM.map.remove();}catch(e){}GM.map=null;const el=document.getElementById('gmap');if(el)el.remove();}
 function gmSize(){const c=GM.cv;if(!c)return;const r=c.getBoundingClientRect(),dp=Math.min(2,devicePixelRatio||1);c.width=Math.max(1,r.width*dp);c.height=Math.max(1,r.height*dp);GM.dp=dp;try{GM.map&&GM.map.resize();}catch(e){}}
 // da metri (attorno a casa) a punto sullo schermo della mappa
 function gmScr(x,y){const p=GM.map.project(gmLL(x,y));return[p.x,p.y];}
@@ -85,6 +85,14 @@ function gmLoop(now){if(!GM.on)return;GM.t=now/1000;if(GM.map){const s=gmSup();
     if(GM.follow&&!s.fermo&&now-(GM.lastFollow||0)>1200){GM.lastFollow=now;try{GM.map.easeTo({center:gmLL(s.x,s.y),duration:1000});}catch(e){}}
     const tx=GM.el.querySelector('[data-gmtxt]');if(tx&&tx.textContent!==s.txt)tx.textContent=s.txt;gmDraw(s);}
   GM.raf=requestAnimationFrame(gmLoop);}
+// 🏠 Case: sposta il gioco su una delle tue case (anche lontanissima): zombie di quella zona, il superstite parte da lì
+function gmCase(){const H=(typeof myHouses==='function'?myHouses():[]);if(!H.length){toast('Non hai ancora case nel mondo');return;}
+  openSheet('🏠 Gioca vicino a…',`<p class="muted" style="font-size:13px;margin:0 0 8px">Sposta la mappa del gioco su una tua casa: vedi gli zombie di quella zona e ci mandi il superstite da lì. Di persona combatti solo dove sei davvero.</p>${H.map((h,i)=>`<button class="mzopt ${GM.c0&&Math.abs(GM.c0.lat-h.lat)<1e-6&&Math.abs(GM.c0.lon-h.lon)<1e-6?'on':''}" data-gmc="${i}"><span>${h.ic||'🔑'}</span><b>${esc(h.label||'Casa')}</b><small>${h.km!=null?(h.km<1?Math.round(h.km*1000)+' m':Math.round(h.km)+' km')+' dalla prima':''}</small></button>`).join('')}`,
+    c=>c.querySelectorAll('[data-gmc]').forEach(b=>b.onclick=()=>{const h=H[+b.dataset.gmc];closeSheet();gmVai(h);}));}
+function gmVai(h){GM.base={lat:h.lat,lon:h.lon};GM.c0={lat:h.lat,lon:h.lon};GM.d=null;GM.rt.clear();GM.follow=true;GM.casa=h;
+  try{GM.map&&GM.map.jumpTo({center:[h.lon,h.lat],zoom:17});}catch(e){}try{ZM.L=[];zmLoad(true);}catch(e){}toast(`📍 ${h.label||'Casa'}: zombie di questa zona`);}
+// mentre la mappa del Gioco è su una casa, gli zombie si caricano intorno a quella casa
+const _zmPos55=zmPos;zmPos=function(){if(GM.on&&GM.base)return GM.base;return _zmPos55.apply(this,arguments);};
 // sopra la mappa: percorso, case, zombie, casse e il superstite che cammina
 function gmDraw(s){const c=GM.cv,x=GM.ctx,dp=GM.dp||1;if(!c.width)return;x.setTransform(dp,0,0,dp,0,0);const W=c.width/dp,H=c.height/dp,T=GM.t;x.clearRect(0,0,W,H);
   const z=Math.max(.7,Math.min(1.5,Math.pow(2,((GM.map.getZoom&&GM.map.getZoom())||17)-17)));
