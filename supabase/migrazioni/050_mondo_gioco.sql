@@ -3,6 +3,7 @@
 -- • 🏠 Ogni zombie battuto nell'arena entro 1 km da una tua casa dà +2 alla difesa di quella casa
 --   per la prossima orda (massimo +10 a casa, tipo 'gioco' in world_assalti, sommato in w_casa_extra).
 -- • 🏰 Vicino a casa (entro 300 m) le fortificazioni aiutano anche nell'arena: ❤️ +5 e 🛡️ +1 per livello della casa (max 5).
+-- • 🚗 Sulla mappa del Gioco il superstite va da solo per le strade col mezzo che usa: velocità massima controllata 20 m/s (prima 12).
 -- Si può eseguire più volte.
 -- =====================================================================
 alter table public.world_assalti drop constraint if exists world_assalti_kind_check;
@@ -86,6 +87,17 @@ begin
     'danno_z', public.w_arena_danno((zs->>'forza')::int, (st->>'difesa')::int),
     'nome', (select nome from public.world_superstite where user_id = me), 'avatar', (select avatar from public.world_superstite where user_id = me));
 end $$;
+
+create or replace function public.w_arena_cfg() RETURNS jsonb
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select jsonb_build_object(
+    'dist_m', 80, 'acc_max_m', 50, 'attesa_min', 30, 'max_giorno', 30,
+    'diff', jsonb_build_object('facile', -2, 'equilibrato', 0, 'difficile', 2),
+    'xp_molt', jsonb_build_object('facile', 0.7, 'equilibrato', 1.0, 'difficile', 1.5),
+    'durata_max_s', 300, 'colpi_s', 2.5,
+    'esplora_m', 50, 'esplora_vel_ms', 20, 'esplora_toll_m', 30, 'esplora_casa_m', 150);
+$$;
 
 -- controllo: deve dire "mondo e gioco pronti"
 select case when pg_get_functiondef('public.w_casa_extra(text,text)'::regprocedure) like '%gioco%' then 'mondo e gioco pronti' else 'qualcosa manca' end as esito;

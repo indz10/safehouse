@@ -22,7 +22,7 @@ w_allies_of(uuid) a696d73f51
 w_ally_state(uuid, uuid) cf9a34567a
 w_ancora(uuid, bigint) 1571ce7ead
 w_are_allies(uuid, uuid) d3e2331ab7
-w_arena_cfg() 63c001dabb
+w_arena_cfg() fa74ab5045
 w_arena_danno(integer, integer) aa59794c49
 w_arena_viaggio(uuid, double precision, double precision) 1eb915eff8
 w_arena_zstats(text, integer) 4cd9def457
