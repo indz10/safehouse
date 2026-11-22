@@ -1229,6 +1229,8 @@ body[data-tab=orda] #accFab{display:none!important}
 .misbar{height:7px;border:2px solid #111;border-radius:5px;overflow:hidden;margin:4px 0 2px;background:#eee}.misbar i{display:block;height:100%;background:#ffd23f}.misrow.ok .misbar i{background:#4cd964}
 .misact{flex:none;max-width:42%;text-align:right}.misact .btn{white-space:normal}.misok{font-size:13px}
 /* 🎮 Mappa del gioco stile Pokémon (Fase 55, p109) */
+.zmrow.zmtap{display:flex;align-items:center;cursor:pointer}.zmrow.zmtap i{margin-left:auto;font-style:normal;font-weight:900;font-size:20px;color:#c01818;padding-left:8px}
+#gmap .gmmap{position:absolute;inset:0}#gmap canvas{pointer-events:none}
 #gmap{position:fixed;left:0;right:0;top:calc(var(--tb-h,56px) + env(safe-area-inset-top,0px));bottom:calc(66px + env(safe-area-inset-bottom,0px));z-index:59;background:#78c850;overflow:hidden;touch-action:none}#gmap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .gmtop{position:absolute;left:10px;right:10px;top:8px;display:flex;align-items:center;gap:8px;background:#fff8e7;border:3px solid #111;border-radius:12px;padding:6px 8px;box-shadow:3px 3px 0 #111;font-family:ui-monospace,Menlo,monospace}
 .gmtop b{font-size:15px;white-space:nowrap}.gmtop span{flex:1;font-size:12.5px;font-weight:700;line-height:1.2}.gmx{border:2px solid #111;background:#c01818;color:#fff;border-radius:50%;width:30px;height:30px;font-weight:900;flex:none}
@@ -1263,6 +1265,7 @@ body[data-tab=orda] #accFab{display:none!important}
 .arnres{position:absolute;inset:0;background:rgba(18,12,31,.9);display:flex;align-items:center;justify-content:center;padding:16px;z-index:3}.arnrc{background:#fff8e7;color:#111;border:3px solid #111;border-radius:14px;padding:16px;max-width:360px;width:100%;text-align:center;box-shadow:5px 5px 0 #000}.arnrc .disp{font-size:26px}
 .arnpremi{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}.arnpremi span{background:#ffd23f;border:2px solid #111;border-radius:8px;padding:3px 8px;font-weight:800}
 .arnban{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 58px);z-index:8800;display:flex;align-items:center;gap:6px;background:#fff8e7;border:3px solid #111;border-radius:12px;padding:7px 9px;box-shadow:4px 4px 0 #111;font-size:13.5px}.arnban span{flex:1;font-weight:700}
+@media (orientation:portrait){.arnctl{position:static;padding-top:6px}#arena .arnfield{min-height:200px}}
 @media (orientation:landscape){.arnpad button{width:58px;height:58px}.arnpad button.big{width:72px;height:72px}.arnpad.dx{max-width:none;flex-wrap:nowrap}}
 #bvpage,#bvnot{position:fixed;inset:0;z-index:9000;background:rgba(20,15,31,.88);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 12px calc(env(safe-area-inset-bottom,0px) + 14px)}
 .bvcard{width:100%;max-width:460px;background:#f3e9d2;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px}

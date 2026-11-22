@@ -8,10 +8,12 @@ function arnRidotti(){try{return localStorage.getItem('zsh_fx_ridotti')==='1'||m
 function arnStatRiga(s){return`<span class="arnst">❤️ ${s.vita}</span><span class="arnst">💪 ${s.forza}</span><span class="arnst">🛡️ ${s.difesa}</span><span class="arnst">💨 ${s.agilita}</span>`;}
 function arnT(sec){sec=Math.max(0,Math.round(sec));return sec>=3600?`${Math.floor(sec/3600)} h ${Math.round(sec%3600/60)} min`:sec>=60?`${Math.ceil(sec/60)} min`:`${sec} s`;}
 // scheda dell'incontro: difficoltà, statistiche, di persona o col superstite
+// posizione VERA (GPS o Lente) per combattere di persona: mai quella della casa scelta nella mappa del Gioco
+function arnGps(){if(typeof LENTE!=='undefined'&&LENTE.on&&LENTE.pos)return LENTE.pos;if(S.geo&&S.geo.lat!=null)return S.geo;return null;}
 async function arnCard(z){if(!S.user){toast('Accedi per combattere');return;}let d=null;
   try{const{data,error}=await SB.rpc('world_scontro_info',{p_zid:z.id});if(error)throw error;d=data;}catch(e){toast('🧟 L’arena arriva dopo l’aggiornamento del server (blocco SQL 046)');return;}
   if(!d||!d.ok){toast((d&&d.msg)||'Zombie sparito');return;}
-  const sc=d.scontro;const p=zmPos();const acc=(typeof LENTE!=='undefined'&&LENTE.on&&LENTE.acc)?LENTE.acc:(p&&p.acc)||0;const c=d.cfg||{};
+  const sc=d.scontro;const p=arnGps();const acc=(typeof LENTE!=='undefined'&&LENTE.on&&LENTE.acc)?LENTE.acc:(p&&p.acc)||0;const c=d.cfg||{};
   const lim=(+c.dist_m||80)+Math.min(Math.max(acc||0,0),+c.acc_max_m||50);const dist=p?Math.round(trM(p.lat,p.lon,z.lat,z.lon)):null;
   let diff=localStorage.getItem('zsh_arn_diff')||'equilibrato';if(!d.livelli[diff])diff='equilibrato';const v=d.viaggio||{};const L0=d.livelli.equilibrato;
   const body=()=>{const zs=d.livelli[diff];
@@ -34,7 +36,7 @@ async function arnCard(z){if(!S.user){toast('Accedi per combattere');return;}let
     const G=cc.querySelector('[data-arnsub]');if(G)G.onclick=()=>arnSubito(sc.id,sc.arrivo);};
   const apri=()=>openSheet(`🧟 Incontro`,`<div class="arncard">${body()}</div>`,bind);
   if(typeof LENTE!=='undefined'&&LENTE.on)lnSheet(apri);else apri();}
-async function arnParti(z,modo,diff,btn){btn.disabled=true;const p=zmPos();const acc=(typeof LENTE!=='undefined'&&LENTE.on&&LENTE.acc)||(p&&p.acc)||0;let r=null;
+async function arnParti(z,modo,diff,btn){btn.disabled=true;const p=arnGps();const acc=(typeof LENTE!=='undefined'&&LENTE.on&&LENTE.acc)||(p&&p.acc)||0;let r=null;
   try{const{data,error}=await SB.rpc('world_scontro_parti',{p_zid:z.id,p_modo:modo,p_diff:diff,p_lat:p?p.lat:null,p_lon:p?p.lon:null,p_acc:acc});if(error)throw error;r=data;}catch(e){toast('Non riuscito: riprova');}
   btn.disabled=false;if(!r)return;if(!r.ok){toast(r.msg);return;}
   if(modo==='persona'){closeSheet();arnVai(r.id,(ZM_T[z.tipo]||['🧟'])[0]);}else{toast(r.msg);closeSheet();arnMiei(true);}}
@@ -112,7 +114,7 @@ function arnColpisci(a,b,mv,io){const g=ARN.g;const dir=a.dir;let dn=Math.round(
   else{const counter=b.act&&b.act.t<(ARN_MV[b.act.k].st*(io?g.wind:1));b.act=null;b.blk=0;b.stun=mv.kd?.7:.3;b.kb=dir*(mv.kd?95:55);
     arnSpark(b.x,io?'goo':'hit');arnNum(b.x,'−'+dn,io?(mv.m>1.5?'sp':''):'me');if(counter)g.txt={t:'COUNTER!',l:.8};if(!g.rid){g.shake=mv.kd?.3:.14;g.flash=.08;}
     if(io&&Math.random()<g.punisci*.5)b.q='graffio';}
-  b.hp=Math.max(0,b.hp-dn);if(io)g.colpi++;try{sfx&&sfx(mv.m>1.5?'boom':'tap');}catch(e){}arnBarre();
+  b.hp=Math.max(0,b.hp-dn);if(io)g.colpi++;if(!g.rid)g.stop=mv.m>1.5?.12:.06;try{sfx&&sfx(mv.m>1.5?'boom':'tap');}catch(e){}arnBarre();
   if(!g.furia&&g.z.hp>0&&g.z.hp/g.z.hp0<.35){g.furia=true;g.zvel*=1.3;g.txt={t:'😡 FURIA!',l:1};}
   if(b.hp<=0)arnFineRound(io?'p':'z');}
 // fine di un round: al meglio di 3 (2 round vinti)
@@ -141,7 +143,7 @@ function arnAI(dt){const g=ARN.g,z=g.z,p=g.p;if(!arnLibero(z)||z.blk>0)return;co
   if(dist>13){z.x+=z.dir*g.zvel*dt;z.walk+=dt;return;}
   const r=Math.random();if(r<.25)z.act={k:'morso',t:0,hit:false};else if(r<.65)z.act={k:'graffio',t:0,hit:false};else{z.act={k:'graffio',t:0,hit:false};z.q='graffio';}
   z.cd=({facile:1.3,equilibrato:.95,difficile:.65}[g.diff]||1)*(.7+Math.random()*.6)*(g.furia?.7:1);}
-function arnLoop(now){const g=ARN.g;if(!g)return;let dt=Math.min(.05,(now-g.last)/1000);g.last=now;dt*=g.slow;const p=g.p,z=g.z;
+function arnLoop(now){const g=ARN.g;if(!g)return;let dt=Math.min(.05,(now-g.last)/1000);g.last=now;dt*=g.slow;if(g.stop>0){g.stop-=dt;dt*=.15;}const p=g.p,z=g.z;
   if(g.via){const fermo=!arnLibero(p)||g.k.blk;if(!fermo){if(g.k.l){p.x-=g.vel*dt;p.walk+=dt;}if(g.k.r){p.x+=g.vel*dt;p.walk+=dt;}}
     ['spCd','dodCd'].forEach(k=>{if(g[k]>0)g[k]=Math.max(0,g[k]-dt);});arnAI(dt);
     g.tempo=Math.max(0,60-(now-g.t0)/1000);const tl=g.A.querySelector('[data-arntime]');if(tl)tl.textContent=Math.ceil(g.tempo);
@@ -239,8 +241,12 @@ function arnDraw(T){const g=ARN.g,c=g.cv,M=g.ctx,x=g.o;if(!c.width)return;
   if(g.txt){x.font='bold 18px monospace';x.textAlign='center';x.fillStyle='#000';x.fillText(g.txt.t,ALW/2+2,62);x.fillStyle='#ffe66d';x.fillText(g.txt.t,ALW/2,60);}
   if(g.flash>0){x.fillStyle='#ffffff55';x.fillRect(0,0,ALW,ALH);}
   // ingrandimento a pixel, con le bande nere
-  M.imageSmoothingEnabled=false;M.fillStyle='#0a0612';M.fillRect(0,0,c.width,c.height);const s=Math.max(c.width/ALW,c.height/ALH),w=ALW*s,h=ALH*s;
-  const ox=(c.width-w)/2+(g.shake>0?(Math.random()-.5)*10:0),oy=(c.height-h)+(g.shake>0?(Math.random()-.5)*6:0);M.drawImage(g.off,ox,oy,w,h);}
+  M.imageSmoothingEnabled=false;const sky=M.createLinearGradient(0,0,0,c.height);sky.addColorStop(0,'#12062a');sky.addColorStop(.7,'#4a1250');sky.addColorStop(1,'#160a24');M.fillStyle=sky;M.fillRect(0,0,c.width,c.height);
+  const a=arnPX(g.p.x),b=arnPX(g.z.x),mid=(a+b)/2,dist=Math.abs(a-b);
+  const sT=Math.min(c.height/(ALH*.7),c.width/(dist+150));g.cs=g.cs?g.cs+(sT-g.cs)*.08:sT;const s=g.cs,w=ALW*s,h=ALH*s;
+  let ox=c.width/2-mid*s;if(w>c.width)ox=Math.min(0,Math.max(c.width-w,ox));else ox=(c.width-w)/2;
+  if(g.shake>0)ox+=(Math.random()-.5)*10;const oy=(c.height-h)+(g.shake>0?(Math.random()-.5)*6:0);M.drawImage(g.off,ox,oy,w,h);
+  if(w<c.width){M.fillStyle='#160a24';M.fillRect(0,oy+(AGY-14)*s,ox,c.height);M.fillRect(ox+w,oy+(AGY-14)*s,c.width-ox-w,c.height);}}
 async function arnFine(esito){const g=ARN.g;if(!g||g.fine)return;g.fine=true;cancelAnimationFrame(g.raf);let r=null;
   try{const{data,error}=await SB.rpc('world_scontro_fine',{p_id:g.id,p_esito:esito,p_colpi:g.colpi});if(error)throw error;r=data;}catch(e){r={ok:false,msg:'Collegamento perso: lo scontro non è stato salvato'};}
   const v=r&&r.vinto;const res=g.A.querySelector('.arnres')||document.createElement('div');res.className='arnres';
