@@ -11,7 +11,7 @@ const gmLL=(x,y)=>[GM.c0.lon+x/(111320*Math.cos(GM.c0.lat*Math.PI/180)),GM.c0.la
 // stile Pokémon sulla mappa vera (stesse mattonelle del Mondo): prato, strade color sabbia bordate, tetti colorati, acqua, parchi
 function gmStyle(){const R=['interpolate',['exponential',1.6],['zoom']];const MJ=['motorway','trunk','primary'],SC=['secondary','tertiary'];
   const ROADS=['in',['get','class'],['literal',['motorway','trunk','primary','secondary','tertiary','minor','service']]];
-  return{version:8,glyphs:'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',sources:{omt:{type:'vector',url:'https://tiles.openfreemap.org/planet'}},layers:[
+  return{version:8,light:{anchor:'viewport',color:'#ffffff',intensity:.45,position:[1.3,200,35]},glyphs:'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',sources:{omt:{type:'vector',url:'https://tiles.openfreemap.org/planet'}},layers:[
    {id:'bg',type:'background',paint:{'background-color':'#4a4552'}},
    {id:'res',type:'fill',source:'omt','source-layer':'landuse',filter:['in',['get','class'],['literal',['residential','suburb','neighbourhood','commercial','retail','industrial']]],paint:{'fill-color':'#504a5a'}},
    {id:'farm',type:'fill',source:'omt','source-layer':'landcover',filter:['in',['get','class'],['literal',['farmland','grass']]],paint:{'fill-color':'#3d5a34'}},
@@ -23,7 +23,11 @@ function gmStyle(){const R=['interpolate',['exponential',1.6],['zoom']];const MJ
    {id:'road-cas',type:'line',source:'omt','source-layer':'transportation',filter:ROADS,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#8c8494','line-width':[...R,12,['match',['get','class'],MJ,4,SC,3,2],18,['match',['get','class'],MJ,34,SC,28,['service'],12,22]]}},
    {id:'road',type:'line',source:'omt','source-layer':'transportation',filter:ROADS,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['match',['get','class'],MJ,'#232228','#2b2a30'],'line-width':[...R,12,['match',['get','class'],MJ,2.6,SC,2,1.2],18,['match',['get','class'],MJ,28,SC,23,['service'],8,17]]}},
    {id:'road-mid',type:'line',source:'omt','source-layer':'transportation',minzoom:15,filter:['in',['get','class'],['literal',['motorway','trunk','primary','secondary','tertiary','minor']]],paint:{'line-color':'#e8d36a','line-width':[...R,15,.8,18,2.2],'line-dasharray':[3,3]}},
-   {id:'bld',type:'fill-extrusion',source:'omt','source-layer':'building',minzoom:14,paint:{'fill-extrusion-color':['match',['%',['to-number',['id'],0],5],0,'#6b5a7a',1,'#5a6470',2,'#7a5a4a',3,'#4a5a4a','#6a6a72'],'fill-extrusion-height':['coalesce',['get','render_height'],8],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':.95,'fill-extrusion-vertical-gradient':true}},
+   {id:'bld',type:'fill-extrusion',source:'omt','source-layer':'building',minzoom:14,paint:{'fill-extrusion-color':['interpolate',['linear'],['coalesce',['get','render_height'],8],0,['match',['%',['to-number',['id'],0],4],0,'#6b5a7a',1,'#5a6470',2,'#7a5a4a','#56606a'],14,'#7a6a92',30,'#9486b4',60,'#b4a8d4'],'fill-extrusion-height':['coalesce',['get','render_height'],8],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':.95,'fill-extrusion-vertical-gradient':true}},
+   {id:'ferrovia',type:'line',source:'omt','source-layer':'transportation',filter:['==',['get','class'],'rail'],paint:{'line-color':'#8a8296','line-width':[...R,14,1,18,4],'line-dasharray':[2,2]}},
+   {id:'civici',type:'symbol',source:'omt','source-layer':'housenumber',minzoom:17.5,layout:{'text-field':['get','housenumber'],'text-font':['Noto Sans Regular'],'text-size':10},paint:{'text-color':'#c8c0d8','text-halo-color':'#1a1420','text-halo-width':1}},
+   {id:'posti',type:'symbol',source:'omt','source-layer':'poi',minzoom:15.5,filter:['has','name'],layout:{'text-field':['get','name'],'text-font':['Noto Sans Bold'],'text-size':12,'text-anchor':'top','text-offset':[0,.4],'text-max-width':8},paint:{'text-color':['match',['get','class'],['shop','grocery','pharmacy','hospital','fuel'],'#ffe66d',['park','playground'],'#9be27a','#ff9fe8'],'text-halo-color':'#1a1420','text-halo-width':2}},
+   {id:'posti-pt',type:'circle',source:'omt','source-layer':'poi',minzoom:15.5,filter:['has','name'],paint:{'circle-radius':4,'circle-color':['match',['get','class'],['shop','grocery','pharmacy','hospital','fuel'],'#ffe66d',['park','playground'],'#9be27a','#ff9fe8'],'circle-stroke-color':'#1a1420','circle-stroke-width':1.5}},
    {id:'nomi',type:'symbol',source:'omt','source-layer':'transportation_name',minzoom:15,layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':['Noto Sans Bold'],'text-size':14},paint:{'text-color':'#e8e0f0','text-halo-color':'#1a1420','text-halo-width':2}}]};}
 // strade della mappa (le mattonelle caricate) → grafo per il percorso più breve; nodi su una griglia di 2 m così i pezzi si uniscono
 function gmGraph(){const m=GM.map;if(!m||!GM.c0)return;let F=[];try{F=m.querySourceFeatures('omt',{sourceLayer:'transportation'})||[];}catch(e){}
@@ -31,8 +35,19 @@ function gmGraph(){const m=GM.map;if(!m||!GM.c0)return;let F=[];try{F=m.querySou
   F.forEach(f=>{const c=f.properties&&f.properties.class;if(!c||/rail|ferry|aerialway|transit/.test(c))return;const g=f.geometry;if(!g)return;
     const lines=g.type==='LineString'?[g.coordinates]:g.type==='MultiLineString'?g.coordinates:[];
     lines.forEach(l=>{for(let i=1;i<l.length;i++){const a=id(l[i-1]),b=id(l[i]);if(a===b)continue;const L=Math.hypot(N[a][0]-N[b][0],N[a][1]-N[b][1]);adj[a].push([b,L]);adj[b].push([a,L]);}});});
-  if(N.length&&(!GM.d||N.length!==GM.d.N.length)){GM.d={N,adj};GM.rt.clear();}}
-function gmNear(x,y){const d=GM.d;let best=-1,bd=1e18;if(!d)return-1;for(let i=0;i<d.N.length;i++){const q=(d.N[i][0]-x)**2+(d.N[i][1]-y)**2;if(q<bd){bd=q;best=i;}}return best;}
+  gmCuci(N,adj);
+  if(N.length&&(!GM.d||N.length!==GM.d.N.length)){const cp=new Int32Array(N.length).fill(-1),sz=[];for(let i=0;i<N.length;i++){if(cp[i]>=0)continue;const id=sz.length;let n=0;const st=[i];cp[i]=id;while(st.length){const u=st.pop();n++;adj[u].forEach(([v])=>{if(cp[v]<0){cp[v]=id;st.push(v);}});}sz.push(n);}
+    const big=Math.max(...sz);GM.d={N,adj,ok:Array.from(cp,c=>sz[c]>=Math.max(8,big*.15))};GM.rt.clear();}}
+// le strade arrivano a pezzi (un pezzo per mattonella e vie spezzate): ogni capo libero si unisce alla strada più vicina entro 14 m
+function gmCuci(N,adj){const C=30,cell=new Map(),k=(x,y)=>Math.floor(x/C)+','+Math.floor(y/C);const S=[];
+  adj.forEach((L,a)=>L.forEach(([b])=>{if(a<b)S.push([a,b]);}));
+  S.forEach((sg,i)=>{const p=N[sg[0]],q=N[sg[1]];const n=Math.max(1,Math.ceil(Math.hypot(q[0]-p[0],q[1]-p[1])/C));for(let j=0;j<=n;j++){const x=p[0]+(q[0]-p[0])*j/n,y=p[1]+(q[1]-p[1])*j/n;const kk=k(x,y);let L=cell.get(kk);if(!L)cell.set(kk,L=[]);if(L[L.length-1]!==i)L.push(i);}});
+  const lega=(a,b,L)=>{if(a===b||adj[a].some(e=>e[0]===b))return;adj[a].push([b,L]);adj[b].push([a,L]);};
+  for(let a=0;a<N.length;a++){if(adj[a].length>1)continue;const P=N[a];let best=null,bd=14;const cx=Math.floor(P[0]/C),cy=Math.floor(P[1]/C);
+    for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)(cell.get((cx+dx)+','+(cy+dy))||[]).forEach(i=>{const[s0,s1]=S[i];if(s0===a||s1===a)return;const p=N[s0],q=N[s1];
+      const vx=q[0]-p[0],vy=q[1]-p[1],l2=vx*vx+vy*vy||1e-9;let t=((P[0]-p[0])*vx+(P[1]-p[1])*vy)/l2;t=Math.max(0,Math.min(1,t));const d=Math.hypot(p[0]+vx*t-P[0],p[1]+vy*t-P[1]);if(d<bd){bd=d;best={s0,s1,t};}});
+    if(best){const p=N[best.s0],q=N[best.s1],L=Math.hypot(q[0]-p[0],q[1]-p[1]);lega(a,best.s0,bd+L*best.t);lega(a,best.s1,bd+L*(1-best.t));}}}
+function gmNear(x,y){const d=GM.d;let best=-1,bd=1e18;if(!d)return-1;for(let i=0;i<d.N.length;i++){const q=(d.N[i][0]-x)**2+(d.N[i][1]-y)**2+(d.ok&&!d.ok[i]?2500:0);if(q<bd){bd=q;best=i;}}return best;}
 // percorso più breve (Dijkstra con una coda semplice); se non c'è, linea dritta
 function gmRoute(a,b){const d=GM.d;if(!d)return[a,b];const s=gmNear(a[0],a[1]),t=gmNear(b[0],b[1]);if(s<0||t<0||s===t)return[a,b];
   const dist=new Float64Array(d.N.length).fill(Infinity),prev=new Int32Array(d.N.length).fill(-1),heap=[[0,s]];dist[s]=0;
