@@ -3,8 +3,8 @@
 Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sql` alla radice, nell'ordine in cui sono stati eseguiti.
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
-- Tabelle: **84** · viste: **1** · indici: **47** · regole (policy): **45** · trigger: **17** · lavori programmati: **9**
-- Funzioni: **379** (379 nomi); usate (direttamente o tramite altre funzioni): **368**; **non usate: 11**
+- Tabelle: **85** · viste: **1** · indici: **47** · regole (policy): **46** · trigger: **17** · lavori programmati: **9**
+- Funzioni: **382** (382 nomi); usate (direttamente o tramite altre funzioni): **371**; **non usate: 11**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -46,7 +46,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_ally_state` |  |  |  | world_favs_list, world_near_survivors | 1: migr. 010_trova_preferiti |
 | `w_ancora` |  |  |  | w_vicino_alleanza, w_alleanza_chiudi | 1: migr. 019_alleanze_multiple |
 | `w_are_allies` |  |  |  | world_quote, world_send_help, world_give, world_feed_list, world_player, world_send_curse … | 5: mondo_v4 → social → alleanze2 → migr. 013_condominio → migr. 018_alleanze_gruppi |
-| `w_arena_cfg` |  |  |  | world_scontro_info, world_scontro_parti, world_scontro_subito, world_scontro_fine | 1: migr. 046_arena |
+| `w_arena_cfg` |  |  |  | world_scontro_info, world_scontro_parti, world_scontro_subito, world_scontro_fine, world_esplora_muovi | 2: migr. 046_arena → migr. 049_esplora |
 | `w_arena_danno` |  |  |  | world_scontro_inizia, world_scontro_fine | 1: migr. 046_arena |
 | `w_arena_viaggio` |  |  |  | world_scontro_info, world_scontro_parti | 1: migr. 046_arena |
 | `w_arena_zstats` |  |  |  | world_scontro_info, world_scontro_inizia | 1: migr. 046_arena |
@@ -76,6 +76,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_cantieri_tick` |  |  | cron | world_ripara, world_cantieri_miei, world_case_stato, world_def_restaura, world_completa_subito, world_missioni | 3: migr. 035_mezzi_cantieri → migr. 036_cantieri_case → migr. 040_danni_difese |
 | `w_casa_extra` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of, w_pres_def … | 1: migr. 014_territorio |
 | `w_casa_manca_tick` |  | ✓ |  |  | 1: migr. 021_caccia_condomini |
+| `w_casa_vicina_km` |  |  |  | world_esplora_muovi | 1: migr. 049_esplora |
 | `w_cella` |  |  |  | w_eventi_tick | 1: migr. 022_eventi_sfide |
 | `w_cleanup` |  |  |  | world_buy | 1: mondo_unico |
 | `w_coinq` |  |  |  | w_upower, w_are_allies, w_allies_of, world_allies, world_team_bonus, world_my_defense … | 2: alleanze2 → migr. 013_condominio |
@@ -193,7 +194,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_sup_inviti` |  |  |  | world_sup_info | 1: migr. 020_superstite |
 | `w_sup_lavori_tick` |  |  | cron | world_sup_abilita, world_sup_equip, world_completa_subito, world_sup_potenzia, world_sup_profilo, world_missioni | 1: migr. 043_superstite |
 | `w_sup_lavoro_nuovo` |  |  |  | world_sup_abilita, world_sup_equip, world_sup_potenzia | 1: migr. 043_superstite |
-| `w_sup_raggio` |  |  |  | world_sup_info, world_sped_parti, world_eventi_vicini, world_evento_azione, w_arena_viaggio | 2: migr. 020_superstite → migr. 021_caccia_condomini |
+| `w_sup_raggio` |  |  |  | world_sup_info, world_sped_parti, world_eventi_vicini, world_evento_azione, w_arena_viaggio, world_esplora_muovi | 2: migr. 020_superstite → migr. 021_caccia_condomini |
 | `w_sup_richiesto` |  |  |  | world_sup_potenzia, world_sup_profilo | 1: migr. 043_superstite |
 | `w_sup_stats` |  |  |  | world_sup_profilo, world_scontro_info, world_scontro_inizia | 1: migr. 043_superstite |
 | `w_target` |  |  |  | w_azione, world_edificio_info | 1: migr. 014_territorio |
@@ -296,6 +297,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_earn` | ✓ |  |  |  | 3: mondo_unico → migr. 012_risorse_ricompense → migr. 042_gemme |
 | `world_edificio_info` | ✓ |  |  |  | 2: migr. 014_territorio → migr. 017_presidi_fortificazioni |
 | `world_energia_compra` | ✓ |  |  |  | 1: migr. 041_mezzi_superstite |
+| `world_esplora_dove` | ✓ |  |  |  | 1: migr. 049_esplora |
+| `world_esplora_muovi` | ✓ |  |  |  | 1: migr. 049_esplora |
 | `world_eventi_vicini` | ✓ |  |  |  | 1: migr. 022_eventi_sfide |
 | `world_evento_azione` | ✓ |  |  |  | 2: migr. 022_eventi_sfide → migr. 038_eventi_vari |
 | `world_fav_set` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
@@ -364,7 +367,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_scontro_fine` | ✓ |  |  |  | 1: migr. 046_arena |
 | `world_scontro_info` | ✓ |  |  |  | 1: migr. 046_arena |
 | `world_scontro_inizia` | ✓ |  |  |  | 2: migr. 046_arena → migr. 048_gioco |
-| `world_scontro_parti` | ✓ |  |  |  | 1: migr. 046_arena |
+| `world_scontro_parti` | ✓ |  |  |  | 2: migr. 046_arena → migr. 049_esplora |
 | `world_scontro_subito` | ✓ |  |  |  | 2: migr. 046_arena → migr. 048_gioco |
 | `world_score` | ✓ |  |  |  | 1: classifica |
 | `world_seen` | ✓ |  |  |  | 1: mondo_unico |
@@ -452,6 +455,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_defs` | zombie | 5 | ✓ |
 | `world_difar` | supabase/migrazioni/026_difesa_lente_boss | 0 | ✓ |
 | `world_dm` | assedio | 0 | ✓ |
+| `world_esplora` | supabase/migrazioni/049_esplora | 0 | ✓ |
 | `world_eventi` | supabase/migrazioni/022_eventi_sfide | 2 | ✓ |
 | `world_eventi_azioni` | supabase/migrazioni/022_eventi_sfide | 0 | ✓ |
 | `world_excluded` | mondo_unico | 0 | ✓ |
@@ -476,7 +480,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_presidi_tenute` | supabase/migrazioni/006_presidi | 0 | ✓ |
 | `world_raduni` | supabase/migrazioni/030_attacchi_alleanza | 0 | ✓ |
 | `world_raduni_membri` | supabase/migrazioni/030_attacchi_alleanza | 0 | ✓ |
-| `world_scontri` | supabase/migrazioni/046_arena | 0 | ✓ |
+| `world_scontri` | supabase/migrazioni/046_arena | 2 | ✓ |
 | `world_sfide_fatte` | supabase/migrazioni/022_eventi_sfide | 0 | ✓ |
 | `world_sfide_premi` | supabase/migrazioni/022_eventi_sfide | 0 | ✓ |
 | `world_shapes` | supabase/migrazioni/003_forme_edifici | 0 | ✓ |

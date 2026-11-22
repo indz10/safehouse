@@ -52,10 +52,10 @@ function gmSup(){const L=(MIS.L||[]).filter(m=>(m.tipo==='scontro'||m.tipo==='sp
   const txt=ar?(f>=1?`🧟 Arrivato da ${m.titolo.replace(/^Verso /,'')} · ⚔️ tocca per combattere`:`🎒 Verso ${m.titolo.replace(/^Verso /,'')} · ${misT(left)}`):(f>=1?'📦 Spedizione tornata: raccogli':`🎒 Spedizione · ${f<.5?'andata':'ritorno'} · ${misT(left)}`);
   return{x:pos[0],y:pos[1],a:pos[2],fermo:f>=1,txt,m,R,f,ar};}
 async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}closeSheet();
-  document.body.insertAdjacentHTML('beforeend',`<div id="gmap"><div class="gmmap"></div><canvas></canvas><div class="gmtop"><b>🎮 Gioco</b><span data-gmtxt>Carico la mappa…</span><button class="gmx" data-gmx aria-label="Chiudi">✕</button></div>
+  document.body.insertAdjacentHTML('beforeend',`<div id="gmap"><div class="gmmap"></div><canvas class="gmfx"></canvas><div class="gmtop"><b>🎮 Gioco</b><span data-gmtxt>Carico la mappa…</span><button class="gmx" data-gmx aria-label="Chiudi">✕</button></div>
     <div class="gmside">${[['lente','📷','Lente'],['vicini','🧟','Vicini'],['mis','⏳','Missioni'],['pedia','📖','Zombipedia'],['dfa','🛡️','Difendi'],['boss','👹','Boss'],['evt','🚨','Eventi'],['case','🏠','Case'],['mv','❓','Come']].map(b=>`<button data-gmb="${b[0]}"><span>${b[1]}</span><small>${b[2]}</small></button>`).join('')}</div>
-    <div class="gmzoom"><button data-gmz="1">＋</button><button data-gmz="-1">－</button><button data-gmz="0" aria-label="Segui il superstite">🎯</button></div></div>`);
-  const el=document.getElementById('gmap');GM.el=el;GM.cv=el.querySelector('canvas');GM.ctx=GM.cv.getContext('2d');
+    <div class="gmzoom"><button data-gmz="1">＋</button><button data-gmz="-1">－</button><button data-gmz="0" class="gmme" aria-label="Centra sul superstite">📍<small>Tu</small></button></div></div>`);
+  const el=document.getElementById('gmap');GM.el=el;GM.cv=el.querySelector('canvas.gmfx');GM.ctx=GM.cv.getContext('2d');
   el.querySelector('[data-gmx]').onclick=gmClose;
   el.querySelectorAll('[data-gmz]').forEach(b=>b.onclick=()=>{const k=+b.dataset.gmz;const m=GM.map;if(!m)return;if(!k){GM.follow=true;GM.lastFollow=0;return;}m.easeTo({zoom:Math.max(13,Math.min(19,m.getZoom()+k)),duration:250});});
   const A={case:()=>gmCase(),lente:()=>{gmClose();lenteOpen();},vicini:()=>zmRadarSheet(),mis:()=>misSheet(),pedia:()=>zmPedia(),dfa:()=>dfaGo(),boss:()=>bossSheet(),mv:()=>mvSheet(),
@@ -68,31 +68,33 @@ async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}clos
   try{await loadML();}catch(e){el.querySelector('[data-gmtxt]').textContent='Mappa non disponibile: controlla la connessione';return;}if(!GM.on)return;
   const m=GM.map=new maplibregl.Map({container:el.querySelector('.gmmap'),style:gmStyle(),center:[h.lon,h.lat],zoom:17,minZoom:13,maxZoom:19,dragRotate:false,pitchWithRotate:false,attributionControl:false});
   try{m.touchZoomRotate.disableRotation();}catch(e){}
-  m.on('idle',gmGraph);m.on('dragstart',()=>{GM.follow=false;});m.on('click',e=>gmTap(e.point.x,e.point.y));
+  m.on('idle',gmGraph);m.on('dragstart',()=>{GM.follow=false;});m.on('click',e=>gmTap(e.point.x,e.point.y,e.lngLat));
+  gmAvInit(h);
   gmSize();addEventListener('resize',gmSize);GM.raf=requestAnimationFrame(gmLoop);}
 function gmClose(){GM.on=false;if(GM.base){GM.base=null;try{zmLoad(true);}catch(e){}}cancelAnimationFrame(GM.raf);removeEventListener('resize',gmSize);try{GM.map&&GM.map.remove&&GM.map.remove();}catch(e){}GM.map=null;const el=document.getElementById('gmap');if(el)el.remove();}
 function gmSize(){const c=GM.cv;if(!c)return;const r=c.getBoundingClientRect(),dp=Math.min(2,devicePixelRatio||1);c.width=Math.max(1,r.width*dp);c.height=Math.max(1,r.height*dp);GM.dp=dp;try{GM.map&&GM.map.resize();}catch(e){}}
 // da metri (attorno a casa) a punto sullo schermo della mappa
 function gmScr(x,y){const p=GM.map.project(gmLL(x,y));return[p.x,p.y];}
-function gmTap(X,Y){if(!GM.map)return;let hit=null,bd=30;
+function gmTap(X,Y,ll){if(!GM.map)return;let hit=null,bd=30;
   const chk=(x,y,o)=>{const p=gmScr(x,y);const d=Math.hypot(p[0]-X,p[1]-12-Y)-(o.k==='zombie'?8:0);if(d<bd){bd=d;hit=o;}};
   (ZM.L||[]).filter(z=>!z.preso).forEach(z=>{const p=gmXY(z.lat,z.lon);chk(p[0],p[1],{k:z.k,z});});
   const s=gmSup();chk(s.x,s.y,{k:'sup',s});(typeof myHouses==='function'?myHouses():[]).forEach(h=>{const p=gmXY(h.lat,h.lon);chk(p[0],p[1],{k:'casa'});});
-  if(!hit)return;try{sfx&&sfx('tap');}catch(e){}
+  if(GM.av){const p=gmXY(GM.av.lat,GM.av.lon);chk(p[0],p[1],{k:'av'});}
+  if(!hit||hit.k==='av'){if(hit&&hit.k==='av'){misSheet();return;}if(ll)gmCammina(ll.lat,ll.lng);return;}try{sfx&&sfx('tap');}catch(e){}
   if(hit.k==='zombie')arnCard(hit.z);else if(hit.k==='cassa')zmVicino();else if(hit.k==='casa')casasSheet();
   else if(hit.k==='sup'){const m=hit.s.m;if(m&&m.tipo==='scontro'&&hit.s.fermo)arnVai(m.id,m.ic);else if(m&&m.tipo==='spedizione'&&hit.s.fermo)supSheet('sped');else misSheet();}}
-function gmLoop(now){if(!GM.on)return;GM.t=now/1000;if(GM.map){const s=gmSup();
-    if(GM.follow&&!s.fermo&&now-(GM.lastFollow||0)>1200){GM.lastFollow=now;try{GM.map.easeTo({center:gmLL(s.x,s.y),duration:1000});}catch(e){}}
-    const tx=GM.el.querySelector('[data-gmtxt]');if(tx&&tx.textContent!==s.txt)tx.textContent=s.txt;gmDraw(s);}
+function gmLoop(now){if(!GM.on)return;const dt=Math.min(.05,(now-(GM.lastT||now))/1000);GM.lastT=now;GM.t=now/1000;if(GM.map){const s=gmSup();gmAvStep(dt);
+    if(GM.follow&&GM.av&&now-(GM.lastFollow||0)>(GM.av.P?500:1500)){GM.lastFollow=now;try{GM.map.easeTo({center:[GM.av.lon,GM.av.lat],duration:GM.av.P?500:800});}catch(e){}}
+    const txt=gmAvTxt(s);const tx=GM.el.querySelector('[data-gmtxt]');if(tx&&tx.textContent!==txt)tx.textContent=txt;gmDraw(s);}
   GM.raf=requestAnimationFrame(gmLoop);}
 // 🏠 Case: sposta il gioco su una delle tue case (anche lontanissima): zombie di quella zona, il superstite parte da lì
 function gmCase(){const H=(typeof myHouses==='function'?myHouses():[]);if(!H.length){toast('Non hai ancora case nel mondo');return;}
   openSheet('🏠 Gioca vicino a…',`<p class="muted" style="font-size:13px;margin:0 0 8px">Sposta la mappa del gioco su una tua casa: vedi gli zombie di quella zona e ci mandi il superstite da lì. Di persona combatti solo dove sei davvero.</p>${H.map((h,i)=>`<button class="mzopt ${GM.c0&&Math.abs(GM.c0.lat-h.lat)<1e-6&&Math.abs(GM.c0.lon-h.lon)<1e-6?'on':''}" data-gmc="${i}"><span>${h.ic||'🔑'}</span><b>${esc(h.label||'Casa')}</b><small>${h.km!=null?(h.km<1?Math.round(h.km*1000)+' m':Math.round(h.km)+' km')+' dalla prima':''}</small></button>`).join('')}`,
     c=>c.querySelectorAll('[data-gmc]').forEach(b=>b.onclick=()=>{const h=H[+b.dataset.gmc];closeSheet();gmVai(h);}));}
-function gmVai(h){GM.base={lat:h.lat,lon:h.lon};GM.c0={lat:h.lat,lon:h.lon};GM.d=null;GM.rt.clear();GM.follow=true;GM.casa=h;
+function gmVai(h){gmAvCasa(h);GM.base={lat:h.lat,lon:h.lon};GM.c0={lat:h.lat,lon:h.lon};GM.d=null;GM.rt.clear();GM.follow=true;GM.casa=h;
   try{GM.map&&GM.map.jumpTo({center:[h.lon,h.lat],zoom:17});}catch(e){}try{ZM.L=[];zmLoad(true);}catch(e){}toast(`📍 ${h.label||'Casa'}: zombie di questa zona`);}
 // mentre la mappa del Gioco è su una casa, gli zombie si caricano intorno a quella casa
-const _zmPos55=zmPos;zmPos=function(){if(GM.on&&GM.base)return GM.base;return _zmPos55.apply(this,arguments);};
+const _zmPos55=zmPos;zmPos=function(){if(GM.on&&GM.av)return{lat:GM.av.lat,lon:GM.av.lon};if(GM.on&&GM.base)return GM.base;return _zmPos55.apply(this,arguments);};
 // sopra la mappa: percorso, case, zombie, casse e il superstite che cammina
 function gmDraw(s){const c=GM.cv,x=GM.ctx,dp=GM.dp||1;if(!c.width)return;x.setTransform(dp,0,0,dp,0,0);const W=c.width/dp,H=c.height/dp,T=GM.t;x.clearRect(0,0,W,H);
   const z=Math.max(.7,Math.min(1.5,Math.pow(2,((GM.map.getZoom&&GM.map.getZoom())||17)-17)));
@@ -102,8 +104,34 @@ function gmDraw(s){const c=GM.cv,x=GM.ctx,dp=GM.dp||1;if(!c.width)return;x.setTr
   (ZM.L||[]).filter(zz=>!zz.preso).forEach((zz,i)=>{const p=gmXY(zz.lat,zz.lon);const q=gmScr(p[0],p[1]);if(q[0]<-30||q[1]<-30||q[0]>W+30||q[1]>H+30)return;const bob=Math.sin(T*3+i)*2;
     x.fillStyle='#00000040';x.beginPath();x.ellipse(q[0],q[1]+4,10*z,3*z,0,0,7);x.fill();gmEmoji(x,zz.k==='cassa'?'📦':(ZM_T[zz.tipo]||['🧟'])[0],q[0],q[1]-8+bob,28*z);
     if(zz.k!=='cassa'&&(ZM_T[zz.tipo]||[0,1])[1]>=3){x.strokeStyle='#ffd23f';x.lineWidth=2;x.beginPath();x.arc(q[0],q[1]-8+bob,17*z,0,7);x.stroke();}});
-  const q=gmScr(s.x,s.y);gmOmino(x,q[0],q[1],s.a,s.fermo?0:T,!s.fermo);
-  if(s.fermo&&s.m&&s.ar){x.font='bold 18px sans-serif';x.textAlign='center';x.fillText('❗',q[0],q[1]-34+Math.sin(T*6)*2);}}
+  if(s.m){const q=gmScr(s.x,s.y);gmEmoji(x,'🎒',q[0],q[1]-10,24);if(s.fermo&&s.ar){x.font='bold 18px sans-serif';x.textAlign='center';x.fillText('❗',q[0],q[1]-30+Math.sin(T*6)*2);}}
+  if(GM.av){const p=gmXY(GM.av.lat,GM.av.lon),q=gmScr(p[0],p[1]);
+    if(GM.av.P){x.setLineDash([3,5]);x.strokeStyle='#ffffffcc';x.lineWidth=3;x.beginPath();x.moveTo(q[0],q[1]);GM.av.P.slice(GM.av.i+1).forEach(pt=>{const r=gmScr(pt[0],pt[1]);x.lineTo(r[0],r[1]);});x.stroke();x.setLineDash([]);
+      const e=GM.av.P[GM.av.P.length-1],r=gmScr(e[0],e[1]);x.strokeStyle='#fff';x.lineWidth=2;x.beginPath();x.arc(r[0],r[1],6+Math.sin(T*6)*2,0,7);x.stroke();}
+    (ZM.L||[]).filter(zz=>!zz.preso&&zz.k==='zombie'&&trM(GM.av.lat,GM.av.lon,zz.lat,zz.lon)<=50).forEach(zz=>{const zp=gmXY(zz.lat,zz.lon),zq=gmScr(zp[0],zp[1]);
+      x.strokeStyle='#3df24a';x.lineWidth=3;x.beginPath();x.arc(zq[0],zq[1]-8,20+Math.sin(T*8)*2,0,7);x.stroke();x.font='bold 12px monospace';x.textAlign='center';x.fillStyle='#000';x.fillText('⚔️ TOCCA',zq[0]+1,zq[1]-33);x.fillStyle='#fff';x.fillText('⚔️ TOCCA',zq[0],zq[1]-34);});
+    gmOmino(x,q[0],q[1],GM.av.a||0,GM.av.P?T:0,!!GM.av.P);}}
+// 🧭 il superstite guidato col tocco: cammina per le strade a 10 m/s; il server controlla velocità e raggio (world_esplora_muovi)
+const GM_VEL=10;
+async function gmAvInit(h){GM.av=null;let d=null;try{const r=await SB.rpc('world_esplora_dove');d=r&&r.data;}catch(e){}
+  const raggio=((typeof SUP!=='undefined'&&SUP.d&&SUP.d.raggio_km)||3)*1000;const H=(typeof myHouses==='function'?myHouses():[]).filter(x=>x.lat!=null);
+  if(d&&d.lat!=null&&H.some(x=>trM(d.lat,d.lon,x.lat,x.lon)<raggio)){GM.av={lat:d.lat,lon:d.lon,a:0};}else{await gmAvCasa(h,true);}
+  try{GM.map.jumpTo({center:[GM.av.lon,GM.av.lat]});}catch(e){}GM.zmAt={lat:GM.av.lat,lon:GM.av.lon};try{zmLoad(true);}catch(e){}}
+async function gmAvCasa(h,zitto){GM.av={lat:h.lat,lon:h.lon,a:0};GM.zmAt=null;try{const{data}=await SB.rpc('world_esplora_muovi',{p_lat:h.lat,p_lon:h.lon,p_casa:true});if(data&&!data.ok&&!zitto)toast(data.msg);}catch(e){}GM.sent={t:Date.now(),lat:h.lat,lon:h.lon};}
+function gmCammina(lat,lon){if(!GM.av)return;const a=gmXY(GM.av.lat,GM.av.lon),b=gmXY(lat,lon);if(Math.hypot(a[0]-b[0],a[1]-b[1])<4)return;
+  const P=GM.d?gmRoute(a,b):[a,b];GM.av.P=P;GM.av.i=0;GM.av.f=0;GM.follow=true;try{sfx&&sfx('tap');}catch(e){}}
+function gmAvStep(dt){const v=GM.av;if(!v||!v.P)return;let left=GM_VEL*dt;
+  while(left>0&&v.i<v.P.length-1){const a=v.P[v.i],b=v.P[v.i+1];const L=Math.hypot(b[0]-a[0],b[1]-a[1])||.001;const rem=L*(1-v.f);
+    if(left>=rem){left-=rem;v.i++;v.f=0;}else{v.f+=left/L;left=0;}v.a=Math.atan2(b[1]-a[1],b[0]-a[0]);}
+  const a=v.P[v.i],b=v.P[Math.min(v.i+1,v.P.length-1)];const x=a[0]+(b[0]-a[0])*v.f,y=a[1]+(b[1]-a[1])*v.f;const ll=gmLL(x,y);v.lon=ll[0];v.lat=ll[1];
+  if(v.i>=v.P.length-1){v.P=null;gmAvSync(true);}else gmAvSync(false);
+  if(GM.zmAt&&trM(GM.zmAt.lat,GM.zmAt.lon,v.lat,v.lon)>120){GM.zmAt={lat:v.lat,lon:v.lon};try{zmLoad(true);}catch(e){}}}
+async function gmAvSync(subito){const v=GM.av;if(!v||GM.syncing)return;if(!subito&&GM.sent&&Date.now()-GM.sent.t<1500)return;GM.syncing=true;
+  try{const{data}=await SB.rpc('world_esplora_muovi',{p_lat:v.lat,p_lon:v.lon,p_casa:false});
+    if(data&&data.ok)GM.sent={t:Date.now(),lat:v.lat,lon:v.lon};else if(data&&data.lat!=null){v.lat=data.lat;v.lon=data.lon;v.P=null;if(data.msg&&Date.now()-(GM.msgT||0)>4000){GM.msgT=Date.now();toast(data.msg);}}}catch(e){}GM.syncing=false;}
+function gmAvTxt(s){const v=GM.av;if(!v)return s.txt;const z=(ZM.L||[]).filter(zz=>!zz.preso&&zz.k==='zombie').map(zz=>({zz,d:trM(v.lat,v.lon,zz.lat,zz.lon)})).sort((a,b)=>a.d-b.d)[0];
+  if(z&&z.d<=50)return`⚔️ ${(ZM_N[z.zz.tipo]||'Zombie')} qui! Toccalo per combattere`;if(v.P)return'🚶 In cammino… tocca un altro punto per cambiare strada';
+  return z?`🧭 Tocca la mappa per camminare · zombie più vicino ${Math.round(z.d)} m`:'🧭 Tocca la mappa per camminare';}
 function gmEmoji(x,e,cx,cy,sz){x.fillStyle='#000';x.font=`${sz}px system-ui, "Apple Color Emoji", sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(e,cx,cy);x.textBaseline='alphabetic';}
 function gmOmino(x,cx,cy,a,T,cammina){const av=(typeof SV!=='undefined'&&SV.d&&SV.d.avatar)||{};const col=SV_C[av.c||0]||'#ffd23f';const pelle='#f1c27d';const u=2.2;
   const passo=cammina?Math.sin(T*10):0;const lato=Math.cos(a)<0?-1:1;
