@@ -22,7 +22,9 @@ function thrCalc(T,o={}){const lvl=o.level!=null?o.level:T.level;const defs=Obje
 window.THR={L:null,t:0};
 async function thrLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return null;if(!force&&THR.L&&Date.now()-THR.t<60000)return THR.L;
   try{const{data,error}=await SB.rpc('world_threats');if(error)throw error;THR.L=data||[];THR.t=Date.now();}catch(e){THR.err=e.message;}return THR.L;}
-function thrOf(h){const L=THR.L||[];return L.find(x=>(h.home&&x.home)||(!h.home&&x.bid===h.bid))||null;}
+function thrOf(h){const L=THR.L||[];const T=L.find(x=>(h.home&&x.home)||(!h.home&&x.bid===h.bid))||null;
+  // casa appena comprata (Fase 66b): non è ancora nell'elenco in memoria → lo ricarico subito (al massimo ogni 10 s)
+  if(!T&&THR.L&&Date.now()-(THR.miss||0)>10000){THR.miss=Date.now();thrLoad(true).catch(()=>{});}return T;}
 /* le % ovunque vengono dalla minaccia vera della casa */
 /* ---------- scheda della casa: chi arriva + difese mirate + simulatore ---------- */
 function thrHTML(T,sim){const r=thrCalc(T,sim);const base=thrCalc(T);const ev=EVN[T.ev]||EVN.calma;const sl=T.slope||0;const slT=Math.abs(sl)<.01?'terreno piano':sl>0?`casa in alto: salita del ${Math.round(sl*100)}% per gli zombie`:`casa in basso: discesa del ${Math.round(-sl*100)}% per gli zombie`;
@@ -45,7 +47,7 @@ function thrAdvise(T,budget){const sim={defs:{},level:T.level};const kinds=[...n
     if(sim.level<5){const c=150*sim.level;if(c<=left){sim.level++;const g=ch()-base;sim.level--;if(g>0&&(!best||g/c>best.r))best={t:'l',c,r:g/c};}}
     if(!best)break;left-=best.c;if(best.t==='d'){const cur=sim.defs[best.k]!=null?sim.defs[best.k]:((T.defs||{})[best.k]||0);sim.defs[best.k]=cur+1;}else sim.level++;}
   return{sim,spent:budget-left};}
-async function thrSection(card,h,after){const dopo=after||(()=>houseSheet(h));await thrLoad();const T=thrOf(h);const box=card.querySelector('.thbox');if(!box)return;
+async function thrSection(card,h,after){const dopo=after||(()=>houseSheet(h));await thrLoad();let T=thrOf(h);if(!T){await thrLoad(true);T=thrOf(h);}const box=card.querySelector('.thbox');if(!box)return;
   if(!T){box.innerHTML=`<p class="muted" style="font-size:12.5px">${THR.err?'Simulatore non disponibile ('+esc(THR.err)+')'+(typeof SB!=='undefined'&&SB?': riprova tra poco':': l’app non è collegata al server (controlla la rete e riapri l’app)')+'.':'Questa casa non è ancora nel mondo.'}</p>`;return;}
   const sim={defs:{},level:T.level};const draw=()=>{box.innerHTML=thrHTML(T,sim);
     box.querySelectorAll('[data-sd]').forEach(b=>b.onclick=()=>{const k=b.dataset.sd;const cur=(T.defs||{})[k]||0;const v=(sim.defs[k]!=null?sim.defs[k]:cur)+(+b.dataset.v);sim.defs[k]=Math.max(cur,Math.min(3,v));draw();});

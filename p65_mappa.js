@@ -18,11 +18,15 @@ async function liveMap(el,addr,o){
   const homeG=()=>{try{if(window.__homeG||!S.zone||S.zone.address!==addr||map.getZoom()<14)return;const pt=map.project([lm.m.lon,lm.m.lat]);const fs=map.queryRenderedFeatures([[pt.x-3,pt.y-3],[pt.x+3,pt.y+3]],{layers:['bld']});
     const g=wFromTile(fs,lm.m.lat,lm.m.lon);if(g){window.__homeG=g;if(S.user&&!(S.zone.real&&S.zone.real.house&&S.zone.real.house.bid))wClaim(false);}}catch(e){}};map.on('idle',homeG);
   map.on('moveend',()=>{clearTimeout(lm._wt);lm._wt=setTimeout(()=>wDrawMap(lm),350);});setTimeout(()=>wDrawMap(lm),900);
-  map.on('click','bld',async e=>{if(!W.on)return;const pts=map.queryRenderedFeatures(e.point,{layers:['poi-biz','poi-pub','poi-cand','poi-hid'].filter(id=>map.getLayer(id))});if(pts.length)return;
+  // in 3D (Fase 66b) si tocca il palazzo alzato (bld3d), che con la mappa inclinata non sta sopra la sua pianta: valgono tutti e due, il 3D ha la precedenza
+  let bldT=0;const bld3dOn=()=>{try{return map.getLayer('bld3d')&&map.getLayoutProperty('bld3d','visibility')==='visible';}catch(x){return false;}};
+  map.on('click','bld3d',e=>{if(bld3dOn())bldClick(e);});
+  map.on('click','bld',e=>{if(bld3dOn()&&map.queryRenderedFeatures(e.point,{layers:['bld3d']}).length)return;bldClick(e);});
+  const bldClick=async e=>{if(Date.now()-bldT<400)return;bldT=Date.now();if(!W.on)return;const pts=map.queryRenderedFeatures(e.point,{layers:['poi-biz','poi-pub','poi-cand','poi-hid'].filter(id=>map.getLayer(id))});if(pts.length)return;
     const g=wFromTile(e.features,e.lngLat.lat,e.lngLat.lng);if(g){wSheet(g.bid,g.lat,g.lon);return;}
     openSheet('🌍 Edificio del mondo','<p><span class="spin"></span> Riconosco l’edificio…</p>',()=>{});
     try{const b=await wIdentify(e.lngLat.lat,e.lngLat.lng);if(!b){openSheet('🌍 Edificio del mondo','<p class="notice">Non riesco a riconoscere l’edificio: avvicina la mappa e riprova.</p>');return;}wSheet(b.bid,b.lat,b.lon);}
-    catch(x){openSheet('🌍 Edificio del mondo','<p class="notice">I server pubblici delle mappe sono molto occupati in questo momento: riprova tra un minuto. Le case vicino a casa tua si riconoscono sempre subito.</p>');}});}catch(e){}})();
+    catch(x){openSheet('🌍 Edificio del mondo','<p class="notice">I server pubblici delle mappe sono molto occupati in questo momento: riprova tra un minuto. Le case vicino a casa tua si riconoscono sempre subito.</p>');}};}catch(e){}})();
   await (async()=>{try{const box=lm.map.getContainer().closest('.lmap');
   if(box&&!box.querySelector('.lm-orda')){box.insertAdjacentHTML('beforeend','<button class="lm-orda" type="button">🧟 Orda</button>');box.querySelector('.lm-orda').onclick=e=>{e.stopPropagation();orPlay(lm);};}
   lm.map.on('moveend',()=>{clearTimeout(lm._obt);lm._obt=setTimeout(()=>{if(!lm._playing)orBadges(lm);},500);});
