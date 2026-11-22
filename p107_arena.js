@@ -71,12 +71,36 @@ const ARN_ZL={bruto:{s:1.18,pelle:'#6f9a50',maglia:'#7a3b2e'},corridore:{s:.95,p
   dottore:{s:1,pelle:'#9fc48a',maglia:'#e8e8e8'},clown:{s:1,pelle:'#b5d39a',maglia:'#d43c3c'},re:{s:1.15,pelle:'#7fa85e',maglia:'#6a2a8a'},strega:{s:1,pelle:'#93b87a',maglia:'#2a2a3a'}};
 const ARN_ROUND=90; // secondi per round (il server accetta scontri fino a 7,5 minuti, migrazione 051)
 // combo mostrate a lato della scena: si illuminano mentre le stai facendo
-const ARN_CB=[['atk,atk,kick','👊👊🦵','TRIPLA ×1,8'],['kick,kick','🦵🦵','ROTANTE ×1,5'],['dn+atk','▼+👊','COLPO BASSO'],['up+atk','▲ poi 👊','VOLANTE ×1,4'],['sp','🔥 pieno','SUPER ×3']];
+const ARN_CB=[['atk,atk,kick','👊👊🦵','TRIPLA ×1,8'],['kick,kick','🦵🦵','ROTANTE ×1,5'],['dn+atk','▼+👊','COLPO BASSO'],['up+atk','▲ poi 👊','VOLANTE ×1,4'],['sp','🔥 pieno','SUPER: sequenza']];
 function arnCombo(){const g=ARN.g;const el=g&&g.A.querySelector('[data-arncombo]');if(!el)return;const now=performance.now()/1000;const sq=(g.seq||[]).filter(x=>now-x[1]<1).map(x=>x[0]);
   const key=sq.join(',')+'|'+(g.k.dn?1:0)+(g.p.y>0?1:0)+(g.super>=100?1:0);if(el._k===key)return;el._k=key;
   el.innerHTML=ARN_CB.map(c=>{let on=0,n=0;if(c[0].includes(',')){const C=c[0].split(',');for(let i=Math.min(C.length-1,sq.length);i>0;i--){if(sq.slice(-i).join(',')===C.slice(0,i).join(',')){n=i;break;}}on=n?n/C.length:0;}
     else if(c[0]==='dn+atk')on=g.k.dn?.5:0;else if(c[0]==='up+atk')on=g.p.y>0?.5:0;else if(c[0]==='sp')on=g.super>=100?1:0;
     return`<div class="${on>=1?'ok':on>0?'va':''}"><b>${c[1]}</b><span>${c[2]}</span></div>`;}).join('');}
+// ⌨️ SEQUENZE DI TASTI (Fase 64): 🛡️ quando lo zombie fa un attacco speciale (schianto, urlo, carica) e 🔥 per la super combo
+// la scena rallenta, compaiono i tasti da premere in ordine prima che la barra finisca. Riuscita: parata + contrattacco / super combo.
+const ARN_QK={l:'◀',r:'▶',up:'▲',dn:'▼',atk:'👊',kick:'🦵'};const ARN_QSP=['schianto','urlo','carica'];
+function arnQteZ(k){const g=ARN.g;if(!g||g.qte||!ARN_QSP.includes(k)||Math.random()>.7||performance.now()-(g.qteT||0)<6000)return;g.qteT=performance.now();arnQte('difesa',k);}
+function arnQte(tipo,mk){const g=ARN.g;const n={facile:3,equilibrato:4,difficile:5}[g.diff]||4;const len=tipo==='super'?n+1:n;
+  const K=Object.keys(ARN_QK);const seq=[];for(let i=0;i<len;i++){let c;do{c=K[Math.floor(Math.random()*K.length)];}while(seq[i-1]===c);seq.push(c);}
+  const dur=(tipo==='super'?3.2:2.6)-({facile:0,equilibrato:.25,difficile:.5}[g.diff]||0);
+  g.qte={tipo,mk,seq,i:0,t0:performance.now(),dur};arnSnd(tipo==='super'?'salto':'verso');
+  const el=g.A.querySelector('[data-arnqte]');if(!el)return;let nuovo=false;try{nuovo=!localStorage.getItem('zsh_qte');localStorage.setItem('zsh_qte','1');}catch(e){}
+  el.className='arnqte on '+tipo;el.innerHTML=`<b>${tipo==='super'?'🔥 SUPER COMBO!':'🛡️ DIFENDITI!'}</b><small>${nuovo?'Premi questi tasti in ordine, prima che la barra finisca':tipo==='super'?'Premi la sequenza':'Premi la sequenza per parare'}</small>
+    <div class="arnqk">${seq.map((c,i)=>`<i data-q="${i}">${ARN_QK[c]}</i>`).join('')}</div><u><s data-qbar></s></u>`;arnQtePaint();}
+function arnQtePaint(){const g=ARN.g,q=g&&g.qte;const el=g&&g.A.querySelector('[data-arnqte]');if(!q||!el)return;el.querySelectorAll('[data-q]').forEach((e,i)=>e.className=i<q.i?'ok':i===q.i?'ora':'');}
+function arnQteTick(){const g=ARN.g,q=g.qte;const f=(performance.now()-q.t0)/1000/q.dur;const b=g.A.querySelector('[data-qbar]');if(b)b.style.width=Math.max(0,100-f*100)+'%';if(f>=1)arnQteFine(false);}
+function arnQteIn(k){const g=ARN.g,q=g&&g.qte;if(!q)return;if(!ARN_QK[k])return;if(q.seq[q.i]===k){q.i++;arnSnd('parata');arnQtePaint();if(q.i>=q.seq.length)arnQteFine(true);}
+  else{const e=g.A.querySelector(`[data-q="${q.i}"]`);if(e)e.className='no';arnQteFine(false);}}
+function arnQteFine(ok){const g=ARN.g,q=g.qte;if(!q)return;g.qte=null;const el=g.A.querySelector('[data-arnqte]');const p=g.p,z=g.z;
+  if(el){el.classList.add(ok?'vinta':'persa');setTimeout(()=>{if(el&&!g.qte)el.className='arnqte';},ok?700:500);}
+  if(q.tipo==='difesa'){if(ok){z.act=null;z.stun=1.1;z.kb=z.dir*-60;g.txt={t:'🛡️ PARATO! CONTRATTACCO',l:1};g.flash=.12;
+      setTimeout(()=>{if(ARN.g===g&&!g.fine&&!z.ko)arnColpisci(p,z,{...ARN_MV.calcio,m:1.6},true);},150);}
+    else{g.txt={t:'NON PARATO!',l:.8};}}
+  else{if(ok){g.txt={t:'🔥 SUPER COMBO!',l:1.4};g.flash=.15;let n=0;const colpo=()=>{if(ARN.g!==g||g.fine||z.ko)return;n++;
+        arnColpisci(p,z,n<5?{...ARN_MV.pugno,m:1.1}:{...ARN_MV.speciale,m:2.4},true);g.fx.push({x:0,y:0,vx:0,vy:0,t:.3,k:'lines',c:'#ff9f1c'});if(n<5)setTimeout(colpo,130);};
+      p.act={k:'speciale',t:0,hit:true};colpo();}
+    else{g.txt={t:'🔥 SUPER!',l:.8};p.act={k:'speciale',t:0,hit:false};}}}
 function arnF(x,dir,hp){return{x,dir,hp,hp0:hp,hpv:hp,act:null,stun:0,inv:0,blk:0,kb:0,dash:0,cd:.8,t:0,walk:0,ko:false,q:null,y:0,vy:0,down:0,hk:'',hit:0};}
 function arnApri(d){try{if(typeof LENTE!=='undefined'&&LENTE.on)lenteClose();}catch(e){}
   const io=d.io,zz=d.zombie,av=d.avatar||{};const zl=ARN_ZL[zz.tipo]||{s:1,pelle:'#8fbf6a',maglia:'#6b5a8a'};
@@ -88,7 +112,7 @@ function arnApri(d){try{if(typeof LENTE!=='undefined'&&LENTE.on)lenteClose();}ca
     <div class="arntop"><div class="arnhp me"><b>${esc(g.nome)}</b><i><s data-arnhv="me"></s><u data-arnhp="me"></u></i><small>GRADO ${io.grado}${io.casa?` · <span data-arncasa title="Vicino a casa: le fortificazioni ti aiutano">🏰+${io.casa*5}</span>`:''} · ❤️ <span data-arnhpt="me">${io.vita}</span> · <span class="arnrd" data-arnrd="p">○○</span></small><em class="arnsup"><span data-arnsup></span><b>SUPER</b></em></div>
       <div class="arntime"><b data-arntime>${ARN_ROUND}</b><small data-arnround>ROUND 1</small><button class="arnx" data-arnx aria-label="Scappa">✕</button></div>
       <div class="arnhp z"><b>${esc(g.znome)}</b><i><s data-arnhv="z"></s><u data-arnhp="z"></u></i><small>LV ${zz.livello} · ${({facile:'FACILE',equilibrato:'EQUILIBRATO',difficile:'DIFFICILE'})[d.diff]||''} · ❤️ <span data-arnhpt="z">${zz.vita}</span> · <span class="arnrd" data-arnrd="z">○○</span></small></div></div>
-    <div class="arnfield"><div class="arncombo" data-arncombo></div><canvas></canvas><div class="arnann" data-arnann></div></div>
+    <div class="arnfield"><div class="arncombo" data-arncombo></div><div class="arnqte" data-arnqte></div><canvas></canvas><div class="arnann" data-arnann></div></div>
     <div class="arnctl"><div class="arnpad cr"><button data-arnk="up" class="psu" aria-label="Salta">▲</button><button data-arnk="l" class="psx" aria-label="Sinistra">◀</button><button data-arnk="r" class="pdx" aria-label="Destra">▶</button><button data-arnk="dn" class="pgiu" aria-label="Abbassati">▼</button></div>
       <div class="arnpad dx"><button data-arnk="blk" aria-label="Para">🛡️<small>Para</small></button><button data-arnk="dod" aria-label="Schiva">💨<small>Schiva</small></button>
         <button class="big" data-arnk="atk" aria-label="Pugno">👊<small>Pugno</small></button><button class="big k" data-arnk="kick" aria-label="Calcio">🦵<small>Calcio</small></button><button data-arnk="sp" aria-label="Mossa speciale">🔥<small>Super</small><span class="cd" data-arncd></span></button></div></div>
@@ -103,11 +127,11 @@ function arnApri(d){try{if(typeof LENTE!=='undefined'&&LENTE.on)lenteClose();}ca
   A.querySelector('[data-arnrotok]').onclick=()=>{g.rotOk=1;rot();};
   A.querySelector('[data-arnx]').onclick=()=>{if(g.fine)return;if(confirm('Scappare? Lo scontro conta come perso e non ricevi premi.'))arnFine('abbandonato');};
   A.querySelectorAll('[data-arnk]').forEach(b=>{const k=b.dataset.arnk;
-    const tieni=k==='l'||k==='r'||k==='blk'||k==='dn';const giu=e=>{e.preventDefault();if(tieni)g.k[k]=1;else arnAzione(k);b.classList.add('pr');};
+    const tieni=k==='l'||k==='r'||k==='blk'||k==='dn';const giu=e=>{e.preventDefault();b.classList.add('pr');if(g.qte){arnQteIn(k);return;}if(tieni)g.k[k]=1;else arnAzione(k);};
     const su=e=>{e.preventDefault();if(tieni)g.k[k]=0;b.classList.remove('pr');};
     b.addEventListener('pointerdown',giu);b.addEventListener('pointerup',su);b.addEventListener('pointerleave',su);b.addEventListener('pointercancel',su);});
   const KM={arrowleft:'l',a:'l',arrowright:'r',d:'r',x:'blk',arrowdown:'dn',s:'dn'};
-  g.kd=e=>{const K=e.key.toLowerCase();if(KM[K]){g.k[KM[K]]=1;e.preventDefault();return;}
+  g.kd=e=>{const K=e.key.toLowerCase();if(g.qte){const q={arrowleft:'l',a:'l',arrowright:'r',d:'r',arrowdown:'dn',s:'dn',arrowup:'up',w:'up',j:'atk',z:'atk',k:'kick',c:'kick'}[K];if(q){arnQteIn(q);e.preventDefault();}return;}if(KM[K]){g.k[KM[K]]=1;e.preventDefault();return;}
     if(K==='arrowup'||K==='w')arnAzione('up');else if(K==='j'||K==='z')arnAzione('atk');else if(K==='k'||K==='c')arnAzione('kick');else if(K==='l'||K==='v')arnAzione('dod');else if(K===' '||K==='u')arnAzione('sp');else if(K==='escape')A.querySelector('[data-arnx]').click();else return;e.preventDefault();};
   g.ku=e=>{const K=e.key.toLowerCase();if(KM[K])g.k[KM[K]]=0;};
   addEventListener('keydown',g.kd);addEventListener('keyup',g.ku);
@@ -142,7 +166,7 @@ function arnAzione(k){const g=ARN.g;if(!g||g.fine||!g.via)return;const p=g.p;if(
   else if(k==='kick'&&/kick,kick$/.test(sq)){p.act={k:'rotante',t:0,hit:false};g.txt={t:'CALCIO ROTANTE!',l:.7};g.seq=[];}
   else if(k==='atk'&&g.k.dn)p.act={k:'basso',t:0,hit:false};
   else if(k==='atk')p.act={k:'pugno',t:0,hit:false};else if(k==='kick')p.act={k:'calcio',t:0,hit:false};
-  else if(k==='sp'){if(g.super<100){g.txt={t:'SUPER '+Math.floor(g.super)+'%',l:.6};return;}g.super=0;p.act={k:'speciale',t:0,hit:false};g.txt={t:'🔥 SUPER!',l:.8};}
+  else if(k==='sp'){if(g.super<100){g.txt={t:'SUPER '+Math.floor(g.super)+'%',l:.6};return;}g.super=0;arnQte('super');}
   else if(k==='dod'){if(g.dodCd>0)return;g.dodCd=Math.max(.7,1.3-g.d.io.agilita*.02);p.inv=.4;p.dash=.22;p.dashv=-p.dir*95;return;}
   // lo zombie a volte para quando vede arrivare il colpo
   const z=g.z;if(arnLibero(z)&&Math.abs(z.x-p.x)<22&&Math.random()<g.para)z.blk=.5;}
@@ -162,7 +186,7 @@ function arnColpisci(a,b,mv,io){const g=ARN.g;const dir=a.dir;let dn=Math.round(
   if(!g.furia&&g.z.hp>0&&g.z.hp/g.z.hp0<.35){g.furia=true;g.zvel*=1.3;g.txt={t:'😡 FURIA!',l:1};}
   if(b.hp<=0)arnFineRound(io?'p':'z');}
 // fine di un round: al meglio di 3 (2 round vinti)
-function arnFineRound(chi){const g=ARN.g;if(!g.via)return;g.via=false;const p=g.p,z=g.z;(chi==='p'?z:p).ko=true;(chi==='p'?z:p).stun=9;g.slow=.25;arnSnd('ko');g.proj=[];g.vinti[chi]++;
+function arnFineRound(chi){const g=ARN.g;if(!g.via)return;g.via=false;const p=g.p,z=g.z;(chi==='p'?z:p).ko=true;(chi==='p'?z:p).stun=9;g.slow=.25;if(g.qte){g.qte=null;const q=g.A.querySelector('[data-arnqte]');if(q)q.className='arnqte';}arnSnd('ko');g.proj=[];g.vinti[chi]++;
   const set=k=>{const el=g.A.querySelector(`[data-arnrd="${k}"]`);if(el)el.textContent='●'.repeat(g.vinti[k])+'○'.repeat(2-g.vinti[k]);};set('p');set('z');
   const v=window.__arnVeloce;if(g.vinti[chi]>=2){arnAnn('K.O.',v?80:1300,()=>arnFine(chi==='p'?'vinto':'perso'),'ko');return;}
   arnAnn(g.tempo<=0?'TEMPO!':'K.O.',v?60:1200,()=>{g.round++;g.slow=1;Object.assign(p,arnF(24,1,p.hp0));Object.assign(z,arnF(76,-1,z.hp0));g.furia=false;g.zvel=9+g.d.zombie.agilita*1.2;g.tempo=ARN_ROUND;g.combo.n=0;g.seq=[];arnBarre();
@@ -189,11 +213,11 @@ function arnAI(dt){const g=ARN.g,z=g.z,p=g.p;if(!arnLibero(z)||z.blk>0)return;co
   if(p.act&&p.act.t>ARN_MV[p.act.k].st+ARN_MV[p.act.k].ac&&dist<17&&Math.random()<g.punisci*dt*6){z.act={k:'graffio',t:ARN_MV.graffio.st*g.wind*.4,hit:false};return;}
   if(z.cd>0){if(dist>12)z.x+=z.dir*g.zvel*.6*dt;return;}
   const MS=ARN_ZM[g.d.zombie.tipo]||ARN_ZM.vagante;const pick=L=>L[Math.floor(Math.random()*L.length)];
-  if(dist>24&&Math.random()<dt*1.4){const k=pick(MS[1]);z.act={k,t:0,hit:false};z.cd=1.1;if(k==='urlo'||k==='sputo')arnSnd('verso');return;}
+  if(dist>24&&Math.random()<dt*1.4){const k=pick(MS[1]);z.act={k,t:0,hit:false};z.cd=1.1;if(k==='urlo'||k==='sputo')arnSnd('verso');arnQteZ(k);return;}
   if(dist>13){z.x+=z.dir*g.zvel*dt;z.walk+=dt;if(Math.random()<dt*.4)arnSnd('verso');return;}
-  const k=pick(MS[0]);z.act={k,t:0,hit:false};if(k==='graffio'&&Math.random()<.35)z.q='graffio';if(k==='schianto'||k==='urlo')arnSnd('verso');
+  const k=pick(MS[0]);z.act={k,t:0,hit:false};if(k==='graffio'&&Math.random()<.35)z.q='graffio';if(k==='schianto'||k==='urlo')arnSnd('verso');arnQteZ(k);
   z.cd=({facile:1.3,equilibrato:.95,difficile:.65}[g.diff]||1)*(.7+Math.random()*.6)*(g.furia?.7:1);}
-function arnLoop(now){const g=ARN.g;if(!g)return;let dt=Math.min(.05,(now-g.last)/1000);g.last=now;dt*=g.slow;if(g.stop>0){g.stop-=dt;dt*=.15;}const p=g.p,z=g.z;
+function arnLoop(now){const g=ARN.g;if(!g)return;let dt=Math.min(.05,(now-g.last)/1000);g.last=now;dt*=g.slow;if(g.qte){dt*=.1;arnQteTick();}if(g.stop>0){g.stop-=dt;dt*=.15;}const p=g.p,z=g.z;
   if(g.via){const fermo=!arnLibero(p)||g.k.blk||(g.k.dn&&p.y<=0);if(!fermo){if(g.k.l){p.x-=g.vel*dt;p.walk+=dt;}if(g.k.r){p.x+=g.vel*dt;p.walk+=dt;}}
     ['spCd','dodCd'].forEach(k=>{if(g[k]>0)g[k]=Math.max(0,g[k]-dt);});arnAI(dt);
     g.tempo=Math.max(0,ARN_ROUND-(now-g.t0)/1000);const tl=g.A.querySelector('[data-arntime]');if(tl)tl.textContent=Math.ceil(g.tempo);
