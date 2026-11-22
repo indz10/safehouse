@@ -40,14 +40,9 @@ async def main():
         await pg.evaluate("()=>closeSheet()")
         await pg.evaluate("()=>{closeSheet();const z=ZM.L.find(z=>z.tipo==='bruto'&&!z.preso);gmTap(-999,-999,{lat:z.lat-0.0002,lng:z.lon});}");await pg.wait_for_timeout(4500)
         print('cammina verso lo zombie:',await pg.evaluate("()=>{const z=ZM.L.find(z=>z.tipo==='bruto');return [Math.round(trM(GM.av.lat,GM.av.lon,z.lat,z.lon))<=50,(window.__EXPN||0)>=2]}"))
-        # 🚗 spostamento automatico: scheda dello zombie → "Vai lì per le strade" → il superstite in auto ci va da solo → arena
-        await pg.evaluate("()=>{MZU='auto';const z=ZM.L.find(z=>z.k==='zombie'&&z.tipo!=='bruto'&&!z.preso);window.__zA=z;GM.av.lat=z.lat-0.0012;GM.av.lon=z.lon;GM.av.P=null;arnCard(z);}");await pg.wait_for_timeout(1200)
-        print('vai automatico:',await pg.evaluate("()=>[!!document.querySelector('#sheet.open [data-arnauto]'),(document.querySelector('#sheet.open [data-arnauto]')||{}).textContent]"))
-        await pg.evaluate("()=>document.querySelector('#sheet.open [data-arnauto]').click()");await pg.wait_for_timeout(1500)
-        print('in viaggio in auto:',await pg.evaluate("()=>[!!GM.av.P,gmMz(),gmVel()]"))
-        await pg.wait_for_timeout(9000)
-        print('arrivato e combatte:',await pg.evaluate("()=>[!GM.av.P,window.__ARNP&&window.__ARNP.p_modo,!!document.getElementById('arena')]"))
-        await pg.evaluate("()=>{try{arnChiudi();}catch(e){}MZU=null;}");await pg.wait_for_timeout(500)
+        # 🎒 un solo modo col superstite (dalla casa e col mezzo scelti): niente "Vai lì per le strade"; in viaggio si disegna il mezzo
+        print('un solo tasto:',await pg.evaluate("()=>{const z=ZM.L.find(z=>z.k==='zombie'&&z.tipo!=='bruto'&&!z.preso);GM.av.lat=z.lat-0.0012;GM.av.lon=z.lon;return arnCard(z).then(()=>[!document.querySelector('#sheet.open [data-arnauto]'),!!document.querySelector('#sheet.open [data-arns]')])}"))
+        await pg.evaluate("()=>closeSheet()")
         await pg.evaluate("()=>{const z=ZM.L.find(z=>z.tipo==='bruto');GM.av.lat=z.lat-0.0002;GM.av.lon=z.lon;}")
         await pg.evaluate("()=>{const z=ZM.L.find(z=>z.tipo==='bruto');arnCard(z);}");await pg.wait_for_timeout(1200)
         print('combatti col superstite:',await pg.evaluate("()=>!!document.querySelector('#sheet.open [data-arne]')"))

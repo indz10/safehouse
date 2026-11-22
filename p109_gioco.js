@@ -23,10 +23,8 @@ function gmStyle(){const R=['interpolate',['exponential',1.6],['zoom']];const MJ
    {id:'road-cas',type:'line',source:'omt','source-layer':'transportation',filter:ROADS,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#8c8494','line-width':[...R,12,['match',['get','class'],MJ,4,SC,3,2],18,['match',['get','class'],MJ,34,SC,28,['service'],12,22]]}},
    {id:'road',type:'line',source:'omt','source-layer':'transportation',filter:ROADS,layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['match',['get','class'],MJ,'#232228','#2b2a30'],'line-width':[...R,12,['match',['get','class'],MJ,2.6,SC,2,1.2],18,['match',['get','class'],MJ,28,SC,23,['service'],8,17]]}},
    {id:'road-mid',type:'line',source:'omt','source-layer':'transportation',minzoom:15,filter:['in',['get','class'],['literal',['motorway','trunk','primary','secondary','tertiary','minor']]],paint:{'line-color':'#e8d36a','line-width':[...R,15,.8,18,2.2],'line-dasharray':[3,3]}},
-   {id:'bld',type:'fill',source:'omt','source-layer':'building',minzoom:14,paint:{'fill-color':['match',['%',['to-number',['id'],0],5],0,'#6b5a7a',1,'#5a6470',2,'#7a5a4a',3,'#4a5a4a','#6a6a72'],'fill-outline-color':'#120c18'}},
-   {id:'bld-line',type:'line',source:'omt','source-layer':'building',minzoom:15,paint:{'line-color':'#120c18','line-width':2}},
-   {id:'bld-hi',type:'line',source:'omt','source-layer':'building',minzoom:16,paint:{'line-color':'#ffffff26','line-width':1.5,'line-offset':3}},
-   {id:'nomi',type:'symbol',source:'omt','source-layer':'transportation_name',minzoom:16,layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':['Noto Sans Bold'],'text-size':11},paint:{'text-color':'#e8e0f0','text-halo-color':'#1a1420','text-halo-width':2}}]};}
+   {id:'bld',type:'fill-extrusion',source:'omt','source-layer':'building',minzoom:14,paint:{'fill-extrusion-color':['match',['%',['to-number',['id'],0],5],0,'#6b5a7a',1,'#5a6470',2,'#7a5a4a',3,'#4a5a4a','#6a6a72'],'fill-extrusion-height':['coalesce',['get','render_height'],8],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':.95,'fill-extrusion-vertical-gradient':true}},
+   {id:'nomi',type:'symbol',source:'omt','source-layer':'transportation_name',minzoom:15,layout:{'symbol-placement':'line','text-field':['get','name'],'text-font':['Noto Sans Bold'],'text-size':14},paint:{'text-color':'#e8e0f0','text-halo-color':'#1a1420','text-halo-width':2}}]};}
 // strade della mappa (le mattonelle caricate) → grafo per il percorso più breve; nodi su una griglia di 2 m così i pezzi si uniscono
 function gmGraph(){const m=GM.map;if(!m||!GM.c0)return;let F=[];try{F=m.querySourceFeatures('omt',{sourceLayer:'transportation'})||[];}catch(e){}
   const nodes=new Map(),N=[],adj=[];const id=(ll)=>{const p=gmXY(ll[1],ll[0]);const k=Math.round(p[0]/2)+','+Math.round(p[1]/2);let i=nodes.get(k);if(i==null){i=N.length;nodes.set(k,i);N.push(p);adj.push([]);}return i;};
@@ -41,14 +39,15 @@ function gmRoute(a,b){const d=GM.d;if(!d)return[a,b];const s=gmNear(a[0],a[1]),t
   const push=v=>{heap.push(v);let i=heap.length-1;while(i>0){const p=(i-1)>>1;if(heap[p][0]<=heap[i][0])break;[heap[p],heap[i]]=[heap[i],heap[p]];i=p;}};
   const pop=()=>{const top=heap[0],last=heap.pop();if(heap.length){heap[0]=last;let i=0;for(;;){const l=2*i+1,r=l+1;let m=i;if(l<heap.length&&heap[l][0]<heap[m][0])m=l;if(r<heap.length&&heap[r][0]<heap[m][0])m=r;if(m===i)break;[heap[m],heap[i]]=[heap[i],heap[m]];i=m;}}return top;};
   while(heap.length){const[du,u]=pop();if(u===t)break;if(du>dist[u])continue;for(const[v,L]of d.adj[u]){const nd=du+L;if(nd<dist[v]){dist[v]=nd;prev[v]=u;push([nd,v]);}}}
-  if(!isFinite(dist[t]))return[a,b];const P=[];for(let u=t;u>=0;u=prev[u])P.push(d.N[u]);P.reverse();return[a,...P,b];}
+  let e=t;if(!isFinite(dist[t])){let bd=1e18;e=-1;for(let i=0;i<d.N.length;i++)if(isFinite(dist[i])){const q=(d.N[i][0]-b[0])**2+(d.N[i][1]-b[1])**2;if(q<bd){bd=q;e=i;}}if(e<0||e===s)return[a,b];}
+  const P=[];for(let u=e;u>=0;u=prev[u])P.push(d.N[u]);P.reverse();return[a,...P,b];}
 function gmAlong(P,f){let L=0;const seg=[];for(let i=1;i<P.length;i++){const l=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);seg.push(l);L+=l;}let r=Math.max(0,Math.min(1,f))*L;
   for(let i=0;i<seg.length;i++){if(r<=seg[i]){const k=seg[i]?r/seg[i]:0;return[P[i][0]+(P[i+1][0]-P[i][0])*k,P[i][1]+(P[i+1][1]-P[i][1])*k,Math.atan2(P[i+1][1]-P[i][1],P[i+1][0]-P[i][0])];}r-=seg[i];}
   const n=P.length-1;return[P[n][0],P[n][1],0];}
 // dove si trova il superstite adesso: in viaggio verso lo zombie (solo andata) o in spedizione (andata e ritorno)
 function gmSup(){const L=(MIS.L||[]).filter(m=>(m.tipo==='scontro'||m.tipo==='spedizione')&&m.lat!=null);const home=gmXY(GM.c0.lat,GM.c0.lon);
   if(!L.length)return{x:home[0],y:home[1],a:0,fermo:true,txt:'🏠 A casa · tocca uno zombie per affrontarlo'};
-  const m=L[0];const key=m.tipo+m.id;let R=GM.rt.get(key);const meta=gmXY(m.lat,m.lon);{const H=(typeof myHouses==='function'?myHouses():[]).filter(h=>h.lat!=null);if(H.length){const hb=H.slice().sort((a,b)=>trM(a.lat,a.lon,m.lat,m.lon)-trM(b.lat,b.lon,m.lat,m.lon))[0];const hp=gmXY(hb.lat,hb.lon);home[0]=hp[0];home[1]=hp[1];}}if(!R){if(GM.d){R=gmRoute(home,meta);GM.rt.set(key,R);}else R=[home,meta];}
+  const m=L[0];const key=m.tipo+m.id;let R=GM.rt.get(key);const meta=gmXY(m.lat,m.lon);{const H=(typeof myHouses==='function'?myHouses():[]).filter(h=>h.lat!=null);if(H.length){const hb=H.slice().sort((a,b)=>trM(a.lat,a.lon,m.lat,m.lon)-trM(b.lat,b.lon,m.lat,m.lon))[0];const hp=gmXY(hb.lat,hb.lon);home[0]=hp[0];home[1]=hp[1];}}if(!R){if(GM.d){R=gmRoute(home,meta);if(R.length>2)GM.rt.set(key,R);}else R=[home,meta];}
   const t0=new Date(m.inizio).getTime(),t1=m.fineMs||new Date(m.fine).getTime();let f=t1>t0?(Date.now()-t0)/(t1-t0):1;f=Math.max(0,Math.min(1,f));
   const ar=m.tipo==='scontro';const pos=ar?gmAlong(R,f):(f<.5?gmAlong(R,f*2):gmAlong(R.slice().reverse(),(f-.5)*2));const left=Math.max(0,(t1-Date.now())/1000);
   const txt=ar?(f>=1?`🧟 Arrivato da ${m.titolo.replace(/^Verso /,'')} · ⚔️ tocca per combattere`:`🎒 Verso ${m.titolo.replace(/^Verso /,'')} · ${misT(left)}`):(f>=1?'📦 Spedizione tornata: raccogli':`🎒 Spedizione · ${f<.5?'andata':'ritorno'} · ${misT(left)}`);
@@ -77,7 +76,7 @@ async function gmOpen(){if(GM.on)return;GM.on=true;try{zmClose();}catch(e){}clos
   try{zmLoad(true);}catch(e){}misLoad(true);
   try{if(typeof mzUsoLoad==='function'&&!MZU)mzUsoLoad();}catch(e){}
   try{await loadML();}catch(e){el.querySelector('[data-gmtxt]').textContent='Mappa non disponibile: controlla la connessione';return;}if(!GM.on)return;
-  const m=GM.map=new maplibregl.Map({container:el.querySelector('.gmmap'),style:gmStyle(),center:[h.lon,h.lat],zoom:17,minZoom:13,maxZoom:19,dragRotate:false,pitchWithRotate:false,attributionControl:false});
+  const m=GM.map=new maplibregl.Map({container:el.querySelector('.gmmap'),style:gmStyle(),center:[h.lon,h.lat],zoom:17,pitch:50,minZoom:13,maxZoom:19,dragRotate:false,pitchWithRotate:false,attributionControl:false});
   try{m.touchZoomRotate.disableRotation();}catch(e){}
   m.on('idle',gmGraph);m.on('dragstart',()=>{GM.follow=false;});m.on('click',e=>gmTap(e.point.x,e.point.y,e.lngLat));
   gmAvInit(h);
@@ -115,8 +114,8 @@ function gmDraw(s){const c=GM.cv,x=GM.ctx,dp=GM.dp||1;if(!c.width)return;x.setTr
   (ZM.L||[]).filter(zz=>!zz.preso).forEach((zz,i)=>{const p=gmXY(zz.lat,zz.lon);const q=gmScr(p[0],p[1]);if(q[0]<-30||q[1]<-30||q[0]>W+30||q[1]>H+30)return;const bob=Math.sin(T*3+i)*2;
     x.fillStyle='#00000040';x.beginPath();x.ellipse(q[0],q[1]+4,10*z,3*z,0,0,7);x.fill();gmEmoji(x,zz.k==='cassa'?'📦':(ZM_T[zz.tipo]||['🧟'])[0],q[0],q[1]-8+bob,28*z);
     if(zz.k!=='cassa'&&(ZM_T[zz.tipo]||[0,1])[1]>=3){x.strokeStyle='#ffd23f';x.lineWidth=2;x.beginPath();x.arc(q[0],q[1]-8+bob,17*z,0,7);x.stroke();}});
-  if(s.m){const q=gmScr(s.x,s.y);gmEmoji(x,'🎒',q[0],q[1]-10,24);if(s.fermo&&s.ar){x.font='bold 18px sans-serif';x.textAlign='center';x.fillText('❗',q[0],q[1]-30+Math.sin(T*6)*2);}}
-  if(GM.av){const p=gmXY(GM.av.lat,GM.av.lon),q=gmScr(p[0],p[1]);
+  if(s.m){const q=gmScr(s.x,s.y);const a=s.a||0;if(gmMz()!=='piedi')gmVeicolo(x,q[0],q[1],a,gmMz(),!s.fermo,T);else gmOmino(x,q[0],q[1],a,s.fermo?0:T,!s.fermo);if(s.fermo&&s.ar){x.font='bold 18px sans-serif';x.textAlign='center';x.fillText('❗',q[0],q[1]-30+Math.sin(T*6)*2);}}
+  if(GM.av&&!(s.m&&!s.fermo)){const p=gmXY(GM.av.lat,GM.av.lon),q=gmScr(p[0],p[1]);
     if(GM.av.P){x.setLineDash([3,5]);x.strokeStyle='#ffffffcc';x.lineWidth=3;x.beginPath();x.moveTo(q[0],q[1]);GM.av.P.slice(GM.av.i+1).forEach(pt=>{const r=gmScr(pt[0],pt[1]);x.lineTo(r[0],r[1]);});x.stroke();x.setLineDash([]);
       const e=GM.av.P[GM.av.P.length-1],r=gmScr(e[0],e[1]);x.strokeStyle='#fff';x.lineWidth=2;x.beginPath();x.arc(r[0],r[1],6+Math.sin(T*6)*2,0,7);x.stroke();}
     (ZM.L||[]).filter(zz=>!zz.preso&&zz.k==='zombie'&&trM(GM.av.lat,GM.av.lon,zz.lat,zz.lon)<=50).forEach(zz=>{const zp=gmXY(zz.lat,zz.lon),zq=gmScr(zp[0],zp[1]);
@@ -192,7 +191,6 @@ const GM_MZV={piedi:6,bici:9,moto:14,auto:18,fuori:16,furgone:15};
 function gmMz(){const m=(typeof MZU!=='undefined'&&MZU)||'piedi';return GM_MZV[m]?m:'piedi';}
 function gmVel(){return GM_MZV[gmMz()];}
 function gmMzIc(){return(typeof MZ!=='undefined'&&MZ[gmMz()]&&MZ[gmMz()][0])||'🚶';}
-function gmVaiZombie(z,diff){if(!GM.av)return;GM.goal={z,diff};gmCammina(z.lat,z.lon);if(!GM.av.P){gmArrivato();return;}toast(gmMzIc()+' In viaggio verso lo zombie: guardalo sulla mappa');}
 async function gmArrivato(){await gmAvSync(true);const g=GM.goal;if(!g||!GM.av)return;GM.goal=null;
   if(trM(GM.av.lat,GM.av.lon,g.z.lat,g.z.lon)>50){toast('Non sono arrivato abbastanza vicino: tocca di nuovo lo zombie');return;}
   try{sfx&&sfx('boom');}catch(e){}arnParti(g.z,'esplora',g.diff||'equilibrato',document.createElement('button'));}
