@@ -57,7 +57,7 @@ async def main():
         await bussola(90);await pg.wait_for_timeout(600)
         print('sei qui:',await pg.evaluate("()=>[...document.querySelectorAll('.lnlab.qui b')].map(e=>e.textContent)"))
         # dalla Fase 67 niente mirino sulle case e niente acquisti dalla Lente
-        print('niente mirino sulle case:',await pg.evaluate("()=>[!document.querySelector('.lnaim'),getComputedStyle(document.querySelector('.lnret')).display==='none'||document.getElementById('lente').classList.contains('lnmira')]"))
+        print('niente mirino sulle case:',await pg.evaluate("()=>!document.querySelector('.lnaim,.lnret')"))
         await pg.evaluate("()=>{LENTE.pos={lat:45.3255,lon:10.6586};LENTE.gps=true;}");await pg.wait_for_timeout(900)
         print('mie case fuori inquadratura:',await pg.evaluate("()=>[...document.querySelectorAll('.lnlab.edge')].map(e=>e.textContent)"))
         await pg.mouse.click(300,420);await pg.wait_for_timeout(900)

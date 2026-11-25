@@ -150,9 +150,9 @@ async function lenteOpen(){if(LENTE.on)return;const L=LENTE;
   const r=document.createElement('div');r.id='lente';r.className='lente';
   r.innerHTML=`<video class="lnv" playsinline muted autoplay></video><canvas class="lnc"></canvas><div class="lnz"></div><div class="lnl"></div>
     <div class="lntop"><button class="lnx" data-lnx type="button" aria-label="Chiudi">✕</button><div class="lntt"><b>📷 Lente</b><span class="lnst">Accendo la fotocamera…</span></div><span class="lnn"></span></div>
-    <div class="lnret" aria-hidden="true"></div>
+    
     <div class="lnbot"><span class="lnor"></span><button class="lnprev" data-lnprev type="button">👀 Fai passare l’orda</button></div>
-    <p class="lnpriv">Niente foto salvate o inviate: tutto resta sul telefono.</p>`;
+    <p class="lnpriv">Le foto restano sul telefono finché non le condividi tu.</p>`;
   document.body.appendChild(r);L.root=r;document.documentElement.classList.add('lente-on');
   r.querySelector('[data-lnx]').onclick=()=>lenteClose();
   r.querySelector('[data-lnprev]').onclick=()=>{L.prevUntil=Date.now()+25000;try{sfx&&sfx('zombie');}catch(e){}};
