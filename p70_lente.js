@@ -55,7 +55,7 @@ function lnOri(e){let h=null;if(e.webkitCompassHeading!=null&&!isNaN(e.webkitCom
   const so=(screen.orientation&&screen.orientation.angle)||window.orientation||0;h=(h+so+360)%360;
   if(LENTE.h==null)LENTE.h=h;else{const d=((h-LENTE.h+540)%360)-180;LENTE.h=(LENTE.h+d*.25+360)%360;}if(!LENTE.bussola){LENTE.bussola=true;lnStatus();}}
 function lnBearing(la1,lo1,la2,lo2){const r=Math.PI/180,y=Math.sin((lo2-lo1)*r)*Math.cos(la2*r),x=Math.cos(la1*r)*Math.sin(la2*r)-Math.sin(la1*r)*Math.cos(la2*r)*Math.cos((lo2-lo1)*r);return(Math.atan2(y,x)/r+360)%360;}
-/* servizi e attività intorno (carabinieri, farmacie, negozi…) + forme degli edifici per il mirino: una sola richiesta, tenuta 7 giorni */
+/* servizi e attività intorno (carabinieri, farmacie, negozi…) + forme degli edifici (usate anche dalle spedizioni): una sola richiesta, tenuta 7 giorni */
 const LN_POI=[['police','🚓','Carabinieri / Polizia'],['fire_station','🚒','Vigili del fuoco'],['pharmacy','💊','Farmacia'],['hospital','🏥','Ospedale'],['clinic','🏥','Ambulatorio'],['doctors','🩺','Medico'],
   ['townhall','🏛️','Municipio'],['post_office','📮','Ufficio postale'],['bank','🏦','Banca'],['fuel','⛽','Distributore'],['school','🏫','Scuola'],['library','📚','Biblioteca'],['place_of_worship','⛪','Chiesa'],
   ['bar','☕','Bar'],['cafe','☕','Bar'],['restaurant','🍝','Ristorante'],['pizzeria','🍕','Pizzeria'],['fast_food','🍔','Fast food'],['pub','🍺','Pub']];
@@ -116,35 +116,9 @@ function lnLabels(){const L=LENTE,p=L.pos;if(!p)return;const W=L.root.clientWidt
     const w=(el.offsetWidth||140)*s,hh=34*s;for(let k=0;k<6;k++){const hit=used.some(u=>Math.abs(u.x-X)<(u.w+w)/2&&Math.abs(u.y-Y)<(u.h+hh)/2);if(!hit)break;Y-=hh+4;}used.push({x:X,y:Y,w,h:hh});
     el.style.transform=`translate(${Math.round(X-w/2)}px,${Math.round(Y)}px) scale(${s.toFixed(2)})`;el.querySelector('small').textContent=(x.d<1000?Math.round(x.d/5)*5+' m':'')+(x.k==='mia'?' · tocca per potenziarla':'');});
   const n=L.root.querySelector('.lnn');if(n)n.textContent=['N','NE','E','SE','S','SO','O','NO'][Math.round(head/45)%8]+' '+Math.round(head)+'°'+(L.acc?' · GPS ±'+Math.round(L.acc)+' m':'');
-  if(performance.now()-(L.aimT||0)>350){L.aimT=performance.now();lnAim(head);if(!document.querySelector('#sheet.open'))document.documentElement.classList.remove('lente-top');}}
-/* ---- MIRINO: quale edificio stai inquadrando (raggio dalla tua posizione verso dove punta il telefono) ---- */
-function lnInRing(R,x,y){let c=false;for(let i=0,j=R.length-1;i<R.length;j=i++){const[xi,yi]=R[i],[xj,yj]=R[j];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;}
-function lnRay(bear){const L=LENTE,p=L.pos,a=L.area;if(!p||!a||!a.B||!a.B.length)return null;const r=Math.PI/180,kx=111320*Math.cos(p.lat*r),ky=110540;
-  const B=a.B.filter(b=>!b._in&&b.R.some(q=>Math.abs((q[1]-p.lat)*ky)<220&&Math.abs((q[0]-p.lon)*kx)<220));
-  for(let d=0;d<=200;d+=3){const la=p.lat+d*Math.cos(bear*r)/ky,lo=p.lon+d*Math.sin(bear*r)/kx;const b=B.find(b=>lnInRing(b.R,lo,la));if(b)return{b,d:Math.max(d,2)};}return null;}
-function lnBInfo(b){const L=LENTE;const c=b.R.reduce((q,x)=>[q[0]+x[1]/b.R.length,q[1]+x[0]/b.R.length],[0,0]);
-  const row=(L.rows||[]).find(r=>lnInRing(b.R,r.lon,r.lat))||(L.rows||[]).find(r=>trM(r.lat,r.lon,c[0],c[1])<15);
-  const mine=(()=>{try{return myHouses().find(h=>h.lat!=null&&(lnInRing(b.R,h.lon,h.lat)||trM(h.lat,h.lon,c[0],c[1])<12));}catch(e){return null;}})();
-  const kx=111320*Math.cos(c[0]*Math.PI/180);let A=0;for(let i=0;i<b.R.length;i++){const[x1,y1]=b.R[i],[x2,y2]=b.R[(i+1)%b.R.length];A+=(x1*kx)*(y2*110540)-(x2*kx)*(y1*110540);}
-  const tipo={house:'Villetta',detached:'Villetta',semidetached_house:'Bifamiliare',terrace:'Villetta a schiera',apartments:'Condominio',residential:'Palazzina',farm:'Cascina',farm_auxiliary:'Rustico',barn:'Fienile',
-    retail:'Negozio',commercial:'Edificio commerciale',industrial:'Capannone',garage:'Garage',garages:'Garage',church:'Chiesa',school:'Scuola',shed:'Capanno',hut:'Capanno'}[b.t.b]||'Edificio';
-  const st=mine?(mine.home?'mia-casa':'mia'):row?row.status:'free';
-  return{bid:row?row.building_id:(mine&&mine.bid)||b.id,lat:row?row.lat:+c[0].toFixed(6),lon:row?row.lon:+c[1].toFixed(6),st,nick:row&&row.nick,lvl:(row&&row.level)||(mine&&mine.level)||1,mine,
-    tipo,piani:b.t.l,mq:Math.round(Math.abs(A)/2),nome:b.t.n,ind:b.t.a};}
-function lnAim(head){const L=LENTE,box=L.root&&L.root.querySelector('.lnaim');if(!box)return;if(L.root.querySelector('.lnpan')){box.hidden=true;return;}
-  const h=lnRay(head);if(!h){L.aim=null;const k0=L.area?'vuoto':'carico';if(box.dataset.k!==k0){box.dataset.k=k0;box.className='lnaim st-none';
-      box.innerHTML=L.area?`<b>🎯 Punta il mirino su una casa</b><small>${L.area.B.length?'Nessuna casa in questa direzione (entro 200 m)':'Non trovo le forme delle case qui: riprova tra poco'}</small>`:'<b><span class="spin"></span> Riconosco le case qui intorno…</b>';}box.hidden=false;return;}const I=lnBInfo(h.b);L.aim={...I,d:h.d};
-  const key=I.bid+'|'+I.st+'|'+Math.round(h.d/5);if(box.dataset.k===key&&!box.hidden)return;box.dataset.k=key;box.hidden=false;
-  const S2={'mia-casa':['❤️','Casa tua','Tocca per potenziarla'],mia:['🔑','La tua casa','Tocca per potenziarla'],myhome:['❤️','Casa tua','Tocca per potenziarla'],mine:['🔑','La tua casa','Tocca per potenziarla'],
-    home:['🏠',I.nick?'Casa di @'+I.nick:'Casa abitata','Tocca per vederla'],owned:['🔑',I.nick?'Comprata da @'+I.nick:'Casa comprata','Tocca per vederla'],free:['🏚️','Edificio libero','👆 Tocca per comprarla']}[I.st]||['🏚️','Edificio','Tocca per vederlo'];
-  box.className='lnaim st-'+I.st;
-  box.innerHTML=`<b>${S2[0]} ${esc(S2[1])} · ${esc(I.tipo)}</b><small>${[I.nome&&esc(I.nome),I.ind&&esc(I.ind),I.piani&&I.piani+' piani',I.mq>8&&I.mq+' m²','livello '+I.lvl,Math.round(h.d)+' m'].filter(Boolean).join(' · ')}</small><span>${S2[2]}</span>`;}
+  if(performance.now()-(L.aimT||0)>350){L.aimT=performance.now();if(!document.querySelector('#sheet.open'))document.documentElement.classList.remove('lente-top');}}
 /* una scheda chiesta dalla Lente si apre sopra la fotocamera (gli altri avvisi dell'app restano sotto) */
 function lnSheet(fn){document.documentElement.classList.add('lente-top');try{fn();}catch(e){}}
-/* tocco su un edificio (mirino o punto dello schermo): la scheda del mondo, sopra la Lente */
-function lnOpenB(I){if(!I)return;if(I.mine){lnPanel(I.mine);return;}if(!S.user){toast('Accedi per comprare case');return;}try{sfx&&sfx('click');}catch(e){}lnSheet(()=>wSheet(I.bid,I.lat,I.lon));}
-function lnTap(x){const L=LENTE;const head=((L.h==null?0:L.h)+L.man+360)%360;const W=L.root.clientWidth;const h=lnRay((head+(x/W-.5)*LN_HFOV+360)%360);
-  if(!h){toast(L.area?'Non vedo una casa lì: punta il mirino sulla casa':'Sto ancora riconoscendo le case qui intorno…');return;}lnOpenB(lnBInfo(h.b));}
 /* scheda di un servizio o di un'attività, dentro la Lente */
 function lnPoiCard(x){const L=LENTE;if(!L.root)return;let pan=L.root.querySelector('.lnpan');if(!pan){pan=document.createElement('div');pan.className='lnpan';L.root.appendChild(pan);['pointerdown','pointermove','pointerup'].forEach(k=>pan.addEventListener(k,e=>e.stopPropagation()));}
   const d=L.pos?Math.round(trM(L.pos.lat,L.pos.lon,x.lat,x.lon)):null;
@@ -164,7 +138,7 @@ function lnZombies(now){const L=LENTE,box=L.root.querySelector('.lnz');const liv
     const bob=Math.sin((now-z.t0)/140+z.ph)*6,tilt=Math.sin((now-z.t0)/260+z.ph)*9;
     z.el.style.transform=`translate(${Math.round(z.x*W)}px,${Math.round(z.y*H+bob)}px) rotate(${tilt.toFixed(1)}deg) scale(${(z.s*(z.vx<0?-1:1)).toFixed(2)},${z.s.toFixed(2)})`;return true;});}
 function lnStatus(){const L=LENTE,s=L.root&&L.root.querySelector('.lnst');if(!s)return;const n=L.T.length;
-  s.textContent=!L.pos?'📍 Cerco la tua posizione…':!L.bussola?'🧭 Bussola spenta: trascina col dito per girarti':(n?`👀 ${n} cose qui intorno`:'Niente di segnato qui intorno')+(L.area?` · 🏠 ${L.area.B.length} case riconosciute`:' · 🏠 cerco le case…');
+  s.textContent=!L.pos?'📍 Cerco la tua posizione…':!L.bussola?'🧭 Bussola spenta: trascina col dito per girarti':(n?`👀 ${n} cose qui intorno`:'Niente di segnato qui intorno');
   const o=L.root.querySelector('.lnor');if(o){const s2=typeof OR!=='undefined'&&OR.s;const live=typeof orLive==='function'&&orLive();
     if(live)o.textContent='🧟 L’ORDA È QUI!';else if(s2&&s2.next_at){const m=Math.max(0,Math.round((new Date(s2.next_at)-Date.now())/60000));o.textContent=`🧟 Orda tra ${m>=60?Math.floor(m/60)+' h '+(m%60)+' min':m+' min'}`;}else o.textContent='🧟 Le orde arrivano alle 9:00 e alle 21:00';}}
 /* apertura: va chiamata da un tocco (iPhone chiede i permessi solo così) */
@@ -176,7 +150,7 @@ async function lenteOpen(){if(LENTE.on)return;const L=LENTE;
   const r=document.createElement('div');r.id='lente';r.className='lente';
   r.innerHTML=`<video class="lnv" playsinline muted autoplay></video><canvas class="lnc"></canvas><div class="lnz"></div><div class="lnl"></div>
     <div class="lntop"><button class="lnx" data-lnx type="button" aria-label="Chiudi">✕</button><div class="lntt"><b>📷 Lente</b><span class="lnst">Accendo la fotocamera…</span></div><span class="lnn"></span></div>
-    <div class="lnret" aria-hidden="true"></div><button class="lnaim" type="button" hidden></button>
+    <div class="lnret" aria-hidden="true"></div>
     <div class="lnbot"><span class="lnor"></span><button class="lnprev" data-lnprev type="button">👀 Fai passare l’orda</button></div>
     <p class="lnpriv">Niente foto salvate o inviate: tutto resta sul telefono.</p>`;
   document.body.appendChild(r);L.root=r;document.documentElement.classList.add('lente-on');
@@ -185,10 +159,8 @@ async function lenteOpen(){if(LENTE.on)return;const L=LENTE;
   /* senza bussola: si gira trascinando il dito */
   let dx=null,x0=0,t0=0,mv=0;r.addEventListener('pointerdown',e=>{if(e.target.closest('button,a,.lnpan'))return;dx=e.clientX;x0=e.clientX;t0=Date.now();mv=0;});
   r.addEventListener('pointermove',e=>{if(dx==null)return;mv=Math.max(mv,Math.abs(e.clientX-x0));if(!L.bussola)L.man-=(e.clientX-dx)/r.clientWidth*LN_HFOV;dx=e.clientX;});
-  /* tocco breve sull'inquadratura (non un trascinamento): l'edificio in quel punto */
-  r.addEventListener('pointerup',e=>{if(dx!=null&&mv<12&&Date.now()-t0<600)lnTap(e.clientX);dx=null;});
+  r.addEventListener('pointerup',()=>{dx=null;});
   ['pointercancel','pointerleave'].forEach(k=>r.addEventListener(k,()=>dx=null));
-  r.querySelector('.lnaim').onclick=e=>{e.stopPropagation();if(L.aim)lnOpenB(L.aim);else lnTap(r.clientWidth/2);};
   L.onOri=e=>lnOri(e);window.addEventListener('deviceorientationabsolute',L.onOri);window.addEventListener('deviceorientation',L.onOri);
   L.onVis=()=>{if(document.hidden)lenteClose();};document.addEventListener('visibilitychange',L.onVis);
   /* posizione: GPS del telefono; finché non arriva, quella già nota */

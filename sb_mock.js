@@ -210,6 +210,11 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_rank_alleanze':return{data:[{pos:1,id:2,nome:'Cerchio di Ferro',emblema:'🔥',membri:4,punti:980,mia:false},{pos:2,id:1,nome:'Lupi di Volta',emblema:'🐺',membri:2,punti:610,mia:true}],error:null};
   case'world_saccheggia':return{data:{ok:true,msg:'⚔️ Squadra partita'},error:null};
   case'world_resources':{const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});return{data:{ok:true,mattoni:1000,legno:R.legno,cibo:R.cibo,carb:R.carb,mercato_left:R.left},error:null};}
+  case'world_cambio_info':{const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});const G2=window.__GEMS=window.__GEMS||{n:40};const T=window.__CMBT=window.__CMBT||{mattoni:150,cibo:300,legno:300,carb:300};
+    return{data:{ok:true,valori:{gemme:300,cibo:30,legno:30,carb:36,mattoni:20},comm:30,max_gemme:200,max_altro:5000,saldo:{gemme:G2.n,cibo:R.cibo,legno:R.legno,carb:R.carb,mattoni:M.wallet.mattoni},resta:{...T}},error:null};}
+  case'world_cambio':{window.__CMB=a;const R=window.__mkRes;const G2=window.__GEMS;const V={gemme:300,cibo:30,legno:30,carb:36,mattoni:20};const c=a.p_da==='gemme'?0:30;const r=Math.floor(a.p_n*V[a.p_da]*(100-c)/100/V[a.p_a]);
+    if(a.p_da==='gemme')G2.n-=a.p_n;else if(a.p_da==='mattoni')M.wallet.mattoni-=a.p_n;else R[a.p_da]-=a.p_n;if(a.p_a==='mattoni')M.wallet.mattoni+=r;else R[a.p_a]+=r;if(a.p_da!=='gemme')window.__CMBT[a.p_a]-=r;
+    return{data:{ok:true,dato:a.p_n,ricevi:r,da:a.p_da,a:a.p_a,comm:c,msg:'cambio '+a.p_n+' → '+r},error:null};}
   case'world_trade':{const R=window.__mkRes||(window.__mkRes={legno:60,cibo:45,carb:25,left:100});if(R[a.p_kind]<20)return{data:{ok:false,msg:'Servono almeno 20 di quella risorsa'},error:null};R[a.p_kind]-=20;R.left-=10;return{data:{ok:true,dato:20,mattoni:10,mercato_left:R.left},error:null};}
   case'world_near_survivors':window.__mkNear=a;return{data:[{user_id:'u2',nick:'giangy',wlevel:3,comune:'Volta',km:3.2,ally:'ok',fav:false},{user_id:'u9',nick:'rino',wlevel:1,comune:'Cereta',km:11.5,ally:'none',fav:false}],error:null};
   case'world_favs_list':{const F=window.__mkFav||(window.__mkFav={});return{data:Object.keys(F).map(k=>({user_id:k,nick:F[k],wlevel:1,comune:null,ally:'none'})),error:null};}

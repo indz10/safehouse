@@ -192,4 +192,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 63 | fatta #109 (nessun SQL) | — | 🏙️ mappa del Gioco in 3D: mezzi, superstite, zombie e casse come modelli 3D che si muovono, palazzi con le finestre accese di sera (il Mondo non cambia) |
 | 64 | fatta #109 (nessun SQL) | — | ⌨️ arena: sequenze di tasti per difendersi dagli attacchi speciali degli zombie e per la super combo |
 | 65 | fatta #110 (nessun SQL) | — | 🏙️ Mondo con il tasto 3D curato come il Gioco (finestre, tetti, posti, civici) e arena con più effetti (pioggia, lampi, stelle d'urto, scie, fuoco del SUPER, macchie, bordo rosso) |
-| 66 | in revisione (migrazione 052) | — | 💎 il Gioco fa guadagnare gemme (max 10 al giorno) e 🎖️ piastrine per la pista della settimana con premi per il Mondo |
+| 66 | fatta #111 (migrazione 052) | — | 💎 il Gioco fa guadagnare gemme (max 10 al giorno) e 🎖️ piastrine per la pista della settimana con premi per il Mondo |
+| 67 | in revisione (migrazione 053) | — | 📷 Lente senza mirino sulle case e senza acquisti; 🔄 Cambio libero in Bottega (da 💎/🥫/🪵/⛽/🧱, quantità scelta dal giocatore) |

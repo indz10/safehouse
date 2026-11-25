@@ -48,6 +48,8 @@ w_boss_settimana() 17eeaa47c2
 w_boss_tipi() aef051a09a
 w_bottino(uuid, integer) d943f8aaa0
 w_cadute_tick() 79f7834bf4
+w_cambio_cfg() 19f26897b1
+w_cambio_comm(uuid) 7027529717
 w_canon(text, double precision, double precision) a8cd798858
 w_cantieri_tick() e447d868b7
 w_casa_extra(text, text) 1f047544fb
@@ -246,6 +248,8 @@ world_buy(text, double precision, double precision) c1440ed06d
 world_buy_mezzo(text) 1b907c13fd
 world_caccia_fine(bigint, integer) 578ccf45de
 world_caccia_inizia() 2f03ec55ac
+world_cambio(text, text, integer, text) 779db072a5
+world_cambio_info() a23a8a092f
 world_cantiere_accelera(bigint) 8e164af3ed
 world_cantieri_miei() 0bafe5d417
 world_case_integrita() 206e0a54c5

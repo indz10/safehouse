@@ -58,7 +58,7 @@ function zmAct(mira,vic){const L=LENTE;let b=L.root&&L.root.querySelector('.zmac
   else if(mira&&mira.k==='cassa'){if(mira.d<=40){t='📦 APRI LA CASSA';cl='apri';go=()=>zmCassa(mira);}else{t=`🚶 Avvicinati: ${Math.round(mira.d)} m (serve 40)`;dis=true;}}
   else if(vic){const r=vic.rel;const fr=r==null?'':r<0?'⬅️ girati a sinistra':'➡️ girati a destra';t=`🎯 ${vic.k==='cassa'?'📦 Cassa':'🧟 '+(ZM_N[vic.tipo]||'Zombie')} a ${Math.round(vic.d)} m · ${fr}`;dis=true;}
   else{t=ZM.L.length?'🧟 Tutti presi qui: torna fra un’ora':'🧟 Cerco zombie…';dis=true;}
-  L.root.classList.toggle('zmon',!!(F&&!F.fine)||cl==='fuoco'||cl==='apri');
+  L.root.classList.toggle('zmon',!!(F&&!F.fine)||cl==='fuoco'||cl==='apri');L.root.classList.toggle('lnmira',!!(F&&!F.fine)||!!mira||!!vic);
   const k=t+cl+dis;if(b.dataset.k!==k){b.dataset.k=k;b.textContent=t;b.className='zmact '+cl+(dis?' spento':'');}b._go=go;}
 async function zmSpara(z){const L=LENTE;const now=performance.now();
   if(ZM.f&&!ZM.f.fine){const F=ZM.f;if(F.z.id!==z.id||F.busy)return;if(now-F.last<ZM_CD)return;F.last=now;zmColpo(F);return;}
