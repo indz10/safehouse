@@ -67,6 +67,10 @@ async def main():
         print('arena girata:',await pg.evaluate("()=>{const f=document.querySelector('.arnfield').getBoundingClientRect(),c=ARN.g.cv.getBoundingClientRect();return[Math.round(f.height),Math.round(c.height),ARN.g.round]}"))
         await pg.evaluate("()=>{ARN.g.z.hp=1;ARN.g.p.x=ARN.g.z.x-10;ARN.g.z.act=null;ARN.g.z.blk=0;ARN.g.z.stun=1;ARN.g.p.act=null;ARN.g.p.stun=0;}");await pg.keyboard.press('j');await pg.wait_for_timeout(1500)
         print('round 2:',await pg.evaluate("()=>[ARN.g.round,ARN.g.vinti.p,(document.querySelector('[data-arnrd=p]')||{}).textContent,ARN.g.z.hp===ARN.g.z.hp0]"))
+        # 🏰 fortificazioni (Fase 70): ogni difesa ha il suo modello; rivali senza livello; casa crollata = macerie
+        print('fortificazioni 3d:',await pg.evaluate("()=>{const K=Object.keys(FZ_K);const n=K.map(k=>fzModello({defs:{[k]:2}}).children[0].children.length>0);const r=fzModello({defs:{recinto:0,fossato:0}});const c=fzModello({crollata:true});return [K.length,n.every(Boolean),r.children.length,c.children.length>10]}"))
+        # ☣️ scenario apocalittico (Fase 70b): auto bruciate, macerie, barili in fiamme col fumo, barricate, zombie di scena
+        print('apocalisse 3d:',await pg.evaluate("()=>{const sc=new THREE.Scene();const N=[[0,0],[0,40],[40,40],[40,0],[80,0],[80,40],[0,80],[40,80]],adj=N.map(()=>[]);[[0,1],[1,2],[2,3],[3,0],[3,4],[4,5],[5,2],[1,6],[6,7],[7,2]].forEach(([a,b])=>{adj[a].push([b,40]);adj[b].push([a,40]);});const d0=GM.d;GM.d={N,adj};apoRifai(sc,20,20);const n=APO.n;GM.d=d0;return [n>0,[apoAuto(3),apoMacerie(5),apoBarile(),apoBarricata(7),apoZombie(9)].every(g=>g.children.length>2)]}"))
         # 🎥 vista da dietro al mezzo (Fase 69): tasto sulla mappa del Gioco → navigatore e mappa piccola → 🗺️ Mappa
         await pg.set_viewport_size({'width':390,'height':844})
         await pg.evaluate("()=>{try{arnChiudi()}catch(e){};closeSheet();if(!GM.on)gmOpen()}");await pg.wait_for_timeout(2500)

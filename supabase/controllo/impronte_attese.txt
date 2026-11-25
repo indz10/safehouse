@@ -294,6 +294,7 @@ world_fav_set(uuid, boolean) acc675b82b
 world_favs_list() 0a73e68a58
 world_feed_list(text) 8c091dbd22
 world_find(text) ade7145174
+world_fortezze(double precision, double precision, double precision, double precision) cb66e3db73
 world_gemme_converti(text, integer, text) 4243c4ef8a
 world_gemme_info() cea0244a1d
 world_gemme_legacy_segna(integer) c6140d4374
