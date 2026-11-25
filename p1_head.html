@@ -836,8 +836,6 @@ html,body{overflow-x:hidden;max-width:100%}
 .lnpx{width:38px;height:38px;flex:none;background:#fff;border:3px solid var(--ink);font-weight:900;font-size:17px;color:var(--ink)}
 .lnpb{overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .lente-top .sheet{z-index:460}.lente-on .toast{z-index:470}
-.lnret{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border:4px solid #fff;border-radius:50%;box-shadow:0 0 0 3px var(--ink),inset 0 0 0 3px var(--ink);pointer-events:none;z-index:2}
-.lnret::before,.lnret::after{content:'';position:absolute;background:#fff;box-shadow:0 0 0 2px var(--ink)}.lnret::before{left:50%;top:-16px;bottom:-16px;width:4px;margin-left:-2px}.lnret::after{top:50%;left:-16px;right:-16px;height:4px;margin-top:-2px}
 .coop{border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);background:#fffdf3;padding:10px;margin:0 0 12px;display:flex;flex-direction:column;gap:8px}
 .coop-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}.coop-h b{font-size:17px}.coop-h span{font-size:12.5px;opacity:.8}
 .coop-row{display:flex;gap:8px;flex-wrap:wrap}.cp-p{flex:1;min-width:84px;display:flex;flex-direction:column;align-items:center;gap:2px;border:2.5px solid var(--ink);padding:6px 4px;background:#eee;text-align:center}
@@ -1864,6 +1862,14 @@ body:has(#sheet.open) #accFab,body.semplice #accFab{display:none!important}
 .gembox h4{margin:12px 0 4px}.gemtr{display:flex;flex-wrap:wrap;gap:5px}.gemtr span{border:2px solid var(--ink);border-radius:999px;padding:2px 8px;font-size:12.5px;background:#fff}.gemtr span.ok{background:#e5f4e4}
 .gemris,.gemn{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.gemris button,.gemn button{border:2.5px solid var(--ink);border-radius:10px;background:#fff;padding:6px 9px;font-weight:700}.gemris button small{display:block;font-size:11px;font-weight:400}.gemris button.on,.gemn button.on{background:var(--moon)}
 .gemprev{font-size:14px;margin:6px 0}
+.lnfoto{width:44px;height:44px;flex:none;margin-left:auto;background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-size:22px;color:var(--ink);padding:0}
+.lnflash{position:absolute;inset:0;background:#fff;z-index:30;pointer-events:none;animation:lnfl .45s ease-out forwards}@keyframes lnfl{from{opacity:.9}to{opacity:0}}
+.lnfbox{position:absolute;inset:0;z-index:31;background:#140f1fee;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 14px)}
+.lnfbox img{max-width:100%;max-height:70%;border:3px solid #fff;box-shadow:5px 5px 0 #000}.lnfbtn{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.lnfbox a.btn{text-decoration:none}.lnfbox small{color:#ddd;font-size:12px}
+.lnevts{position:absolute;left:10px;right:10px;top:calc(env(safe-area-inset-top) + 118px);display:flex;flex-direction:column;align-items:flex-start;gap:6px;z-index:4;pointer-events:none}
+.lnevt{pointer-events:auto;display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:#ffe9a8;color:var(--ink);border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:3px 8px;max-width:70%}
+.lnevt b{font-size:13px}.lnevt small{font-size:11.5px}.lnevt.qui{background:#b8f5c4;animation:lnevq 1s ease-in-out infinite alternate}@keyframes lnevq{to{transform:scale(1.04)}}
+.lnlab.k-evt{background:#ffe9a8}
 .cmbl{display:block;font-size:13px;margin-top:6px}.cmbq{display:flex;gap:6px;align-items:center;margin:4px 0}.cmbq input{flex:1;min-width:0;font-size:18px;font-weight:800;padding:7px 9px;border:2.5px solid var(--ink);border-radius:10px}.cmbq button{border:2.5px solid var(--ink);border-radius:10px;background:#fff;padding:7px 10px;font-weight:700}.gempk{display:flex;gap:8px;align-items:center;border:2px solid var(--ink);border-radius:10px;background:#fff;padding:6px 9px;margin:5px 0}.gempk b{flex:1}
 .gemmov{display:flex;gap:8px;align-items:baseline;border-top:1px dashed #ccc;padding:4px 0}.gemmov span{font-weight:800;min-width:56px}.gemmov small{font-size:12px}
 .svav{display:inline-flex;align-items:center;justify-content:center;position:relative;width:44px;height:44px;border-radius:50%;border:2.5px solid var(--ink);font-size:26px}.svav.big{width:64px;height:64px;font-size:38px}.svav i{position:absolute;right:-6px;top:-8px;font-size:22px;font-style:normal}
@@ -1900,7 +1906,6 @@ body.semplice .mapfull .mwt small{display:none}
 body.semplice .mapfull .mwt b{font-size:15px}
 body.semplice .mapfull .mwz{font-size:22px}
 body.semplice .mapfull .mwprep{padding:5px 9px;font-size:13px}
-.lente:not(.lnmira):not(.caccia) .lnret{display:none}
 .lente.zmon .lnl{opacity:.3}
 .zmact.spento{background:#140f1fdd;color:#fff;border-color:#f7d64a;font-size:14px;box-shadow:none}
 .zmact.fuoco:active{transform:translateX(-50%) scale(.95)}

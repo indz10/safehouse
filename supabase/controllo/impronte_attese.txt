@@ -79,6 +79,8 @@ w_en_ric(jsonb) 14229acc85
 w_eq(jsonb, text) de48d8f850
 w_esito(numeric) 6ab928a75c
 w_eventi_tick() 87a0592b4f
+w_evento_esegui(uuid, bigint, boolean) b032d46e11
+w_evento_nuovo(double precision, double precision) b3638ab96b
 w_evt_stile(text) 9195bbf1c2
 w_feed_add(text, uuid, uuid, double precision, double precision, text) 1a92b9dc6f
 w_fort(text) a72f14d8fc
@@ -284,8 +286,10 @@ world_edificio_info(text, double precision, double precision) 4f6d4fba96
 world_energia_compra(integer) b4c89976d1
 world_esplora_dove() bd72edfb12
 world_esplora_muovi(double precision, double precision, boolean) 101bb536ad
+world_eventi_qui(double precision, double precision) ffcc629650
 world_eventi_vicini() 0682fa4579
-world_evento_azione(bigint) b284e48cf6
+world_evento_azione(bigint) a2986e4e80
+world_evento_qui(bigint, double precision, double precision, double precision) d539091d20
 world_fav_set(uuid, boolean) acc675b82b
 world_favs_list() 0a73e68a58
 world_feed_list(text) 8c091dbd22
