@@ -67,6 +67,14 @@ async def main():
         print('arena girata:',await pg.evaluate("()=>{const f=document.querySelector('.arnfield').getBoundingClientRect(),c=ARN.g.cv.getBoundingClientRect();return[Math.round(f.height),Math.round(c.height),ARN.g.round]}"))
         await pg.evaluate("()=>{ARN.g.z.hp=1;ARN.g.p.x=ARN.g.z.x-10;ARN.g.z.act=null;ARN.g.z.blk=0;ARN.g.z.stun=1;ARN.g.p.act=null;ARN.g.p.stun=0;}");await pg.keyboard.press('j');await pg.wait_for_timeout(1500)
         print('round 2:',await pg.evaluate("()=>[ARN.g.round,ARN.g.vinti.p,(document.querySelector('[data-arnrd=p]')||{}).textContent,ARN.g.z.hp===ARN.g.z.hp0]"))
+        # 🎥 vista da dietro al mezzo (Fase 69): tasto sulla mappa del Gioco → navigatore e mappa piccola → 🗺️ Mappa
+        await pg.set_viewport_size({'width':390,'height':844})
+        await pg.evaluate("()=>{try{arnChiudi()}catch(e){};closeSheet();if(!GM.on)gmOpen()}");await pg.wait_for_timeout(2500)
+        print('vista da vicino:',await pg.evaluate("()=>{const b=document.querySelector('#gmap .vcbtn');if(!b)return null;b.click();return [!!document.querySelector('#gmap .vcnav'),!!document.querySelector('#gmap .vcmini'),VC.on]}"))
+        await pg.wait_for_timeout(600)
+        print('navigatore:',await pg.evaluate("()=>(document.querySelector('#gmap .vcnav')||{}).textContent"))
+        await pg.evaluate("()=>document.querySelector('#gmap [data-vcout]').click()");await pg.wait_for_timeout(300)
+        print('vista normale:',await pg.evaluate("()=>[VC.on,!document.querySelector('#gmap .vcnav'),!!document.querySelector('#gmap .vcbtn')]"))
         # 🎖️ pista della settimana (Fase 66): tasto sulla mappa del Gioco → scheda con tappe → riscatta
         await pg.evaluate("()=>{closeSheet();gmOpen()}");await pg.wait_for_timeout(2500)
         await pg.evaluate("()=>document.querySelector('#gmap [data-gmb=pista]').click()");await pg.wait_for_timeout(1000)
