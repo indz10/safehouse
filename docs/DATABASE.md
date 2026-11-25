@@ -4,7 +4,7 @@ Generato da `docs/strumenti/schema_sql.js` (Fase 6a) a partire dai 30 file `*.sq
 Lo stato ricostruito è in `supabase/schema.sql` (eseguendo i file su un Postgres di prova con `docs/strumenti/db_locale.sh`; documento, non va eseguito). Ogni cambio d'ora in poi: `supabase/migrazioni/NNN_nome.sql`.
 
 - Tabelle: **86** · viste: **1** · indici: **47** · regole (policy): **47** · trigger: **17** · lavori programmati: **9**
-- Funzioni: **390** (389 nomi); usate (direttamente o tramite altre funzioni): **378**; **non usate: 11**
+- Funzioni: **394** (393 nomi); usate (direttamente o tramite altre funzioni): **380**; **non usate: 13**
 
 ## Funzioni non usate (candidate da togliere nella Fase 6b)
 Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da trigger, cron, regole o da altre funzioni usate.
@@ -19,6 +19,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 - `world_alleanza_invita` — definita in: migr. 018_alleanze_gruppi, migr. 019_alleanze_multiple
 - `world_alleanza_scrivi` — definita in: migr. 018_alleanze_gruppi, migr. 019_alleanze_multiple
 - `world_cantiere_accelera` — definita in: migr. 035_mezzi_cantieri, migr. 042_gemme
+- `world_gemme_converti` — definita in: migr. 042_gemme
+- `world_trade` — definita in: migr. 012_risorse_ricompense, migr. 020_superstite
 
 ## Tutte le funzioni
 | funzione | app | Edge | trigger/cron/regole | chiamata da | versioni (file) |
@@ -72,6 +74,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `w_boss_tipi` |  |  |  | w_boss_di | 1: migr. 026_difesa_lente_boss |
 | `w_bottino` |  |  |  | w_attacchi_tick, w_orde_tick | 1: migr. 028_attacchi |
 | `w_cadute_tick` |  |  | cron | world_ripara | 2: migr. 031_integrita_case → migr. 035_mezzi_cantieri |
+| `w_cambio_cfg` |  |  |  | w_cambio_comm, world_cambio_info, world_cambio | 1: migr. 053_cambio |
+| `w_cambio_comm` |  |  |  | world_cambio_info, world_cambio | 1: migr. 053_cambio |
 | `w_canon` |  |  |  | world_claim_home, world_quote, world_buy, w_target | 3: mondo_unico → mondo_unico_agg1 → abitazione |
 | `w_cantieri_tick` |  |  | cron | world_ripara, world_cantieri_miei, world_case_stato, world_def_restaura, world_completa_subito, world_missioni | 3: migr. 035_mezzi_cantieri → migr. 036_cantieri_case → migr. 040_danni_difese |
 | `w_casa_extra` |  |  |  | world_raid_status, world_raid_view, w_home_held, world_my_defense, w_threats_of, w_pres_def … | 2: migr. 014_territorio → migr. 050_mondo_gioco |
@@ -269,6 +273,8 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_buy_mezzo` | ✓ |  |  |  | 2: migr. 009_mezzi_assalti → migr. 041_mezzi_superstite |
 | `world_caccia_fine` | ✓ |  |  |  | 1: migr. 021_caccia_condomini |
 | `world_caccia_inizia` | ✓ |  |  |  | 1: migr. 021_caccia_condomini |
+| `world_cambio` | ✓ |  |  |  | 1: migr. 053_cambio |
+| `world_cambio_info` | ✓ |  |  |  | 1: migr. 053_cambio |
 | `world_cantiere_accelera` |  |  |  |  | 2: migr. 035_mezzi_cantieri → migr. 042_gemme |
 | `world_cantieri_miei` | ✓ |  |  |  | 2: migr. 035_mezzi_cantieri → migr. 036_cantieri_case |
 | `world_case_integrita` | ✓ |  |  |  | 1: migr. 031_integrita_case |
@@ -309,7 +315,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_favs_list` | ✓ |  |  |  | 1: migr. 010_trova_preferiti |
 | `world_feed_list` | ✓ |  |  |  | 1: social |
 | `world_find` | ✓ |  |  |  | 1: squadra_fix |
-| `world_gemme_converti` | ✓ |  |  |  | 1: migr. 042_gemme |
+| `world_gemme_converti` |  |  |  |  | 1: migr. 042_gemme |
 | `world_gemme_info` | ✓ |  |  |  | 1: migr. 042_gemme |
 | `world_gemme_legacy_segna` | ✓ |  |  |  | 1: migr. 042_gemme |
 | `world_gemme_prova` | ✓ |  |  |  | 1: migr. 042_gemme |
@@ -403,7 +409,7 @@ Nessuna chiamata dall'app (`p*.js`, admin, negozio), dalle funzioni Edge, da tri
 | `world_sup_share` | ✓ |  |  |  | 1: migr. 020_superstite |
 | `world_team_bonus` | ✓ |  |  |  | 1: alleanze2 |
 | `world_threats` | ✓ |  |  |  | 3: zombie → alleati_sim → zombie_alleati |
-| `world_trade` | ✓ |  |  |  | 2: migr. 012_risorse_ricompense → migr. 020_superstite |
+| `world_trade` |  |  |  |  | 2: migr. 012_risorse_ricompense → migr. 020_superstite |
 | `world_upgrade` | ✓ |  |  |  | 1: mondo_unico |
 | `world_view` | ✓ |  |  |  | 4: mondo_unico → residenti → casa_abitata → nome_casa |
 | `world_welcome` | ✓ |  |  |  | 1: equita |

@@ -53,7 +53,7 @@ function pvAct(){const L=LENTE,b=L.root&&L.root.querySelector('.zmact');if(!b||Z
   const head=((L.h==null?0:L.h)+L.man+360)%360;let best=null;
   pvLente().forEach(q=>{if(pvPreso(q))return;const d=trM(L.pos.lat,L.pos.lon,q.lat,q.lon);const rel=((lnBearing(L.pos.lat,L.pos.lon,q.lat,q.lon)-head+540)%360)-180;
     const ok=(d<=50&&Math.abs(rel)<=15)||d<=25;if(ok&&(!best||d<best.d))best={q,d};});
-  if(!best)return;const q=best.q;const v=(typeof MV_VANT!=='undefined'&&MV_VANT[q.k])||['📦',''];const t=`🎁 PRENDI<small>${esc(q.name.slice(0,26))} · ${mvBreve(q.k)} gratis</small>`;
+  if(!best)return;L.root.classList.add('lnmira');const q=best.q;const v=(typeof MV_VANT!=='undefined'&&MV_VANT[q.k])||['📦',''];const t=`🎁 PRENDI<small>${esc(q.name.slice(0,26))} · ${mvBreve(q.k)} gratis</small>`;
   if(b.dataset.k!==t){b.dataset.k=t;b.innerHTML=t;b.className='zmact prendi';}
   b._go=async()=>{if(b._busy)return;b._busy=true;const x={...q,ic:v[0]};await mvVisita(x,q.k);b._busy=false;b.dataset.k='';};}
 </script>

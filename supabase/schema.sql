@@ -1027,6 +1027,31 @@ begin
 end $$;
 
 --
+-- Name: w_cambio_cfg(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_cambio_cfg() RETURNS jsonb
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  select jsonb_build_object(
+    'valori', jsonb_build_object('gemme', 300, 'cibo', 30, 'legno', 30, 'carb', 36, 'mattoni', 20),
+    'comm', 30, 'comm_mercante', 4, 'comm_min', 10,
+    'tetto', jsonb_build_object('mattoni', 150, 'cibo', 300, 'legno', 300, 'carb', 300),
+    'max_gemme', 200, 'max_altro', 5000); $$;
+
+--
+-- Name: w_cambio_comm(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.w_cambio_comm(p_user uuid) RETURNS integer
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  select greatest((c->>'comm_min')::int, (c->>'comm')::int - (c->>'comm_mercante')::int
+    * public.w_ab(coalesce((select abil from public.world_superstite where user_id = p_user), '{}'::jsonb), 'mercante'))
+  from (select public.w_cambio_cfg() c) x; $$;
+
+--
 -- Name: w_canon(text, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4511,6 +4536,83 @@ begin
   insert into public.world_cacce(user_id, n, zombie) values (me, n, z) returning id into nid;
   return json_build_object('ok', true, 'id', nid, 'zombie', z, 'n', n, 'rimaste', 9 - fatte,
     'danno', 1 + case when public.w_eq(s.equip, 'arma') >= 2 then 1 else 0 end);
+end $$;
+
+--
+-- Name: world_cambio(text, text, integer, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_cambio(p_da text, p_a text, p_n integer, p_chiave text) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); w public.world_wallet; k jsonb := public.w_cambio_cfg(); day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD');
+  vd int; va int; cm int; n int; r int; fatti int; resta int; hav int; s int; mx int;
+  ic jsonb := '{"gemme":"💎","cibo":"🥫","legno":"🪵","carb":"⛽","mattoni":"🧱"}'::jsonb;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if p_da not in ('gemme','cibo','legno','carb','mattoni') or p_a not in ('cibo','legno','carb','mattoni') or p_da = p_a then
+    return json_build_object('ok', false, 'msg', 'Cambio non valido (le gemme non si ottengono dalle risorse)'); end if;
+  perform public.w_wallet(me);
+  select * into w from public.world_wallet where user_id = me for update;
+  if coalesce(p_chiave, '') <> '' and w.caps->>'cambio_ultimo' = p_chiave then return json_build_object('ok', true, 'gia', true, 'msg', 'Cambio già fatto'); end if;
+  n := coalesce(p_n, 0);
+  mx := (k->>(case when p_da = 'gemme' then 'max_gemme' else 'max_altro' end))::int;
+  if n < 1 or n > mx then return json_build_object('ok', false, 'msg', 'Quantità da 1 a ' || mx); end if;
+  vd := (k->'valori'->>p_da)::int; va := (k->'valori'->>p_a)::int;
+  cm := case when p_da = 'gemme' then 0 else public.w_cambio_comm(me) end;
+  r := floor(n::numeric * vd * (100 - cm) / 100 / va);
+  if p_da <> 'gemme' then
+    fatti := coalesce((w.caps->>('cambio:' || p_a || ':' || day))::int, 0);
+    resta := (k->'tetto'->>p_a)::int - fatti;
+    if resta <= 0 then return json_build_object('ok', false, 'msg', 'Oggi hai già ricevuto il massimo di ' || (ic->>p_a) || ' dai cambi: riprova domani'); end if;
+    if r > resta then n := ceil(resta::numeric * va * 100 / (vd * (100 - cm))); r := least(resta, floor(n::numeric * vd * (100 - cm) / 100 / va)::int); end if;
+  end if;
+  if r < 1 then return json_build_object('ok', false, 'msg', 'Troppo poco: aumenta la quantità'); end if;
+  hav := case p_da when 'gemme' then w.gemme when 'cibo' then w.cibo when 'legno' then w.legno when 'carb' then w.carb else w.mattoni end;
+  if hav < n then return json_build_object('ok', false, 'msg', 'Non ne hai abbastanza: hai ' || (ic->>p_da) || ' ' || hav); end if;
+  -- toglie
+  if p_da = 'gemme' then
+    s := public.w_gemme_add(me, -n, 'Cambio in ' || p_a, p_a, case when coalesce(p_chiave,'') <> '' then 'cmb:' || me || ':' || p_chiave end);
+    if s = -1 then return json_build_object('ok', true, 'gia', true, 'msg', 'Cambio già fatto'); end if;
+    if s is null then return json_build_object('ok', false, 'msg', 'Gemme insufficienti'); end if;
+  elsif p_da = 'mattoni' then
+    update public.world_wallet set mattoni = mattoni - n where user_id = me;
+    insert into public.world_log(user_id, delta, reason, ref, seen) values (me, -n, 'Cambio in ' || p_a, 'cambio', true);
+  else
+    update public.world_wallet set cibo = cibo - case when p_da = 'cibo' then n else 0 end, legno = legno - case when p_da = 'legno' then n else 0 end,
+      carb = carb - case when p_da = 'carb' then n else 0 end where user_id = me;
+  end if;
+  -- dà
+  if p_a = 'mattoni' then perform public.w_pay(me, r, 'Cambio: ' || (ic->>p_da) || ' ' || n);
+  else update public.world_wallet set cibo = cibo + case when p_a = 'cibo' then r else 0 end, legno = legno + case when p_a = 'legno' then r else 0 end,
+      carb = carb + case when p_a = 'carb' then r else 0 end where user_id = me; end if;
+  update public.world_wallet set caps = caps || jsonb_build_object('cambio_ultimo', coalesce(p_chiave, ''))
+      || case when p_da <> 'gemme' then jsonb_build_object('cambio:' || p_a || ':' || day, fatti + r) else '{}'::jsonb end
+    where user_id = me;
+  return json_build_object('ok', true, 'dato', n, 'ricevi', r, 'da', p_da, 'a', p_a, 'comm', cm,
+    'msg', format('%s −%s → %s +%s', ic->>p_da, n, ic->>p_a, r));
+end $$;
+
+--
+-- Name: world_cambio_info(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_cambio_info() RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); w public.world_wallet; k jsonb := public.w_cambio_cfg(); day text := to_char(now() at time zone 'Europe/Rome','YYYY-MM-DD');
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  w := public.w_wallet(me);
+  return json_build_object('ok', true, 'valori', k->'valori', 'comm', public.w_cambio_comm(me), 'max_gemme', (k->>'max_gemme')::int, 'max_altro', (k->>'max_altro')::int,
+    'saldo', json_build_object('gemme', w.gemme, 'cibo', w.cibo, 'legno', w.legno, 'carb', w.carb, 'mattoni', w.mattoni),
+    'resta', json_build_object(
+      'mattoni', greatest(0, (k->'tetto'->>'mattoni')::int - coalesce((w.caps->>('cambio:mattoni:' || day))::int, 0)),
+      'cibo', greatest(0, (k->'tetto'->>'cibo')::int - coalesce((w.caps->>('cambio:cibo:' || day))::int, 0)),
+      'legno', greatest(0, (k->'tetto'->>'legno')::int - coalesce((w.caps->>('cambio:legno:' || day))::int, 0)),
+      'carb', greatest(0, (k->'tetto'->>'carb')::int - coalesce((w.caps->>('cambio:carb:' || day))::int, 0))));
 end $$;
 
 --
@@ -12720,6 +12822,12 @@ REVOKE ALL ON FUNCTION public.w_cadute_tick() FROM PUBLIC;
 GRANT ALL ON FUNCTION public.w_cadute_tick() TO service_role;
 
 --
+-- Name: FUNCTION w_cambio_comm(p_user uuid); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.w_cambio_comm(p_user uuid) FROM PUBLIC;
+
+--
 -- Name: FUNCTION w_canon(p_bid text, p_lat double precision, p_lon double precision); Type: ACL; Schema: public; Owner: -
 --
 
@@ -13514,6 +13622,18 @@ GRANT ALL ON FUNCTION public.world_caccia_fine(p_id bigint, p_uccisi integer) TO
 
 REVOKE ALL ON FUNCTION public.world_caccia_inizia() FROM PUBLIC;
 GRANT ALL ON FUNCTION public.world_caccia_inizia() TO authenticated;
+
+--
+-- Name: FUNCTION world_cambio(p_da text, p_a text, p_n integer, p_chiave text); Type: ACL; Schema: public; Owner: -
+--
+
+GRANT ALL ON FUNCTION public.world_cambio(p_da text, p_a text, p_n integer, p_chiave text) TO authenticated;
+
+--
+-- Name: FUNCTION world_cambio_info(); Type: ACL; Schema: public; Owner: -
+--
+
+GRANT ALL ON FUNCTION public.world_cambio_info() TO authenticated;
 
 --
 -- Name: FUNCTION world_cantiere_accelera(p_id bigint); Type: ACL; Schema: public; Owner: -

@@ -76,12 +76,14 @@ Risorse 🪵 Legno, 🥫 Cibo, ⛽ Carburante accanto ai 🧱 Mattoni; le dà so
 - Rinforzi a un alleato: 🧱 **10** e 🥫 5 (max 5 al giorno).
 - Presidio tenuto a ogni orda (`w_pres_rendita`, raddoppiato nella migrazione 016): **40 + 4 × orde di fila (max +40)** della sua risorsa — parco/sport 🪵, piazza/centro/chiesa 🥫, stazione/polizia/pompieri ⛽; municipio/scuola/biblioteca/ospedale 🧱 **30 + 2 × orde di fila (max +30)**.
 - Accesso del giorno: 🧱 20 + 🪵 10 🥫 10 ⛽ 5. Casa vera valutata: 🧱 200 + 🪵 50 🥫 50 ⛽ 30.
-- 🔄 Mercato (`world_trade`): 20 di una risorsa = 🧱 10, max 🧱 100 al giorno.
+- 🔄 Cambio libero (`world_cambio`, migrazione 053, regole in `w_cambio_cfg`; prima Mercato `world_trade` 20 = 🧱 10, rimasto per le vecchie app). Valori in punti: 💎 300 · 🥫 30 · 🪵 30 · ⛽ 36 · 🧱 20.
+  Ricevi = ⌊ quantità × valore(da) × (100 − commissione) / 100 / valore(a) ⌋. Commissione: 0 dalle 💎; tra risorse e mattoni 30 − 4 × Mercante (minimo 10).
+  Dalle 💎 max 200 per volta; tra risorse tetto giornaliero di quanto si riceve: 🧱 150, 🥫/🪵/⛽ 300 ciascuna (oltre il tetto si usa solo la quantità che serve). Le 💎 non si ottengono dalle risorse.
 
 ## Il superstite che cresce (migrazione 020)
 Solo nel server (`w_sped_calc` e dintorni); l'app (`supCalc` in p82) copia la formula solo per mostrare i numeri prima di partire.
 - **Grado** = 1 + ⌊√(XP / 50)⌋ (max 50); XP del grado g = 50 × (g − 1)². **XP**: ogni accredito di Mattoni ⌊🧱 / 4⌋ (min 1, in `w_pay`); spedizione 10 + 6 × km (metà se va male); serie 10 × giorno; prima condivisione del giorno 20; amico entrato col link 50 (+ ⚡ 2 + 🪵 10 🥫 10 ⛽ 5), amico che valuta la casa 150 (+ 🪵 20 🥫 20 ⛽ 10).
-- **Abilità**: punti = grado − 1, max 5 ciascuna. Esploratore +1 km e +10% bottino; Resistenza +1 ⚡ massima e −10 min di ricarica; Combattente −4% rischio; Cercatore +3% tesoro; Mercante +1 🧱 ogni 10 🧱 del Mercato.
+- **Abilità**: punti = grado − 1, max 5 ciascuna. Esploratore +1 km e +10% bottino; Resistenza +1 ⚡ massima e −10 min di ricarica; Combattente −4% rischio; Cercatore +3% tesoro; Mercante −4% di commissione nel Cambio (prima +1 🧱 ogni 10 🧱 del Mercato).
 - **Energia**: massima 10 + Resistenza, +1 ogni 120 − 10 × Resistenza minuti; con i premi al massimo massima + 5.
 - **Raggio** = min(30, 3 + (grado − 1) + Esploratore) km dalla tua casa più vicina (casa vera o comprata; migrazione 021, prima 1,5 + 0,5 per grado). **⭐ Sponsor** (attività sponsor attiva entro 60 m): 🪵 e 🥫 metà del bottino, ⛽ un terzo, ⭐ +5; conta come visita (`sponsor_events` 'spedizione').
 - **Spedizione** (km dal tuo posto più vicino, minimo 0,2): durata min(180, 10 + 14 × km) min; energia min(3, 1 + ⌊km / 2,5⌋); rischio % = tra 3 e 60 di 10 + 4 × km − 4 × Combattente − 5 × Arma (+10 di notte, 20–7, senza Torcia); bottino = min(25 + 15 × Zaino, (10 + 6 × km) × (1 + 0,1 × Esploratore)); tesoro % = 5 + 3 × Cercatore + 2 × Torcia (🧱 min(60, 15 + 5 × grado), max 5 al giorno). Cibo → 🥫 bottino; legno → 🪵 bottino; carburante → ⛽ 60%; farmacia → ⚡ 2 + 🥫 metà; altro → un terzo di ciascuna. Se va male (random < rischio): metà bottino e XP, farmacia ⚡ 1. Contemporanee 1 + Radio; stesso posto dopo 12 ore. Le risorse passano da `w_res` (max 400 al giorno).
