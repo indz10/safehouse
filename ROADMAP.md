@@ -194,4 +194,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 65 | fatta #110 (nessun SQL) | — | 🏙️ Mondo con il tasto 3D curato come il Gioco (finestre, tetti, posti, civici) e arena con più effetti (pioggia, lampi, stelle d'urto, scie, fuoco del SUPER, macchie, bordo rosso) |
 | 66 | fatta #111 (migrazione 052) | — | 💎 il Gioco fa guadagnare gemme (max 10 al giorno) e 🎖️ piastrine per la pista della settimana con premi per il Mondo |
 | 67 | fatta #112 (migrazione 053) | — | 📷 Lente senza mirino sulle case e senza acquisti; 🔄 Cambio libero in Bottega (da 💎/🥫/🪵/⛽/🧱, quantità scelta dal giocatore) |
-| 68 | in revisione (migrazione 054) | — | 📷 Lente senza mirino, 📸 foto da condividere, 🚨 eventi del quartiere intorno a dove sei (anche lontano da casa) da fare di persona senza energia |
+| 68 | fatta #113 (migrazione 054) | — | 📷 Lente senza mirino, 📸 foto da condividere, 🚨 eventi del quartiere intorno a dove sei (anche lontano da casa) da fare di persona senza energia |
+| 69 | in revisione (nessun SQL) | — | 🎥 Gioco: vista da dietro al mezzo tra i palazzi veri, navigatore con le svolte e mappa piccola |
