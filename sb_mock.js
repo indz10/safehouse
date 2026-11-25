@@ -26,6 +26,10 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_caccia_fine':{window.__CACF=a;const u=Math.min(3,a.p_uccisi);return{data:{ok:true,uccisi:u,n:3,xp:5*u+(u===3?10:0),legno:3,cibo:3,carb:0,tutti:u===3,grado:3,salito:false},error:null};}
   case'world_eventi_vicini':{if(!window.__EVT){const la=45.3262,lo=10.6592;window.__EVT=[{id:11,kind:'cassa',nome:'📦 Rifornimento caduto',lat:la,lon:lo,end_at:new Date(Date.now()+20*60e3).toISOString(),hp:0,hp_max:0,posti:3,km:0.12,raggio:5,gente:1,mio:null},
       {id:12,kind:'nido',nome:'🧟 Nido di zombie',lat:la-0.003,lon:lo+0.002,end_at:new Date(Date.now()+50*60e3).toISOString(),hp:30,hp_max:30,posti:1,km:0.4,raggio:5,gente:0,mio:null}];}return{data:window.__EVT,error:null};}
+  case'world_fortezze':{window.__FZQ=a;const la=(a.p_minlat+a.p_maxlat)/2,lo=(a.p_minlon+a.p_maxlon)/2;return{data:window.__FZ||[
+      {bid:'f1',lat:la,lon:lo,chi:'mia',defs:{recinto:3,barricate:2,fari:2,sirena:1,cani:1,fossato:2},danni:{recinto:60},crollata:false},
+      {bid:'f2',lat:la+0.0004,lon:lo+0.0004,chi:'altro',defs:{grate:0,trappole:0,pompa:0,fondamenta:0},danni:null,crollata:false},
+      {bid:'f3',lat:la-0.0004,lon:lo+0.0003,chi:'alleato',defs:{},danni:null,crollata:true}],error:null};}
   case'world_eventi_qui':{window.__EQ=a;if(!window.__EVQ){const la=a.p_lat,lo=a.p_lon;window.__EVQ=[{id:71,kind:'salva',nome:'🚑 Superstite ferito',lat:la+0.0003,lon:lo,end_at:new Date(Date.now()+25*60e3).toISOString(),hp:0,hp_max:0,posti:1,m:33,gente:0,mio:null},
       {id:72,kind:'nido',nome:'🧟 Nido di zombie',lat:la+0.004,lon:lo+0.002,end_at:new Date(Date.now()+50*60e3).toISOString(),hp:30,hp_max:30,posti:1,m:480,gente:2,mio:null}];}return{data:window.__EVQ,error:null};}
   case'world_evento_qui':{window.__EQA=a;const e=(window.__EVQ||[]).find(x=>x.id===a.p_id);if(!e)return{data:{ok:false,msg:'L’evento è finito'},error:null};e.mio={colpi:1,posto:1};return{data:{ok:true,kind:e.kind,msg:'🚑 L’hai salvato!'},error:null};}

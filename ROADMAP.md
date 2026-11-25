@@ -195,4 +195,5 @@ Una sola funzione `go`, `openSheet`, `houseSheet`, `renderHome`, `liveMap`. Un u
 | 66 | fatta #111 (migrazione 052) | — | 💎 il Gioco fa guadagnare gemme (max 10 al giorno) e 🎖️ piastrine per la pista della settimana con premi per il Mondo |
 | 67 | fatta #112 (migrazione 053) | — | 📷 Lente senza mirino sulle case e senza acquisti; 🔄 Cambio libero in Bottega (da 💎/🥫/🪵/⛽/🧱, quantità scelta dal giocatore) |
 | 68 | fatta #113 (migrazione 054) | — | 📷 Lente senza mirino, 📸 foto da condividere, 🚨 eventi del quartiere intorno a dove sei (anche lontano da casa) da fare di persona senza energia |
-| 69 | in revisione (nessun SQL) | — | 🎥 Gioco: vista da dietro al mezzo tra i palazzi veri, navigatore con le svolte e mappa piccola |
+| 69 | fatta #114 (nessun SQL) | — | 🎥 Gioco: vista da dietro al mezzo tra i palazzi veri, navigatore con le svolte e mappa piccola |
+| 70 | in revisione (migrazione 055) | — | 🏰 fortificazioni visibili sulle case in 3D (Gioco, vista da vicino, Mondo col 3D): tue e alleati con livello e danni, rivali senza livello; ☣️ scenario apocalittico nel Gioco e vista da vicino corretta (niente tetti chiari e scritte, percorso sulla strada, foschia e cenere) |

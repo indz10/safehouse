@@ -5851,6 +5851,35 @@ CREATE FUNCTION public.world_find(p_q text) RETURNS TABLE(user_id uuid, nick tex
 $$;
 
 --
+-- Name: world_fortezze(double precision, double precision, double precision, double precision); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_fortezze(p_minlat double precision, p_minlon double precision, p_maxlat double precision, p_maxlon double precision) RETURNS json
+    LANGUAGE plpgsql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid();
+begin
+  if me is null or p_maxlat - p_minlat > 0.05 or p_maxlon - p_minlon > 0.07 then return '[]'::json; end if;
+  return (select coalesce(json_agg(x), '[]'::json) from (
+    select c.bid, c.lat, c.lon,
+      case when c.uid = me then 'mia' when public.w_are_allies(me, c.uid) then 'alleato' else 'altro' end as chi,
+      coalesce((select json_object_agg(d.kind, case when c.uid = me or public.w_are_allies(me, c.uid) then d.level else 0 end)
+                from public.world_defs d where d.building_id = c.bid and d.level > 0), '{}'::json) as defs,
+      case when c.uid = me or public.w_are_allies(me, c.uid) then
+        (select json_object_agg(d.kind, d.danno) from public.world_defs d where d.building_id = c.bid and d.level > 0 and d.danno > 0) end as danni,
+      c.crollata
+    from (
+      select h.building_id as bid, h.lat, h.lon, h.user_id as uid, false as crollata
+        from public.world_homes h where h.status = 'home' and h.lat between p_minlat and p_maxlat and h.lon between p_minlon and p_maxlon
+      union all
+      select b.building_id, b.lat, b.lon, b.owner, b.caduta_at is not null
+        from public.world_buildings b where b.owner is not null and b.lat between p_minlat and p_maxlat and b.lon between p_minlon and p_maxlon
+          and not exists (select 1 from public.world_homes h2 where h2.building_id = b.building_id and h2.status = 'home')
+      limit 300) c) x);
+end $$;
+
+--
 -- Name: world_gemme_converti(text, integer, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -14020,6 +14049,12 @@ GRANT ALL ON FUNCTION public.world_feed_list(p_scope text) TO authenticated;
 --
 
 GRANT ALL ON FUNCTION public.world_find(p_q text) TO authenticated;
+
+--
+-- Name: FUNCTION world_fortezze(p_minlat double precision, p_minlon double precision, p_maxlat double precision, p_maxlon double precision); Type: ACL; Schema: public; Owner: -
+--
+
+GRANT ALL ON FUNCTION public.world_fortezze(p_minlat double precision, p_minlon double precision, p_maxlat double precision, p_maxlon double precision) TO authenticated;
 
 --
 -- Name: FUNCTION world_gemme_converti(p_ris text, p_gemme integer, p_chiave text); Type: ACL; Schema: public; Owner: -
