@@ -18,6 +18,7 @@ sponsors_guard() fb6e27a43c
 w_ab(jsonb, text) 7a666c1ef5
 w_alleanza_chiudi(bigint) 0ee9b2ae49
 w_alleanza_di(uuid) 0a0e12e264
+w_alleati_veri(uuid, uuid) c536c319c9
 w_allies_of(uuid) a696d73f51
 w_ally_state(uuid, uuid) cf9a34567a
 w_ancora(uuid, bigint) 1571ce7ead
@@ -33,8 +34,8 @@ w_assalti_tick() dd5faea182
 w_atk_b(uuid, text, text) 8093f93f04
 w_atk_pts(uuid, uuid) 2031640ee7
 w_attacchi_integ() d136cc5f67
-w_attacchi_tick() f32dd129a6
-w_attacco_no(uuid, jsonb) 79bcdf48f2
+w_attacchi_tick() 137d976660
+w_attacco_no(uuid, jsonb) 086bfd69e0
 w_attack3(text, text, integer) 0a8f8cb0ea
 w_attivita(uuid) 23dc6eab3e
 w_azione(uuid, text, double precision, double precision, text) 91b6665588
@@ -48,7 +49,7 @@ w_boss_settimana() 17eeaa47c2
 w_boss_tipi() aef051a09a
 w_bottino(uuid, integer) d943f8aaa0
 w_cadute_tick() 79f7834bf4
-w_cambio_cfg() 19f26897b1
+w_cambio_cfg() a09dd7a954
 w_cambio_comm(uuid) 7027529717
 w_canon(text, double precision, double precision) a8cd798858
 w_cantieri_tick() e447d868b7
@@ -98,6 +99,7 @@ w_gioco_gemme(uuid, integer, text, text, text) eb6900db3b
 w_gioco_oggi(uuid) 975e12d030
 w_grado(integer) 54cc85f814
 w_grado_xp(integer) 760a3019c4
+w_guardiano(text) 122d259888
 w_home_held(uuid, text) 9c9e12578c
 w_home_known(uuid, uuid) 401b1ac373
 w_in_alleanza(uuid, bigint) 5c963dd3f1
@@ -106,6 +108,7 @@ w_km(double precision, double precision, double precision, double precision) d1b
 w_league(integer) 049550122f
 w_lente_tick() 91d7ad7a70
 w_level(integer) b510960b5d
+w_liberata(uuid, text) a0df663e72
 w_lontano_costo(double precision) b8a4bb05b4
 w_lvl_of(uuid) 584babf18f
 w_max(integer) 76812ad5cd
@@ -156,6 +159,7 @@ w_rinf_tot(bigint, timestamp with time zone) 4053ad92fb
 w_room(text) ab86838fbb
 w_scontri_tick() 5679200424
 w_score(uuid, boolean) 836191a166
+w_scudo_pvp(uuid) 6dd74f33e4
 w_settimana() 9011fb2212
 w_settimana(timestamp with time zone) 18e024a71d
 w_settle(uuid) 59bad382a9
@@ -246,7 +250,7 @@ world_boss_fine(bigint, integer) fca7f71f8d
 world_boss_info() 629f6298cc
 world_boss_inizia() d442e7ddcb
 world_bottega_compra(text) 9c218790d7
-world_buy(text, double precision, double precision) c1440ed06d
+world_buy(text, double precision, double precision) 4a034b578e
 world_buy_mezzo(text) 1b907c13fd
 world_caccia_fine(bigint, integer) 578ccf45de
 world_caccia_inizia() 2f03ec55ac
@@ -303,6 +307,7 @@ world_gift_claim(bigint) 2023464b42
 world_gifts_in() 51ca60df01
 world_gioco_sequenza(bigint) babea32c8f
 world_give(uuid, text, integer, boolean) 3e93678e5a
+world_guardiano(text, text, double precision, double precision) 5066514d68
 world_help_list() 451ff8492c
 world_home_vis(text) d2691098a9
 world_house_answer(uuid, boolean) 2237e540d9
@@ -336,7 +341,7 @@ world_presidi_list(double precision, double precision, double precision, double 
 world_presidi_seed(jsonb) 1c226fcbed
 world_presidio_guardia(text) 339c3076ed
 world_presidio_lascia(text) 2e26b385d7
-world_presidio_occupa(text) 63a5ea877c
+world_presidio_occupa(text) 0ab95336a4
 world_quote(text, double precision, double precision) 4cee44195d
 world_raduno_annulla(bigint) 36ec8eee9b
 world_raduno_crea(bigint, uuid, text, integer) bb621f8df3
@@ -357,7 +362,7 @@ world_ripara(text) b8cd44d9d0
 world_rivals() 9b44911f45
 world_saccheggia(uuid) 15affd0c16
 world_scontri_miei() daf6666082
-world_scontro_fine(bigint, text, integer) 37c08582ed
+world_scontro_fine(bigint, text, integer) c5e5e12b8e
 world_scontro_info(text) b671cec07a
 world_scontro_inizia(bigint) 70584378f0
 world_scontro_parti(text, text, text, double precision, double precision, double precision) 1071dbf6c3
@@ -460,6 +465,7 @@ world_help 84c102f5
 world_help_given b0775a2b
 world_homes 4e376177
 world_house_req e60b8c36
+world_liberate 829d5cae
 world_log a7c8214e
 world_orde_avvio 9ab1c358
 world_orde_esiti 11d15a0d
