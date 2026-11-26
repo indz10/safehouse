@@ -366,14 +366,9 @@ CREATE FUNCTION public.w_allies_of(p_user uuid) RETURNS SETOF uuid
   select distinct t.u from (
     select case when x.requester = p_user then x.target else x.requester end as u from public.world_allies x where x.status = 'ok' and (x.requester = p_user or x.target = p_user)
     union select mb.user_id from public.world_alleanze_membri ma join public.world_alleanze_membri mb on mb.alleanza_id = ma.alleanza_id where ma.user_id = p_user
-    union select g.target from public.world_help_given g where g.helper = p_user and g.created_at > now() - interval '30 days'
-    union select g.helper from public.world_help_given g where g.target = p_user and g.created_at > now() - interval '30 days'
-    union select p.user_id from public.profili_pubblici p where p.invitato_da = left(p_user::text,8)
-    union select q.user_id from public.profili_pubblici p, public.profili_pubblici q where p.user_id = p_user and p.invitato_da is not null and left(q.user_id::text,8) = p.invitato_da
     union select h.user_id from public.world_homes h, public.world_homes me where me.user_id = p_user and h.user_id <> p_user
       and h.lat between me.lat - 0.0005 and me.lat + 0.0005 and h.lon between me.lon - 0.0007 and me.lon + 0.0007 and public.w_coinq(p_user, h.user_id)) t
-  where t.u is not null and t.u <> p_user and not public.w_rift(p_user, t.u);
-$$;
+  where t.u is not null and t.u <> p_user and not public.w_rift(p_user, t.u); $$;
 
 --
 -- Name: w_ally_state(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
@@ -408,13 +403,10 @@ CREATE FUNCTION public.w_are_allies(a uuid, b uuid) RETURNS boolean
     LANGUAGE sql STABLE SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-  select a <> b and not public.w_rift(a, b) and (
+  select coalesce(a <> b and not public.w_rift(a, b) and (
     exists (select 1 from public.world_allies x where x.status = 'ok' and ((x.requester = a and x.target = b) or (x.requester = b and x.target = a)))
     or exists (select 1 from public.world_alleanze_membri ma join public.world_alleanze_membri mb on mb.alleanza_id = ma.alleanza_id where ma.user_id = a and mb.user_id = b)
-    or exists (select 1 from public.world_help_given g where ((g.helper = a and g.target = b) or (g.helper = b and g.target = a)) and g.created_at > now() - interval '30 days')
-    or exists (select 1 from public.profili_pubblici p where p.user_id = b and p.invitato_da = left(a::text,8))
-    or exists (select 1 from public.profili_pubblici p where p.user_id = a and p.invitato_da = left(b::text,8))
-    or public.w_coinq(a, b)); $$;
+    or public.w_coinq(a, b)), false); $$;
 
 --
 -- Name: w_arena_cfg(); Type: FUNCTION; Schema: public; Owner: -
@@ -625,7 +617,7 @@ CREATE FUNCTION public.w_attacchi_integ() RETURNS trigger
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-declare k jsonb := public.w_pvp_cfg(); e int; meno int; resta int; chi uuid; gia boolean;
+declare k jsonb := public.w_pvp_cfg(); e int; meno int; resta int; chi uuid; gia boolean; cq uuid; x jsonb;
 begin
   if new.stato <> 'risolto' or old.stato <> 'viaggio' or new.casa_vera then return new; end if;
   e := coalesce((new.esito->>'esito')::int, 0);
@@ -634,6 +626,22 @@ begin
   chi := coalesce((new.esito->'squadra'->0->>'u')::uuid, new.attaccante);
   select caduta_at is not null into gia from public.world_buildings where building_id = new.bid and owner = new.vittima;
   if gia is null then return new; end if;
+  -- 🏴 attacco vinto: la casa passa subito a chi ha vinto (d'alleanza: chi ha portato più forza e ha posto)
+  if new.kind = 'alleanza' and jsonb_typeof(new.esito->'squadra') = 'array' then
+    for x in select * from jsonb_array_elements(new.esito->'squadra') loop
+      if (select count(*) from public.world_buildings b where b.owner = (x->>'u')::uuid) < public.w_max(public.w_lvl_of((x->>'u')::uuid)) then cq := (x->>'u')::uuid; exit; end if;
+    end loop;
+  elsif (select count(*) from public.world_buildings b where b.owner = new.attaccante) < public.w_max(public.w_lvl_of(new.attaccante)) then cq := new.attaccante;
+  end if;
+  if cq is not null then
+    update public.world_buildings set owner = cq, paid = 0, upgrades = 0, bought_at = now(), integrita = (k->>'integ_conquista')::int,
+      danno = 0, caduta_at = null, caduta_da = null where building_id = new.bid and owner = new.vittima;
+    if found then
+      new.esito := new.esito || jsonb_build_object('conquistata', true, 'nuovo', cq, 'nuovo_nick', public.w_nick(cq));
+      perform public.w_feed_add('conquista', cq, new.vittima, new.lat, new.lon, 'casa');
+      return new;
+    end if;
+  end if;
   if gia then new.esito := new.esito || jsonb_build_object('integ', 0, 'integrita', 0, 'crollata', true); return new; end if;
   update public.world_buildings set integrita = greatest(0, integrita - meno),
     caduta_at = case when integrita - meno <= 0 then now() else caduta_at end,
@@ -2547,7 +2555,7 @@ declare r public.world_raduni; t jsonb; sq jsonb; mins int; km numeric; nid bigi
 begin
   for r in select * from public.world_raduni where stato = 'raduno' and partenza <= now() order by partenza limit 30 for update skip locked loop
     t := public.w_bersaglio(null, r.bid); sq := public.w_squadra(r.id, r.vittima);
-    if t is null or (t->>'owner')::uuid <> r.vittima or ((t->>'home')::boolean and public.w_custodita(r.vittima)) or (sq->>'forza')::numeric <= 0 then
+    if t is null or (t->>'owner')::uuid <> r.vittima or (sq->>'forza')::numeric <= 0 then
       update public.world_raduni set stato = 'annullato' where id = r.id;
       perform public.w_raduno_rimborsa(r.id, true);
       continue;
@@ -4074,6 +4082,26 @@ begin
   if not exists (select 1 from public.world_alleanze_membri where user_id = me) then
     return json_build_object('ok',false,'msg','Le alleanze ora sono gruppi: fonda la tua (Superstiti → 🛡️ Alleanza) e poi invitalo'); end if;
   return json_build_object('ok',false,'msg','Non potete stare nella stessa alleanza: siete già in alleanze diverse nella stessa zona, o troppo lontani');
+end $$;
+
+--
+-- Name: world_ally_rompi(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.world_ally_rompi(p_target uuid) RETURNS json
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+declare me uuid := auth.uid(); n int;
+begin
+  if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  delete from public.world_allies where (requester = me and target = p_target) or (requester = p_target and target = me);
+  get diagnostics n = row_count;
+  if n = 0 then
+    if exists (select 1 from public.world_alleanze_membri ma join public.world_alleanze_membri mb on mb.alleanza_id = ma.alleanza_id where ma.user_id = me and mb.user_id = p_target) then
+      return json_build_object('ok', false, 'msg', 'È nella tua alleanza a gruppi: per separarvi uno dei due deve uscire dall’alleanza'); end if;
+    return json_build_object('ok', false, 'msg', 'Non siete alleati'); end if;
+  return json_build_object('ok', true, 'msg', '💔 Alleanza rotta: ora non siete più alleati');
 end $$;
 
 --
@@ -13749,6 +13777,12 @@ GRANT ALL ON FUNCTION public.world_ally_pending() TO authenticated;
 --
 
 GRANT ALL ON FUNCTION public.world_ally_request(p_target uuid) TO authenticated;
+
+--
+-- Name: FUNCTION world_ally_rompi(p_target uuid); Type: ACL; Schema: public; Owner: -
+--
+
+GRANT ALL ON FUNCTION public.world_ally_rompi(p_target uuid) TO authenticated;
 
 --
 -- Name: FUNCTION world_ally_shield(p_target uuid); Type: ACL; Schema: public; Owner: -

@@ -231,3 +231,9 @@ Pista della settimana (`world_pista`, settimana ISO, `world_pista_riscatta`): 50
 - Guardiano del posto: `w_guardiano('b:'||bid | 'p:'||id)` = tipo di `w_zm_tipi()` numero |hashtext('guard:'||posto)| mod 12 (sempre lo stesso).
 - `world_guardiano(posto, diff, lat, lon)`: 1 energia, conta negli scontri del giorno (`arena:` in `caps`), livello = grado + diff (−2/0/+2), stato subito `pronto`, scade in 15 minuti; uno scontro già aperto per lo stesso posto si riprende.
 - Vinto (`world_scontro_fine`, stesse regole di tempo e colpi): `world_liberate(user, posto)` per 24 ore; premi come un'arena normale. `world_buy` e `world_presidio_occupa` rispondono `guardiano` finché il posto non è liberato (`w_liberata`).
+
+## Conquista delle case e alleati veri (migrazione 057)
+- Attacco vinto (esito ≥ 1) contro una casa comprata (`w_attacchi_integ`): la casa passa subito al vincitore (d'alleanza: il primo di `esito.squadra`, ordinata per forza portata `c`, che ha meno case di `w_max(livello)`); integrità `integ_conquista` (50), danno 0, difese che restano; `esito.conquistata`, `nuovo`, `nuovo_nick`; novità `conquista`. Se nessuno ha posto: integrità −10/−17/−25 come prima.
+- Casa vera: mai conquistata (solo bottino e danni).
+- Bottino d'alleanza: quota di ciascuno = bottino × c / Σc (arrotondata in giù), i resti al primo della squadra.
+- `w_are_allies` / `w_allies_of`: solo `world_allies` accettate, stessa alleanza a gruppi, coinquilini (niente più inviti e aiuti degli ultimi 30 giorni). `world_ally_rompi(utente)` cancella l'alleanza a due.

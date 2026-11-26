@@ -19,10 +19,10 @@ w_ab(jsonb, text) 7a666c1ef5
 w_alleanza_chiudi(bigint) 0ee9b2ae49
 w_alleanza_di(uuid) 0a0e12e264
 w_alleati_veri(uuid, uuid) c536c319c9
-w_allies_of(uuid) a696d73f51
+w_allies_of(uuid) 90f83eb941
 w_ally_state(uuid, uuid) cf9a34567a
 w_ancora(uuid, bigint) 1571ce7ead
-w_are_allies(uuid, uuid) d3e2331ab7
+w_are_allies(uuid, uuid) 7679ca8b18
 w_arena_cfg() 8b2dac01e6
 w_arena_danno(integer, integer) aa59794c49
 w_arena_viaggio(uuid, double precision, double precision) 1eb915eff8
@@ -33,7 +33,7 @@ w_ass_up(jsonb, text) 21f43a52df
 w_assalti_tick() dd5faea182
 w_atk_b(uuid, text, text) 8093f93f04
 w_atk_pts(uuid, uuid) 2031640ee7
-w_attacchi_integ() d136cc5f67
+w_attacchi_integ() a977914d2b
 w_attacchi_tick() 137d976660
 w_attacco_no(uuid, jsonb) 086bfd69e0
 w_attack3(text, text, integer) 0a8f8cb0ea
@@ -145,7 +145,7 @@ w_price(double precision, double precision) 15fba21ed2
 w_price2(uuid, double precision, double precision) c076f18600
 w_pvp_cfg() a3f8f6b9ba
 w_radius(integer) d64febc04f
-w_raduni_tick() 7eb338b9f5
+w_raduni_tick() 3d59a06db8
 w_raduno_entra(uuid, bigint) 11591943a9
 w_raduno_no(uuid, bigint) d545e7f5fc
 w_raduno_rimborsa(bigint, boolean) 182a40741a
@@ -232,6 +232,7 @@ world_allies_status() 774a3128fd
 world_ally_answer(uuid, boolean) f0cb9fb4e9
 world_ally_pending() 2075b82e92
 world_ally_request(uuid) cf107bd8ec
+world_ally_rompi(uuid) 3cc69362fc
 world_ally_shield(uuid) 6aebe91a7c
 world_ally_view(uuid) ef33f8ac73
 world_ask_help() eaa8fd1b52
