@@ -232,7 +232,7 @@ world_allies_status() 774a3128fd
 world_ally_answer(uuid, boolean) f0cb9fb4e9
 world_ally_pending() 2075b82e92
 world_ally_request(uuid) cf107bd8ec
-world_ally_rompi(uuid) 3cc69362fc
+world_ally_rompi(uuid) 4965d3058a
 world_ally_shield(uuid) 6aebe91a7c
 world_ally_view(uuid) ef33f8ac73
 world_ask_help() eaa8fd1b52

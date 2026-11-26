@@ -4092,15 +4092,16 @@ CREATE FUNCTION public.world_ally_rompi(p_target uuid) RETURNS json
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
-declare me uuid := auth.uid(); n int;
+declare me uuid := auth.uid();
 begin
   if me is null then return json_build_object('ok', false, 'msg', 'Accedi'); end if;
+  if p_target is null or p_target = me then return json_build_object('ok', false, 'msg', 'Superstite non valido'); end if;
   delete from public.world_allies where (requester = me and target = p_target) or (requester = p_target and target = me);
-  get diagnostics n = row_count;
-  if n = 0 then
+  if public.w_are_allies(me, p_target) then
     if exists (select 1 from public.world_alleanze_membri ma join public.world_alleanze_membri mb on mb.alleanza_id = ma.alleanza_id where ma.user_id = me and mb.user_id = p_target) then
-      return json_build_object('ok', false, 'msg', 'È nella tua alleanza a gruppi: per separarvi uno dei due deve uscire dall’alleanza'); end if;
-    return json_build_object('ok', false, 'msg', 'Non siete alleati'); end if;
+      return json_build_object('ok', false, 'msg', 'Siete nella stessa alleanza a gruppi: per separarvi uno dei due deve uscire dall’alleanza (☰ → 🛡️ La mia alleanza)'); end if;
+    insert into public.world_condo_rifts(a, b) values (me, p_target);
+  end if;
   return json_build_object('ok', true, 'msg', '💔 Alleanza rotta: ora non siete più alleati');
 end $$;
 
