@@ -3,10 +3,15 @@
    Tasto "💔 Rompi l'alleanza" in fondo alla scheda di un alleato (allySheet di p66) e nella scheda del superstite
    (playerSheet, la più usata: si apre toccando un nome), sotto "🤝 Siete alleati" (.rok2) →
    world_ally_rompi(uid) (058): chiude l'alleanza a due e, se siete coinquilini/vicini, segna la rottura; per l'alleanza a gruppi il server risponde che bisogna uscirne.
-   Dalla 057 gli alleati sono solo quelli veri (alleanza accettata, alleanza a gruppi, coinquilini). */
-async function rompiBtn(uid,sempre){try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('[data-arompi]')||!uid||!S.user||uid===S.user.id)return;
+   Dalla 057 gli alleati sono solo quelli veri (alleanza accettata, alleanza a gruppi, coinquilini).
+   Dalla 059 chi ha casa o appartamento nello stesso palazzo (world_coinq) è alleato per forza: niente tasto, solo la spiegazione (.rcoinq). */
+async function rompiBtn(uid,sempre){try{const c=document.querySelector('#sheet.open');if(!c||c.querySelector('[data-arompi],.rcoinq')||!uid||!S.user||uid===S.user.id)return;
   /* nella scheda del superstite: solo se c'è "🤝 Siete alleati" (lo decide il server con w_are_allies), e il tasto va proprio lì sotto */
   const ok=c.querySelector('.rok2');if(!sempre&&!(ok&&/alleat/i.test(ok.textContent)))return;
+  let cq=false;try{const{data}=await SB.rpc('world_coinq',{p_target:uid});cq=data===true;}catch(e){}
+  if(cq){const N='<small class="muted rcoinq" style="display:block;margin-top:6px">🏢 Avete casa nello stesso palazzo: siete alleati per forza e vi difendete insieme.</small>';
+    if(ok&&!sempre)ok.insertAdjacentHTML('afterend',N);else (c.querySelector('.sheet-b')||c).insertAdjacentHTML('beforeend',N);return;}
+  if(!c.isConnected||c.querySelector('[data-arompi]'))return;
   const B='<button class="btn wide ghost" data-arompi type="button" style="margin-top:8px">💔 Rompi l’alleanza</button>';
   if(ok&&!sempre)ok.insertAdjacentHTML('afterend',B);else (c.querySelector('.sheet-b')||c).insertAdjacentHTML('beforeend',B);
   c.querySelector('[data-arompi]').onclick=async e=>{if(!confirm('Vuoi davvero rompere l’alleanza? Non sarete più alleati e potrete attaccarvi.'))return;e.target.disabled=true;
