@@ -1,5 +1,5 @@
 window.__W={wallet:{mattoni:1000,lifetime:1000,last:Date.now()-36*3600e3},b:{},homes:{},me:'me',log:[]};
-window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)return{data:M.qhome,error:null};if(fn==='world_quote'&&window.__QAPP)return{data:Object.assign({status:'owned',price:200,can:true,why:'',owner_nick:'gina',level:1,value:0,mattoni:M.wallet.mattoni,wlevel:3,owned:1,max:3,radius_km:20000,dist_km:0.2,up_cost:150,condo:true,appart:true,appart_n:2,appart_max:12,appartamenti:[{nick:'gina',level:2},{nick:'tony',level:1}]},window.__QAPP),error:null};if(fn==='world_buy'&&window.__QAPP){window.__QBUY=a;return{data:{ok:true,msg:'Appartamento comprato: siete vicini e alleati',price:200,appart:true,bid:a.p_bid+'~a3'},error:null};}const lvl=1+Math.floor(Math.sqrt(M.wallet.lifetime/100));const price=200;
+window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)return{data:M.qhome,error:null};const lvl=1+Math.floor(Math.sqrt(M.wallet.lifetime/100));const price=200;
   const st=(bid)=>{const h=M.homes[bid];const b=M.b[bid];if(h==='me-home')return'myhome';if(h)return'home';if(b&&b.owner==='me')return'mine';if(b&&b.owner)return'owned';return'free';};
   switch(fn){
   case'world_allies':return{data:[{user_id:'u2',nick:'giangy',wlevel:2,dist_km:3,coinq:false},{user_id:'u5',nick:'vicina',wlevel:3,dist_km:0,coinq:true}],error:null};
@@ -172,7 +172,7 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
   case'world_my_defense':return{data:{prep:15,realshield:3,realshield_pts:6,helps:2,helps_pts:10,shields:1,shields_pts:5,squad:3,squad_pts:5,coinq:1,coinq_pts:3,attacks:1,fog:0,sab:0,malus:8,bonus:36,attack_min:46,attack_max:105,wlevel:4,houses:[{bid:'home',home:true,level:1,total:98},{bid:'g45.32600_10.65900',home:false,level:2,total:105}]},error:null};
   case'world_set_realshield':M.rs=a.p_lvl;return{data:{ok:true,rs:a.p_lvl},error:null};
   case'world_condo_info':{const C=window.__mkCd||(window.__mkCd={me:0,rift:{}});return{data:{ok:true,admin:{user_id:'u9',nick:'gina',tot:300},versati:[{nick:'gina',tot:300,me:false}].concat(C.me?[{nick:'ale',tot:C.me,me:true}]:[]),me_tot:C.me,bonus:C.me?3:0,
-    vicini:[{user_id:'u9',nick:'gina',unit:'B 3',rotto:!!C.rift.u9,rotto_da_me:!!C.rift.u9,pace_chiesta:false,puo_rompere:false},{user_id:'u7',nick:'mamma',unit:'A 1',rotto:false,rotto_da_me:false,pace_chiesta:false,puo_rompere:false}]},error:null};}
+    vicini:[{user_id:'u9',nick:'gina',unit:'B 3',rotto:!!C.rift.u9,rotto_da_me:!!C.rift.u9,pace_chiesta:false,puo_rompere:true},{user_id:'u7',nick:'mamma',unit:'A 1',rotto:false,rotto_da_me:false,pace_chiesta:false,puo_rompere:false}]},error:null};}
   case'world_condo_break':{const C=window.__mkCd||(window.__mkCd={me:0,rift:{}});C.rift[a.p_user]=1;return{data:{ok:true,msg:'Avete rotto: ora siete rivali. Puoi fare pace quando vuoi'},error:null};}
   case'world_condo_peace':{const C=window.__mkCd||(window.__mkCd={me:0,rift:{}});delete C.rift[a.p_user];return{data:{ok:true,peace:true,msg:'Pace fatta: siete di nuovo alleati'},error:null};}
   /* territorio (migrazione 014) */
@@ -235,7 +235,6 @@ window.__mockSB={rpc:async(fn,a)=>{const M=__W;if(fn==='world_quote'&&M.qhome)re
       return{data:[mk('home',true,1,'pioggia',.05),mk('g45.32600_10.65900',false,2,'nebbia',-.03)],error:null};}
   case'world_def_upgrade':{M.defs=M.defs||{};const k=a.p_bid+a.p_kind;M.defs[k]=(M.defs[k]||0)+1;M.wallet.mattoni-=80*M.defs[k];return{data:{ok:true,level:M.defs[k],msg:'ok'},error:null};}
   case'world_allies_status':return{data:[{user_id:'u2',nick:'giangy',wlevel:2,seen_at:new Date(Date.now()-26*3600e3).toISOString(),prepared:false,asked:false,helped_by_me:!!(M.hg&&M.hg.u2),shield_by_me:false,coinq:false,houses:2,worst:31},{user_id:'u5',nick:'vicina',wlevel:3,seen_at:new Date().toISOString(),prepared:true,asked:true,helped_by_me:false,shield_by_me:false,coinq:true,houses:1,worst:78}],error:null};
-  case'world_coinq':return{data:a.p_target==='u9'||a.p_target==='u7',error:null};
   case'world_ally_rompi':window.__ROMPI=a;return{data:{ok:true,msg:'💔 Alleanza rotta: ora non siete più alleati'},error:null};
   case'world_ally_view':{const r=await window.__mockSB.rpc('world_threats');return{data:{ok:true,user_id:a.p_user,nick:a.p_user==='u2'?'giangy':'vicina',wlevel:2,seen_at:new Date(Date.now()-26*3600e3).toISOString(),prepared:false,asked:false,helps_in:(M.hg&&M.hg[a.p_user])?1:0,shields_in:0,helped_by_me:!!(M.hg&&M.hg[a.p_user]),shield_by_me:false,coinq:false,houses:r.data},error:null};}
   case'world_send_help':M.hg=M.hg||{};M.hg[a.p_target]=1;return{data:{ok:true,msg:'Rinforzi mandati: +5 alla sua difesa, +5 Mattoni a te'},error:null};

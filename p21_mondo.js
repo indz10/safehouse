@@ -64,7 +64,6 @@ async function wSheetBase(bid,lat,lon){openSheet('🌍 Edificio del mondo','<p><
   else if(q.status==='mine')act=`<p style="font-weight:400">Valore: <b>🧱 ${wNum(q.value)}</b> · rende <b>🧱 ${5+5*q.level}</b> al giorno.</p><div class="row" style="gap:8px;flex-wrap:wrap">${q.level<5?`<button class="btn" data-wup>Potenzia · 🧱 ${wNum(q.up_cost)}</button>`:''}<button class="btn ghost small" data-wsell>Vendi (70%: 🧱 ${wNum(Math.floor(q.value*.7))})</button></div>`;
   else if(q.status==='myhome')act=`<p style="font-weight:400">Nessuno può comprarla. Potenziandola sale di livello.</p>${q.level<5?`<button class="btn" data-wup>Potenzia · 🧱 ${wNum(q.up_cost)}</button>`:''}`;
   else if(q.status==='mypending')act='<p style="font-weight:400">Riapri l’app domani: la conferma in due giorni serve a evitare che qualcuno si prenda case non sue.</p>';
-  else if(q.condo&&(q.status==='owned'||q.status==='home'))act=wAppHTML(q);
   else if(q.status==='owned')act=`<p style="font-weight:400">Proprietà di <b>@${esc(q.owner_nick||'superstite')}</b>. Non si può comprare.</p>`;
   else if(q.status==='home')act='<p style="font-weight:400">Qui abita un superstite registrato: è casa sua, non si può comprare.</p>';
   else if(q.status==='excluded')act='<p style="font-weight:400">Chi abita qui ha chiesto di non far parte del gioco.</p>';
@@ -79,12 +78,6 @@ async function wSheetBase(bid,lat,lon){openSheet('🌍 Edificio del mondo','<p><
     const c=card.querySelector('[data-wclaim]');if(c)c.onclick=async()=>{if(!confirm('Confermi che questa è la casa dove abiti? Puoi cambiarla una volta ogni 30 giorni.'))return;try{const r=await wRpc('world_claim_home',{p_bid:bid,p_lat:lat,p_lon:lon});toast('🏠 '+r.msg);closeSheet();wMine(true);}catch(e){toast(e.message);}};
     card.querySelector('[data-wexcl]').onclick=async()=>{if(!S.user){toast('Scrivi a INDZ dalla pagina Privacy per chiedere l’esclusione');return;}
       try{await SB.from('poi_reports').insert({name:'Edificio '+bid,lat,lon,motivo:'ESCLUDI EDIFICIO '+bid});toast('Richiesta inviata: la valutiamo noi');closeSheet();}catch(e){toast('Non inviata');}};});}
-/* 🏢 condominio (migrazione 059): ognuno compra il suo appartamento; chi ha casa nello stesso palazzo è alleato per forza */
-function wAppHTML(q){const L=(q.appartamenti||[]).map(a=>'@'+esc(a.nick||'superstite')).join(', ');
-  return`<div class="wapp"><b>🏢 Condominio</b><small>${q.status==='home'?'Qui abitano dei superstiti. ':''}${L?'Appartamenti comprati: '+L+'. ':''}${q.appart_n||0}/${q.appart_max||12} appartamenti.</small></div>
-    ${q.appart_mio?'<p style="font-weight:400">Hai già un appartamento qui: siete vicini e alleati.</p>':q.appart?`<div class="wbuy"><div><b>Prezzo</b><span>🧱 ${wNum(q.price)}</span></div><div><b>I tuoi Mattoni</b><span>🧱 ${wNum(q.mattoni)}</span></div><div><b>Case</b><span>${q.owned}/${q.max}</span></div></div>
-    ${q.can?`<button class="btn wide" data-wbuy>🏢 Compra un appartamento · 🧱 ${wNum(q.price)}</button>`:`<p class="notice">${esc(q.why)}</p>`}
-    <p class="muted" style="font-size:12.5px;margin-top:8px">Chi ha casa o appartamento nello stesso palazzo è alleato per forza: non vi attaccate e vi difendete insieme.</p>`:''}`;}
 function wAfterChange(){try{if(S.tab==='orda'&&G.view==='hub')renderHub();}catch(e){}(window.__zlms||[]).forEach(lm=>{try{wDrawMap(lm,true);}catch(e){}});}
 /* ---- mappa: stato degli edifici del mondo + tocco su un edificio ---- */
 async function wDrawMapBase(lm,force){if(!lm||!lm.map||!W.on)return;const map=lm.map;if(map.getZoom()<14){(lm._w||[]).forEach(x=>x.remove());lm._w=[];return;}
