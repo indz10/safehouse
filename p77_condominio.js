@@ -9,8 +9,8 @@
 const CDI={d:null,t:0};
 async function cdLoad(force){if(!S.user||typeof SB==='undefined'||!SB)return null;if(!force&&CDI.d&&Date.now()-CDI.t<30000)return CDI.d;
   try{const{data,error}=await SB.rpc('world_condo_info');if(error)throw error;CDI.d=data;CDI.t=Date.now();}catch(e){CDI.d=null;}return CDI.d;}
-function cdVicinoHTML(v){return`<div class="cdv ${v.rotto?'rotto':''}"><span class="sav">${esc((v.nick||'?')[0].toUpperCase())}</span><div><b>@${esc(v.nick||'')}</b><small>${v.unit?'interno '+esc(v.unit)+' · ':''}${v.rotto?(v.rotto_da_me?'😈 hai rotto tu: siete rivali':'😈 ha rotto con te: siete rivali'):'🤝 alleati'}${v.pace_chiesta?' · 🕊️ pace proposta':''}</small></div>
-  ${v.puo_rompere?(v.rotto?`<button class="btn small" data-cdpace="${esc(v.user_id)}">🕊️ ${v.rotto_da_me?'Fai pace':'Proponi pace'}</button>`:`<button class="btn small ghost" data-cdrompi="${esc(v.user_id)}" data-n="${esc(v.nick||'')}">😈 Rompi</button>`):'<small class="muted">stesso appartamento</small>'}</div>`;}
+function cdVicinoHTML(v){return`<div class="cdv ${v.rotto?'rotto':''}"><span class="sav">${esc((v.nick||'?')[0].toUpperCase())}</span><div><b>@${esc(v.nick||'')}</b><small>${v.unit?'interno '+esc(v.unit)+' · ':''}${v.rotto?(v.rotto_da_me?'😈 hai rotto tu: siete rivali':'😈 ha rotto con te: siete rivali'):'🤝 alleati per forza'}${v.pace_chiesta?' · 🕊️ pace proposta':''}</small></div>
+</div>`;}
 async function cdRompi(uid,nick){if(!confirm(`Rompere con @${nick}? Non sarete più alleati (niente rinforzi tra voi) e potrete mandarvi orde come rivali. Potrai fare pace quando vuoi.`))return false;
   try{const{data,error}=await SB.rpc('world_condo_break',{p_user:uid});if(error)throw error;toast((data.ok?'😈 ':'')+data.msg);CDI.t=0;try{alsLoad&&alsLoad(true);}catch(e){}return data.ok;}catch(e){toast(e.message||'Non riuscito');return false;}}
 async function cdPace(uid){try{const{data,error}=await SB.rpc('world_condo_peace',{p_user:uid});if(error)throw error;toast((data.ok?'🕊️ ':'')+data.msg);CDI.t=0;try{alsLoad&&alsLoad(true);}catch(e){}return data.ok;}catch(e){toast(e.message||'Non riuscito');return false;}}

@@ -31,9 +31,9 @@ async def main():
         await pg.evaluate("()=>document.querySelector('#sheet.open [data-arompi]').click()");await pg.wait_for_timeout(800)
         print('rompi:',await pg.evaluate("()=>[(window.__ROMPI||{}).p_target,!document.querySelector('#sheet.open [data-arompi]')]"))
         await pg.evaluate("()=>{closeSheet();window.__ROMPI=null;}")
-        al=await pg.evaluate("async()=>{const{data}=await SB.rpc('world_allies');return (data||[]).map(a=>a.user_id)}")
-        if al:
-            await pg.evaluate("u=>playerSheet(u)",al[0]);await pg.wait_for_timeout(2500)
-            print('rompi nella scheda del superstite:',await pg.evaluate("()=>!!document.querySelector('#sheet.open [data-arompi]')"))
+        await pg.evaluate("()=>playerSheet('u2')");await pg.wait_for_timeout(2500)
+        print('rompi sotto Siete alleati:',await pg.evaluate("()=>{const b=document.querySelector('#sheet.open [data-arompi]');return !!(b&&b.previousElementSibling&&b.previousElementSibling.classList.contains('rok2'))}"))
+        await pg.evaluate("()=>{closeSheet();playerSheet('u7')}");await pg.wait_for_timeout(2500)
+        print('niente tasto se non alleati:',await pg.evaluate("()=>!document.querySelector('#sheet.open [data-arompi]')"))
         print('ERR',errs);await b.close()
 asyncio.run(main())

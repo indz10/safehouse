@@ -31,7 +31,7 @@ const CHAPTERS=[
  {id:'mob',name:'Mobilità',w:.10}
 ];
 const Q=[
- {id:'tipo',ch:'str',t:'Che tipo di casa è?',o:[['villa','Villetta indipendente',6],['bifam','Bifamiliare',5],['schiera','Villetta a schiera',5],['apt_pt','Appartamento al piano terra',7],['apt_12','Appartamento al 1° o 2° piano',3],['apt_3','Appartamento dal 3° piano in su',2],['cascina','Cascina o rustico',6],['rifugio','Rifugio o baita in montagna',5],['barca','Barca o casa galleggiante',6],['camper','Camper o roulotte',8]]},
+ {id:'tipo',ch:'str',t:'Che tipo di casa è?',o:[['villa','Villetta indipendente',6],['bifam','Bifamiliare',5],['schiera','Villetta a schiera',5],['apt_pt','Appartamento in condominio, piano terra',7],['apt_12','Appartamento in condominio, 1° o 2° piano',3],['apt_3','Appartamento in condominio, dal 3° piano in su',2],['cascina','Cascina o rustico',6],['rifugio','Rifugio o baita in montagna',5],['barca','Barca o casa galleggiante',6],['camper','Camper o roulotte',8]]},
  {id:'materiale',ch:'str',t:'Di cosa sono fatti i muri?',o:[['ca','Cemento armato',2],['mattoni','Mattoni o pietra',3],['legno','Legno',7],['prefab','Prefabbricato leggero',6],['ns','Non lo so',5]]},
  {id:'piani',ch:'str',t:'Quanti piani ha la casa?',o:[['1','Uno',6],['2','Due',4],['3','Tre o più',3]]},
  {id:'cantina',ch:'str',t:'C’è una cantina o un seminterrato?',h:'Una cantina con accesso solo da dentro è un ottimo rifugio.',o:[['int','Sì, con accesso solo da dentro',2],['fin','Sì, con finestre a livello della strada',7],['no','No',5]]},
